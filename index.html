@@ -1129,6 +1129,21 @@ footer{
   </div>
 </section>
 
+<!-- ══ AI PIA CTA ══ -->
+<section style="background:linear-gradient(135deg,#1e0a3c 0%,#3b0764 50%,#1e1b4b 100%);padding:80px 40px;text-align:center;">
+  <div style="max-width:720px;margin:0 auto;">
+    <div style="display:inline-block;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.35);padding:6px 16px;border-radius:100px;font-size:12px;font-weight:700;color:#c4b5fd;letter-spacing:.08em;margin-bottom:24px;">🧠 AI PIA · 밀착형 성장 진단</div>
+    <h2 style="font-size:clamp(28px,4vw,48px);font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px;">지금 바로 AI PIA를<br>체험해보세요</h2>
+    <p style="font-size:clamp(14px,1.5vw,17px);color:rgba(255,255,255,.65);margin-bottom:40px;line-height:1.7;">Big5 성격 · RIASEC 흥미 · 강점 · 그릿 · 사회적 판단력<br>7가지 학습 검증 검사를 무료로 체험할 수 있습니다.</p>
+    <a href="ai-pia.html" style="display:inline-flex;align-items:center;gap:10px;background:#7c3aed;color:#fff;padding:18px 48px;border-radius:12px;font-size:17px;font-weight:700;text-decoration:none;box-shadow:0 8px 32px rgba(124,58,237,.45);transition:all .2s;"
+       onmouseover="this.style.background='#6d28d9';this.style.transform='translateY(-2px)'"
+       onmouseout="this.style.background='#7c3aed';this.style.transform='translateY(0)'">
+      🧠 AI PIA 체험 시작하기
+    </a>
+    <p style="margin-top:16px;font-size:13px;color:rgba(255,255,255,.4);">무료 · 회원가입 불필요 · 약 35분 소요</p>
+  </div>
+</section>
+
 <!-- ══ FOOTER ══ -->
 <footer>
   <div class="ft-inner">
@@ -1193,40 +1208,4 @@ function lbClose() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const sel = '.sh-img img, .fv img, .dc-img img, .hero-img img';
-  document.querySelectorAll(sel).forEach((img, i) => {
-    lbList.push(img);
-    img.addEventListener('click', () => lbOpen(i));
-  });
-  document.getElementById('lb-close').addEventListener('click', lbClose);
-  document.getElementById('lb-prev').addEventListener('click', e => { e.stopPropagation(); lbOpen(lbIdx - 1); });
-  document.getElementById('lb-next').addEventListener('click', e => { e.stopPropagation(); lbOpen(lbIdx + 1); });
-  lbWrap.addEventListener('click', function(e){ if(e.target === this) lbClose(); });
-  document.addEventListener('keydown', e => {
-    if (!lbWrap.classList.contains('open')) return;
-    if (e.key === 'Escape') lbClose();
-    if (e.key === 'ArrowLeft')  lbOpen(lbIdx - 1);
-    if (e.key === 'ArrowRight') lbOpen(lbIdx + 1);
-  });
-});
-
-/* ── Scroll Reveal ── */
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); } });
-}, { threshold: 0.05 });
-const rvEls = document.querySelectorAll('.rv');
-rvEls.forEach(el => io.observe(el));
-function revealVisible() {
-  rvEls.forEach(el => {
-    const r = el.getBoundingClientRect();
-    if (r.top < window.innerHeight + 100 && r.bottom >= 0) el.classList.add('on');
-  });
-}
-document.addEventListener('DOMContentLoaded', revealVisible);
-window.addEventListener('load', () => { revealVisible(); window.scrollTo(0,0); });
-window.addEventListener('scroll', () => {
-  document.getElementById('gnb').classList.toggle('scrolled', scrollY > 30);
-});
-</script>
-</body>
-</html>
+  const sel = '.sh-img img, .fv img, .dc-img img, .hero-img img
