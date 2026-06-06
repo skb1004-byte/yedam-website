@@ -435,8 +435,10 @@ footer{
   /* 스마트스쿨 전략 카드 3열 → 1열 */
   .feat-strat-grid{grid-template-columns:1fr !important;gap:12px !important}
   .feat-strat-grid > div img{height:90px !important}
-  /* feat-list 모바일 간략화: 3개만 표시 */
-  .feat-list li:nth-child(n+4){display:none !important}
+  /* feat-list 모바일 간략화: 4개만 표시 (5번째부터 숨김) */
+  .feat-list li:nth-child(n+5){display:none !important}
+  /* 영유아 통계 큰 숫자 폰트 축소 */
+  .feat-sum-grid [style*="font-size:48px"]{font-size:36px !important}
   /* 섹션 패딩 줄이기 */
   .sec-in{padding:60px 20px !important}
   .feat-grid{gap:28px !important}
@@ -1019,7 +1021,7 @@ footer{
         </ul>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px" class="rv">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px" class="rv feat-sum-grid">
       <div style="background:var(--navy);color:#fff;border-radius:var(--rl);padding:36px;">
         <div style="font-size:12px;font-weight:700;color:#60a5fa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">전국 어린이집</div>
         <div style="font-size:48px;font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:8px">27,402<span style="font-size:.4em;color:#60a5fa;font-weight:700">개소</span></div>
@@ -1192,9 +1194,4 @@ const mobLinks  = document.querySelectorAll('.mob-link');
 hamburger.addEventListener('click', () => {
   hamburger.classList.toggle('open');
   mobMenu.classList.toggle('open');
-  document.body.style.overflow = mobMenu.classList.contains('open') ? 'hidden' : '';
-});
-mobLinks.forEach(link => {
-  link.addEventListener('click', () => {
-    hamburger.classList.remove('open');
-    mobMenu.classList.remove('
+  document.body.style.overflow = mobMenu.classList.contains('open') ? 
