@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>예담정보통신 | 관리자</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2044;--blue:#2563eb;--blue2:#1d4ed8;
+  --g100:#f3f4f6;--g200:#e5e7eb;--g400:#9ca3af;--g600:#4b5563;--g800:#1f2937;
+  --white:#fff;--r:10px;--sh:0 1px 4px rgba(0,0,0,.08);
+}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--g100);color:var(--g800);min-height:100vh}
+
+/* ── LOGIN ── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--navy)}
+.login-box{background:#fff;border-radius:16px;padding:48px 40px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-logo{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:8px}
+.login-sub{font-size:13px;color:var(--g400);margin-bottom:32px}
+.login-box label{display:block;font-size:12px;font-weight:600;color:var(--g600);margin-bottom:6px;letter-spacing:.04em}
+.login-box input{width:100%;border:1.5px solid var(--g200);border-radius:8px;padding:11px 14px;font-size:15px;outline:none;transition:border .2s}
+.login-box input:focus{border-color:var(--blue)}
+.btn-login{width:100%;margin-top:20px;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+.btn-login:hover{background:var(--blue2)}
+.login-err{color:#ef4444;font-size:12px;margin-top:10px;display:none}
+
+/* ── LAYOUT ── */
+#app{display:none;min-height:100vh}
+.topbar{background:var(--navy);height:56px;display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:100}
+.topbar-logo{color:#fff;font-size:16px;font-weight:800;letter-spacing:-.02em}
+.topbar-badge{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+.topbar-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn-logout{background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer}
+.btn-export{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:background .2s}
+.btn-export:hover{background:var(--blue2)}
+.btn-save-top{background:#16a34a;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer}
+
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 56px)}
+
+/* ── SIDEBAR ── */
+.sidebar{background:#fff;border-right:1px solid var(--g200);padding:20px 0}
+.sidebar-section{font-size:10px;font-weight:700;color:var(--g400);letter-spacing:.1em;text-transform:uppercase;padding:0 20px;margin:16px 0 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:var(--g600);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:var(--g100);color:var(--navy)}
+.nav-item.active{background:#eff6ff;color:var(--blue);border-left-color:var(--blue);font-weight:700}
+.nav-icon{width:18px;text-align:center;font-size:15px}
+
+/* ── MAIN ── */
+.main{padding:32px;overflow-y:auto}
+.page{display:none}
+.page.active{display:block}
+
+.page-title{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.page-desc{font-size:13px;color:var(--g400);margin-bottom:28px}
+
+.card{background:#fff;border-radius:var(--r);border:1px solid var(--g200);padding:28px;margin-bottom:20px;box-shadow:var(--sh)}
+.card-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--g200)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.single{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:11px;font-weight:700;color:var(--g600);letter-spacing:.04em;text-transform:uppercase}
+.form-group input,.form-group textarea,.form-group select{border:1.5px solid var(--g200);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;font-family:inherit;transition:border .2s;color:var(--g800);resize:vertical}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--blue)}
+.form-group textarea{min-height:80px}
+
+.btn{border:none;border-radius:7px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue2)}
+.btn-danger{background:#fee2e2;color:#dc2626}.btn-danger:hover{background:#fecaca}
+.btn-add{background:var(--g100);color:var(--navy);border:1.5px dashed var(--g400)}.btn-add:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-success{background:#dcfce7;color:#16a34a}.btn-success:hover{background:#bbf7d0}
+
+/* ── LIST ITEMS ── */
+.list-item{background:var(--g100);border:1px solid var(--g200);border-radius:8px;padding:16px;margin-bottom:12px;position:relative}
+.list-item-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.list-item-title{font-size:13px;font-weight:700;color:var(--navy)}
+.list-item-actions{display:flex;gap:6px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;z-index:9999}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* ── STATS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-box{background:var(--g100);border:1px solid var(--g200);border-radius:8px;padding:14px;text-align:center}
+.stat-box .num{font-size:24px;font-weight:900;color:var(--navy)}
+.stat-box .lbl{font-size:10px;color:var(--g400);margin-top:2px}
+
+.section-divider{height:1px;background:var(--g200);margin:24px 0}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">YD YEDAM</div>
+    <div class="login-sub">㈜예담정보통신 관리자 페이지</div>
+    <div class="form-group">
+      <label>아이디</label>
+      <input type="text" id="uid" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="form-group" style="margin-top:14px">
+      <label>비밀번호</label>
+      <input type="password" id="upw" placeholder="비밀번호 입력" autocomplete="current-password">
+    </div>
+    <button class="btn-login" onclick="doLogin()">로그인</button>
+    <div class="login-err" id="login-err">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">YD Admin</div>
+    <span class="topbar-badge">관리자</span>
+    <div class="topbar-right">
+      <button class="btn-save-top" onclick="saveAll()">💾 저장</button>
+      <button class="btn-export" onclick="exportHTML()">⬇ HTML 내보내기</button>
+      <button class="btn-logout" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">콘텐츠 관리</div>
+      <div class="nav-item active" onclick="gotoPage('hero',this)"><span class="nav-icon">🏠</span>히어로 섹션</div>
+      <div class="nav-item" onclick="gotoPage('about',this)"><span class="nav-icon">🏢</span>회사 소개</div>
+      <div class="nav-item" onclick="gotoPage('solutions',this)"><span class="nav-icon">💡</span>솔루션</div>
+      <div class="nav-item" onclick="gotoPage('record',this)"><span class="nav-icon">📋</span>수행 실적</div>
+      <div class="nav-item" onclick="gotoPage('clients',this)"><span class="nav-icon">🤝</span>고객사 / 파트너</div>
+      <div class="nav-item" onclick="gotoPage('contact',this)"><span class="nav-icon">📞</span>연락처</div>
+      <div class="sidebar-section" style="margin-top:24px">설정</div>
+      <div class="nav-item" onclick="gotoPage('settings',this)"><span class="nav-icon">⚙️</span>사이트 설정</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- ── 히어로 ── -->
+      <div id="page-hero" class="page active">
+        <div class="page-title">히어로 섹션</div>
+        <div class="page-desc">웹사이트 첫 화면에 표시되는 메인 타이틀과 통계를 관리합니다.</div>
+        <div class="card">
+          <div class="card-title">메인 텍스트</div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>메인 제목 (강조 전)</label>
+              <input type="text" id="hero_title1" placeholder="교육의 다음을">
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>메인 제목 (강조 부분)</label>
+              <input type="text" id="hero_title2" placeholder="함께 설계">
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>서브 설명문</label>
+              <textarea id="hero_desc"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">통계 수치 (4개)</div>
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div class="form-group"><label>숫자</label><input type="text" id="stat1_num" placeholder="11"></div>
+              <div class="form-group" style="margin-top:8px"><label>단위</label><input type="text" id="stat1_unit" placeholder="년"></div>
+              <div class="form-group" style="margin-top:8px"><label>설명</label><input type="text" id="stat1_lbl" placeholder="업력 · 2014년 설립"></div>
+            </div>
+            <div class="stat-box">
+              <div class="form-group"><label>숫자</label><input type="text" id="stat2_num" placeholder="15"></div>
+              <div class="form-group" style="margin-top:8px"><label>단위</label><input type="text" id="stat2_unit" placeholder="+"></div>
+              <div class="form-group" style="margin-top:8px"><label>설명</label><input type="text" id="stat2_lbl" placeholder="주요 수행 프로젝트"></div>
+            </div>
+            <div class="stat-box">
+              <div class="form-group"><label>숫자</label><input type="text" id="stat3_num" placeholder="9"></div>
+              <div class="form-group" style="margin-top:8px"><label>단위</label><input type="text" id="stat3_unit" placeholder="년"></div>
+              <div class="form-group" style="margin-top:8px"><label>설명</label><input type="text" id="stat3_lbl" placeholder="비상교육 파트너십"></div>
+            </div>
+            <div class="stat-box">
+              <div class="form-group"><label>숫자</label><input type="text" id="stat4_num" placeholder="25"></div>
+              <div class="form-group" style="margin-top:8px"><label>단위</label><input type="text" id="stat4_unit" placeholder="%"></div>
+              <div class="form-group" style="margin-top:8px"><label>설명</label><input type="text" id="stat4_lbl" placeholder="영업이익률 (2020)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 회사 소개 ── -->
+      <div id="page-about" class="page">
+        <div class="page-title">회사 소개</div>
+        <div class="page-desc">About 섹션의 회사 소개 문구를 관리합니다.</div>
+        <div class="card">
+          <div class="card-title">소개 텍스트</div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>리드 문구 (굵은 텍스트)</label>
+              <textarea id="about_lead" style="min-height:60px"></textarea>
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>본문 1단락</label>
+              <textarea id="about_p1"></textarea>
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>본문 2단락</label>
+              <textarea id="about_p2"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 솔루션 ── -->
+      <div id="page-solutions" class="page">
+        <div class="page-title">솔루션</div>
+        <div class="page-desc">4대 핵심 솔루션의 제목과 설명을 수정합니다.</div>
+        <div class="card">
+          <div class="card-title">솔루션 섹션 헤더</div>
+          <div class="form-row single">
+            <div class="form-group"><label>섹션 제목</label><input type="text" id="sol_header"></div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>섹션 설명</label><input type="text" id="sol_desc"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">01 · AI PIA</div>
+          <div class="form-row single"><div class="form-group"><label>제목</label><input type="text" id="sol1_title"></div></div>
+          <div class="form-row single"><div class="form-group"><label>태그라인</label><input type="text" id="sol1_tag"></div></div>
+          <div class="form-row single"><div class="form-group"><label>설명</label><textarea id="sol1_desc"></textarea></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">02 · Smart Schoolboard</div>
+          <div class="form-row single"><div class="form-group"><label>제목</label><input type="text" id="sol2_title"></div></div>
+          <div class="form-row single"><div class="form-group"><label>태그라인</label><input type="text" id="sol2_tag"></div></div>
+          <div class="form-row single"><div class="form-group"><label>설명</label><textarea id="sol2_desc"></textarea></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">03 · AREX CLIMB</div>
+          <div class="form-row single"><div class="form-group"><label>제목</label><input type="text" id="sol3_title"></div></div>
+          <div class="form-row single"><div class="form-group"><label>설명</label><textarea id="sol3_desc"></textarea></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">04 · AI 디지털 간판</div>
+          <div class="form-row single"><div class="form-group"><label>제목</label><input type="text" id="sol4_title"></div></div>
+          <div class="form-row single"><div class="form-group"><label>설명</label><textarea id="sol4_desc"></textarea></div></div>
+        </div>
+      </div>
+
+      <!-- ── 수행 실적 ── -->
+      <div id="page-record" class="page">
+        <div class="page-title">수행 실적</div>
+        <div class="page-desc">타임라인 항목을 추가·수정·삭제합니다.</div>
+        <div class="card">
+          <div class="card-title">실적 타임라인</div>
+          <div id="record-list"></div>
+          <button class="btn btn-add" style="width:100%;margin-top:8px" onclick="addRecord()">+ 실적 추가</button>
+        </div>
+      </div>
+
+      <!-- ── 고객사 ── -->
+      <div id="page-clients" class="page">
+        <div class="page-title">고객사 / 파트너</div>
+        <div class="page-desc">고객사 카드를 추가·수정·삭제하고 홈페이지 링크를 관리합니다.</div>
+        <div class="card">
+          <div class="card-title">고객사 목록</div>
+          <div id="clients-list"></div>
+          <button class="btn btn-add" style="width:100%;margin-top:8px" onclick="addClient()">+ 고객사 추가</button>
+        </div>
+      </div>
+
+      <!-- ── 연락처 ── -->
+      <div id="page-contact" class="page">
+        <div class="page-title">연락처</div>
+        <div class="page-desc">Contact 섹션에 표시되는 회사 연락처 정보를 관리합니다.</div>
+        <div class="card">
+          <div class="card-title">회사 정보</div>
+          <div class="form-row">
+            <div class="form-group"><label>대표자</label><input type="text" id="ct_ceo" placeholder="송규봉"></div>
+            <div class="form-group"><label>사업자등록번호</label><input type="text" id="ct_reg" placeholder="000-00-00000"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>전화번호</label><input type="text" id="ct_tel" placeholder="02-0000-0000"></div>
+            <div class="form-group"><label>이메일</label><input type="email" id="ct_email" placeholder="contact@yedam.kr"></div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>주소</label><input type="text" id="ct_addr" placeholder="서울특별시 ..."></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 설정 ── -->
+      <div id="page-settings" class="page">
+        <div class="page-title">사이트 설정</div>
+        <div class="page-desc">관리자 비밀번호 및 사이트 기본 설정을 관리합니다.</div>
+        <div class="card">
+          <div class="card-title">관리자 비밀번호 변경</div>
+          <div class="form-row">
+            <div class="form-group"><label>현재 비밀번호</label><input type="password" id="pw_cur"></div>
+            <div class="form-group"><label>새 비밀번호</label><input type="password" id="pw_new"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>새 비밀번호 확인</label><input type="password" id="pw_confirm"></div>
+          </div>
+          <button class="btn btn-primary" onclick="changePw()">비밀번호 변경</button>
+        </div>
+        <div class="card">
+          <div class="card-title">데이터 관리</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-success" onclick="exportData()">📤 데이터 내보내기 (JSON)</button>
+            <button class="btn btn-primary" onclick="document.getElementById('import-file').click()">📥 데이터 가져오기</button>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+            <button class="btn btn-danger" onclick="resetData()">🗑 데이터 초기화</button>
+          </div>
+          <p style="font-size:11px;color:var(--g400);margin-top:12px">* 데이터는 브라우저 localStorage에 저장됩니다.</p>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /layout -->
+</div><!-- /app -->
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════ DEFAULT DATA ══════════════════ */
+const DEFAULT = {
+  pw: 'yedam2026',
+  hero_title1: '교육의 다음을',
+  hero_title2: '함께 설계',
+  hero_desc: '㈜예담정보통신은 비상교육·현대NGV·국방부 등 국내 주요 교육·공공기관과 함께 11년간 핵심 IT 시스템을 구축해온 전문기업입니다. AI PIA, AI ClassBoard, AREX-Climbing, AI 디지털 간판으로 차세대 에듀테크 시장을 열어갑니다.',
+  stat1_num:'11', stat1_unit:'년', stat1_lbl:'업력 · 2014년 설립',
+  stat2_num:'15', stat2_unit:'+',  stat2_lbl:'주요 수행 프로젝트',
+  stat3_num:'9',  stat3_unit:'년', stat3_lbl:'비상교육 파트너십',
+  stat4_num:'25', stat4_unit:'%',  stat4_lbl:'영업이익률 (2020)',
+  about_lead: 'AI와 교육 IT의 교차점에서, 예담정보통신은 학교·공공·기업 현장의 디지털 전환을 11년째 함께해 왔습니다.',
+  about_p1: '비상교육·현대NGV·국방부·경기도청 등 주요 기관의 핵심 시스템 구축 경험을 바탕으로, AI PIA · AI ClassBoard · AREX-Climbing · AI 디지털 간판 4대 자체 솔루션을 출시했습니다.',
+  about_p2: '검증된 SI 실적과 신규 에듀테크 플랫폼을 결합한 독보적인 포지셔닝으로, 3년 내 매출 100억 원을 목표로 합니다.',
+  sol_header: '차세대 교육을 설계하는 4대 핵심 솔루션.',
+  sol_desc: 'Mind · Space · Body · City — 학생을 둘러싼 네 가지 차원을 데이터와 AI로 연결합니다.',
+  sol1_title: '🧠 AI PIA 성장교육 플랫폼',
+  sol1_tag: '밀착형 성장 진단 및 반응형 상담 지원',
+  sol1_desc: '학생의 성향과 진로를 AI 16유형 검사로 분석하고 맞춤형 교육·상담 키오스크로 연결하는 차세대 반복형 성장관리 플랫폼.',
+  sol2_title: '📋 Smart Schoolboard 스마트 스쿨보드',
+  sol2_tag: '아날로그 게시판의 디지털 창작·소통 공간화',
+  sol2_desc: '교실 뒤 칠판과 교무실 게시판을 스마트 플랫폼으로 전환하는 B2G 에듀테크 솔루션.',
+  sol3_title: '🧗 AREX CLIMB 실감형 체육 솔루션',
+  sol3_desc: 'IT 기술이 접목된 안전한 미래형 체육 교육 — AR/VR 게임과 AI 기반 PGMS가 융합된 실내 암벽등반 솔루션.',
+  sol4_title: 'AI 디지털 간판 플랫폼',
+  sol4_desc: '종이 게시판을 대체하여 건물 공지·광고를 디지털화하고, AI 광고 제작·QR 상담·수익 모델을 제공하는 스마트 시설 솔루션.',
+  ct_ceo:'송규봉', ct_reg:'', ct_tel:'', ct_email:'', ct_addr:'',
+  records:[
+    {year:'2022', client:'예담정보통신', title:'R-Learning 교육용 로봇 상품 개발 컨설팅', desc:'교육시장 진입을 위한 교육로봇 상품 개발 전략 수립. 국내외 교육용 로봇 시장 조사, 전문가 6인 인터뷰(FGI), 비즈니스 모델 제시.', hot:true},
+    {year:'2022', client:'비상교육', title:'유아Core · 비바샘 · 윙스 · 누리샘 통합 유지보수', desc:'비상교육 전 플랫폼 SI 수행.', hot:false},
+    {year:'2021', client:'비상교육 · YBM · 스페이스케이', title:'유아Core 서비스 개선 · 출판 웹서비스 디자인', desc:'비상교육 유아Core 서비스 개선 개발용역 및 출판 웹서비스 디자인 업무.', hot:false},
+    {year:'2019–20', client:'비상교육', title:'비바샘 신학기 대응 · 안드로이드 앱 · IT 외주용역', desc:'비바샘 2020 신학기 대응, 안드로이드 일괄업데이트 외주 등.', hot:false},
+    {year:'2017–18', client:'비상교육 · 현대NGV', title:'대외서비스 개발지원 · 현대NGV 컨소시엄 제안', desc:'비상교육 대외서비스 개발지원. 현대NGV 제안서 컨소시엄 참여.', hot:false},
+    {year:'2016', client:'비상교육', title:'비상교육 RMS 시스템개편 — 대표 프로젝트', desc:'정보시스템 개발구축 부문 표준계약. 153일간 RMS(자원관리시스템) 전면 개편. 계약총액 192,500,000원.', hot:true}
+  ],
+  clients:[
+    {name:'㈜비상교육', role:'9-Year Partner', url:'https://www.visang.com'},
+    {name:'현대NGV', role:'Consortium', url:'https://www.hyundai-ngv.com'},
+    {name:'경기도청', role:'Government', url:'https://www.gg.go.kr'},
+    {name:'국방부', role:'Defense', url:'https://www.mnd.go.kr'},
+    {name:'YBM', role:'Education', url:'https://www.ybm.co.kr'},
+    {name:'스페이스케이', role:'Aerospace', url:'https://www.spacekai.com'},
+    {name:'유비온', role:'Edu Platform', url:'https://www.ubion.co.kr'},
+    {name:'엔페이지', role:'Mobile Dev', url:'https://www.npage.co.kr'},
+    {name:'정보통신기술협회', role:'TTA · Certification', url:'https://www.tta.or.kr'},
+    {name:'공군사관학교', role:'Defense · Academy', url:'https://www.afa.ac.kr'}
+  ]
+};
+
+/* ══════════════════ STATE ══════════════════ */
+let D = {};
+
+function load(){
+  const raw = localStorage.getItem('yedam_admin_data');
+  D = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT));
+  renderAll();
+}
+
+function save(){
+  collectAll();
+  localStorage.setItem('yedam_admin_data', JSON.stringify(D));
+  showToast('저장됐습니다 ✓');
+}
+function saveAll(){ save(); }
+
+function collectAll(){
+  const fields = ['hero_title1','hero_title2','hero_desc',
+    'stat1_num','stat1_unit','stat1_lbl','stat2_num','stat2_unit','stat2_lbl',
+    'stat3_num','stat3_unit','stat3_lbl','stat4_num','stat4_unit','stat4_lbl',
+    'about_lead','about_p1','about_p2',
+    'sol_header','sol_desc','sol1_title','sol1_tag','sol1_desc',
+    'sol2_title','sol2_tag','sol2_desc','sol3_title','sol3_desc','sol4_title','sol4_desc',
+    'ct_ceo','ct_reg','ct_tel','ct_email','ct_addr'];
+  fields.forEach(id=>{ const el=document.getElementById(id); if(el) D[id]=el.value; });
+  collectRecords();
+  collectClients();
+}
+
+function renderAll(){
+  const fields = ['hero_title1','hero_title2','hero_desc',
+    'stat1_num','stat1_unit','stat1_lbl','stat2_num','stat2_unit','stat2_lbl',
+    'stat3_num','stat3_unit','stat3_lbl','stat4_num','stat4_unit','stat4_lbl',
+    'about_lead','about_p1','about_p2',
+    'sol_header','sol_desc','sol1_title','sol1_tag','sol1_desc',
+    'sol2_title','sol2_tag','sol2_desc','sol3_title','sol3_desc','sol4_title','sol4_desc',
+    'ct_ceo','ct_reg','ct_tel','ct_email','ct_addr'];
+  fields.forEach(id=>{ const el=document.getElementById(id); if(el&&D[id]!==undefined) el.value=D[id]; });
+  renderRecords();
+  renderClients();
+}
+
+/* ══════════════════ RECORDS ══════════════════ */
+function renderRecords(){
+  const el = document.getElementById('record-list');
+  el.innerHTML = '';
+  (D.records||[]).forEach((r,i)=>{
+    el.innerHTML += `<div class="list-item" id="rec-${i}">
+      <div class="list-item-head">
+        <div class="list-item-title">${r.year} · ${r.client}</div>
+        <div class="list-item-actions">
+          <label style="font-size:11px;color:var(--g600);display:flex;align-items:center;gap:4px;cursor:pointer">
+            <input type="checkbox" ${r.hot?'checked':''} onchange="D.records[${i}].hot=this.checked"> 강조
+          </label>
+          <button class="btn btn-danger btn-sm" onclick="delRecord(${i})">삭제</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>연도</label><input type="text" value="${r.year}" onchange="D.records[${i}].year=this.value"></div>
+        <div class="form-group"><label>고객사</label><input type="text" value="${r.client}" onchange="D.records[${i}].client=this.value"></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label>프로젝트 제목</label><input type="text" value="${r.title}" onchange="D.records[${i}].title=this.value"></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label>설명</label><textarea onchange="D.records[${i}].desc=this.value">${r.desc}</textarea></div>
+      </div>
+    </div>`;
+  });
+}
+function collectRecords(){/* inline onchange handles it */}
+function addRecord(){
+  D.records.unshift({year:'2024', client:'', title:'', desc:'', hot:false});
+  renderRecords();
+}
+function delRecord(i){
+  if(!confirm('삭제하시겠습니까?')) return;
+  D.records.splice(i,1);
+  renderRecords();
+}
+
+/* ══════════════════ CLIENTS ══════════════════ */
+function renderClients(){
+  const el = document.getElementById('clients-list');
+  el.innerHTML = '';
+  (D.clients||[]).forEach((c,i)=>{
+    el.innerHTML += `<div class="list-item">
+      <div class="list-item-head">
+        <div class="list-item-title">${c.name}</div>
+        <button class="btn btn-danger btn-sm" onclick="delClient(${i})">삭제</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>회사명</label><input type="text" value="${c.name}" onchange="D.clients[${i}].name=this.value"></div>
+        <div class="form-group"><label>역할/분류</label><input type="text" value="${c.role}" onchange="D.clients[${i}].role=this.value"></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label>홈페이지 URL</label><input type="url" value="${c.url}" placeholder="https://" onchange="D.clients[${i}].url=this.value"></div>
+      </div>
+    </div>`;
+  });
+}
+function collectClients(){/* inline onchange */}
+function addClient(){
+  D.clients.push({name:'', role:'', url:''});
+  renderClients();
+}
+function delClient(i){
+  if(!confirm('삭제하시겠습니까?')) return;
+  D.clients.splice(i,1);
+  renderClients();
+}
+
+/* ══════════════════ NAV ══════════════════ */
+function gotoPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+/* ══════════════════ LOGIN ══════════════════ */
+function doLogin(){
+  const id = document.getElementById('uid').value;
+  const pw = document.getElementById('upw').value;
+  const stored = localStorage.getItem('yedam_admin_pw') || DEFAULT.pw;
+  if((id==='admin'||id==='yedam') && pw===stored){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    load();
+  } else {
+    document.getElementById('login-err').style.display='block';
+  }
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+function logout(){
+  if(!confirm('로그아웃 하시겠습니까?')) return;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('uid').value='';
+  document.getElementById('upw').value='';
+}
+
+/* ══════════════════ PASSWORD ══════════════════ */
+function changePw(){
+  const cur = document.getElementById('pw_cur').value;
+  const nw  = document.getElementById('pw_new').value;
+  const cf  = document.getElementById('pw_confirm').value;
+  const stored = localStorage.getItem('yedam_admin_pw') || DEFAULT.pw;
+  if(cur !== stored){ showToast('현재 비밀번호가 올바르지 않습니다.'); return; }
+  if(nw !== cf){ showToast('새 비밀번호가 일치하지 않습니다.'); return; }
+  if(nw.length < 6){ showToast('비밀번호는 6자 이상이어야 합니다.'); return; }
+  localStorage.setItem('yedam_admin_pw', nw);
+  showToast('비밀번호가 변경됐습니다 ✓');
+  document.getElementById('pw_cur').value='';
+  document.getElementById('pw_new').value='';
+  document.getElementById('pw_confirm').value='';
+}
+
+/* ══════════════════ DATA IMPORT/EXPORT ══════════════════ */
+function exportData(){
+  collectAll();
+  const blob = new Blob([JSON.stringify(D, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='yedam_data.json'; a.click();
+}
+function importData(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{ D = JSON.parse(ev.target.result); renderAll(); showToast('데이터를 가져왔습니다 ✓'); }
+    catch{ showToast('올바른 JSON 파일이 아닙니다.'); }
+  };
+  reader.readAsText(file);
+}
+function resetData(){
+  if(!confirm('모든 데이터를 초기값으로 되돌리겠습니까?')) return;
+  D = JSON.parse(JSON.stringify(DEFAULT));
+  renderAll();
+  showToast('초기화됐습니다.');
+}
+
+/* ══════════════════ HTML 내보내기 ══════════════════ */
+function exportHTML(){
+  collectAll();
+  save();
+
+  // yedam_standalone.html을 로드해서 수정하는 대신
+  // 변경사항을 반영한 패치 스크립트를 포함한 안내를 제공
+  const patch = `
+<!-- 관리자 패치 스크립트 (yedam_standalone.html 하단 </body> 앞에 삽입) -->
+<script>
+(function(){
+  var d = ${JSON.stringify(D, null, 2)};
+  // 히어로
+  var h1 = document.querySelector('.hero h1');
+  if(h1) h1.innerHTML = d.hero_title1 + '<br><span class="hl">' + d.hero_title2 + '</span>합니다.';
+  var hd = document.querySelector('.hero-desc');
+  if(hd) hd.textContent = d.hero_desc;
+  // 고객사
+  var cg = document.querySelector('.cl-grid');
+  if(cg && d.clients){
+    var cls = ['d1','d2','d3','d4'];
+    cg.innerHTML = d.clients.map((c,i)=>
+      '<a class="cl-card rv '+cls[i%4]+'" href="'+c.url+'" target="_blank" rel="noopener"><div class="cl-name">'+c.name+'</div><div class="cl-role">'+c.role+'</div></a>'
+    ).join('');
+  }
+  // 연락처
+  if(d.ct_tel){ var tel=document.querySelector('.ct-tel'); if(tel) tel.textContent=d.ct_tel; }
+  if(d.ct_email){ var em=document.querySelector('.ct-email'); if(em) em.textContent=d.ct_email; }
+})();
+<\/script>`;
+
+  const blob = new Blob([patch], {type:'text/html'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='yedam_patch.html'; a.click();
+  showToast('패치 파일이 다운로드됐습니다.');
+}
+
+/* ══════════════════ TOAST ══════════════════ */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
