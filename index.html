@@ -631,6 +631,48 @@ footer{
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* ===== LAYOUT & TYPOGRAPHY REFINEMENTS ===== */
+
+/* Hero: image column wider on desktop for visual balance */
+@media(min-width:961px){
+  .hero-grid{grid-template-columns:1fr 1.2fr}
+}
+/* Hero image: consistent display */
+.hero-img{aspect-ratio:16/11}
+.hero-img img{height:100%;object-fit:cover}
+
+/* About: right column (dense table) gets proportional room */
+@media(min-width:861px){
+  .about-grid{grid-template-columns:1fr 1.4fr}
+}
+
+/* About left column: stat highlight badges */
+.about-hi{display:flex;flex-direction:column;gap:14px;margin-top:36px}
+.about-hi-item{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--off);border-radius:14px;border:1px solid var(--g200)}
+.about-hi-num{font-size:30px;font-weight:900;color:var(--blue);letter-spacing:-.04em;min-width:52px;line-height:1}
+.about-hi-txt strong{display:block;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.about-hi-txt span{font-size:12px;color:var(--g600)}
+
+/* Showcase images: consistent 4:3 aspect ratio (desktop) */
+.sh-img{aspect-ratio:4/3}
+.sh-img img{height:100%;object-fit:cover}
+@media(max-width:960px){.sh-img{aspect-ratio:16/9}}
+
+/* Feature block images: consistent 4:3 */
+.fv{aspect-ratio:4/3}
+.fv img{height:100%;object-fit:cover}
+@media(max-width:960px){.fv{aspect-ratio:16/9}}
+@media(max-width:640px){.fv{aspect-ratio:3/2}}
+
+/* Sol 04 signage: dark background matching card theme */
+.dc-contain .dc-img{background:#0c1a35}
+.dc-contain .dc-img img{background:transparent}
+
+/* Typography refinements */
+.sh-h3{font-size:clamp(22px,2.5vw,32px)}
+.feat-list li{font-size:15px}
+
 </style>
 </head>
 <body>
@@ -715,6 +757,11 @@ footer{
         <div class="kicker">About Us</div>
         <h2 class="title">신뢰의 11년,<br><span class="em">혁신의 다음.</span></h2>
         <p class="desc">교육과 공공의 디지털 전환을 가장 가까이에서 지원하는 IT 파트너.</p>
+        <div class="about-hi">
+          <div class="about-hi-item"><span class="about-hi-num">11</span><div class="about-hi-txt"><strong>년 사업 이력</strong><span>2014년 설립 · 정보시스템 전문기업</span></div></div>
+          <div class="about-hi-item"><span class="about-hi-num">9</span><div class="about-hi-txt"><strong>년 파트너십</strong><span>비상교육 핵심 서비스 연속 수행</span></div></div>
+          <div class="about-hi-item"><span class="about-hi-num">4</span><div class="about-hi-txt"><strong>대 신규 솔루션</strong><span>AI · IoT · 실감형 기술 융합</span></div></div>
+        </div>
       </div>
       <div class="rv d1">
         <p class="lead">비상교육 9년 파트너십 위에서 출발한 AI 에듀테크 전문기업</p>
@@ -1192,70 +1239,4 @@ const mobLinks  = document.querySelectorAll('.mob-link');
 
 hamburger.addEventListener('click', () => {
   hamburger.classList.toggle('open');
-  mobMenu.classList.toggle('open');
-  document.body.style.overflow = mobMenu.classList.contains('open') ? 'hidden' : '';
-});
-mobLinks.forEach(link => {
-  link.addEventListener('click', () => {
-    hamburger.classList.remove('open');
-    mobMenu.classList.remove('open');
-    document.body.style.overflow = '';
-  });
-});
-
-/* ── 라이트박스 ── */
-(function(){
-  const lb      = document.getElementById('lb');
-  const lbImg   = document.getElementById('lb-img');
-  const lbClose = document.getElementById('lb-close');
-  const lbPrev  = document.getElementById('lb-prev');
-  const lbNext  = document.getElementById('lb-next');
-  const lbCtr   = document.getElementById('lb-counter');
-
-  // zoom-in 커서 이미지 모두 수집
-  const imgs = Array.from(document.querySelectorAll('.sh-img img, .fv img, .dc-img img, .hero-img img, .feat-sum-grid img, .feat-strat-grid img'));
-  let cur = 0;
-
-  function open(idx){
-    cur = idx;
-    lbImg.src = imgs[cur].src;
-    lbImg.alt = imgs[cur].alt;
-    lbCtr.textContent = (cur+1) + ' / ' + imgs.length;
-    lb.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function close(){
-    lb.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  function prev(){ open((cur - 1 + imgs.length) % imgs.length); }
-  function next(){ open((cur + 1) % imgs.length); }
-
-  imgs.forEach((img, i) => {
-    img.style.cursor = 'zoom-in';
-    img.addEventListener('click', () => open(i));
-  });
-
-  lbClose.addEventListener('click', close);
-  lb.addEventListener('click', e => { if(e.target === lb) close(); });
-  lbPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
-  lbNext.addEventListener('click', e => { e.stopPropagation(); next(); });
-
-  document.addEventListener('keydown', e => {
-    if(!lb.classList.contains('open')) return;
-    if(e.key === 'Escape') close();
-    if(e.key === 'ArrowLeft') prev();
-    if(e.key === 'ArrowRight') next();
-  });
-})();
-
-/* ── 부드러운 스크롤 ── */
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const t = document.querySelector(a.getAttribute('href'));
-    if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth'}); }
-  });
-});
-</script>
-</body>
-</html>
+  mobMenu.cla
