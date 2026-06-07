@@ -1239,4 +1239,70 @@ const mobLinks  = document.querySelectorAll('.mob-link');
 
 hamburger.addEventListener('click', () => {
   hamburger.classList.toggle('open');
-  mobMenu.cla
+  mobMenu.classList.toggle('open');
+  document.body.style.overflow = mobMenu.classList.contains('open') ? 'hidden' : '';
+});
+mobLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    hamburger.classList.remove('open');
+    mobMenu.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+
+/* ── 라이트박스 ── */
+(function(){
+  const lb      = document.getElementById('lb');
+  const lbImg   = document.getElementById('lb-img');
+  const lbClose = document.getElementById('lb-close');
+  const lbPrev  = document.getElementById('lb-prev');
+  const lbNext  = document.getElementById('lb-next');
+  const lbCtr   = document.getElementById('lb-counter');
+
+  // zoom-in 커서 이미지 모두 수집
+  const imgs = Array.from(document.querySelectorAll('.sh-img img, .fv img, .dc-img img, .hero-img img, .feat-sum-grid img, .feat-strat-grid img'));
+  let cur = 0;
+
+  function open(idx){
+    cur = idx;
+    lbImg.src = imgs[cur].src;
+    lbImg.alt = imgs[cur].alt;
+    lbCtr.textContent = (cur+1) + ' / ' + imgs.length;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function prev(){ open((cur - 1 + imgs.length) % imgs.length); }
+  function next(){ open((cur + 1) % imgs.length); }
+
+  imgs.forEach((img, i) => {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', () => open(i));
+  });
+
+  lbClose.addEventListener('click', close);
+  lb.addEventListener('click', e => { if(e.target === lb) close(); });
+  lbPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+  lbNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+
+  document.addEventListener('keydown', e => {
+    if(!lb.classList.contains('open')) return;
+    if(e.key === 'Escape') close();
+    if(e.key === 'ArrowLeft') prev();
+    if(e.key === 'ArrowRight') next();
+  });
+})();
+
+/* ── 부드러운 스크롤 ── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth'}); }
+  });
+});
+</script>
+</body>
+</html>
