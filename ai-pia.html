@@ -34,7 +34,7 @@
   <div>
     <div class="flex items-center gap-2">
       <span class="text-sm font-bold text-slate-700">AI PIA</span>
-      <span class="text-xs text-slate-500">v3.9.1 · 모바일 음성 race 수정</span>
+      <span class="text-xs text-slate-500">v3.9.2 · 검사 완료 즉시 결과 반영 확인</span>
     </div>
     <h1 class="text-xl font-bold mt-1">학술 검증된 7개 검사 통합</h1>
     <p class="text-xs text-slate-500 mt-0.5">IPIP Big5 · RIASEC · VIA · Grit · SJT · CES-D · PHQ-A · GAD-7 + 자유대화</p>
@@ -4667,6 +4667,169 @@ showView = function(name) {
 
 window.safeStartRecognition = safeStartRecognition;
 window.safeStopRecognition = safeStopRecognition;
+
+// =================================================================
+//  v3.9.2 — 검사 완료 시 결과 즉시 반영 검증 + UX 보강
+// =================================================================
+
+// 검사 완료 화면에 "통합 결과 보기" 큰 버튼 + 미니 결과 즉시 표시 강화
+function enhanceCompletionScreen(testKey, testName) {
+  setTimeout(() => {
+    const viewId = testKey === 'conv' ? 'chat' : testKey === 'sjt' ? 'sjt' : testKey;
+    const section = document.querySelector(`section[data-view="${viewId}"]`);
+    if (!section) return;
+    const content = section.querySelector(`#${viewId}-content`) || section;
+
+    // 점수 계산 검증 (즉시 표시)
+    const scores = state.results[testKey]?.scores;
+    const isDone = (testKey==='conv' ? state.results.conv.turns >= 8 :
+                    testKey==='sjt' ? state.results.sjt.answers.length >= 30 :
+                    !!scores);
+
+    if (!isDone) return;
+
+    // 완료 카드가 이미 있으면 제거 후 재생성
+    const oldCard = content.querySelector('.completion-result-card');
+    if (oldCard) oldCard.remove();
+
+    // 검사별 즉시 미니 결과 텍스트
+    let miniResult = '';
+    if (testKey === 'big5' && scores) {
+      const top = [['외향',scores.E],['우호',scores.A],['성실',scores.C],['정서안정',100-scores.N],['개방',scores.O]].sort((a,b)=>b[1]-a[1])[0];
+      miniResult = `최고 차원: <strong>${top[0]} (${top[1]}점)</strong> · 5요인 모두 측정 완료`;
+    } else if (testKey === 'riasec' && scores) {
+      const code = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join('');
+      miniResult = `Holland 코드: <strong>${code}</strong>`;
+    } else if (testKey === 'via' && scores) {
+      const top3 = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join(' · ');
+      miniResult = `상위 강점 3개: <strong>${top3}</strong>`;
+    } else if (testKey === 'grit' && scores) {
+      miniResult = `Grit 종합: <strong>${scores.overall}점</strong> (${scores.overall>=70?'장기 목표 강함':scores.overall>=50?'균형':'단기 변동'})`;
+    } else if (testKey === 'cesd' && scores) {
+      miniResult = `우울 스크리닝: <strong>${scores.level}</strong> (${scores.total}/30)`;
+    } else if (testKey === 'phqa' && scores) {
+      miniResult = `청소년 우울: <strong>${scores.level}</strong> (${scores.total}/27)${scores.selfHarm>0?' ⚠ 자해 신호':''}`;
+    } else if (testKey === 'gad' && scores) {
+      miniResult = `불안: <strong>${scores.level}</strong> (${scores.total}/21)`;
+    } else if (testKey === 'sjt') {
+      miniResult = `<strong>${state.results.sjt.answers.length}/30 시나리오</strong> 응답 완료. 16차원 누적.`;
+    } else if (testKey === 'conv') {
+      miniResult = `자유대화 <strong>${state.results.conv.turns}턴</strong> 완료. 의미 분석 누적.`;
+    }
+
+    // 통합 결과 미리보기
+    const type = inferIntegratedType();
+    const reliability = calcReliability();
+
+    const card = document.createElement('div');
+    card.className = 'completion-result-card mt-4';
+    card.innerHTML = `
+      <div class="bg-gradient-to-br from-emerald-50 to-sky-50 border-2 border-emerald-400 rounded-2xl p-5">
+        <div class="text-center mb-3">
+          <div class="text-3xl mb-1">✅</div>
+          <h3 class="text-base font-bold text-emerald-900">${testName} 결과가 반영되었습니다</h3>
+        </div>
+        <div class="bg-white rounded-lg p-3 mb-3">
+          <div class="text-xs text-slate-500 mb-1">이 검사 결과</div>
+          <p class="text-sm text-slate-800">${miniResult || '점수가 통합 분석에 반영되었습니다.'}</p>
+        </div>
+        <div class="bg-white rounded-lg p-3 mb-3">
+          <div class="text-xs text-slate-500 mb-1">현재 통합 16유형 (실시간 갱신)</div>
+          <p class="text-base font-bold text-violet-900">${type.icon} ${type.name}</p>
+          <p class="text-xs text-slate-600 mt-1">신뢰도 등급: <strong>${reliability.grade}</strong> (${reliability.label}) · 완료 ${reliability.completed.length}/6</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="showView('result')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg text-sm font-bold">
+            📊 통합 결과 보기
+          </button>
+          <button onclick="showView('home')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-lg text-sm font-bold">
+            ➕ 다음 검사
+          </button>
+        </div>
+        ${(function(){
+          const next = getNextRecommendedTest();
+          if (!next) return '';
+          const names = { chat:'자유대화', via:'VIA 24강점', big5:'Big5-50', grit:'Grit-S', riasec:'RIASEC', sjt:'SJT', cesd:'CES-D', phqa:'PHQ-A', gad:'GAD-7' };
+          return `<div class="mt-3 p-2 bg-sky-50 rounded text-xs text-sky-900 text-center">💡 다음 추천: <strong>${names[next]}</strong></div>`;
+        })()}
+      </div>`;
+    content.appendChild(card);
+  }, 300);
+}
+
+// 각 검사 render 함수 후킹 — 완료 시 보강 카드 표시
+const _testNameMap = {
+  big5: 'IPIP Big5-50',
+  riasec: 'RIASEC 진로 흥미',
+  via: 'VIA Youth 24',
+  grit: 'Grit-S 끈기',
+  cesd: 'CES-D-10 우울',
+  phqa: 'PHQ-A 청소년 우울',
+  gad: 'GAD-7 불안',
+  sjt: 'SJT 상황 판단',
+  conv: '자유대화'
+};
+
+// renderXxx 함수들을 후킹
+['Big5','Riasec','Via','Grit','Cesd','Phqa','Gad'].forEach(fnName => {
+  const key = fnName.toLowerCase();
+  const original = window['render' + fnName];
+  if (typeof original === 'function') {
+    window['render' + fnName] = function() {
+      original.apply(this, arguments);
+      // 완료 체크
+      const total = { big5:50, riasec:30, via:24, grit:8, cesd:10, phqa:9, gad:7 }[key];
+      if (state.results[key]?.answers?.length >= total) {
+        enhanceCompletionScreen(key, _testNameMap[key]);
+      }
+    };
+  }
+});
+
+// SJT 완료도 후킹
+const _origRenderSjt = renderSjt;
+renderSjt = function() {
+  _origRenderSjt.apply(this, arguments);
+  if (state.results.sjt.answers.length >= 30) {
+    enhanceCompletionScreen('sjt', 'SJT 상황 판단');
+  }
+};
+
+// 검사 메뉴 (홈)에 "결과 보기" 항상 노출 강화 — 데이터 있으면
+function injectGoToResultBar() {
+  const home = document.querySelector('section[data-view="home"]');
+  if (!home) return;
+  const doneCount = Object.keys(getCompletedTests()).length;
+  if (doneCount === 0) return;
+  let bar = el('goto-result-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'goto-result-bar';
+    bar.className = 'col-span-full sticky top-2 z-10';
+    home.insertBefore(bar, home.firstChild);
+  }
+  const type = inferIntegratedType();
+  bar.innerHTML = `
+    <button onclick="showView('result')" class="w-full bg-gradient-to-r from-violet-600 to-emerald-600 hover:from-violet-700 hover:to-emerald-700 text-white p-3 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-between">
+      <span class="flex items-center gap-2">
+        <span class="text-2xl">${type.icon}</span>
+        <span>현재 결과 보기: ${type.name}</span>
+      </span>
+      <span class="bg-white text-violet-700 px-2 py-1 rounded-full text-xs">${doneCount}/9 완료 →</span>
+    </button>
+  `;
+}
+
+// home 진입 시 노출
+const _origShow7 = showView;
+showView = function(name) {
+  _origShow7(name);
+  if (name === 'home') {
+    setTimeout(injectGoToResultBar, 200);
+  }
+};
+
+window.enhanceCompletionScreen = enhanceCompletionScreen;
 
 </script>
 </body>
