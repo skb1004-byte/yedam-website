@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AI PIA MVP v3 — 7-Track 통합 검사</title>
+<title>AI PIA v4 — 7-Track 통합검사 + 결과지</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
@@ -24,6 +24,149 @@
     .audience-only-screen { display:none !important; }
     @page { size: A4; margin: 12mm; }
   }
+
+/* ===== 결과지 CSS (scoped: #pia-report) ===== */
+
+/* ===== 기본 설정 ===== */
+* {box-sizing:border-box;margin:0;padding:0;}
+body {font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;background:#e8e8e8;color:#222;font-size:12px;}
+
+/* ===== 페이지 래퍼 ===== */
+#pia-report .page {width:794px;min-height:1123px;background:#fff;margin:20px auto;padding:30px 35px;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.18);page-break-after:always;}
+#pia-report .page:last-child {page-break-after:auto;}
+
+/* ===== 인쇄 ===== */
+@media print{
+body {background:#fff;}
+#pia-report .page {margin:0;box-shadow:none;page-break-after:always;}
+#pia-report .no-print {display:none!important;}
+}
+
+/* ===== 공통 헤더 ===== */
+#pia-report .page-header {display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2B5BA8;padding-bottom:6px;margin-bottom:14px;}
+#pia-report .page-header .logo-area {font-size:11px;color:#555;}
+#pia-report .page-header .page-title {font-size:15px;font-weight:700;color:#2B5BA8;}
+#pia-report .page-header .page-num {font-size:11px;color:#888;}
+
+/* ===== 섹션 타이틀 ===== */
+#pia-report .section-title {display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#fff;background:#2B5BA8;padding:5px 12px;margin:14px 0 8px;}
+#pia-report .section-title-diamond {font-size:15px;font-weight:700;color:#6a3fb5;margin:14px 0 8px;display:flex;align-items:center;gap:5px;}
+#pia-report .section-icon {color:#fff;font-size:14px;}
+
+/* ===== 정보 테이블 ===== */
+#pia-report .info-table {width:100%;border-collapse:collapse;margin-bottom:10px;}
+#pia-report .info-table td {border:1px solid #ccc;padding:5px 8px;font-size:11px;}
+#pia-report .info-table .lbl {background:#f0f0f0;font-weight:700;width:80px;color:#333;}
+#pia-report .info-table .val {background:#fff;color:#222;}
+
+/* ===== 범용 테이블 ===== */
+#pia-report .data-table {width:100%;border-collapse:collapse;margin-bottom:10px;}
+#pia-report .data-table th {background:#dde4f0;color:#1a3a6e;font-weight:700;padding:5px 8px;border:1px solid #b0b8d0;font-size:11px;text-align:center;}
+#pia-report .data-table td {border:1px solid #ccc;padding:5px 8px;font-size:11px;text-align:center;vertical-align:middle;}
+#pia-report .data-table tr:nth-child(even) td {background:#f8f8fc;}
+#pia-report .data-table .row-head {background:#f0f0f0;font-weight:700;text-align:left;color:#333;}
+
+/* ===== 레인보우 그라디언트 바 ===== */
+#pia-report .rainbow-bar-wrap {position:relative;margin:18px 0 28px;}
+#pia-report .rainbow-bar {height:18px;border-radius:9px;background:linear-gradient(to right,
+  #e53935 0%,#ef6c00 17%,#f9a825 34%,#43a047 51%,#00897b 68%,#1565c0 100%);
+  position:relative;}
+#pia-report .rainbow-label-row {display:flex;justify-content:space-between;margin-top:2px;}
+#pia-report .rainbow-label-row span {font-size:9px;color:#555;font-weight:600;}
+#pia-report .rainbow-grade-row {display:flex;margin-top:1px;}
+#pia-report .rainbow-grade-row .grade-seg {flex:1;text-align:center;font-size:9px;font-weight:700;color:#888;}
+#pia-report .score-marker {position:absolute;top:-6px;transform:translateX(-50%);cursor:default;}
+#pia-report .score-marker-circle {width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid #2B5BA8;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#2B5BA8;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+#pia-report .avg-label {position:absolute;top:20px;transform:translateX(-50%);font-size:8.5px;font-weight:700;white-space:nowrap;}
+#pia-report .avg-label.cls {color:#e53935;}
+#pia-report .avg-label.sch {color:#1565c0;}
+#pia-report .avg-label.sd {color:#888;}
+
+/* ===== 반원형 게이지 ===== */
+#pia-report .gauge-wrap {display:flex;flex-direction:column;align-items:center;}
+#pia-report .gauge-wrap svg {overflow:visible;}
+#pia-report .gauge-score {font-size:16px;font-weight:700;color:#2B5BA8;line-height:1;}
+#pia-report .gauge-grade {font-size:11px;color:#555;margin-top:2px;}
+
+/* ===== 황색 진행 바 ===== */
+#pia-report .prog-bar-wrap {display:flex;align-items:center;gap:6px;}
+#pia-report .prog-bar-bg {flex:1;height:12px;background:#e0e0e0;border-radius:6px;overflow:hidden;}
+#pia-report .prog-bar-fill {height:100%;border-radius:6px;background:linear-gradient(to right,#FFC107,#FF9800);}
+#pia-report .prog-bar-val {font-size:10px;font-weight:700;color:#e65100;min-width:28px;text-align:right;}
+
+/* ===== 점수등급 박스 ===== */
+#pia-report .grade-box {display:inline-block;padding:2px 10px;border-radius:3px;font-size:12px;font-weight:700;}
+#pia-report .grade-A-plus {background:#1565c0;color:#fff;}
+#pia-report .grade-A {background:#00897b;color:#fff;}
+#pia-report .grade-B-plus {background:#43a047;color:#fff;}
+#pia-report .grade-B {background:#f9a825;color:#fff;}
+#pia-report .grade-C {background:#ef6c00;color:#fff;}
+#pia-report .grade-D {background:#e53935;color:#fff;}
+
+/* ===== 경고(핑크) 박스 ===== */
+#pia-report .alert-box {background:#fce4ec;border:1px solid #f48fb1;border-radius:4px;padding:8px 12px;margin:8px 0;font-size:11px;color:#880e4f;}
+#pia-report .alert-box strong {color:#c62828;}
+
+/* ===== 레이더(오각형) ===== */
+#pia-report .radar-container {display:flex;justify-content:center;margin:10px 0;}
+
+/* ===== 항목 상세 카드 ===== */
+#pia-report .item-card {border:1px solid #ccc;border-radius:4px;margin-bottom:14px;overflow:hidden;}
+#pia-report .item-card-head {background:#2B5BA8;color:#fff;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;}
+#pia-report .item-card-head .item-name {font-size:13px;font-weight:700;}
+#pia-report .item-card-body {padding:10px 14px;}
+#pia-report .compare-index {font-size:11px;color:#555;margin:4px 0 8px;}
+
+/* ===== 이중 바(계열적성) ===== */
+#pia-report .dual-bar-row {display:flex;align-items:center;gap:4px;margin-bottom:4px;}
+#pia-report .dual-bar-lbl {width:60px;font-size:10px;text-align:right;color:#333;}
+#pia-report .dual-bar-bg {flex:1;height:12px;background:#e0e0e0;border-radius:6px;position:relative;}
+#pia-report .dual-bar-std {height:100%;border-radius:6px;background:#90caf9;position:absolute;top:0;left:0;}
+#pia-report .dual-bar-got {height:8px;border-radius:4px;background:#1565c0;position:absolute;top:2px;left:0;}
+#pia-report .dual-bar-val {font-size:9px;color:#555;min-width:20px;}
+
+/* ===== 표지 ===== */
+#pia-report .cover-wrap {display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:900px;text-align:center;}
+#pia-report .cover-title-main {font-size:28px;font-weight:900;color:#2B5BA8;letter-spacing:2px;margin-bottom:10px;}
+#pia-report .cover-title-sub {font-size:18px;color:#333;margin-bottom:30px;}
+#pia-report .cover-badge {background:#2B5BA8;color:#fff;padding:8px 28px;border-radius:20px;font-size:14px;font-weight:700;display:inline-block;margin-bottom:30px;}
+#pia-report .cover-info-box {border:2px solid #2B5BA8;border-radius:8px;padding:20px 40px;margin:20px 0;}
+#pia-report .cover-info-box table {border-collapse:collapse;}
+#pia-report .cover-info-box td {padding:6px 14px;font-size:13px;}
+#pia-report .cover-info-box .lbl {font-weight:700;color:#2B5BA8;text-align:right;}
+#pia-report .cover-info-box .val {color:#222;text-align:left;border-bottom:1px solid #ddd;}
+#pia-report .stamp {width:80px;height:80px;border:3px solid #c62828;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#c62828;font-size:9px;font-weight:700;line-height:1.3;text-align:center;transform:rotate(-15deg);margin:10px auto;}
+#pia-report .stamp-wrap {position:absolute;bottom:60px;right:60px;}
+
+/* ===== 도구 바 ===== */
+#pia-report .toolbar {position:fixed;top:0;left:0;right:0;z-index:9999;background:#2B5BA8;color:#fff;display:flex;align-items:center;gap:12px;padding:8px 20px;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+#pia-report .toolbar span {font-size:13px;font-weight:700;}
+#pia-report .toolbar button {background:#fff;color:#2B5BA8;border:none;border-radius:4px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;}
+#pia-report .toolbar button:hover {background:#e3f0ff;}
+
+/* ===== P1~P9 미니바 ===== */
+#pia-report .mini-bar-wrap {display:flex;align-items:center;gap:4px;}
+#pia-report .mini-bar-bg {width:80px;height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden;}
+#pia-report .mini-bar-fill {height:100%;border-radius:4px;}
+
+/* 오른쪽 정렬 */
+#pia-report .right {text-align:right!important;}
+#pia-report .center {text-align:center!important;}
+#pia-report .bold {font-weight:700!important;}
+
+/* 특이사항 문단 */
+#pia-report .desc-para {font-size:11px;line-height:1.7;color:#333;margin:8px 0;text-indent:1em;}
+
+/* 소제목 */
+#pia-report .sub-heading {font-size:11px;font-weight:700;color:#2B5BA8;border-left:3px solid #2B5BA8;padding-left:6px;margin:8px 0 4px;}
+
+/* 두 열 레이아웃 */
+#pia-report .two-col {display:flex;gap:14px;}
+#pia-report .two-col > div {flex:1;}
+
+#pia-report { background:#e8e8e8; padding:10px 0; }
+#fullreport-wrap { overflow-y:auto; max-height:calc(100vh - 120px); }
+
 </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
@@ -34,7 +177,7 @@
   <div>
     <div class="flex items-center gap-2">
       <span class="text-sm font-bold text-slate-700">AI PIA</span>
-      <span class="text-xs text-slate-500">v3.9.2 · 검사 완료 즉시 결과 반영 확인</span>
+      <span class="text-xs text-slate-500">v3.9.1 · 모바일 음성 race 수정</span>
     </div>
     <h1 class="text-xl font-bold mt-1">학술 검증된 7개 검사 통합</h1>
     <p class="text-xs text-slate-500 mt-0.5">IPIP Big5 · RIASEC · VIA · Grit · SJT · CES-D · PHQ-A · GAD-7 + 자유대화</p>
@@ -44,6 +187,7 @@
     <button class="px-3 py-2 rounded-lg bg-slate-200 text-slate-900 text-sm font-semibold" data-go="result">통합 결과</button>
     <button class="px-3 py-2 rounded-lg bg-rose-100 text-rose-800 text-sm font-semibold" data-go="help">도움 요청</button>
     <button class="px-3 py-2 rounded-lg bg-slate-200 text-slate-900 text-sm font-semibold" data-go="settings">엔진 설정</button>
+    <button id="btn-fullreport-nav" class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hidden" data-go="fullreport" onclick="openFullReport()">📋 전체 결과지</button>
   </nav>
 </header>
 
@@ -288,6 +432,959 @@
 </section>
 
 <!-- 도움 요청 — 상담 자원 안내 -->
+
+<div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
+  <p class="text-sm text-slate-500 mb-3">AI PIA 9페이지 공식 결과지를 확인하세요</p>
+  <button onclick="openFullReport()" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700">
+    📋 전체 결과지 보기
+  </button>
+</div>
+
+</section>
+
+<section data-view="fullreport" class="hidden">
+  <div class="bg-white rounded-2xl border border-slate-200 p-3 mb-3 flex items-center gap-3 sticky top-0 z-10">
+    <button onclick="showView('result')" class="px-4 py-2 bg-slate-200 rounded-lg text-sm font-semibold">← 통합 결과</button>
+    <span class="font-bold text-slate-700 flex-1">📋 AI PIA 전체 결과지</span>
+    <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">🖨️ 인쇄/PDF</button>
+  </div>
+  <div id="fullreport-wrap">
+    <div id="pia-report">
+<!-- 도구 바 -->
+<div class="toolbar no-print">
+  <span>📋 AI PIA 검사 결과지</span>
+  <button id="btn-back-student" style="display:none;" onclick="window.close()">← 학생 페이지로</button>
+  <button onclick="window.open('AI_PIA_관리자.html','_blank')">🏫 관리자 페이지</button>
+  <button onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+  <button onclick="document.querySelectorAll('.page').forEach((p,i)=>p.style.display=i==0?'':'none')">표지만</button>
+  <button onclick="document.querySelectorAll('.page').forEach(p=>p.style.display='')">전체 보기</button>
+</div>
+<div style="height:46px" class="no-print"></div>
+
+<!-- ==============================
+     PAGE 1 : 표지
+================================= -->
+<div class="page" id="p-cover">
+  <div class="cover-wrap">
+    <div style="font-size:11px;color:#888;margin-bottom:6px;">교육부 인가 제262호 · 사)한국인간과학연구소</div>
+    <div class="cover-title-main">표준화 인·적성 검사</div>
+    <div class="cover-title-sub">AI PIA 검사 결과지</div>
+    <div class="cover-badge">중학교 기관제출용</div>
+    <div class="cover-info-box">
+      <table>
+        <tr><td class="lbl">성  명</td><td class="val" id="cover-name">홍 길 동</td></tr>
+        <tr><td class="lbl">학  교</td><td class="val" id="cover-school">한국중학교</td></tr>
+        <tr><td class="lbl">학년/반</td><td class="val" id="cover-grade">2학년 3반 15번</td></tr>
+        <tr><td class="lbl">검사일</td><td class="val" id="cover-date">2026년 06월 13일</td></tr>
+        <tr><td class="lbl">발급일</td><td class="val" id="cover-issue">2026년 06월 14일</td></tr>
+        <tr><td class="lbl">담당기관</td><td class="val">AI PIA 교육연구원</td></tr>
+      </table>
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:#888;line-height:2;">
+      본 검사 결과지는 한국인간과학연구소의 표준화 검사 도구에 의해 작성되었으며<br>
+      교육 및 상담 목적으로만 활용되어야 합니다.
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     PAGE 2 : 인성검사 종합판정
+================================= -->
+<div class="page" id="p-personality-summary">
+  <div class="page-header">
+    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title">■■ 인성검사 종합판정</div>
+    <div class="page-num">2 / 12</div>
+  </div>
+
+  <!-- 기본 정보 -->
+  <table class="info-table">
+    <tr>
+      <td class="lbl">이름</td><td class="val" data-pia="name">홍길동</td>
+      <td class="lbl">학교</td><td class="val" data-pia="school">한국중학교</td>
+      <td class="lbl">학년/반</td><td class="val" data-pia="grade">2학년 3반</td>
+    </tr>
+    <tr>
+      <td class="lbl">검사일</td><td class="val" data-pia="testDate">2026.06.13</td>
+      <td class="lbl">성별</td><td class="val" data-pia="gender">남</td>
+      <td class="lbl">연령</td><td class="val" data-pia="age">14세</td>
+    </tr>
+  </table>
+
+  <!-- 인성 종합 점수 레인보우 바 -->
+  <div class="section-title"><span class="section-icon">■</span> 인성 종합 점수</div>
+  <div style="padding:0 10px;">
+    <!-- 점수 표시 -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px;">
+      <span style="font-size:11px;color:#555;">인성 종합 점수</span>
+      <span style="font-size:18px;font-weight:900;color:#2B5BA8;">72점 &nbsp;<span class="grade-box grade-B-plus">B+</span></span>
+    </div>
+    <!-- 레인보우 바 -->
+    <div class="rainbow-bar-wrap" id="rb-personality">
+      <div class="rainbow-bar" id="rainbow-bar-1">
+        <!-- 마커들은 JS로 삽입 -->
+      </div>
+      <div class="rainbow-label-row">
+        <span>0</span><span>17</span><span>34</span><span>51</span><span>68</span><span>85</span><span>100</span>
+      </div>
+      <div class="rainbow-grade-row">
+        <div class="grade-seg">D</div>
+        <div class="grade-seg">C</div>
+        <div class="grade-seg">B</div>
+        <div class="grade-seg">B+</div>
+        <div class="grade-seg">A</div>
+        <div class="grade-seg">A+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 응답신뢰도 -->
+  <div class="section-title"><span class="section-icon">■</span> 응답 신뢰도 및 인성 종합 점수</div>
+  <table class="data-table">
+    <tr>
+      <th style="width:120px;">항목</th>
+      <th>내 점수</th>
+      <th>소속 평균</th>
+      <th>전체 평균</th>
+      <th style="width:200px;">점수 그래프</th>
+      <th>등급</th>
+    </tr>
+    <tr>
+      <td class="row-head">응답 신뢰도</td>
+      <td>88</td><td>79</td><td>75</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:88%"></div></div><span class="prog-bar-val">88</span></div></td>
+      <td><span class="grade-box grade-A">A</span></td>
+    </tr>
+    <tr>
+      <td class="row-head">인성 종합 점수</td>
+      <td>72</td><td>68</td><td>65</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:72%"></div></div><span class="prog-bar-val">72</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+    </tr>
+  </table>
+
+  <!-- 장점 / 권장사항 -->
+  <div class="section-title"><span class="section-icon">■</span> 종합 의견</div>
+  <table class="data-table">
+    <tr><th style="width:80px;">구분</th><th>내용</th></tr>
+    <tr>
+      <td class="row-head">장점</td>
+      <td style="text-align:left;">타인에 대한 공감 능력이 뛰어나고, 감정 조절 능력이 안정적입니다. 사회적 규범 준수 의지가 강하며 리더십 자질이 보입니다.</td>
+    </tr>
+    <tr>
+      <td class="row-head">권장사항</td>
+      <td style="text-align:left;">충동적 판단을 억제하는 연습이 필요하며, 또래 갈등 상황에서 적절한 자기표현 방법을 학습하도록 지도가 필요합니다.</td>
+    </tr>
+  </table>
+
+  <!-- P1~P9 요약 -->
+  <div class="section-title"><span class="section-icon">■</span> 인성 평가 항목별 점수 요약</div>
+  <table class="data-table" id="p-summary-table">
+    <tr>
+      <th>코드</th><th>항목</th><th>점수</th><th>소속평균</th>
+      <th style="width:160px;">점수 그래프</th><th>등급</th><th>부족 시 현상</th>
+    </tr>
+    <tr>
+      <td>P1</td><td class="row-head">공감 능력</td><td>85</td><td>70</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:85%;background:#43a047;"></div></div><span style="font-size:9px;margin-left:3px;">85</span></div></td>
+      <td><span class="grade-box grade-A">A</span></td>
+      <td style="text-align:left;font-size:10px;">타인 감정 이해 부족, 갈등 심화</td>
+    </tr>
+    <tr>
+      <td>P2</td><td class="row-head">자기통제</td><td>64</td><td>68</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:64%;background:#f9a825;"></div></div><span style="font-size:9px;margin-left:3px;">64</span></div></td>
+      <td><span class="grade-box grade-B">B</span></td>
+      <td style="text-align:left;font-size:10px;">충동적 행동, 감정 폭발</td>
+    </tr>
+    <tr>
+      <td>P3</td><td class="row-head">도덕성</td><td>78</td><td>72</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:78%;background:#43a047;"></div></div><span style="font-size:9px;margin-left:3px;">78</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">규범 위반, 거짓말 증가</td>
+    </tr>
+    <tr>
+      <td>P4</td><td class="row-head">사회성</td><td>91</td><td>73</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:91%;background:#00897b;"></div></div><span style="font-size:9px;margin-left:3px;">91</span></div></td>
+      <td><span class="grade-box grade-A-plus">A+</span></td>
+      <td style="text-align:left;font-size:10px;">대인기피, 고립감</td>
+    </tr>
+    <tr>
+      <td>P5</td><td class="row-head">책임감</td><td>70</td><td>71</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:70%;background:#f9a825;"></div></div><span style="font-size:9px;margin-left:3px;">70</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">약속 불이행, 회피 성향</td>
+    </tr>
+    <tr>
+      <td>P6</td><td class="row-head">정서안정</td><td>56</td><td>66</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:56%;background:#ef6c00;"></div></div><span style="font-size:9px;margin-left:3px;">56</span></div></td>
+      <td><span class="grade-box grade-C">C</span></td>
+      <td style="text-align:left;font-size:10px;">불안, 기분 기복 심화</td>
+    </tr>
+    <tr>
+      <td>P7</td><td class="row-head">리더십</td><td>82</td><td>65</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:82%;background:#43a047;"></div></div><span style="font-size:9px;margin-left:3px;">82</span></div></td>
+      <td><span class="grade-box grade-A">A</span></td>
+      <td style="text-align:left;font-size:10px;">주도성 결여, 의존적</td>
+    </tr>
+    <tr>
+      <td>P8</td><td class="row-head">창의성</td><td>75</td><td>68</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:75%;background:#43a047;"></div></div><span style="font-size:9px;margin-left:3px;">75</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">고정적 사고, 적응력 저하</td>
+    </tr>
+    <tr>
+      <td>P9</td><td class="row-head">진로성숙</td><td>68</td><td>64</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:68%;background:#f9a825;"></div></div><span style="font-size:9px;margin-left:3px;">68</span></div></td>
+      <td><span class="grade-box grade-B">B</span></td>
+      <td style="text-align:left;font-size:10px;">진로 방황, 목표 부재</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ==============================
+     PAGE 3 : 인성 항목 상세 (P1~P3)
+================================= -->
+<div class="page" id="p-personality-detail-1">
+  <div class="page-header">
+    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title">■■ 인성 항목 상세 분석</div>
+    <div class="page-num">3 / 12</div>
+  </div>
+
+  <!-- P1 공감능력 -->
+  <div class="item-card">
+    <div class="item-card-head">
+      <span class="item-name">P1 공감 능력 (Empathy)</span>
+      <span class="grade-box grade-A">A &nbsp; 85점</span>
+    </div>
+    <div class="item-card-body">
+      <div class="two-col">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <!-- 반원형 게이지 SVG -->
+          <svg width="140" height="80" viewBox="0 0 140 80">
+            <path d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+            <path id="gauge-p1" data-gauge="P1" d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#43a047" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="188.5" stroke-dashoffset="28"/>
+            <text x="70" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#2B5BA8" data-gauge-score="P1">85</text>
+            <text x="70" y="82" text-anchor="middle" font-size="10" fill="#555" data-gauge-grade="P1">A 등급</text>
+          </svg>
+          <div class="compare-index">전체평균 비교지수 : 70 (보통)</div>
+        </div>
+        <div>
+          <p class="desc-para">홍길동 학생은 타인의 감정과 입장을 이해하고 공감하는 능력이 매우 우수합니다. 주변 친구들의 정서를 민감하게 파악하며 위로와 지지를 제공하는 성향이 강합니다. 이 역량은 사회적 유대관계 형성에 큰 자산이 됩니다.</p>
+          <div class="alert-box" style="background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;" >
+            <strong>※ 강점 영역 :</strong> 타인 감정 공감, 갈등 중재, 정서적 지지 역할에 탁월합니다.
+          </div>
+        </div>
+      </div>
+      <table class="data-table" style="margin-top:8px;">
+        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr>
+          <td class="row-head">P1</td>
+          <td>감수형</td><td>사회적 인식</td><td>매우 양호</td>
+          <td style="text-align:left;">공감 능력을 리더십과 연결해 팀 프로젝트 활동을 권장</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- P2 자기통제 -->
+  <div class="item-card">
+    <div class="item-card-head">
+      <span class="item-name">P2 자기통제 (Self-Control)</span>
+      <span class="grade-box grade-B">B &nbsp; 64점</span>
+    </div>
+    <div class="item-card-body">
+      <div class="two-col">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <svg width="140" height="80" viewBox="0 0 140 80">
+            <path d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+            <path data-gauge="P2" d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#f9a825" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="188.5" stroke-dashoffset="68"/>
+            <text x="70" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#2B5BA8" data-gauge-score="P2">64</text>
+            <text x="70" y="82" text-anchor="middle" font-size="10" fill="#555" data-gauge-grade="P2">B 등급</text>
+          </svg>
+          <div class="compare-index">전체평균 비교지수 : 68 (보통)</div>
+        </div>
+        <div>
+          <p class="desc-para">자기통제 능력은 평균 수준입니다. 즉각적인 욕구 충족보다 장기적 목표를 위해 참을 수 있는 기회를 늘려야 합니다. 감정이 고조될 때 호흡 조절이나 잠시 멈추는 기술을 연습하면 효과적입니다.</p>
+          <div class="alert-box">
+            <strong>※ 주의 :</strong> 충동적 발언이나 행동이 간헐적으로 관찰됩니다. 규칙적인 마음챙김 활동을 권장합니다.
+          </div>
+        </div>
+      </div>
+      <table class="data-table" style="margin-top:8px;">
+        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr>
+          <td class="row-head">P2</td>
+          <td>충동형</td><td>행동 억제</td><td>보통</td>
+          <td style="text-align:left;">마음챙김, 역할극을 통한 충동 조절 훈련 권장</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- P3 도덕성 -->
+  <div class="item-card">
+    <div class="item-card-head">
+      <span class="item-name">P3 도덕성 (Morality)</span>
+      <span class="grade-box grade-B-plus">B+ &nbsp; 78점</span>
+    </div>
+    <div class="item-card-body">
+      <div class="two-col">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <svg width="140" height="80" viewBox="0 0 140 80">
+            <path d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+            <path data-gauge="P3" d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#43a047" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="188.5" stroke-dashoffset="41.5"/>
+            <text x="70" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#2B5BA8" data-gauge-score="P3">78</text>
+            <text x="70" y="82" text-anchor="middle" font-size="10" fill="#555" data-gauge-grade="P3">B+ 등급</text>
+          </svg>
+          <div class="compare-index">전체평균 비교지수 : 72 (양호)</div>
+        </div>
+        <div>
+          <p class="desc-para">도덕적 판단 능력이 또래 평균보다 높습니다. 옳고 그름에 대한 기준이 명확하고 불공정한 상황에 민감하게 반응합니다. 도덕적 용기를 발휘해 주변에 긍정적 영향력을 미칠 수 있습니다.</p>
+        </div>
+      </div>
+      <table class="data-table" style="margin-top:8px;">
+        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr>
+          <td class="row-head">P3</td>
+          <td>원칙형</td><td>가치 내면화</td><td>양호</td>
+          <td style="text-align:left;">사회 봉사 활동, 윤리 토론 참여를 통한 도덕성 심화</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     PAGE 4 : 인성 항목 상세 (P4~P6)
+================================= -->
+<div class="page" id="p-personality-detail-2">
+  <div class="page-header">
+    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title">■■ 인성 항목 상세 분석</div>
+    <div class="page-num">4 / 12</div>
+  </div>
+
+  <!-- P4 사회성 -->
+  <div class="item-card">
+    <div class="item-card-head">
+      <span class="item-name">P4 사회성 (Sociability)</span>
+      <span class="grade-box grade-A-plus">A+ &nbsp; 91점</span>
+    </div>
+    <div class="item-card-body">
+      <div class="two-col">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <svg width="140" height="80" viewBox="0 0 140 80">
+            <path d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+            <path data-gauge="P4" d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#1565c0" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="188.5" stroke-dashoffset="17"/>
+            <text x="70" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#2B5BA8" data-gauge-score="P4">91</text>
+            <text x="70" y="82" text-anchor="middle" font-size="10" fill="#555" data-gauge-grade="P4">A+ 등급</text>
+          </svg>
+          <div class="compare-index">전체평균 비교지수 : 73 (매우 양호)</div>
+        </div>
+        <div>
+          <p class="desc-para">사회성이 매우 우수합니다. 집단 내에서 자연스럽게 어울리고 친화력이 높아 또래 관계에서 중심적 역할을 합니다. 다양한 배경의 사람들과 긍정적인 관계를 맺는 능력이 뛰어납니다.</p>
+          <div class="alert-box" style="background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;">
+            <strong>※ 강점 :</strong> 또래 관계에서 핵심 인물로 긍정적 영향력 발휘 가능합니다.
+          </div>
+        </div>
+      </div>
+      <table class="data-table" style="margin-top:8px;">
+        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr><td class="row-head">P4</td><td>외향형</td><td>관계 유지</td><td>매우 양호</td><td style="text-align:left;">리더십 교육, 팀 프로젝트 주도 역할 부여</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- P5 책임감 -->
+  <div class="item-card">
+    <div class="item-card-head">
+      <span class="item-name">P5 책임감 (Responsibility)</span>
+      <span class="grade-box grade-B-plus">B+ &nbsp; 70점</span>
+    </div>
+    <div class="item-card-body">
+      <div class="two-col">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <svg width="140" height="80" viewBox="0 0 140 80">
+            <path d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+            <path data-gauge="P5" d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#43a047" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="188.5" stroke-dashoffset="56.5"/>
+            <text x="70" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#2B5BA8" data-gauge-score="P5">70</text>
+            <text x="70" y="82" text-anchor="middle" font-size="10" fill="#555" data-gauge-grade="P5">B+ 등급</text>
+          </svg>
+          <div class="compare-index">전체평균 비교지수 : 71 (보통)</div>
+        </div>
+        <div>
+          <p class="desc-para">책임감은 평균 수준이며 소집단 과제에서는 성실히 역할을 수행합니다. 단, 장기 과제에서 마무리 단계에 집중력이 떨어지는 경향이 관찰됩니다. 계획 수립과 자기 점검 습관이 필요합니다.</p>
+        </div>
+      </div>
+      <table class="data-table" style="margin-top:8px;">
+        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr><td class="row-head">P5</td><td>성실형</td><td>목표 지향</td><td>보통</td><td style="text-align:left;">일정 관리 도구 활용, 단기 목표 설정 훈련</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- P6 정서안정 -->
+  <div class="item-card">
+    <div class="item-card-head">
+      <span class="item-name">P6 정서 안정 (Emotional Stability)</span>
+      <span class="grade-box grade-C">C &nbsp; 56점</span>
+    </div>
+    <div class="item-card-body">
+      <div class="two-col">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <svg width="140" height="80" viewBox="0 0 140 80">
+            <path d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+            <path data-gauge="P6" d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#ef6c00" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="188.5" stroke-dashoffset="83"/>
+            <text x="70" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#e53935" data-gauge-score="P6">56</text>
+            <text x="70" y="82" text-anchor="middle" font-size="10" fill="#555" data-gauge-grade="P6">C 등급</text>
+          </svg>
+          <div class="compare-index">전체평균 비교지수 : 66 (주의)</div>
+        </div>
+        <div>
+          <p class="desc-para">정서 안정성이 또래 평균에 비해 낮은 편입니다. 스트레스 상황에서 불안 수준이 올라가고 기분의 기복이 심해질 수 있습니다. 규칙적인 수면·운동과 감정 일기 작성이 도움이 됩니다.</p>
+          <div class="alert-box">
+            <strong>⚠ 주의 요망 :</strong> C등급 이하 항목은 전문 상담사와의 추가 상담을 권장합니다. 학교 상담실 또는 Wee 클래스를 적극 활용하세요.
+          </div>
+        </div>
+      </div>
+      <table class="data-table" style="margin-top:8px;">
+        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr><td class="row-head">P6</td><td>불안형</td><td>정서 조절</td><td>주의 필요</td><td style="text-align:left;">명상·호흡법 훈련, 상담 교사 연계 필요</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     PAGE 5 : 인성 항목 상세 (P7~P9) + 오각형 레이더
+================================= -->
+<div class="page" id="p-personality-detail-3">
+  <div class="page-header">
+    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title">■■ 인성 항목 상세 분석 + 기질 레이더</div>
+    <div class="page-num">5 / 12</div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <!-- P7 리더십 -->
+      <div class="item-card">
+        <div class="item-card-head">
+          <span class="item-name">P7 리더십</span>
+          <span class="grade-box grade-A">A &nbsp; 82점</span>
+        </div>
+        <div class="item-card-body">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <svg width="130" height="75" viewBox="0 0 140 80">
+              <path d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+              <path data-gauge="P7" d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#43a047" stroke-width="14" stroke-linecap="round"
+                stroke-dasharray="188.5" stroke-dashoffset="34"/>
+              <text x="70" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#2B5BA8" data-gauge-score="P7">82</text>
+              <text x="70" y="82" text-anchor="middle" font-size="10" fill="#555" data-gauge-grade="P7">A 등급</text>
+            </svg>
+          </div>
+          <table class="data-table" style="margin-top:6px;">
+            <tr><th>기질</th><th>성숙요인</th><th>상태</th></tr>
+            <tr><td>주도형</td><td>목표설정</td><td>양호</td></tr>
+          </table>
+        </div>
+      </div>
+      <!-- P8 창의성 -->
+      <div class="item-card">
+        <div class="item-card-head">
+          <span class="item-name">P8 창의성</span>
+          <span class="grade-box grade-B-plus">B+ &nbsp; 75점</span>
+        </div>
+        <div class="item-card-body">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <svg width="130" height="75" viewBox="0 0 140 80">
+              <path d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+              <path data-gauge="P8" d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#43a047" stroke-width="14" stroke-linecap="round"
+                stroke-dasharray="188.5" stroke-dashoffset="47.1"/>
+              <text x="70" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#2B5BA8" data-gauge-score="P8">75</text>
+              <text x="70" y="82" text-anchor="middle" font-size="10" fill="#555" data-gauge-grade="P8">B+ 등급</text>
+            </svg>
+          </div>
+          <table class="data-table" style="margin-top:6px;">
+            <tr><th>기질</th><th>성숙요인</th><th>상태</th></tr>
+            <tr><td>탐구형</td><td>발산적 사고</td><td>양호</td></tr>
+          </table>
+        </div>
+      </div>
+      <!-- P9 진로성숙 -->
+      <div class="item-card">
+        <div class="item-card-head">
+          <span class="item-name">P9 진로성숙</span>
+          <span class="grade-box grade-B">B &nbsp; 68점</span>
+        </div>
+        <div class="item-card-body">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <svg width="130" height="75" viewBox="0 0 140 80">
+              <path d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+              <path data-gauge="P9" d="M10,75 A60,60 0 0,1 130,75" fill="none" stroke="#f9a825" stroke-width="14" stroke-linecap="round"
+                stroke-dasharray="188.5" stroke-dashoffset="60.3"/>
+              <text x="70" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#2B5BA8" data-gauge-score="P9">68</text>
+              <text x="70" y="82" text-anchor="middle" font-size="10" fill="#555" data-gauge-grade="P9">B 등급</text>
+            </svg>
+          </div>
+          <table class="data-table" style="margin-top:6px;">
+            <tr><th>기질</th><th>성숙요인</th><th>상태</th></tr>
+            <tr><td>탐색형</td><td>진로 인식</td><td>보통</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 오각형 레이더 -->
+    <div>
+      <div class="section-title"><span class="section-icon">■</span> 기질 오각 분석</div>
+      <div style="display:flex;justify-content:center;margin:10px 0;">
+        <svg width="260" height="260" viewBox="0 0 260 260" id="radar-svg">
+          <!-- 축선 (5각형 3단계) -->
+          <g id="grid-lines" stroke="#ccc" stroke-width="0.8" fill="none"></g>
+          <!-- 데이터 폴리곤 -->
+          <polygon id="radar-data" fill="rgba(43,91,168,0.3)" stroke="#2B5BA8" stroke-width="2"/>
+          <!-- 축 레이블 -->
+          <text x="130" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#333">감정</text>
+          <text x="248" y="103" text-anchor="start"  font-size="11" font-weight="700" fill="#333">정서</text>
+          <text x="200" y="248" text-anchor="middle" font-size="11" font-weight="700" fill="#333">본능</text>
+          <text x="58"  y="248" text-anchor="middle" font-size="11" font-weight="700" fill="#333">자아</text>
+          <text x="8"   y="103" text-anchor="start"  font-size="11" font-weight="700" fill="#333">초자아</text>
+          <!-- 점수 레이블 -->
+          <text x="130" y="50" text-anchor="middle" font-size="10" fill="#2B5BA8" font-weight="700">82</text>
+          <text x="218" y="115" text-anchor="middle" font-size="10" fill="#2B5BA8" font-weight="700">78</text>
+          <text x="180" y="220" text-anchor="middle" font-size="10" fill="#2B5BA8" font-weight="700">65</text>
+          <text x="80"  y="220" text-anchor="middle" font-size="10" fill="#2B5BA8" font-weight="700">85</text>
+          <text x="42"  y="115" text-anchor="middle" font-size="10" fill="#2B5BA8" font-weight="700">91</text>
+        </svg>
+      </div>
+      <table class="data-table" style="margin-top:8px;">
+        <tr><th>축</th><th>항목</th><th>점수</th><th>등급</th></tr>
+        <tr><td>감정</td><td>리더십·창의</td><td>82</td><td><span class="grade-box grade-A">A</span></td></tr>
+        <tr><td>정서</td><td>정서안정·공감</td><td>78</td><td><span class="grade-box grade-B-plus">B+</span></td></tr>
+        <tr><td>본능</td><td>자기통제</td><td>65</td><td><span class="grade-box grade-B">B</span></td></tr>
+        <tr><td>자아</td><td>책임감·진로</td><td>85</td><td><span class="grade-box grade-A">A</span></td></tr>
+        <tr><td>초자아</td><td>도덕성·사회성</td><td>91</td><td><span class="grade-box grade-A-plus">A+</span></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     PAGE 6 : 지능·진로·적성 종합
+================================= -->
+<div class="page" id="p-intelligence">
+  <div class="page-header">
+    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title">◆ 지능·진로·적성 평가 종합</div>
+    <div class="page-num">6 / 12</div>
+  </div>
+
+  <div class="section-title-diamond">◆ 지능 평가 종합 분석표</div>
+  <table class="data-table" style="margin-bottom:12px;">
+    <tr>
+      <th>구분</th><th>종합 지능 지수</th><th>가장 높은 영역</th><th>가장 낮은 영역</th><th>종합 등급</th>
+    </tr>
+    <tr>
+      <td class="row-head">홍길동</td>
+      <td><strong>IQ 112</strong></td>
+      <td>언어적 지능 (A+)</td>
+      <td>수·공간 지능 (B)</td>
+      <td><span class="grade-box grade-A">A · 상위 22%</span></td>
+    </tr>
+  </table>
+
+  <div class="section-title"><span class="section-icon">■</span> 다중 지능 영역별 분석</div>
+  <table class="data-table">
+    <tr>
+      <th>능력 영역</th><th>점수</th><th>소속평균</th>
+      <th style="width:180px;">그래프</th><th>등급</th><th>특성</th>
+    </tr>
+    <tr data-intel="verbal">
+      <td class="row-head">언어적 지능</td><td>92</td><td>71</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:92%"></div></div><span class="prog-bar-val">92</span></div></td>
+      <td><span class="grade-box grade-A-plus">A+</span></td>
+      <td style="text-align:left;font-size:10px;">읽기·쓰기·토론 우수</td>
+    </tr>
+    <tr data-intel="logical">
+      <td class="row-head">논리·수학 지능</td><td>75</td><td>68</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:75%"></div></div><span class="prog-bar-val">75</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">분석·추론 양호</td>
+    </tr>
+    <tr data-intel="spatial">
+      <td class="row-head">공간 지능</td><td>62</td><td>65</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:62%"></div></div><span class="prog-bar-val">62</span></div></td>
+      <td><span class="grade-box grade-B">B</span></td>
+      <td style="text-align:left;font-size:10px;">도형·공간 인식 보통</td>
+    </tr>
+    <tr data-intel="musical">
+      <td class="row-head">음악 지능</td><td>78</td><td>60</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:78%"></div></div><span class="prog-bar-val">78</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">리듬감·청각 민감</td>
+    </tr>
+    <tr data-intel="bodily">
+      <td class="row-head">신체·운동 지능</td><td>83</td><td>66</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:83%"></div></div><span class="prog-bar-val">83</span></div></td>
+      <td><span class="grade-box grade-A">A</span></td>
+      <td style="text-align:left;font-size:10px;">협응·운동 능력 우수</td>
+    </tr>
+    <tr data-intel="interpersonal">
+      <td class="row-head">대인 지능</td><td>88</td><td>70</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:88%"></div></div><span class="prog-bar-val">88</span></div></td>
+      <td><span class="grade-box grade-A">A</span></td>
+      <td style="text-align:left;font-size:10px;">사회적 이해 뛰어남</td>
+    </tr>
+    <tr data-intel="intrapersonal">
+      <td class="row-head">자기성찰 지능</td><td>70</td><td>63</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:70%"></div></div><span class="prog-bar-val">70</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">자기 이해 보통</td>
+    </tr>
+    <tr data-intel="naturalist">
+      <td class="row-head">자연 지능</td><td>72</td><td>64</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:72%"></div></div><span class="prog-bar-val">72</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">환경·생태 관심 양호</td>
+    </tr>
+  </table>
+
+  <div class="section-title-diamond" style="margin-top:14px;">◆ 지능 레인보우 종합 점수</div>
+  <div style="padding:0 10px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px;">
+      <span style="font-size:11px;color:#555;">지능 종합 지수</span>
+      <span style="font-size:18px;font-weight:900;color:#2B5BA8;">IQ 112 &nbsp;<span class="grade-box grade-A">A</span></span>
+    </div>
+    <div class="rainbow-bar-wrap">
+      <div class="rainbow-bar" id="rainbow-bar-iq">
+        <!-- 마커 JS 삽입 -->
+      </div>
+      <div class="rainbow-label-row">
+        <span>70</span><span>80</span><span>90</span><span>100</span><span>110</span><span>120</span><span>130+</span>
+      </div>
+      <div class="rainbow-grade-row">
+        <div class="grade-seg">D</div>
+        <div class="grade-seg">C</div>
+        <div class="grade-seg">B</div>
+        <div class="grade-seg">B+</div>
+        <div class="grade-seg">A</div>
+        <div class="grade-seg">A+</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     PAGE 7 : 진로·적성 계열별 분석
+================================= -->
+<div class="page" id="p-career">
+  <div class="page-header">
+    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title">◆ 진로·적성 계열별 분석</div>
+    <div class="page-num">7 / 12</div>
+  </div>
+
+  <div class="section-title-diamond">◆ 계열 적성 분석 (기준점수 vs 받은점수)</div>
+  <p style="font-size:10px;color:#888;margin-bottom:8px;">■ 기준점수(연한색) &nbsp; ■ 받은점수(진한색)</p>
+
+  <table class="data-table" style="margin-bottom:12px;">
+    <tr>
+      <th style="width:80px;">계열</th>
+      <th>항목</th>
+      <th>기준점수</th>
+      <th>받은점수</th>
+      <th style="width:200px;">비교 그래프</th>
+      <th>적합도</th>
+    </tr>
+    <!-- 인문계 -->
+    <tr><td class="row-head" rowspan="3" style="vertical-align:middle;background:#dde4f0;color:#1a3a6e;font-weight:700;">인문계</td>
+      <td>언어 능력</td><td>75</td><td>92</td>
+      <td><div class="dual-bar-row" style="margin:0;">
+        <div class="dual-bar-bg" style="flex:1;">
+          <div class="dual-bar-std" style="width:75%"></div>
+          <div class="dual-bar-got" style="width:92%;top:2px;"></div>
+        </div></div></td>
+      <td><span class="grade-box grade-A-plus">A+</span></td>
+    </tr>
+    <tr><td>사회 이해</td><td>70</td><td>80</td>
+      <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
+        <div class="dual-bar-std" style="width:70%"></div>
+        <div class="dual-bar-got" style="width:80%;top:2px;"></div>
+      </div></div></td>
+      <td><span class="grade-box grade-A">A</span></td>
+    </tr>
+    <tr><td>논리적 사고</td><td>70</td><td>75</td>
+      <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
+        <div class="dual-bar-std" style="width:70%"></div>
+        <div class="dual-bar-got" style="width:75%;top:2px;"></div>
+      </div></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+    </tr>
+    <!-- 자연계 -->
+    <tr><td class="row-head" rowspan="3" style="vertical-align:middle;background:#dde4f0;color:#1a3a6e;font-weight:700;">자연계</td>
+      <td>수리 능력</td><td>75</td><td>62</td>
+      <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
+        <div class="dual-bar-std" style="width:75%"></div>
+        <div class="dual-bar-got" style="width:62%;top:2px;"></div>
+      </div></div></td>
+      <td><span class="grade-box grade-B">B</span></td>
+    </tr>
+    <tr><td>공간 지각</td><td>70</td><td>62</td>
+      <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
+        <div class="dual-bar-std" style="width:70%"></div>
+        <div class="dual-bar-got" style="width:62%;top:2px;"></div>
+      </div></div></td>
+      <td><span class="grade-box grade-C">C</span></td>
+    </tr>
+    <tr><td>과학적 탐구</td><td>70</td><td>68</td>
+      <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
+        <div class="dual-bar-std" style="width:70%"></div>
+        <div class="dual-bar-got" style="width:68%;top:2px;"></div>
+      </div></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+    </tr>
+    <!-- 예능계 -->
+    <tr><td class="row-head" rowspan="2" style="vertical-align:middle;background:#dde4f0;color:#1a3a6e;font-weight:700;">예능계</td>
+      <td>음악 감수성</td><td>65</td><td>78</td>
+      <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
+        <div class="dual-bar-std" style="width:65%"></div>
+        <div class="dual-bar-got" style="width:78%;top:2px;"></div>
+      </div></div></td>
+      <td><span class="grade-box grade-A">A</span></td>
+    </tr>
+    <tr><td>미술 창의</td><td>65</td><td>72</td>
+      <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
+        <div class="dual-bar-std" style="width:65%"></div>
+        <div class="dual-bar-got" style="width:72%;top:2px;"></div>
+      </div></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+    </tr>
+    <!-- 체육계 -->
+    <tr><td class="row-head" rowspan="2" style="vertical-align:middle;background:#dde4f0;color:#1a3a6e;font-weight:700;">체육계</td>
+      <td>신체 협응</td><td>65</td><td>83</td>
+      <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
+        <div class="dual-bar-std" style="width:65%"></div>
+        <div class="dual-bar-got" style="width:83%;top:2px;"></div>
+      </div></div></td>
+      <td><span class="grade-box grade-A-plus">A+</span></td>
+    </tr>
+    <tr><td>지구력·집중력</td><td>65</td><td>76</td>
+      <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
+        <div class="dual-bar-std" style="width:65%"></div>
+        <div class="dual-bar-got" style="width:76%;top:2px;"></div>
+      </div></div></td>
+      <td><span class="grade-box grade-A">A</span></td>
+    </tr>
+  </table>
+
+  <!-- 계열 종합 의견 -->
+  <div class="section-title"><span class="section-icon">■</span> 계열 적합도 종합 의견</div>
+  <table class="data-table">
+    <tr><th style="width:70px;">계열</th><th>종합 점수</th><th>적합 등급</th><th>비고</th></tr>
+    <tr><td class="row-head">인문계</td><td>82</td><td><span class="grade-box grade-A">A · 매우 적합</span></td><td style="text-align:left;">언어·사회 계열 진학 강력 추천</td></tr>
+    <tr><td class="row-head">자연계</td><td>64</td><td><span class="grade-box grade-B">B · 보통</span></td><td style="text-align:left;">수리 보완 후 재검토 권장</td></tr>
+    <tr><td class="row-head">예능계</td><td>75</td><td><span class="grade-box grade-B-plus">B+ · 적합</span></td><td style="text-align:left;">음악·미디어 계열 고려 가능</td></tr>
+    <tr><td class="row-head">체육계</td><td>80</td><td><span class="grade-box grade-A">A · 적합</span></td><td style="text-align:left;">스포츠·체육교육 계열 추천</td></tr>
+  </table>
+
+  <div class="alert-box" style="background:#fff8e1;border-color:#ffe082;color:#5d4037;margin-top:10px;">
+    <strong>※ 최우선 추천 진로 계열 : 인문계</strong><br>
+    언어적 지능(A+), 사회성(A+), 대인지능(A)이 모두 높아 인문·사회·미디어 계열이 가장 적합합니다.
+  </div>
+</div>
+
+<!-- ==============================
+     PAGE 8 : 학습역량성취도
+================================= -->
+<div class="page" id="p-learning">
+  <div class="page-header">
+    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title">◆ 학습역량성취도</div>
+    <div class="page-num">8 / 12</div>
+  </div>
+
+  <div class="section-title-diamond">◆ 과목별 학습 역량 분석</div>
+  <table class="data-table" style="margin-bottom:14px;">
+    <tr>
+      <th>과목</th><th>역량점수</th><th>전국평균</th>
+      <th style="width:220px;">레인보우 위치</th><th>등급</th>
+    </tr>
+    <tr data-subject="korean">
+      <td class="row-head">국 어</td><td data-sc>88</td><td>72</td>
+      <td>
+        <div style="height:12px;border-radius:6px;background:linear-gradient(to right,#e53935,#ef6c00,#f9a825,#43a047,#00897b,#1565c0);position:relative;">
+          <div class="rb-marker" style="position:absolute;top:-3px;left:88%;width:16px;height:16px;background:#fff;border:2px solid #2B5BA8;border-radius:50%;transform:translateX(-50%);font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2B5BA8;">88</div>
+        </div>
+      </td>
+      <td><span class="grade-box grade-A">A</span></td>
+    </tr>
+    <tr data-subject="math">
+      <td class="row-head">수 학</td><td data-sc>65</td><td>70</td>
+      <td>
+        <div style="height:12px;border-radius:6px;background:linear-gradient(to right,#e53935,#ef6c00,#f9a825,#43a047,#00897b,#1565c0);position:relative;">
+          <div class="rb-marker" style="position:absolute;top:-3px;left:65%;width:16px;height:16px;background:#fff;border:2px solid #f9a825;border-radius:50%;transform:translateX(-50%);font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#e65100;">65</div>
+        </div>
+      </td>
+      <td><span class="grade-box grade-B">B</span></td>
+    </tr>
+    <tr data-subject="english">
+      <td class="row-head">외국어</td><td data-sc>82</td><td>68</td>
+      <td>
+        <div style="height:12px;border-radius:6px;background:linear-gradient(to right,#e53935,#ef6c00,#f9a825,#43a047,#00897b,#1565c0);position:relative;">
+          <div class="rb-marker" style="position:absolute;top:-3px;left:82%;width:16px;height:16px;background:#fff;border:2px solid #43a047;border-radius:50%;transform:translateX(-50%);font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2e7d32;">82</div>
+        </div>
+      </td>
+      <td><span class="grade-box grade-A">A</span></td>
+    </tr>
+    <tr data-subject="social">
+      <td class="row-head">사 회</td><td data-sc>80</td><td>66</td>
+      <td>
+        <div style="height:12px;border-radius:6px;background:linear-gradient(to right,#e53935,#ef6c00,#f9a825,#43a047,#00897b,#1565c0);position:relative;">
+          <div class="rb-marker" style="position:absolute;top:-3px;left:80%;width:16px;height:16px;background:#fff;border:2px solid #43a047;border-radius:50%;transform:translateX(-50%);font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2e7d32;">80</div>
+        </div>
+      </td>
+      <td><span class="grade-box grade-A">A</span></td>
+    </tr>
+    <tr data-subject="science">
+      <td class="row-head">과 학</td><td data-sc>68</td><td>69</td>
+      <td>
+        <div style="height:12px;border-radius:6px;background:linear-gradient(to right,#e53935,#ef6c00,#f9a825,#43a047,#00897b,#1565c0);position:relative;">
+          <div class="rb-marker" style="position:absolute;top:-3px;left:68%;width:16px;height:16px;background:#fff;border:2px solid #f9a825;border-radius:50%;transform:translateX(-50%);font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#e65100;">68</div>
+        </div>
+      </td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+    </tr>
+    <tr data-subject="arts">
+      <td class="row-head">예 능</td><td data-sc>76</td><td>62</td>
+      <td>
+        <div style="height:12px;border-radius:6px;background:linear-gradient(to right,#e53935,#ef6c00,#f9a825,#43a047,#00897b,#1565c0);position:relative;">
+          <div class="rb-marker" style="position:absolute;top:-3px;left:76%;width:16px;height:16px;background:#fff;border:2px solid #43a047;border-radius:50%;transform:translateX(-50%);font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2e7d32;">76</div>
+        </div>
+      </td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+    </tr>
+    <tr data-subject="pe">
+      <td class="row-head">체 육</td><td data-sc>84</td><td>65</td>
+      <td>
+        <div style="height:12px;border-radius:6px;background:linear-gradient(to right,#e53935,#ef6c00,#f9a825,#43a047,#00897b,#1565c0);position:relative;">
+          <div class="rb-marker" style="position:absolute;top:-3px;left:84%;width:16px;height:16px;background:#fff;border:2px solid #00897b;border-radius:50%;transform:translateX(-50%);font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#004d40;">84</div>
+        </div>
+      </td>
+      <td><span class="grade-box grade-A">A</span></td>
+    </tr>
+  </table>
+
+  <!-- 학습 역량 세부 -->
+  <div class="section-title"><span class="section-icon">■</span> 학습 역량 세부 분석</div>
+  <table class="data-table">
+    <tr><th>역량</th><th>점수</th><th>평균</th><th style="width:180px;">그래프</th><th>등급</th><th>코멘트</th></tr>
+    <tr>
+      <td class="row-head">집중력</td><td>78</td><td>65</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:78%"></div></div><span class="prog-bar-val">78</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">장시간 집중 가능, 게임 시 주의</td>
+    </tr>
+    <tr>
+      <td class="row-head">기억력</td><td>82</td><td>67</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:82%"></div></div><span class="prog-bar-val">82</span></div></td>
+      <td><span class="grade-box grade-A">A</span></td>
+      <td style="text-align:left;font-size:10px;">단기 기억 우수, 복습 강화 권장</td>
+    </tr>
+    <tr>
+      <td class="row-head">메타인지</td><td>66</td><td>61</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:66%"></div></div><span class="prog-bar-val">66</span></div></td>
+      <td><span class="grade-box grade-B">B</span></td>
+      <td style="text-align:left;font-size:10px;">자기 학습 인식 향상 필요</td>
+    </tr>
+    <tr>
+      <td class="row-head">학습 동기</td><td>72</td><td>64</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:72%"></div></div><span class="prog-bar-val">72</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">목표 설정 시 동기 상승</td>
+    </tr>
+    <tr>
+      <td class="row-head">자기주도학습</td><td>68</td><td>63</td>
+      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:68%"></div></div><span class="prog-bar-val">68</span></div></td>
+      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td style="text-align:left;font-size:10px;">학습 계획 루틴화 권장</td>
+    </tr>
+  </table>
+
+  <div class="section-title"><span class="section-icon">■</span> 학습역량 종합 의견</div>
+  <p class="desc-para">홍길동 학생은 국어·외국어·사회 과목에서 전국 평균 대비 높은 역량을 보이며, 언어·사회 계열 학습에 적합한 특성을 갖추고 있습니다. 수학·과학 영역은 보완이 필요하지만, 강점 과목을 중심으로 진로를 설계하면 높은 성취가 기대됩니다. 메타인지 역량 향상을 위해 학습 일지 작성과 자기 점검 습관을 기를 것을 권장합니다.</p>
+</div>
+
+<!-- ==============================
+     PAGE 9 : 종합 결론 + 추천 직업
+================================= -->
+<div class="page" id="p-conclusion">
+  <div class="page-header">
+    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title">◆ 종합 결론 및 진로 추천</div>
+    <div class="page-num">9 / 12</div>
+  </div>
+
+  <div class="section-title-diamond">◆ AI PIA 종합 평가 요약</div>
+  <table class="data-table" style="margin-bottom:12px;">
+    <tr><th>평가 영역</th><th>종합 점수</th><th>등급</th><th>비고</th></tr>
+    <tr><td class="row-head">인성 검사</td><td>72</td><td><span class="grade-box grade-B-plus">B+</span></td><td style="text-align:left;">사회성·공감 강점, 정서안정 보완 필요</td></tr>
+    <tr><td class="row-head">지능 지수</td><td>IQ 112</td><td><span class="grade-box grade-A">A</span></td><td style="text-align:left;">언어·대인지능 탁월</td></tr>
+    <tr><td class="row-head">진로 적성</td><td>82</td><td><span class="grade-box grade-A">A</span></td><td style="text-align:left;">인문계열 최적합</td></tr>
+    <tr><td class="row-head">학습 역량</td><td>77</td><td><span class="grade-box grade-B-plus">B+</span></td><td style="text-align:left;">국어·외국어 강세</td></tr>
+    <tr style="background:#dde4f0;"><td class="row-head bold">종 합</td><td><strong>78</strong></td><td><span class="grade-box grade-B-plus">B+</span></td><td style="text-align:left;font-weight:700;">인문·사회·미디어 계열 강력 추천</td></tr>
+  </table>
+
+  <div class="section-title"><span class="section-icon">■</span> AI 진로 추천 직업군 (Top 5)</div>
+  <table class="data-table" style="margin-bottom:12px;">
+    <tr><th>순위</th><th>직업군</th><th>관련 계열</th><th>적합 근거</th></tr>
+    <tr><td>1위</td><td class="row-head">언론인 / 방송 PD</td><td>인문·미디어</td><td style="text-align:left;">언어지능 A+, 사회성 A+, 리더십 A</td></tr>
+    <tr><td>2위</td><td class="row-head">사회복지사 / 상담사</td><td>사회·복지</td><td style="text-align:left;">공감능력 A, 도덕성 B+, 대인지능 A</td></tr>
+    <tr><td>3위</td><td class="row-head">교사 / 교육 전문가</td><td>사범·교육</td><td style="text-align:left;">리더십 A, 사회성 A+, 언어지능 A+</td></tr>
+    <tr><td>4위</td><td class="row-head">스포츠 지도자</td><td>체육·스포츠</td><td style="text-align:left;">신체지능 A, 리더십 A, 사회성 A+</td></tr>
+    <tr><td>5위</td><td class="row-head">음악 치료사</td><td>예능·복지</td><td style="text-align:left;">음악지능 B+, 공감능력 A, 정서 관심</td></tr>
+  </table>
+
+  <div class="section-title"><span class="section-icon">■</span> 담당교사·부모님께 드리는 종합 코멘트</div>
+  <table class="data-table">
+    <tr><th>구분</th><th>내용</th></tr>
+    <tr>
+      <td class="row-head">강점 지원</td>
+      <td style="text-align:left;">사회성과 언어 능력이 뛰어난 학생입니다. 토론, 독서, 발표 기회를 늘려 강점을 극대화해주세요.</td>
+    </tr>
+    <tr>
+      <td class="row-head">보완 사항</td>
+      <td style="text-align:left;">정서 안정(P6 C등급)이 또래 평균 이하입니다. 규칙적 수면과 운동, 학교 상담 교사와의 정기 면담을 권장합니다.</td>
+    </tr>
+    <tr>
+      <td class="row-head">주의 사항</td>
+      <td style="text-align:left;">자기통제 능력이 평균 수준이므로 과도한 스마트폰·게임 사용을 제한하고 자기 조절 루틴을 형성할 수 있도록 도와주세요.</td>
+    </tr>
+  </table>
+
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:30px;padding-top:20px;border-top:1px solid #ddd;">
+    <div style="font-size:11px;color:#555;">
+      <strong>발급 기관 :</strong> AI PIA 교육연구원<br>
+      <strong>검사 도구 :</strong> 표준화 인·적성 검사 v4.2 (교육부 인가 제262호)<br>
+      <strong>발급일 :</strong> 2026년 06월 14일
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     JS : 레인보우 마커 + 레이더
+================================= -->
+    </div>
+  </div>
+</section>
+
 <section data-view="help" class="hidden space-y-4">
   <div class="bg-rose-50 border-2 border-rose-300 rounded-2xl p-5">
     <h2 class="text-xl font-bold text-rose-900 mb-2">지금 도움이 필요하다면</h2>
@@ -1744,6 +2841,7 @@ function showView(name) {
   if (name === 'gad') renderGad();
   if (name === 'sjt') renderSjt();
   if (name === 'result') renderResult();
+  if (name === 'fullreport') { document.getElementById('btn-fullreport-nav').classList.remove('hidden'); }
 }
 
 // =================================================================
@@ -4668,168 +5766,371 @@ showView = function(name) {
 window.safeStartRecognition = safeStartRecognition;
 window.safeStopRecognition = safeStopRecognition;
 
-// =================================================================
-//  v3.9.2 — 검사 완료 시 결과 즉시 반영 검증 + UX 보강
-// =================================================================
 
-// 검사 완료 화면에 "통합 결과 보기" 큰 버튼 + 미니 결과 즉시 표시 강화
-function enhanceCompletionScreen(testKey, testName) {
-  setTimeout(() => {
-    const viewId = testKey === 'conv' ? 'chat' : testKey === 'sjt' ? 'sjt' : testKey;
-    const section = document.querySelector(`section[data-view="${viewId}"]`);
-    if (!section) return;
-    const content = section.querySelector(`#${viewId}-content`) || section;
+// ===== 결과지 JS =====
 
-    // 점수 계산 검증 (즉시 표시)
-    const scores = state.results[testKey]?.scores;
-    const isDone = (testKey==='conv' ? state.results.conv.turns >= 8 :
-                    testKey==='sjt' ? state.results.sjt.answers.length >= 30 :
-                    !!scores);
+// ---- 레인보우 바 마커 삽입 ----
+function insertMarker(barId, score, label, cssClass, offset) {
+  const bar = document.getElementById(barId);
+  if (!bar) return;
+  const pct = Math.min(Math.max(score, 0), 100);
 
-    if (!isDone) return;
+  // 점수 마커
+  const m = document.createElement('div');
+  m.className = 'score-marker';
+  m.style.left = pct + '%';
+  m.innerHTML = '<div class="score-marker-circle">' + score + '</div>';
+  bar.appendChild(m);
 
-    // 완료 카드가 이미 있으면 제거 후 재생성
-    const oldCard = content.querySelector('.completion-result-card');
-    if (oldCard) oldCard.remove();
-
-    // 검사별 즉시 미니 결과 텍스트
-    let miniResult = '';
-    if (testKey === 'big5' && scores) {
-      const top = [['외향',scores.E],['우호',scores.A],['성실',scores.C],['정서안정',100-scores.N],['개방',scores.O]].sort((a,b)=>b[1]-a[1])[0];
-      miniResult = `최고 차원: <strong>${top[0]} (${top[1]}점)</strong> · 5요인 모두 측정 완료`;
-    } else if (testKey === 'riasec' && scores) {
-      const code = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join('');
-      miniResult = `Holland 코드: <strong>${code}</strong>`;
-    } else if (testKey === 'via' && scores) {
-      const top3 = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join(' · ');
-      miniResult = `상위 강점 3개: <strong>${top3}</strong>`;
-    } else if (testKey === 'grit' && scores) {
-      miniResult = `Grit 종합: <strong>${scores.overall}점</strong> (${scores.overall>=70?'장기 목표 강함':scores.overall>=50?'균형':'단기 변동'})`;
-    } else if (testKey === 'cesd' && scores) {
-      miniResult = `우울 스크리닝: <strong>${scores.level}</strong> (${scores.total}/30)`;
-    } else if (testKey === 'phqa' && scores) {
-      miniResult = `청소년 우울: <strong>${scores.level}</strong> (${scores.total}/27)${scores.selfHarm>0?' ⚠ 자해 신호':''}`;
-    } else if (testKey === 'gad' && scores) {
-      miniResult = `불안: <strong>${scores.level}</strong> (${scores.total}/21)`;
-    } else if (testKey === 'sjt') {
-      miniResult = `<strong>${state.results.sjt.answers.length}/30 시나리오</strong> 응답 완료. 16차원 누적.`;
-    } else if (testKey === 'conv') {
-      miniResult = `자유대화 <strong>${state.results.conv.turns}턴</strong> 완료. 의미 분석 누적.`;
-    }
-
-    // 통합 결과 미리보기
-    const type = inferIntegratedType();
-    const reliability = calcReliability();
-
-    const card = document.createElement('div');
-    card.className = 'completion-result-card mt-4';
-    card.innerHTML = `
-      <div class="bg-gradient-to-br from-emerald-50 to-sky-50 border-2 border-emerald-400 rounded-2xl p-5">
-        <div class="text-center mb-3">
-          <div class="text-3xl mb-1">✅</div>
-          <h3 class="text-base font-bold text-emerald-900">${testName} 결과가 반영되었습니다</h3>
-        </div>
-        <div class="bg-white rounded-lg p-3 mb-3">
-          <div class="text-xs text-slate-500 mb-1">이 검사 결과</div>
-          <p class="text-sm text-slate-800">${miniResult || '점수가 통합 분석에 반영되었습니다.'}</p>
-        </div>
-        <div class="bg-white rounded-lg p-3 mb-3">
-          <div class="text-xs text-slate-500 mb-1">현재 통합 16유형 (실시간 갱신)</div>
-          <p class="text-base font-bold text-violet-900">${type.icon} ${type.name}</p>
-          <p class="text-xs text-slate-600 mt-1">신뢰도 등급: <strong>${reliability.grade}</strong> (${reliability.label}) · 완료 ${reliability.completed.length}/6</p>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="showView('result')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg text-sm font-bold">
-            📊 통합 결과 보기
-          </button>
-          <button onclick="showView('home')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-lg text-sm font-bold">
-            ➕ 다음 검사
-          </button>
-        </div>
-        ${(function(){
-          const next = getNextRecommendedTest();
-          if (!next) return '';
-          const names = { chat:'자유대화', via:'VIA 24강점', big5:'Big5-50', grit:'Grit-S', riasec:'RIASEC', sjt:'SJT', cesd:'CES-D', phqa:'PHQ-A', gad:'GAD-7' };
-          return `<div class="mt-3 p-2 bg-sky-50 rounded text-xs text-sky-900 text-center">💡 다음 추천: <strong>${names[next]}</strong></div>`;
-        })()}
-      </div>`;
-    content.appendChild(card);
-  }, 300);
+  // 평균 레이블
+  if (label) {
+    const lbl = document.createElement('div');
+    lbl.className = 'avg-label ' + (cssClass || '');
+    lbl.style.left = (pct + (offset || 0)) + '%';
+    lbl.textContent = label;
+    bar.appendChild(lbl);
+  }
 }
 
-// 각 검사 render 함수 후킹 — 완료 시 보강 카드 표시
-const _testNameMap = {
-  big5: 'IPIP Big5-50',
-  riasec: 'RIASEC 진로 흥미',
-  via: 'VIA Youth 24',
-  grit: 'Grit-S 끈기',
-  cesd: 'CES-D-10 우울',
-  phqa: 'PHQ-A 청소년 우울',
-  gad: 'GAD-7 불안',
-  sjt: 'SJT 상황 판단',
-  conv: '자유대화'
+// ════════════════════════════════════════════════
+// localStorage 동적 데이터 로드 시스템
+// ════════════════════════════════════════════════
+const GRADE_THRESHOLDS = [
+  {min:85,cls:'grade-A-plus',label:'A+'},
+  {min:75,cls:'grade-A',label:'A'},
+  {min:65,cls:'grade-B-plus',label:'B+'},
+  {min:55,cls:'grade-B',label:'B'},
+  {min:45,cls:'grade-C',label:'C'},
+  {min:0, cls:'grade-D',label:'D'}
+];
+function getGrade(sc){return GRADE_THRESHOLDS.find(g=>sc>=g.min)||GRADE_THRESHOLDS[5];}
+function gradeHtml(sc){const g=getGrade(sc);return `<span class="grade-box ${g.cls}">${g.label}</span>`;}
+
+// 기본 샘플 데이터 (localStorage가 없을 때)
+const DEFAULT_DATA = {
+  name:'홍길동', school:'한국중학교', grade:'2학년 3반', num:'15번',
+  gender:'남', age:14, testDate:'2026-06-13T09:30:00', t16:'INFJ',
+  career:'A형(예술)', risk:'low',
+  scores:{
+    P1:85,P2:64,P3:78,P4:91,P5:70,P6:56,P7:82,P8:75,P9:68,
+    personality:72, iq:112,
+    intel:{verbal:92,logical:75,spatial:62,musical:78,bodily:83,interpersonal:88,intrapersonal:70,naturalist:72},
+    riasec:{R:42,I:58,A:87,S:71,E:35,C:29},
+    aptitude:{문인문:82,자자연:64,예예능:75,체체육:80},
+    subjects:{korean:88,math:65,english:82,social:80,science:68,arts:76,pe:84}
+  }
 };
 
-// renderXxx 함수들을 후킹
-['Big5','Riasec','Via','Grit','Cesd','Phqa','Gad'].forEach(fnName => {
-  const key = fnName.toLowerCase();
-  const original = window['render' + fnName];
-  if (typeof original === 'function') {
-    window['render' + fnName] = function() {
-      original.apply(this, arguments);
-      // 완료 체크
-      const total = { big5:50, riasec:30, via:24, grit:8, cesd:10, phqa:9, gad:7 }[key];
-      if (state.results[key]?.answers?.length >= total) {
-        enhanceCompletionScreen(key, _testNameMap[key]);
-      }
-    };
+function loadPiaData(){
+  try{
+    const id = localStorage.getItem('pia_current_id');
+    const all = JSON.parse(localStorage.getItem('pia_results')||'[]');
+    if(id && all.length>0){
+      const found=all.find(s=>s.id===id)||all[all.length-1];
+      if(found) return found;
+    }
+  }catch(e){}
+  return DEFAULT_DATA;
+}
+
+function populateResult(d){
+  const sc = d.scores || {};
+  // ── 표지 ──
+  setText('cover-name', d.name||'홍길동');
+  setText('cover-school', d.school||'');
+  setText('cover-grade', d.grade||'');
+  setText('cover-date', fmtDate(d.testDate));
+
+  // ── 학생 정보 테이블 ──
+  document.querySelectorAll('[data-pia="name"]').forEach(el=>el.textContent=d.name||'홍길동');
+  document.querySelectorAll('[data-pia="school"]').forEach(el=>el.textContent=d.school||'');
+  document.querySelectorAll('[data-pia="grade"]').forEach(el=>el.textContent=d.grade||'');
+  document.querySelectorAll('[data-pia="testDate"]').forEach(el=>el.textContent=fmtDate(d.testDate));
+  document.querySelectorAll('[data-pia="gender"]').forEach(el=>el.textContent=d.gender||'');
+  document.querySelectorAll('[data-pia="age"]').forEach(el=>el.textContent=d.age?(d.age+'세'):'');
+
+  // ── P1~P9 게이지 업데이트 ──
+  ['P1','P2','P3','P4','P5','P6','P7','P8','P9'].forEach(p=>{
+    const v = sc[p]||70;
+    const arc = 188.5*(1-v/100);
+    document.querySelectorAll(`[data-gauge="${p}"]`).forEach(path=>{
+      path.setAttribute('stroke-dashoffset', arc.toFixed(1));
+      const g = getGrade(v);
+      path.setAttribute('stroke', gradeColor(g.label));
+    });
+    document.querySelectorAll(`[data-gauge-score="${p}"]`).forEach(el=>el.textContent=v);
+    document.querySelectorAll(`[data-gauge-grade="${p}"]`).forEach(el=>{el.textContent=getGrade(v).label+' 등급';});
+  });
+
+  // ── 레인보우 바 (인성 종합) ──
+  insertMarker('rainbow-bar-1', sc.personality||72, null);
+  insertMarker('rainbow-bar-1', 68, 'CLASS 68', 'cls', 0);
+  insertMarker('rainbow-bar-1', 65, 'SCHOOL 65', 'sch', 0);
+
+  // ── IQ 레인보우 바 ──
+  const iqV = sc.iq||112;
+  const iqBar = document.getElementById('rainbow-bar-iq');
+  if(iqBar){
+    const pm=document.createElement('div');
+    pm.className='score-marker';
+    pm.style.left=iqPct(iqV)+'%';
+    pm.innerHTML='<div class="score-marker-circle" style="font-size:9px;">'+iqV+'</div>';
+    iqBar.appendChild(pm);
   }
+
+  // ── P요약 테이블 업데이트 ──
+  const pTbl = document.getElementById('p-summary-table');
+  if(pTbl){
+    const rows = pTbl.querySelectorAll('tr:not(:first-child)');
+    const pKeys=['P1','P2','P3','P4','P5','P6','P7','P8','P9'];
+    rows.forEach((row,i)=>{
+      const p=pKeys[i]; if(!p)return;
+      const v=sc[p]||70;
+      const cells=row.querySelectorAll('td');
+      if(cells[2])cells[2].textContent=v;
+      // 미니바
+      const fill=row.querySelector('.mini-bar-fill');
+      if(fill){fill.style.width=v+'%';fill.style.background=gradeColor(getGrade(v).label);}
+      // 등급박스
+      const gb=row.querySelector('.grade-box');
+      if(gb){const g=getGrade(v);gb.className='grade-box '+g.cls;gb.textContent=g.label;}
+    });
+  }
+
+  // ── 다중지능 바 (page6) ──
+  document.querySelectorAll('[data-intel]').forEach(el=>{
+    const k=el.getAttribute('data-intel');
+    const v=sc.intel?.[k]||70;
+    const fill=el.querySelector('.prog-bar-fill');
+    const val=el.querySelector('.prog-bar-val');
+    if(fill)fill.style.width=v+'%';
+    if(val)val.textContent=v;
+    // 점수 셀(2번째 td) 업데이트
+    const tds=el.querySelectorAll('td');
+    if(tds[1])tds[1].textContent=v;
+    // 등급 박스 업데이트
+    const gb=el.querySelector('.grade-box');
+    if(gb){const g=getGrade(v);gb.className='grade-box '+g.cls;gb.textContent=g.label;}
+  });
+
+  // ── 과목별 학습역량 ──
+  document.querySelectorAll('[data-subject]').forEach(el=>{
+    const k=el.getAttribute('data-subject');
+    const v=sc.subjects?.[k]||70;
+    // 레인보우 마커 위치 + 텍스트
+    const marker=el.querySelector('.rb-marker');
+    if(marker){marker.style.left=v+'%';marker.textContent=v;}
+    // 점수 셀
+    const scTd=el.querySelector('[data-sc]');
+    if(scTd)scTd.textContent=v;
+    // 등급 박스
+    const gb=el.querySelector('.grade-box');
+    if(gb){const g=getGrade(v);gb.className='grade-box '+g.cls;gb.textContent=g.label;}
+  });
+
+  // ── 종합 결론 업데이트 ──
+  const pAvg = sc.personality||72;
+  const topRiasec = sc.riasec ? Object.entries(sc.riasec).sort((a,b)=>b[1]-a[1]) : [['A',87]];
+  const rMap = {R:'현실형',I:'탐구형',A:'예술형',S:'사회형',E:'사업형',C:'관습형'};
+
+  // 뒤로가기 버튼 표시
+  const backBtn=document.getElementById('btn-back-student');
+  if(backBtn)backBtn.style.display='inline-flex';
+}
+
+function setText(id, val){const el=document.getElementById(id);if(el)el.textContent=val;}
+function fmtDate(iso){if(!iso)return '';const d=new Date(iso);return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일';}
+function gradeColor(label){
+  return {'A':'#00897b','A+':'#1565c0','B+':'#43a047','B':'#f9a825','C':'#ef6c00','D':'#e53935'}[label]||'#2B5BA8';
+}
+
+// 인성 종합 점수 바 (기본값, populateResult로 덮어씀)
+function iqPct(iq){return Math.min(Math.max((iq-70)/60*100,0),100);}
+
+// 오각형 레이더 공통 함수
+function buildRadar(svgId, scores){
+  const svg=document.getElementById(svgId);
+  if(!svg)return;
+  const cx=130,cy=130,maxR=90;
+  const angles=scores.map((_,i)=>-Math.PI/2+(2*Math.PI*i)/5);
+  const gridG=svg.querySelector('#grid-lines');
+  if(gridG) gridG.innerHTML='';
+  [0.33,0.66,1.0].forEach(ratio=>{
+    const pts=angles.map(a=>{const r=maxR*ratio;return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1);});
+    const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points',pts.join(' '));poly.setAttribute('fill','none');
+    poly.setAttribute('stroke',ratio===1.0?'#999':'#ddd');poly.setAttribute('stroke-width','0.8');
+    if(gridG)gridG.appendChild(poly);
+    angles.forEach(a=>{const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',cx);line.setAttribute('y1',cy);line.setAttribute('x2',(cx+maxR*Math.cos(a)).toFixed(1));line.setAttribute('y2',(cy+maxR*Math.sin(a)).toFixed(1));line.setAttribute('stroke','#ddd');line.setAttribute('stroke-width','0.8');if(gridG)gridG.appendChild(line);});
+  });
+  const dataPts=scores.map((s,i)=>{const r=maxR*s/100;return (cx+r*Math.cos(angles[i])).toFixed(1)+','+(cy+r*Math.sin(angles[i])).toFixed(1);});
+  const dataPoly=svg.querySelector('#radar-data')||svg.getElementById('radar-data');
+  if(dataPoly)dataPoly.setAttribute('points',dataPts.join(' '));
+  // 기존 점 제거 후 재그리기
+  svg.querySelectorAll('circle.rdot').forEach(c=>c.remove());
+  scores.forEach((s,i)=>{const r=maxR*s/100;const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');dot.setAttribute('cx',(cx+r*Math.cos(angles[i])).toFixed(1));dot.setAttribute('cy',(cy+r*Math.sin(angles[i])).toFixed(1));dot.setAttribute('r','4');dot.setAttribute('fill','#2B5BA8');dot.setAttribute('class','rdot');svg.appendChild(dot);});
+}
+
+// ── 페이지 로드 시 실행 ──
+document.addEventListener('DOMContentLoaded', function(){
+  const d = loadPiaData();
+  populateResult(d);
+  // 오각형 레이더 (데이터 기반)
+  const sc = d.scores||{};
+  buildRadar('radar-svg',[
+    sc.P7||82, sc.P6||78, sc.P2||65, sc.P5||85, sc.P4||91
+  ]);
 });
 
-// SJT 완료도 후킹
-const _origRenderSjt = renderSjt;
-renderSjt = function() {
-  _origRenderSjt.apply(this, arguments);
-  if (state.results.sjt.answers.length >= 30) {
-    enhanceCompletionScreen('sjt', 'SJT 상황 판단');
-  }
-};
+// ── 오각형 레이더 SVG (하위호환) ──
+(function() {
+  const svg = document.getElementById('radar-svg');
+  if (!svg) return;
 
-// 검사 메뉴 (홈)에 "결과 보기" 항상 노출 강화 — 데이터 있으면
-function injectGoToResultBar() {
-  const home = document.querySelector('section[data-view="home"]');
-  if (!home) return;
-  const doneCount = Object.keys(getCompletedTests()).length;
-  if (doneCount === 0) return;
-  let bar = el('goto-result-bar');
-  if (!bar) {
-    bar = document.createElement('div');
-    bar.id = 'goto-result-bar';
-    bar.className = 'col-span-full sticky top-2 z-10';
-    home.insertBefore(bar, home.firstChild);
-  }
+  const cx = 130, cy = 130, maxR = 90;
+  const scores = [82, 78, 65, 85, 91]; // DOMContentLoaded에서 덮어씀
+  const angles = scores.map((_, i) => -Math.PI / 2 + (2 * Math.PI * i) / 5);
+
+  // 그리드 (3단계)
+  const gridG = svg.getElementById('grid-lines') || svg.querySelector('#grid-lines');
+  [0.33, 0.66, 1.0].forEach(ratio => {
+    const pts = angles.map(a => {
+      const r = maxR * ratio;
+      return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1);
+    });
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', pts.join(' '));
+    poly.setAttribute('fill', 'none');
+    poly.setAttribute('stroke', ratio === 1.0 ? '#999' : '#ddd');
+    poly.setAttribute('stroke-width', '0.8');
+    gridG.appendChild(poly);
+
+    // 세로선 (축선)
+    angles.forEach(a => {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+      line.setAttribute('x2', (cx + maxR * Math.cos(a)).toFixed(1));
+      line.setAttribute('y2', (cy + maxR * Math.sin(a)).toFixed(1));
+      line.setAttribute('stroke', '#ddd'); line.setAttribute('stroke-width', '0.8');
+      gridG.appendChild(line);
+    });
+  });
+
+  // 데이터 폴리곤
+  const dataPts = scores.map((s, i) => {
+    const r = maxR * s / 100;
+    return (cx + r * Math.cos(angles[i])).toFixed(1) + ',' + (cy + r * Math.sin(angles[i])).toFixed(1);
+  });
+  const dataPoly = svg.getElementById('radar-data');
+  if(dataPoly) dataPoly.setAttribute('points', dataPts.join(' '));
+
+  // 점수 점
+  scores.forEach((s, i) => {
+    const r = maxR * s / 100;
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', (cx + r * Math.cos(angles[i])).toFixed(1));
+    dot.setAttribute('cy', (cy + r * Math.sin(angles[i])).toFixed(1));
+    dot.setAttribute('r', '4');
+    dot.setAttribute('fill', '#2B5BA8');
+    svg.appendChild(dot);
+  });
+})();
+
+// ===== 브릿지 =====
+
+// =================================================================
+//  AI-PIA v3 → 결과지 데이터 변환 브릿지
+// =================================================================
+function mapAiPiaToResultData() {
+  const big5   = state.results.big5.scores   || {};
+  const riasec = state.results.riasec.scores || {};
+  const via    = state.results.via.scores    || {};
+  const grit   = state.results.grit.scores   || {};
+
+  const avg = (...vals) => {
+    const v = vals.filter(x => x != null && !isNaN(x));
+    return v.length ? Math.round(v.reduce((s,x)=>s+x,0)/v.length) : 70;
+  };
+  const clamp = v => Math.min(100, Math.max(0, Math.round(v)));
+
+  // P1~P9 계산
+  const P1 = clamp(avg(big5.A, via['친절']||0, riasec.S));          // 공감
+  const P2 = clamp(avg(big5.C, grit.perseverance));                  // 자기통제
+  const P3 = clamp(avg(via['정직']||0, via['공정']||0, big5.A));    // 도덕성
+  const P4 = clamp(avg(big5.E, riasec.S, riasec.E));                 // 사회성
+  const P5 = clamp(avg(big5.C, via['끈기']||0, grit.overall));       // 책임감
+  const P6 = clamp(avg(100-(big5.N||50), grit.overall));              // 정서안정
+  const P7 = clamp(avg(riasec.E, big5.E, big5.A));                   // 리더십
+  const P8 = clamp(avg(big5.O, riasec.A, via['창의']||0));           // 창의성
+  const P9 = clamp(avg(grit.overall,
+    riasec ? Math.max(...Object.values(riasec)) : 70));               // 진로성숙
+
+  const personality = clamp(avg(P1,P2,P3,P4,P5,P6,P7,P8,P9));
+
+  // 다중지능
+  const intel = {
+    verbal:       clamp(avg(big5.O, riasec.A, riasec.I)),
+    logical:      clamp(avg(big5.O, riasec.I, big5.C)),
+    spatial:      clamp(avg(riasec.R, riasec.A)),
+    musical:      clamp(avg(riasec.A, via['감사']||0)),
+    bodily:       clamp(avg(riasec.R, big5.E)),
+    interpersonal:clamp(avg(big5.E, big5.A, riasec.S)),
+    intrapersonal:clamp(avg(100-(big5.N||50), big5.O)),
+    naturalist:   clamp(avg(riasec.R, riasec.I))
+  };
+
   const type = inferIntegratedType();
-  bar.innerHTML = `
-    <button onclick="showView('result')" class="w-full bg-gradient-to-r from-violet-600 to-emerald-600 hover:from-violet-700 hover:to-emerald-700 text-white p-3 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-between">
-      <span class="flex items-center gap-2">
-        <span class="text-2xl">${type.icon}</span>
-        <span>현재 결과 보기: ${type.name}</span>
-      </span>
-      <span class="bg-white text-violet-700 px-2 py-1 rounded-full text-xs">${doneCount}/9 완료 →</span>
-    </button>
-  `;
+  const meta = state.meta || {};
+
+  return {
+    id: state.studentId || 'S001',
+    name: meta.name || '학생',
+    school: meta.school || '',
+    grade: meta.grade || '',
+    gender: meta.gender || '',
+    age: meta.age || null,
+    testDate: new Date().toISOString(),
+    t16: type ? type.code : '',
+    career: type ? (type.careers||[])[0]||'' : '',
+    risk: 'low',
+    scores: {
+      P1,P2,P3,P4,P5,P6,P7,P8,P9,
+      personality,
+      iq: clamp(avg(big5.O, riasec.I, 100)),
+      intel,
+      riasec: riasec,
+      aptitude: {
+        '인문': clamp(avg(riasec.A, riasec.S, big5.A)),
+        '자연': clamp(avg(riasec.I, riasec.R, big5.O)),
+        '예능': clamp(avg(riasec.A, big5.O)),
+        '체육': clamp(avg(riasec.R, big5.E))
+      },
+      subjects: {
+        korean:  clamp(avg(riasec.A, big5.O, big5.A)),
+        math:    clamp(avg(riasec.I, big5.O, big5.C)),
+        english: clamp(avg(riasec.A, riasec.I, big5.O)),
+        social:  clamp(avg(riasec.S, big5.A, big5.E)),
+        science: clamp(avg(riasec.I, riasec.R, big5.O)),
+        arts:    clamp(avg(riasec.A, big5.O)),
+        pe:      clamp(avg(riasec.R, big5.E))
+      }
+    }
+  };
 }
 
-// home 진입 시 노출
-const _origShow7 = showView;
-showView = function(name) {
-  _origShow7(name);
-  if (name === 'home') {
-    setTimeout(injectGoToResultBar, 200);
-  }
-};
-
-window.enhanceCompletionScreen = enhanceCompletionScreen;
+function openFullReport() {
+  const d = mapAiPiaToResultData();
+  showView('fullreport');
+  setTimeout(()=>{
+    populateResult(d);
+    const sc = d.scores||{};
+    buildRadar('radar-svg',[sc.P7||70, sc.P6||70, sc.P2||70, sc.P5||70, sc.P4||70]);
+    insertMarker('rainbow-bar-1', sc.personality||70, null);
+    insertMarker('rainbow-bar-1', 68, 'CLASS', 'cls', 0);
+    insertMarker('rainbow-bar-1', 65, 'SCHOOL', 'sch', 0);
+    document.getElementById('fullreport-wrap')?.scrollTo(0,0);
+  }, 80);
+}
 
 </script>
 </body>
