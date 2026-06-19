@@ -3,755 +3,644 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>예담정보통신 관리자</title>
+<title>예담정보통신 관리자 포털</title>
 <style>
-:root {
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --violet: #7c3aed;
-  --sidebar-bg: #0f172a;
-  --sidebar-text: rgba(255,255,255,.65);
-  --sidebar-active: #4f46e5;
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #0f172a;
-  --text2: #475569;
-  --border: rgba(148,163,184,.2);
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
+:root{
+  --primary:#4f46e5;--primary-h:#4338ca;--violet:#7c3aed;
+  --sidebar:#0f172a;--sidebar-t:rgba(255,255,255,.6);
+  --bg:#f1f5f9;--card:#fff;--text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --border:rgba(148,163,184,.18);--border2:#e2e8f0;
+  --ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#3b82f6;
+  --r:10px;--sh:0 1px 3px rgba(0,0,0,.08),0 0 0 1px var(--border);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 
-/* ── 로그인 ── */
-#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4c1d95 100%)}
-.login-box{background:#fff;border-radius:20px;padding:48px 40px;width:380px;box-shadow:0 25px 50px rgba(0,0,0,.35)}
-.login-logo{text-align:center;margin-bottom:32px}
-.login-logo .brand{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.login-logo .sub{font-size:12px;color:var(--text2);margin-top:4px}
-.login-box label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
-.login-box input{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;transition:border .2s}
-.login-box input:focus{border-color:var(--primary)}
-.login-btn{width:100%;margin-top:20px;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
-.login-btn:hover{background:var(--primary-hover)}
-.login-error{display:none;color:var(--danger);font-size:13px;text-align:center;margin-top:12px;padding:8px;background:#fef2f2;border-radius:6px}
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1e1b4b,#4c1d95)}
+.login-box{background:#fff;border-radius:20px;padding:48px 40px;width:380px;box-shadow:0 25px 60px rgba(0,0,0,.4)}
+.login-brand{text-align:center;margin-bottom:32px}
+.login-brand h1{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-brand p{font-size:12px;color:var(--text3);margin-top:4px}
+.login-lbl{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.login-inp{width:100%;padding:11px 14px;border:1.5px solid var(--border2);border-radius:8px;font-size:14px;outline:none;transition:border .2s}
+.login-inp:focus{border-color:var(--primary)}
+.login-btn{width:100%;margin-top:18px;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer}
+.login-btn:hover{background:var(--primary-h)}
+.login-err{display:none;margin-top:10px;padding:8px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;color:var(--err);font-size:12px;text-align:center}
 
-/* ── 앱 레이아웃 ── */
-#app{display:none;min-height:100vh;flex-direction:column}
-.header{height:60px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;position:fixed;top:0;left:0;right:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06)}
-.header-brand{font-size:17px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:auto}
-.header-brand span{font-size:11px;color:var(--text2);font-weight:400;margin-left:6px;-webkit-text-fill-color:var(--text2)}
-.header-right{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--text2)}
-.logout-btn{padding:6px 14px;background:transparent;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .2s}
-.logout-btn:hover{border-color:var(--danger);color:var(--danger)}
-
+/* APP */
+#app{display:none;min-height:100vh}
+.hdr{height:60px;background:#fff;border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;padding:0 24px;gap:16px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.hdr-brand{font-size:16px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr-brand sup{font-size:11px;-webkit-text-fill-color:var(--text3);font-weight:400;margin-left:8px}
+.hdr-sep{flex:1}
+.hdr-right{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text2)}
+.hdr-btn{padding:6px 14px;border:1.5px solid var(--border2);border-radius:6px;cursor:pointer;font-size:12px;color:var(--text2);background:none}
+.hdr-btn:hover{border-color:var(--err);color:var(--err)}
 .layout{display:flex;padding-top:60px;min-height:100vh}
 
-/* ── 사이드바 ── */
-.sidebar{width:240px;background:var(--sidebar-bg);position:fixed;top:60px;left:0;bottom:0;overflow-y:auto;z-index:90}
-.sidebar-nav{padding:16px 0}
-.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;color:var(--sidebar-text);cursor:pointer;transition:all .2s;font-size:14px;border-left:3px solid transparent}
-.nav-item:hover{color:#fff;background:rgba(255,255,255,.06)}
-.nav-item.active{color:#fff;background:rgba(79,70,229,.2);border-left-color:var(--primary)}
-.nav-icon{font-size:17px;min-width:20px;text-align:center}
+/* SIDEBAR */
+.sb{width:240px;background:var(--sidebar);position:fixed;top:60px;left:0;bottom:0;overflow-y:auto;z-index:100}
+.sb::-webkit-scrollbar{width:4px}
+.sb::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.sb-section{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.sb-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:10px 18px 4px}
+.sb-item{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .2s}
+.sb-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sb-item.active{color:#fff;background:rgba(79,70,229,.18);border-left-color:var(--primary)}
+.sb-item-l{display:flex;align-items:center;gap:10px;font-size:13.5px}
+.sb-icon{font-size:16px;min-width:18px;text-align:center}
+.sb-arrow{font-size:10px;color:rgba(255,255,255,.3);transition:transform .25s}
+.sb-arrow.open{transform:rotate(90deg)}
+.sb-sub{overflow:hidden;max-height:0;transition:max-height .3s ease}
+.sb-sub.open{max-height:300px}
+.sb-sub-item{display:flex;align-items:center;gap:8px;padding:8px 18px 8px 46px;color:rgba(255,255,255,.45);cursor:pointer;font-size:13px;border-left:3px solid transparent;transition:all .2s}
+.sb-sub-item:hover{color:#fff;background:rgba(255,255,255,.04)}
+.sb-sub-item.active{color:#a5b4fc;border-left-color:rgba(99,102,241,.6)}
+.sb-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.6;flex-shrink:0}
 
-/* ── 메인 콘텐츠 ── */
-.main{margin-left:240px;flex:1;padding:28px;min-height:calc(100vh - 60px)}
-.section{display:none}
-.section.active{display:block}
-.page-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
-.page-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+/* MAIN */
+.main{margin-left:240px;flex:1;padding:24px;min-height:calc(100vh - 60px)}
+.view{display:none}
+.view.active{display:block}
+.pg-title{font-size:20px;font-weight:800;margin-bottom:2px}
+.pg-sub{font-size:13px;color:var(--text3);margin-bottom:20px}
 
-/* ── 카드 ── */
-.card{background:var(--card);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.07),0 0 0 1px var(--border);padding:20px}
-.card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px}
+/* CARD */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:16px}
 
-/* ── KPI grid ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
-.kpi-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.07),0 0 0 1px var(--border);position:relative;overflow:hidden}
-.kpi-card::before{content:'';position:absolute;top:0;right:0;width:60px;height:100%;background:linear-gradient(135deg,transparent,rgba(79,70,229,.06))}
-.kpi-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.kpi-value{font-size:32px;font-weight:800;color:var(--text);line-height:1}
-.kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;margin-top:8px;padding:3px 8px;border-radius:20px}
-.kpi-badge.up{background:#d1fae5;color:#065f46}
-.kpi-badge.down{background:#fee2e2;color:#991b1b}
-.kpi-badge.warn{background:#fef3c7;color:#92400e}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg-grid .full{grid-column:1/-1}
+.flex{display:flex}.ic{align-items:center}.jb{justify-content:space-between}.gap8{gap:8px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}
 
-/* ── 테이블 ── */
+/* KPI */
+.kpi{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px;overflow:hidden;position:relative}
+.kpi::after{content:'';position:absolute;top:0;right:0;width:50px;height:100%;background:linear-gradient(135deg,transparent,rgba(79,70,229,.05))}
+.kpi-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.kpi-val{font-size:28px;font-weight:900;line-height:1}
+.kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;margin-top:8px;padding:3px 8px;border-radius:20px}
+.ku{background:#d1fae5;color:#065f46}
+.kw{background:#fef3c7;color:#92400e}
+.kd{background:#fee2e2;color:#991b1b}
+.ki{background:#dbeafe;color:#1e40af}
+
+/* BADGE */
+.bdg{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.bdg-g{background:#d1fae5;color:#065f46}
+.bdg-y{background:#fef3c7;color:#92400e}
+.bdg-r{background:#fee2e2;color:#991b1b}
+.bdg-b{background:#dbeafe;color:#1e40af}
+.bdg-v{background:#ede9fe;color:#5b21b6}
+.bdg-gr{background:#f1f5f9;color:#475569}
+
+/* TABLE */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{background:#f8fafc;padding:10px 14px;text-align:left;font-weight:700;color:var(--text2);font-size:12px;border-bottom:1px solid var(--border);white-space:nowrap}
-tbody td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+thead th{background:#f8fafc;padding:9px 14px;text-align:left;font-weight:700;color:var(--text2);font-size:11px;border-bottom:1px solid var(--border2);white-space:nowrap;letter-spacing:.04em;text-transform:uppercase}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
-tbody tr:hover{background:#f1f5f9}
-tbody tr.clickable{cursor:pointer}
+tbody tr.rh:hover{background:#f8fafc;cursor:pointer}
+tbody tr.rs{background:#eef2ff}
 
-/* ── 뱃지 ── */
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.badge-green{background:#d1fae5;color:#065f46}
-.badge-yellow{background:#fef3c7;color:#92400e}
-.badge-red{background:#fee2e2;color:#991b1b}
-.badge-blue{background:#dbeafe;color:#1e40af}
-.badge-gray{background:#f1f5f9;color:#475569}
+/* BTN */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:inherit;white-space:nowrap}
+.bp{background:var(--primary);color:#fff}
+.bp:hover{background:var(--primary-h)}
+.bo{background:transparent;color:var(--text2);border:1.5px solid var(--border2)}
+.bo:hover{border-color:var(--primary);color:var(--primary)}
+.bsm{padding:5px 12px;font-size:12px}
+.bxs{padding:3px 8px;font-size:11px}
+.bok{background:var(--ok);color:#fff}
 
-/* ── 버튼 ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-primary:hover{background:var(--primary-hover)}
-.btn-outline{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
-.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
-.btn-sm{padding:5px 10px;font-size:12px}
-.btn-danger{background:var(--danger);color:#fff}
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:12px;font-weight:600;color:var(--text2)}
+.fg input,.fg select,.fg textarea{padding:9px 12px;border:1.5px solid var(--border2);border-radius:8px;font-size:13px;outline:none;transition:border .2s;background:#fff;font-family:inherit;color:var(--text)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary)}
+.fg textarea{resize:vertical;min-height:80px}
 
-/* ── 시스템 상태 ── */
-.status-list{display:flex;flex-direction:column;gap:10px}
-.status-row{display:flex;align-items:center;justify-content:space-between;font-size:13px}
-.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
-.dot-green{background:var(--success)}
-.dot-yellow{background:var(--warning)}
-.dot-red{background:var(--danger)}
+/* TABS */
+.tab-bar{display:flex;border-bottom:2px solid var(--border2);margin-bottom:20px}
+.tab{padding:10px 18px;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab:hover{color:var(--primary)}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tp{display:none}
+.tp.active{display:block}
 
-/* ── 섹션 헤더 ── */
-.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:gap}
+/* MODAL */
+.mbg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mbg.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:560px;max-width:90vw;max-height:88vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.3)}
+.modal-lg{width:720px}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
+.mhdr h2{font-size:16px;font-weight:800}
+.mclose{background:none;border:none;font-size:20px;color:var(--text3);cursor:pointer;padding:4px}
+.mclose:hover{color:var(--text)}
+.mbody{padding:20px 24px 24px}
+.mfoot{padding:0 24px 20px;display:flex;gap:10px;justify-content:flex-end}
 
-/* ── CSS Bar chart ── */
-.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:8px}
-.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;height:100%}
-.bar-fill{background:linear-gradient(180deg,var(--primary),var(--violet));border-radius:4px 4px 0 0;width:100%;transition:height .3s;min-height:4px}
-.bar-label{font-size:11px;color:var(--text2);margin-top:5px;white-space:nowrap}
-.bar-val{font-size:10px;color:var(--text2);margin-top:2px}
+/* TOGGLE */
+.tog{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tog-sl{position:absolute;inset:0;background:#cbd5e1;border-radius:10px;transition:.3s}
+.tog-sl::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
+.tog input:checked+.tog-sl{background:var(--primary)}
+.tog input:checked+.tog-sl::before{transform:translateX(16px)}
 
-/* ── 폼 ── */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-group{display:flex;flex-direction:column;gap:5px}
-.form-group.full{grid-column:1/-1}
-.form-group label{font-size:12px;font-weight:600;color:var(--text2)}
-.form-group input,.form-group select,.form-group textarea{padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;transition:border .2s;background:#fff;font-family:inherit;color:var(--text)}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary)}
-.form-group textarea{resize:vertical;min-height:80px}
+/* MISC */
+.div{height:1px;background:var(--border);margin:14px 0}
+.alert-warn{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:12px 14px;font-size:13px;color:#92400e}
+.alert-info{background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:12px 14px;font-size:13px;color:#1e40af}
+.sys-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.sys-row:last-child{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;flex-shrink:0}
+.dot-g{background:var(--ok)}.dot-y{background:var(--warn)}.dot-r{background:var(--err)}
 
-/* ── 토글 스위치 ── */
-.toggle-wrap{display:flex;align-items:center;gap:8px}
-.toggle{position:relative;width:36px;height:20px;cursor:pointer}
-.toggle input{opacity:0;width:0;height:0;position:absolute}
-.toggle-slider{position:absolute;inset:0;background:#cbd5e1;border-radius:10px;transition:.3s}
-.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
-.toggle input:checked + .toggle-slider{background:var(--primary)}
-.toggle input:checked + .toggle-slider::before{transform:translateX(16px)}
+/* BAR CHART */
+.bc{display:flex;align-items:flex-end;gap:10px;height:130px}
+.bc-col{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;justify-content:flex-end}
+.bc-bar{background:linear-gradient(180deg,var(--primary),var(--violet));border-radius:5px 5px 0 0;width:100%;min-height:4px}
+.bc-lb{font-size:11px;color:var(--text3);margin-top:4px}
+.bc-vl{font-size:10px;color:var(--text2);margin-top:1px}
 
-/* ── 문의 상세 패널 ── */
-.inquiry-layout{display:grid;grid-template-columns:1fr 360px;gap:16px}
-.detail-panel{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.07),0 0 0 1px var(--border);padding:20px;display:none}
-.detail-panel.open{display:block}
+/* PCT */
+.pr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pl{min-width:72px;color:var(--text2);font-size:12px}
+.pb{flex:1;background:#f1f5f9;border-radius:4px;height:8px;overflow:hidden}
+.pf{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--violet))}
+.pn{min-width:32px;text-align:right;font-weight:700;font-size:13px}
 
-/* ── 방문자 통계 ── */
-.stats-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;margin-top:16px}
-.pct-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
-.pct-bar-wrap{flex:1;background:#f1f5f9;border-radius:4px;height:8px;overflow:hidden}
-.pct-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--violet))}
-.pct-num{min-width:32px;text-align:right;font-weight:700;color:var(--text)}
-.pct-label{min-width:80px;color:var(--text2)}
+/* ORDER */
+.ob{background:none;border:1px solid var(--border2);border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:11px;display:inline-flex;align-items:center;justify-content:center;color:var(--text2)}
+.ob:hover{border-color:var(--primary);color:var(--primary)}
 
-/* ── 안내 배너 ── */
-.alert-banner{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;font-size:13px;color:#92400e;margin-bottom:16px}
+/* QUICK ACTIONS */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.qa{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:16px 14px;text-align:center;cursor:pointer;transition:all .25s;border:1.5px solid transparent}
+.qa:hover{border-color:var(--primary);background:#eef2ff}
+.qa-icon{font-size:22px;margin-bottom:6px}
+.qa-label{font-size:12px;font-weight:600;color:var(--text2)}
 
-/* ── Toast ── */
-#toast{position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
-#toast.show{opacity:1;transform:translateY(0)}
+/* TIMELINE */
+.tl{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:12px;padding-bottom:14px;position:relative}
+.tl-item::before{content:'';position:absolute;left:13px;top:28px;bottom:0;width:1px;background:var(--border)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.td-b{background:#dbeafe;color:#1e40af}.td-g{background:#d1fae5;color:#065f46}.td-y{background:#fef3c7;color:#92400e}
+.tl-body{flex:1}
+.tl-ttl{font-size:13px;font-weight:600}
+.tl-sub{font-size:12px;color:var(--text3);margin-top:2px}
 
-/* ── 반응형 ── */
-@media(max-width:900px){
-  .kpi-grid{grid-template-columns:1fr 1fr}
-  .stats-grid{grid-template-columns:1fr}
-  .inquiry-layout{grid-template-columns:1fr}
-}
-@media(max-width:600px){
-  .kpi-grid{grid-template-columns:1fr}
-  .form-grid{grid-template-columns:1fr}
-}
+/* INQ */
+.inq-layout{display:grid;grid-template-columns:1fr 360px;gap:16px}
+.inq-panel{display:none;background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:20px;max-height:calc(100vh - 140px);overflow-y:auto;position:sticky;top:84px}
+.inq-panel.open{display:block}
 
-/* ── 추가 유틸 ── */
-.mt8{margin-top:8px}
-.mt16{margin-top:16px}
-.mt20{margin-top:20px}
-.mb16{margin-bottom:16px}
-.gap8{gap:8px}
-.flex{display:flex}
-.items-center{align-items:center}
-.justify-between{justify-content:space-between}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.g3{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.28);z-index:9999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+#toast.show{opacity:1;transform:none}
 
-.order-btn{background:none;border:1px solid var(--border);border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
-.order-btn:hover{border-color:var(--primary);color:var(--primary)}
-.action-link{color:var(--primary);cursor:pointer;font-size:12px;text-decoration:underline}
-.action-link:hover{color:var(--primary-hover)}
-.divider{height:1px;background:var(--border);margin:16px 0}
+@media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.inq-layout{grid-template-columns:1fr}.inq-panel{position:static;max-height:none}}
+@media(max-width:600px){.g2,.g3,.fg-grid{grid-template-columns:1fr}.qa-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 
-<!-- ════════════════ 로그인 화면 ════════════════ -->
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">
-      <div class="brand">㈜예담정보통신</div>
-      <div class="sub">AI 에듀테크 · 관리자 포털</div>
+    <div class="login-brand">
+      <h1>㈜예담정보통신</h1>
+      <p>AI 에듀테크 · 관리자 포털</p>
     </div>
-    <div class="form-group" style="margin-bottom:16px">
-      <label for="pw">비밀번호</label>
-      <input type="password" id="pw" placeholder="비밀번호 입력" autocomplete="current-password">
-    </div>
+    <label class="login-lbl" for="pw">비밀번호</label>
+    <input type="password" class="login-inp" id="pw" placeholder="비밀번호 입력" autocomplete="current-password">
     <button class="login-btn" onclick="doLogin()">로그인</button>
-    <div class="login-error" id="login-error">비밀번호가 올바르지 않습니다</div>
+    <div class="login-err" id="login-err">비밀번호가 올바르지 않습니다</div>
   </div>
 </div>
 
-<!-- ════════════════ 앱 ════════════════ -->
+<!-- APP -->
 <div id="app">
-  <!-- 헤더 -->
-  <header class="header">
-    <div class="header-brand">㈜예담정보통신 <span>관리자 포털</span></div>
-    <div class="header-right">
-      <span>👤 관리자</span>
-      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  <header class="hdr">
+    <div class="hdr-brand">㈜예담정보통신<sup>관리자 포털</sup></div>
+    <div class="hdr-sep"></div>
+    <div class="hdr-right">
+      <span class="dot dot-g"></span>
+      <span id="hdr-date"></span>
+      <span style="color:var(--border2)">|</span>
+      <span>관리자</span>
+      <button class="hdr-btn" onclick="doLogout()">로그아웃</button>
     </div>
   </header>
 
   <div class="layout">
-    <!-- 사이드바 -->
-    <nav class="sidebar">
-      <div class="sidebar-nav">
-        <div class="nav-item active" onclick="nav('dashboard',this)">
-          <span class="nav-icon">📊</span> 대시보드
+    <!-- SIDEBAR -->
+    <nav class="sb">
+      <div class="sb-section">
+        <div class="sb-lbl">메인</div>
+        <div class="sb-item active" id="n-dashboard" onclick="goView('dashboard')">
+          <div class="sb-item-l"><span class="sb-icon">📊</span>대시보드</div>
         </div>
-        <div class="nav-item" onclick="nav('aipia',this)">
-          <span class="nav-icon">🧠</span> AI PIA 관리
+      </div>
+      <div class="sb-section">
+        <div class="sb-lbl">서비스 관리</div>
+        <!-- AI PIA -->
+        <div class="sb-item" id="n-aipia" onclick="toggleAcc('acc-aipia','arr-aipia')">
+          <div class="sb-item-l"><span class="sb-icon">🧠</span>AI PIA 관리</div>
+          <span class="sb-arrow" id="arr-aipia">›</span>
         </div>
-        <div class="nav-item" onclick="nav('content',this)">
-          <span class="nav-icon">📋</span> 홈페이지 콘텐츠
+        <div class="sb-sub" id="acc-aipia">
+          <div class="sb-sub-item" id="sn-pia-list" onclick="goSub('aipia','pia-list','sn-pia-list')"><span class="sb-dot"></span>기관 목록</div>
+          <div class="sb-sub-item" id="sn-pia-report" onclick="goSub('aipia','pia-report','sn-pia-report')"><span class="sb-dot"></span>리포트 현황</div>
+          <div class="sb-sub-item" id="sn-pia-trial" onclick="goSub('aipia','pia-trial','sn-pia-trial')"><span class="sb-dot"></span>체험 신청</div>
+          <div class="sb-sub-item" id="sn-pia-add" onclick="goSub('aipia','pia-add','sn-pia-add')"><span class="sb-dot"></span>기관 등록</div>
         </div>
-        <div class="nav-item" onclick="nav('partners',this)">
-          <span class="nav-icon">🤝</span> 파트너 로고
+        <!-- ClassBoard -->
+        <div class="sb-item" id="n-classboard" onclick="goView('classboard')">
+          <div class="sb-item-l"><span class="sb-icon">📋</span>ClassBoard</div>
         </div>
-        <div class="nav-item" onclick="nav('inquiry',this)">
-          <span class="nav-icon">📬</span> 문의 관리
+        <!-- 홈페이지 -->
+        <div class="sb-item" id="n-content" onclick="toggleAcc('acc-cont','arr-cont')">
+          <div class="sb-item-l"><span class="sb-icon">🌐</span>홈페이지 콘텐츠</div>
+          <span class="sb-arrow" id="arr-cont">›</span>
         </div>
-        <div class="nav-item" onclick="nav('stats',this)">
-          <span class="nav-icon">📈</span> 방문자 통계
+        <div class="sb-sub" id="acc-cont">
+          <div class="sb-sub-item" id="sn-cont-hero" onclick="goSub('content','cont-hero','sn-cont-hero')"><span class="sb-dot"></span>히어로 섹션</div>
+          <div class="sb-sub-item" id="sn-cont-sol" onclick="goSub('content','cont-sol','sn-cont-sol')"><span class="sb-dot"></span>솔루션 카드</div>
+          <div class="sb-sub-item" id="sn-cont-about" onclick="goSub('content','cont-about','sn-cont-about')"><span class="sb-dot"></span>회사 소개</div>
         </div>
-        <div class="nav-item" onclick="nav('settings',this)">
-          <span class="nav-icon">⚙️</span> 사이트 설정
+      </div>
+      <div class="sb-section">
+        <div class="sb-lbl">운영 관리</div>
+        <div class="sb-item" id="n-partners" onclick="goView('partners')">
+          <div class="sb-item-l"><span class="sb-icon">🤝</span>파트너 로고</div>
+        </div>
+        <div class="sb-item" id="n-inquiry" onclick="toggleAcc('acc-inq','arr-inq')">
+          <div class="sb-item-l"><span class="sb-icon">📬</span>문의 관리</div>
+          <span class="sb-arrow" id="arr-inq">›</span>
+        </div>
+        <div class="sb-sub" id="acc-inq">
+          <div class="sb-sub-item" id="sn-inq-all" onclick="goSub('inquiry','inq-all','sn-inq-all')"><span class="sb-dot"></span>전체 문의</div>
+          <div class="sb-sub-item" id="sn-inq-pend" onclick="goSub('inquiry','inq-pend','sn-inq-pend')"><span class="sb-dot"></span>미처리 <span class="bdg bdg-r" id="sb-pend" style="font-size:10px;margin-left:4px">3</span></div>
+        </div>
+        <div class="sb-item" id="n-stats" onclick="goView('stats')">
+          <div class="sb-item-l"><span class="sb-icon">📈</span>방문자 통계</div>
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-lbl">설정</div>
+        <div class="sb-item" id="n-settings" onclick="goView('settings')">
+          <div class="sb-item-l"><span class="sb-icon">⚙️</span>사이트 설정</div>
         </div>
       </div>
     </nav>
 
-    <!-- 메인 -->
+    <!-- MAIN -->
     <main class="main">
 
-      <!-- ── 대시보드 ── -->
-      <div class="section active" id="s-dashboard">
-        <div class="page-title">대시보드</div>
-        <div class="page-sub">yedam.kr 운영 현황 · 2026-06-20 기준</div>
-
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-label">오늘 방문자</div>
-            <div class="kpi-value">247</div>
-            <div class="kpi-badge up">▲ 12% 전일 대비</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">AI PIA 활성 기관</div>
-            <div class="kpi-value">12</div>
-            <div class="kpi-badge up">▲ 2 증가</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">미처리 문의</div>
-            <div class="kpi-value">3</div>
-            <div class="kpi-badge warn">⚠ 긴급 처리 필요</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">이번 달 전환</div>
-            <div class="kpi-value">8건</div>
-            <div class="kpi-badge up">▲ 목표 80%</div>
-          </div>
+      <!-- 대시보드 -->
+      <div class="view active" id="v-dashboard">
+        <div class="pg-title">대시보드</div>
+        <div class="pg-sub" id="dash-sub">yedam.kr 운영 현황</div>
+        <div class="g4 mb16">
+          <div class="kpi"><div class="kpi-label">오늘 방문자</div><div class="kpi-val">247</div><div class="kpi-badge ku">▲ 12% 전일</div></div>
+          <div class="kpi"><div class="kpi-label">AI PIA 활성 기관</div><div class="kpi-val" id="kpi-orgs">5</div><div class="kpi-badge ku">운영중</div></div>
+          <div class="kpi"><div class="kpi-label">미처리 문의</div><div class="kpi-val" id="kpi-pend">3</div><div class="kpi-badge kw" id="kpi-pend-bdg">⚠ 긴급</div></div>
+          <div class="kpi"><div class="kpi-label">이번 달 전환</div><div class="kpi-val">8건</div><div class="kpi-badge ku">목표 80%</div></div>
         </div>
-
-        <div class="g2" style="margin-bottom:20px">
+        <div class="g2 mb16">
           <div class="card">
-            <div class="card-title">최근 문의 현황</div>
-            <div class="tbl-wrap">
-              <table>
-                <thead>
-                  <tr><th>날짜</th><th>이름</th><th>기관</th><th>유형</th><th>상태</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>06-18</td><td>김민준</td><td>행복어린이집</td><td>AI PIA 도입</td><td><span class="badge badge-red">미처리</span></td></tr>
-                  <tr><td>06-17</td><td>이수연</td><td>경기교육청</td><td>ClassBoard</td><td><span class="badge badge-yellow">처리중</span></td></tr>
-                  <tr><td>06-16</td><td>박철수</td><td>서울시립어린이집</td><td>AI PIA 체험</td><td><span class="badge badge-green">완료</span></td></tr>
-                  <tr><td>06-15</td><td>최영희</td><td>중앙초등학교</td><td>AREX</td><td><span class="badge badge-red">미처리</span></td></tr>
-                  <tr><td>06-14</td><td>정다운</td><td>부산진구청</td><td>디지털간판</td><td><span class="badge badge-green">완료</span></td></tr>
-                </tbody>
-              </table>
+            <div class="card-title flex ic jb"><span>최근 문의</span><button class="btn bo bxs" onclick="goView('inquiry')">전체 보기</button></div>
+            <div class="tbl-wrap"><table><thead><tr><th>날짜</th><th>이름</th><th>기관</th><th>유형</th><th>상태</th></tr></thead><tbody id="dash-inq-tbody"></tbody></table></div>
+          </div>
+          <div>
+            <div class="card mb16">
+              <div class="card-title">시스템 상태</div>
+              <div class="sys-row"><span><span class="dot dot-g"></span>yedam.kr</span><span class="bdg bdg-g">정상</span></div>
+              <div class="sys-row"><span><span class="dot dot-g"></span>GitHub Pages</span><span class="bdg bdg-g">정상</span></div>
+              <div class="sys-row"><span><span class="dot dot-g"></span>AI PIA API</span><span class="bdg bdg-g">정상</span></div>
+              <div class="sys-row"><span><span class="dot dot-g"></span>이메일 서버</span><span class="bdg bdg-g">정상</span></div>
+              <div style="font-size:11px;color:var(--text3);margin-top:10px">마지막 확인: <span id="hdr-date2"></span></div>
             </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">시스템 상태</div>
-            <div class="status-list">
-              <div class="status-row">
-                <span><span class="status-dot dot-green"></span>웹서버 (yedam.kr)</span>
-                <span class="badge badge-green">정상</span>
+            <div class="card">
+              <div class="card-title">빠른 실행</div>
+              <div class="qa-grid">
+                <div class="qa" onclick="goSub('aipia','pia-add','sn-pia-add')"><div class="qa-icon">➕</div><div class="qa-label">기관 등록</div></div>
+                <div class="qa" onclick="goSub('inquiry','inq-pend','sn-inq-pend')"><div class="qa-icon">📬</div><div class="qa-label">미처리 문의</div></div>
+                <div class="qa" onclick="goView('partners')"><div class="qa-icon">🤝</div><div class="qa-label">파트너 관리</div></div>
+                <div class="qa" onclick="goView('stats')"><div class="qa-icon">📊</div><div class="qa-label">통계 확인</div></div>
               </div>
-              <div class="status-row">
-                <span><span class="status-dot dot-green"></span>GitHub Pages</span>
-                <span class="badge badge-green">정상</span>
-              </div>
-              <div class="status-row">
-                <span><span class="status-dot dot-green"></span>AI PIA API</span>
-                <span class="badge badge-green">정상</span>
-              </div>
-              <div class="status-row">
-                <span><span class="status-dot dot-green"></span>이메일 서버</span>
-                <span class="badge badge-green">정상</span>
-              </div>
-              <div class="status-row">
-                <span><span class="status-dot dot-green"></span>카카오 채널</span>
-                <span class="badge badge-green">정상</span>
-              </div>
-            </div>
-            <div class="divider"></div>
-            <div style="font-size:12px;color:var(--text2)">마지막 확인: 2026-06-20 09:14</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── AI PIA 관리 ── -->
-      <div class="section" id="s-aipia">
-        <div class="page-title">AI PIA 관리</div>
-        <div class="page-sub">영유아 AI 관찰 플랫폼 기관 운영 현황</div>
-
-        <div class="g3" style="margin-bottom:24px">
-          <div class="kpi-card">
-            <div class="kpi-label">등록 기관</div>
-            <div class="kpi-value">12개</div>
-            <div class="kpi-badge up">▲ 2 증가</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">관찰 원아</div>
-            <div class="kpi-value">847명</div>
-            <div class="kpi-badge up">▲ 58명</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">이번 달 리포트</div>
-            <div class="kpi-value">1,234건</div>
-            <div class="kpi-badge up">▲ 3.0%</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">평균 만족도</div>
-            <div class="kpi-value">⭐ 4.7</div>
-            <div class="kpi-badge up">/ 5.0</div>
-          </div>
-        </div>
-
-        <div class="card mb16">
-          <div class="flex items-center justify-between mb16">
-            <div class="card-title" style="margin-bottom:0">등록 기관 목록</div>
-            <button class="btn btn-primary btn-sm" onclick="showAddForm()">＋ 기관 추가</button>
-          </div>
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr><th>기관명</th><th>원아수</th><th>담당교사</th><th>시작일</th><th>플랜</th><th>상태</th><th>액션</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>해피키즈어린이집</strong></td>
-                  <td>48명</td><td>3명</td><td>2024-03</td>
-                  <td><span class="badge badge-blue">프리미엄</span></td>
-                  <td><span class="badge badge-green">운영중</span></td>
-                  <td><span class="action-link" onclick="toast('기관 상세 보기')">상세</span> · <span class="action-link" onclick="toast('수정 모드')">수정</span></td>
-                </tr>
-                <tr>
-                  <td><strong>사랑꽃어린이집</strong></td>
-                  <td>32명</td><td>2명</td><td>2024-06</td>
-                  <td><span class="badge badge-gray">스탠다드</span></td>
-                  <td><span class="badge badge-green">운영중</span></td>
-                  <td><span class="action-link" onclick="toast('기관 상세 보기')">상세</span> · <span class="action-link" onclick="toast('수정 모드')">수정</span></td>
-                </tr>
-                <tr>
-                  <td><strong>꿈나무어린이집</strong></td>
-                  <td>61명</td><td>4명</td><td>2023-11</td>
-                  <td><span class="badge badge-blue">프리미엄</span></td>
-                  <td><span class="badge badge-green">운영중</span></td>
-                  <td><span class="action-link" onclick="toast('기관 상세 보기')">상세</span> · <span class="action-link" onclick="toast('수정 모드')">수정</span></td>
-                </tr>
-                <tr>
-                  <td><strong>별빛어린이집</strong></td>
-                  <td>27명</td><td>2명</td><td>2024-09</td>
-                  <td><span class="badge badge-gray">스탠다드</span></td>
-                  <td><span class="badge badge-yellow">체험중</span></td>
-                  <td><span class="action-link" onclick="toast('기관 상세 보기')">상세</span> · <span class="action-link" onclick="toast('수정 모드')">수정</span></td>
-                </tr>
-                <tr>
-                  <td><strong>무지개어린이집</strong></td>
-                  <td>55명</td><td>3명</td><td>2023-08</td>
-                  <td><span class="badge badge-blue">프리미엄</span></td>
-                  <td><span class="badge badge-green">운영중</span></td>
-                  <td><span class="action-link" onclick="toast('기관 상세 보기')">상세</span> · <span class="action-link" onclick="toast('수정 모드')">수정</span></td>
-                </tr>
-                <tr>
-                  <td><strong>하늘어린이집</strong></td>
-                  <td>19명</td><td>1명</td><td>2025-01</td>
-                  <td><span class="badge" style="background:#ede9fe;color:#5b21b6">베이직</span></td>
-                  <td><span class="badge badge-yellow">체험중</span></td>
-                  <td><span class="action-link" onclick="toast('기관 상세 보기')">상세</span> · <span class="action-link" onclick="toast('수정 모드')">수정</span></td>
-                </tr>
-                <tr>
-                  <td><strong>초록숲어린이집</strong></td>
-                  <td>43명</td><td>3명</td><td>2024-04</td>
-                  <td><span class="badge badge-gray">스탠다드</span></td>
-                  <td><span class="badge badge-green">운영중</span></td>
-                  <td><span class="action-link" onclick="toast('기관 상세 보기')">상세</span> · <span class="action-link" onclick="toast('수정 모드')">수정</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="g2" style="margin-bottom:20px">
-          <div class="card">
-            <div class="card-title">월별 리포트 생성 현황 (최근 6개월)</div>
-            <div class="bar-chart">
-              <div class="bar-col">
-                <div class="bar-fill" style="height:66%"></div>
-                <div class="bar-label">1월</div>
-                <div class="bar-val">823</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:74%"></div>
-                <div class="bar-label">2월</div>
-                <div class="bar-val">921</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:84%"></div>
-                <div class="bar-label">3월</div>
-                <div class="bar-val">1,045</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:91%"></div>
-                <div class="bar-label">4월</div>
-                <div class="bar-val">1,123</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:97%"></div>
-                <div class="bar-label">5월</div>
-                <div class="bar-val">1,198</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:100%"></div>
-                <div class="bar-label">6월</div>
-                <div class="bar-val">1,234</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">체험 신청 목록</div>
-            <div class="tbl-wrap">
-              <table>
-                <thead>
-                  <tr><th>신청일</th><th>기관명</th><th>담당자</th><th>연락처</th><th>상태</th></tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>06-19</td>
-                    <td>미래어린이집</td>
-                    <td>박지수</td>
-                    <td>010-1234-5678</td>
-                    <td><span class="badge badge-yellow">검토중</span></td>
-                  </tr>
-                  <tr>
-                    <td>06-18</td>
-                    <td>예쁜어린이집</td>
-                    <td>최민호</td>
-                    <td>010-9876-5432</td>
-                    <td><span class="badge badge-green">연락완료</span></td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
-
-        <!-- 기관 등록 폼 -->
-        <div class="card" id="add-form" style="display:none">
-          <div class="flex items-center justify-between mb16">
-            <div class="card-title" style="margin-bottom:0">새 기관 등록</div>
-            <button class="btn btn-outline btn-sm" onclick="hideAddForm()">✕ 닫기</button>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>기관명</label>
-              <input type="text" placeholder="어린이집명">
-            </div>
-            <div class="form-group">
-              <label>담당자명</label>
-              <input type="text" placeholder="원장/담당교사">
-            </div>
-            <div class="form-group">
-              <label>연락처</label>
-              <input type="tel" placeholder="010-0000-0000">
-            </div>
-            <div class="form-group">
-              <label>이메일</label>
-              <input type="email" placeholder="example@mail.com">
-            </div>
-            <div class="form-group">
-              <label>플랜 선택</label>
-              <select>
-                <option>베이직</option>
-                <option>스탠다드</option>
-                <option>프리미엄</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>시작일</label>
-              <input type="date">
-            </div>
-            <div class="form-group full">
-              <button class="btn btn-primary" onclick="toast('기관이 등록되었습니다')">저장</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── 홈페이지 콘텐츠 ── -->
-      <div class="section" id="s-content">
-        <div class="page-title">홈페이지 콘텐츠</div>
-        <div class="page-sub">메인 페이지 텍스트 콘텐츠 관리</div>
-
-        <div class="alert-banner">⚠️ 변경사항은 index.html 직접 수정이 필요합니다. 아래 내용을 참고하여 파일을 업데이트하세요.</div>
-
-        <div class="card mb16">
-          <div class="card-title">히어로 섹션</div>
-          <div class="form-grid">
-            <div class="form-group full">
-              <label>히어로 타이틀</label>
-              <input type="text" value="교육의 다음을 함께 설계합니다.">
-            </div>
-            <div class="form-group full">
-              <label>히어로 서브텍스트</label>
-              <input type="text" value="AI 기술로 영유아 교육의 패러다임을 바꿉니다. 예담정보통신이 함께합니다.">
-            </div>
-          </div>
-        </div>
-
-        <div class="card mb16">
-          <div class="card-title">솔루션 제목</div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>솔루션 1</label>
-              <input type="text" value="AI PIA">
-            </div>
-            <div class="form-group">
-              <label>솔루션 2</label>
-              <input type="text" value="AI ClassBoard">
-            </div>
-            <div class="form-group">
-              <label>솔루션 3</label>
-              <input type="text" value="AREX-Climbing">
-            </div>
-            <div class="form-group">
-              <label>솔루션 4</label>
-              <input type="text" value="AI 디지털 간판">
-            </div>
-          </div>
-        </div>
-
-        <button class="btn btn-primary" onclick="toast('콘텐츠가 저장되었습니다')">저장</button>
-      </div>
-
-      <!-- ── 파트너 로고 ── -->
-      <div class="section" id="s-partners">
-        <div class="page-title">파트너 로고 관리</div>
-        <div class="page-sub">홈페이지 파트너 마키 노출 설정</div>
-
         <div class="card">
-          <div class="flex items-center justify-between mb16">
-            <div class="card-title" style="margin-bottom:0">파트너 목록</div>
-            <button class="btn btn-primary btn-sm" onclick="toast('파트너 추가 폼이 열립니다')">＋ 파트너 추가</button>
-          </div>
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr><th>#</th><th>파트너명</th><th>파일명</th><th>상태</th><th>순서</th><th>노출</th></tr>
-              </thead>
-              <tbody id="partner-tbody">
-              </tbody>
-            </table>
-          </div>
-          <div class="mt16">
-            <button class="btn btn-primary" onclick="toast('파트너 설정이 저장되었습니다')">저장</button>
+          <div class="card-title">최근 활동</div>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-dot td-b">📝</div><div class="tl-body"><div class="tl-ttl">새 문의 접수 — 김민준 (행복어린이집)</div><div class="tl-sub">오늘 09:23 · AI PIA 도입 문의</div></div></div>
+            <div class="tl-item"><div class="tl-dot td-g">✅</div><div class="tl-body"><div class="tl-ttl">기관 등록 완료 — 초록숲어린이집</div><div class="tl-sub">어제 15:40 · 스탠다드 플랜</div></div></div>
+            <div class="tl-item"><div class="tl-dot td-y">⚠️</div><div class="tl-body"><div class="tl-ttl">체험 신청 대기 — 미래어린이집</div><div class="tl-sub">어제 11:15 · 담당자 배정 필요</div></div></div>
+            <div class="tl-item"><div class="tl-dot td-b">🚀</div><div class="tl-body"><div class="tl-ttl">홈페이지 배포 완료 — 다크/라이트 테마 토글</div><div class="tl-sub">2026-06-19</div></div></div>
           </div>
         </div>
       </div>
 
-      <!-- ── 문의 관리 ── -->
-      <div class="section" id="s-inquiry">
-        <div class="page-title">문의 관리</div>
-        <div class="page-sub">고객 문의 처리 현황</div>
+      <!-- AI PIA -->
+      <div class="view" id="v-aipia">
+        <div class="pg-title">AI PIA 관리</div>
+        <div class="pg-sub">영유아 AI 관찰 플랫폼 — 기관 운영 현황</div>
+        <div class="g4 mb16">
+          <div class="kpi"><div class="kpi-label">등록 기관</div><div class="kpi-val" id="pia-kpi-org">7개</div><div class="kpi-badge ku">▲ 이번 달 +1</div></div>
+          <div class="kpi"><div class="kpi-label">관찰 원아</div><div class="kpi-val" id="pia-kpi-ch">285명</div><div class="kpi-badge ku">▲ 30명</div></div>
+          <div class="kpi"><div class="kpi-label">이번 달 리포트</div><div class="kpi-val">1,234건</div><div class="kpi-badge ku">▲ 3.0%</div></div>
+          <div class="kpi"><div class="kpi-label">평균 만족도</div><div class="kpi-val">⭐4.7</div><div class="kpi-badge ku">/ 5.0</div></div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab active" id="tab-pia-list" onclick="swTab('pia',['pia-list','pia-report','pia-trial','pia-add'],'pia-list')">📋 기관 목록</div>
+          <div class="tab" id="tab-pia-report" onclick="swTab('pia',['pia-list','pia-report','pia-trial','pia-add'],'pia-report')">📊 리포트 현황</div>
+          <div class="tab" id="tab-pia-trial" onclick="swTab('pia',['pia-list','pia-report','pia-trial','pia-add'],'pia-trial')">🎯 체험 신청</div>
+          <div class="tab" id="tab-pia-add" onclick="swTab('pia',['pia-list','pia-report','pia-trial','pia-add'],'pia-add')">➕ 기관 등록</div>
+        </div>
 
-        <div class="inquiry-layout">
+        <!-- 기관 목록 -->
+        <div class="tp active" id="tp-pia-list">
           <div class="card">
-            <div class="card-title">문의 목록 <span class="badge badge-red" style="margin-left:6px">미처리 3건</span></div>
+            <div class="flex ic jb mb16">
+              <div class="card-title" style="margin:0">등록 기관 <span class="bdg bdg-b" id="pia-cnt-bdg">7개</span></div>
+              <div class="flex gap8">
+                <input id="pia-search" type="text" placeholder="기관명 검색..." style="padding:6px 12px;border:1.5px solid var(--border2);border-radius:8px;font-size:12px;outline:none;width:160px" oninput="renderPia()">
+                <button class="btn bp bsm" onclick="swTab('pia',['pia-list','pia-report','pia-trial','pia-add'],'pia-add')">＋ 기관 추가</button>
+              </div>
+            </div>
             <div class="tbl-wrap">
-              <table>
-                <thead>
-                  <tr><th>날짜</th><th>이름</th><th>기관</th><th>유형</th><th>상태</th></tr>
-                </thead>
-                <tbody>
-                  <tr class="clickable" onclick="openInquiry(0)">
-                    <td>06-18</td><td>김민준</td><td>행복어린이집</td><td>AI PIA 도입</td><td><span class="badge badge-red">미처리</span></td>
-                  </tr>
-                  <tr class="clickable" onclick="openInquiry(1)">
-                    <td>06-17</td><td>이수연</td><td>경기교육청</td><td>ClassBoard</td><td><span class="badge badge-yellow">처리중</span></td>
-                  </tr>
-                  <tr class="clickable" onclick="openInquiry(2)">
-                    <td>06-16</td><td>박철수</td><td>서울시립어린이집</td><td>AI PIA 체험</td><td><span class="badge badge-green">완료</span></td>
-                  </tr>
-                  <tr class="clickable" onclick="openInquiry(3)">
-                    <td>06-15</td><td>최영희</td><td>중앙초등학교</td><td>AREX</td><td><span class="badge badge-red">미처리</span></td>
-                  </tr>
-                  <tr class="clickable" onclick="openInquiry(4)">
-                    <td>06-14</td><td>정다운</td><td>부산진구청</td><td>디지털간판</td><td><span class="badge badge-green">완료</span></td>
-                  </tr>
-                  <tr class="clickable" onclick="openInquiry(5)">
-                    <td>06-13</td><td>홍길동</td><td>세종시교육청</td><td>AI PIA 도입</td><td><span class="badge badge-red">미처리</span></td>
-                  </tr>
-                  <tr class="clickable" onclick="openInquiry(6)">
-                    <td>06-12</td><td>강미래</td><td>인천서구청</td><td>ClassBoard</td><td><span class="badge badge-yellow">처리중</span></td>
-                  </tr>
-                  <tr class="clickable" onclick="openInquiry(7)">
-                    <td>06-10</td><td>윤지호</td><td>대전교육지원청</td><td>AREX</td><td><span class="badge badge-green">완료</span></td>
-                  </tr>
-                </tbody>
-              </table>
+              <table><thead><tr><th>기관명</th><th>원아수</th><th>교사수</th><th>시작일</th><th>플랜</th><th>만료일</th><th>상태</th><th>액션</th></tr></thead>
+              <tbody id="pia-tbody"></tbody></table>
             </div>
           </div>
+        </div>
 
-          <div class="detail-panel" id="inquiry-detail">
-            <div id="detail-content"></div>
+        <!-- 리포트 현황 -->
+        <div class="tp" id="tp-pia-report">
+          <div class="g2 mb16">
+            <div class="card">
+              <div class="card-title">월별 리포트 생성 현황</div>
+              <div class="bc">
+                <div class="bc-col"><div class="bc-bar" style="height:66%"></div><div class="bc-lb">1월</div><div class="bc-vl">823</div></div>
+                <div class="bc-col"><div class="bc-bar" style="height:74%"></div><div class="bc-lb">2월</div><div class="bc-vl">921</div></div>
+                <div class="bc-col"><div class="bc-bar" style="height:84%"></div><div class="bc-lb">3월</div><div class="bc-vl">1,045</div></div>
+                <div class="bc-col"><div class="bc-bar" style="height:91%"></div><div class="bc-lb">4월</div><div class="bc-vl">1,123</div></div>
+                <div class="bc-col"><div class="bc-bar" style="height:97%"></div><div class="bc-lb">5월</div><div class="bc-vl">1,198</div></div>
+                <div class="bc-col"><div class="bc-bar" style="height:100%"></div><div class="bc-lb">6월</div><div class="bc-vl">1,234</div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">기관별 리포트 비중</div>
+              <div class="pr"><div class="pl">해피키즈</div><div class="pb"><div class="pf" style="width:22%"></div></div><span class="pn">22%</span></div>
+              <div class="pr"><div class="pl">꿈나무</div><div class="pb"><div class="pf" style="width:20%"></div></div><span class="pn">20%</span></div>
+              <div class="pr"><div class="pl">무지개</div><div class="pb"><div class="pf" style="width:19%"></div></div><span class="pn">19%</span></div>
+              <div class="pr"><div class="pl">초록숲</div><div class="pb"><div class="pf" style="width:16%"></div></div><span class="pn">16%</span></div>
+              <div class="pr"><div class="pl">기타</div><div class="pb"><div class="pf" style="width:23%"></div></div><span class="pn">23%</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">리포트 유형별</div>
+            <div class="tbl-wrap"><table>
+              <thead><tr><th>유형</th><th>이번 달</th><th>전월</th><th>증감</th></tr></thead>
+              <tbody>
+                <tr><td>발달 종합</td><td>512건</td><td>495건</td><td><span class="bdg bdg-g">▲ 17</span></td></tr>
+                <tr><td>월간 관찰</td><td>398건</td><td>372건</td><td><span class="bdg bdg-g">▲ 26</span></td></tr>
+                <tr><td>학부모 소통</td><td>224건</td><td>218건</td><td><span class="bdg bdg-g">▲ 6</span></td></tr>
+                <tr><td>특이사항 알림</td><td>100건</td><td>113건</td><td><span class="bdg bdg-r">▼ 13</span></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+
+        <!-- 체험 신청 -->
+        <div class="tp" id="tp-pia-trial">
+          <div class="card mb16">
+            <div class="flex ic jb mb16">
+              <div class="card-title" style="margin:0">체험 신청 목록</div>
+              <span class="bdg bdg-y">검토 대기 2건</span>
+            </div>
+            <div class="tbl-wrap"><table>
+              <thead><tr><th>신청일</th><th>기관명</th><th>담당자</th><th>연락처</th><th>원아수</th><th>상태</th><th>액션</th></tr></thead>
+              <tbody id="trial-tbody"></tbody>
+            </table></div>
+          </div>
+        </div>
+
+        <!-- 기관 등록 -->
+        <div class="tp" id="tp-pia-add">
+          <div class="card">
+            <div class="card-title">새 기관 등록</div>
+            <div class="fg-grid">
+              <div class="fg"><label>기관명 *</label><input type="text" id="add-name" placeholder="어린이집명"></div>
+              <div class="fg"><label>담당자명 *</label><input type="text" id="add-mgr" placeholder="원장/담당교사"></div>
+              <div class="fg"><label>연락처 *</label><input type="tel" id="add-tel" placeholder="010-0000-0000"></div>
+              <div class="fg"><label>이메일</label><input type="email" id="add-email" placeholder="email@mail.com"></div>
+              <div class="fg"><label>원아 수</label><input type="number" id="add-ch" placeholder="0" min="1"></div>
+              <div class="fg"><label>교사 수</label><input type="number" id="add-te" placeholder="0" min="1"></div>
+              <div class="fg"><label>플랜</label><select id="add-plan"><option value="베이직">베이직</option><option value="스탠다드" selected>스탠다드</option><option value="프리미엄">프리미엄</option></select></div>
+              <div class="fg"><label>시작일</label><input type="date" id="add-date"></div>
+              <div class="fg full"><label>메모</label><textarea id="add-memo" placeholder="특이사항"></textarea></div>
+              <div class="full flex gap8"><button class="btn bp" onclick="addOrg()">기관 등록</button><button class="btn bo" onclick="clearAdd()">초기화</button></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ── 방문자 통계 ── -->
-      <div class="section" id="s-stats">
-        <div class="page-title">방문자 통계</div>
-        <div class="page-sub">이번 주 (2026-06-14 ~ 06-20)</div>
+      <!-- ClassBoard -->
+      <div class="view" id="v-classboard">
+        <div class="pg-title">AI ClassBoard</div>
+        <div class="pg-sub">스마트 학급 솔루션 도입 현황</div>
+        <div class="alert-info mb16">ClassBoard 상세 관리 기능은 준비 중입니다.</div>
+        <div class="g2">
+          <div class="kpi"><div class="kpi-label">도입 학교</div><div class="kpi-val">3개교</div><div class="kpi-badge ki">협의 중 2건</div></div>
+          <div class="kpi"><div class="kpi-label">활성 라이선스</div><div class="kpi-val">126개</div><div class="kpi-badge ki">교원 라이선스</div></div>
+        </div>
+      </div>
 
-        <div class="stats-grid">
+      <!-- 홈페이지 콘텐츠 -->
+      <div class="view" id="v-content">
+        <div class="pg-title">홈페이지 콘텐츠 관리</div>
+        <div class="pg-sub">yedam.kr 메인 페이지 텍스트 편집</div>
+        <div class="alert-warn mb16">⚠️ 변경사항은 index.html 직접 수정이 필요합니다.</div>
+        <div class="tab-bar">
+          <div class="tab active" id="tab-cont-hero" onclick="swTab('cont',['cont-hero','cont-sol','cont-about'],'cont-hero')">🦸 히어로</div>
+          <div class="tab" id="tab-cont-sol" onclick="swTab('cont',['cont-hero','cont-sol','cont-about'],'cont-sol')">🔧 솔루션</div>
+          <div class="tab" id="tab-cont-about" onclick="swTab('cont',['cont-hero','cont-sol','cont-about'],'cont-about')">🏢 회사소개</div>
+        </div>
+        <div class="tp active" id="tp-cont-hero">
+          <div class="card"><div class="card-title">히어로 섹션</div>
+            <div class="fg-grid">
+              <div class="fg full"><label>메인 타이틀 (KR)</label><input type="text" value="교육의 다음을 함께 설계합니다."></div>
+              <div class="fg full"><label>메인 타이틀 (EN)</label><input type="text" value="Designing the Future of Education."></div>
+              <div class="fg full"><label>서브 텍스트</label><textarea>㈜예담정보통신은 비상교육·현대NGV·국방부 등 국내 주요 교육·공공기관과 함께 11년간 핵심 IT 시스템을 구축해온 전문기업입니다.</textarea></div>
+              <div class="fg full"><label>CTA 버튼</label><input type="text" value="솔루션 살펴보기 →"></div>
+              <div class="full"><button class="btn bp" onclick="toast('히어로 콘텐츠가 저장되었습니다')">저장</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="tp" id="tp-cont-sol">
+          <div class="card mb16"><div class="card-title">Solution 01 · AI PIA</div>
+            <div class="fg-grid">
+              <div class="fg"><label>솔루션명</label><input type="text" value="AI PIA"></div>
+              <div class="fg"><label>태그라인</label><input type="text" value="영유아 발달 플랫폼"></div>
+              <div class="fg full"><label>설명</label><textarea>영유아 관찰 데이터를 AI로 분석해 맞춤형 발달 리포트와 학부모 소통 도구를 제공하는 SaaS 플랫폼.</textarea></div>
+            </div>
+          </div>
+          <div class="card mb16"><div class="card-title">Solution 02 · AI ClassBoard</div>
+            <div class="fg-grid">
+              <div class="fg"><label>솔루션명</label><input type="text" value="AI ClassBoard"></div>
+              <div class="fg"><label>태그라인</label><input type="text" value="스마트 학급 솔루션"></div>
+              <div class="fg full"><label>설명</label><textarea>AI 기반 생활기록부 자동 초안, 학급 운영 대시보드 통합 플랫폼.</textarea></div>
+            </div>
+          </div>
+          <button class="btn bp" onclick="toast('솔루션 콘텐츠가 저장되었습니다')">전체 저장</button>
+        </div>
+        <div class="tp" id="tp-cont-about">
+          <div class="card"><div class="card-title">회사 소개 섹션</div>
+            <div class="fg-grid">
+              <div class="fg full"><label>리드 문구</label><input type="text" value="비상교육 9년 파트너십 위에서 출발한 AI 에듀테크 전문기업"></div>
+              <div class="fg full"><label>본문</label><textarea>2014년 설립 이래 비상교육 RMS 시스템개편을 시작으로 9년간 연속 수행하였습니다.</textarea></div>
+              <div class="full"><button class="btn bp" onclick="toast('회사 소개가 저장되었습니다')">저장</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 파트너 -->
+      <div class="view" id="v-partners">
+        <div class="pg-title">파트너 로고 관리</div>
+        <div class="pg-sub">홈페이지 마퀴 노출 설정</div>
+        <div class="card">
+          <div class="flex ic jb mb16">
+            <div class="card-title" style="margin:0">파트너 목록</div>
+            <button class="btn bp bsm" onclick="openM('m-pa-add')">＋ 파트너 추가</button>
+          </div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>#</th><th>파트너명</th><th>파일명</th><th>순서</th><th>노출</th><th>상태</th></tr></thead>
+            <tbody id="partner-tbody"></tbody>
+          </table></div>
+          <div class="mt16 flex gap8">
+            <button class="btn bp" onclick="toast('파트너 설정이 저장되었습니다')">저장</button>
+            <button class="btn bo" onclick="renderPartners()">초기화</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 문의 -->
+      <div class="view" id="v-inquiry">
+        <div class="pg-title">문의 관리</div>
+        <div class="pg-sub">고객 문의 처리 현황</div>
+        <div class="tab-bar">
+          <div class="tab active" id="tab-inq-all" onclick="swTab('inq',['inq-all','inq-pend'],'inq-all')">전체 문의</div>
+          <div class="tab" id="tab-inq-pend" onclick="swTab('inq',['inq-all','inq-pend'],'inq-pend')">미처리 <span class="bdg bdg-r" id="inq-pend-tc" style="font-size:10px;margin-left:4px">3</span></div>
+        </div>
+        <div class="inq-layout">
+          <div>
+            <div class="tp active" id="tp-inq-all">
+              <div class="card">
+                <div class="card-title">전체 문의 <span class="bdg bdg-gr" id="inq-total-cnt" style="margin-left:6px">8건</span></div>
+                <div class="tbl-wrap"><table><thead><tr><th>날짜</th><th>이름</th><th>기관</th><th>유형</th><th>상태</th></tr></thead><tbody id="inq-all-tbody"></tbody></table></div>
+              </div>
+            </div>
+            <div class="tp" id="tp-inq-pend">
+              <div class="card">
+                <div class="card-title">미처리 문의 <span class="bdg bdg-r" id="inq-pend-cnt" style="margin-left:6px">3건</span></div>
+                <div class="tbl-wrap"><table><thead><tr><th>날짜</th><th>이름</th><th>기관</th><th>유형</th><th>상태</th></tr></thead><tbody id="inq-pend-tbody"></tbody></table></div>
+              </div>
+            </div>
+          </div>
+          <div class="inq-panel" id="inq-panel"><div id="inq-panel-body"></div></div>
+        </div>
+      </div>
+
+      <!-- 통계 -->
+      <div class="view" id="v-stats">
+        <div class="pg-title">방문자 통계</div>
+        <div class="pg-sub">이번 주 (2026-06-14 ~ 06-20)</div>
+        <div class="g2 mb16">
           <div class="card">
             <div class="card-title">주간 방문자</div>
-            <div class="bar-chart" style="height:140px">
-              <div class="bar-col">
-                <div class="bar-fill" style="height:77%"></div>
-                <div class="bar-label">월</div>
-                <div class="bar-val">312</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:71%"></div>
-                <div class="bar-label">화</div>
-                <div class="bar-val">287</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:100%"></div>
-                <div class="bar-label">수</div>
-                <div class="bar-val">405</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:98%"></div>
-                <div class="bar-label">목</div>
-                <div class="bar-val">398</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:88%"></div>
-                <div class="bar-label">금</div>
-                <div class="bar-val">356</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:52%"></div>
-                <div class="bar-label">토</div>
-                <div class="bar-val">211</div>
-              </div>
-              <div class="bar-col">
-                <div class="bar-fill" style="height:44%"></div>
-                <div class="bar-label">일</div>
-                <div class="bar-val">178</div>
-              </div>
+            <div class="bc" style="height:140px">
+              <div class="bc-col"><div class="bc-bar" style="height:77%"></div><div class="bc-lb">월</div><div class="bc-vl">312</div></div>
+              <div class="bc-col"><div class="bc-bar" style="height:71%"></div><div class="bc-lb">화</div><div class="bc-vl">287</div></div>
+              <div class="bc-col"><div class="bc-bar" style="height:100%"></div><div class="bc-lb">수</div><div class="bc-vl">405</div></div>
+              <div class="bc-col"><div class="bc-bar" style="height:98%"></div><div class="bc-lb">목</div><div class="bc-vl">398</div></div>
+              <div class="bc-col"><div class="bc-bar" style="height:88%"></div><div class="bc-lb">금</div><div class="bc-vl">356</div></div>
+              <div class="bc-col"><div class="bc-bar" style="height:52%"></div><div class="bc-lb">토</div><div class="bc-vl">211</div></div>
+              <div class="bc-col"><div class="bc-bar" style="height:44%"></div><div class="bc-lb">일</div><div class="bc-vl">178</div></div>
             </div>
-            <div style="margin-top:12px;font-size:13px;color:var(--text2)">주간 합계: <strong style="color:var(--text)">2,147명</strong></div>
+            <div style="font-size:12px;color:var(--text3);margin-top:10px">주간 합계: <strong style="color:var(--text)">2,147명</strong></div>
           </div>
-
-          <div class="card">
-            <div class="card-title">페이지별 비중</div>
-            <div class="pct-row"><span class="pct-label">홈</span><div class="pct-bar-wrap"><div class="pct-bar" style="width:68%"></div></div><span class="pct-num">68%</span></div>
-            <div class="pct-row"><span class="pct-label">AI PIA</span><div class="pct-bar-wrap"><div class="pct-bar" style="width:21%"></div></div><span class="pct-num">21%</span></div>
-            <div class="pct-row"><span class="pct-label">솔루션</span><div class="pct-bar-wrap"><div class="pct-bar" style="width:8%"></div></div><span class="pct-num">8%</span></div>
-            <div class="pct-row"><span class="pct-label">문의</span><div class="pct-bar-wrap"><div class="pct-bar" style="width:3%"></div></div><span class="pct-num">3%</span></div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">유입 경로</div>
-            <div class="pct-row"><span class="pct-label">검색엔진</span><div class="pct-bar-wrap"><div class="pct-bar" style="width:54%"></div></div><span class="pct-num">54%</span></div>
-            <div class="pct-row"><span class="pct-label">직접</span><div class="pct-bar-wrap"><div class="pct-bar" style="width:28%"></div></div><span class="pct-num">28%</span></div>
-            <div class="pct-row"><span class="pct-label">SNS</span><div class="pct-bar-wrap"><div class="pct-bar" style="width:11%"></div></div><span class="pct-num">11%</span></div>
-            <div class="pct-row"><span class="pct-label">기타</span><div class="pct-bar-wrap"><div class="pct-bar" style="width:7%"></div></div><span class="pct-num">7%</span></div>
+          <div>
+            <div class="card mb16">
+              <div class="card-title">페이지별 비중</div>
+              <div class="pr"><div class="pl">홈</div><div class="pb"><div class="pf" style="width:68%"></div></div><span class="pn">68%</span></div>
+              <div class="pr"><div class="pl">AI PIA</div><div class="pb"><div class="pf" style="width:21%"></div></div><span class="pn">21%</span></div>
+              <div class="pr"><div class="pl">솔루션</div><div class="pb"><div class="pf" style="width:8%"></div></div><span class="pn">8%</span></div>
+              <div class="pr"><div class="pl">문의</div><div class="pb"><div class="pf" style="width:3%"></div></div><span class="pn">3%</span></div>
+            </div>
+            <div class="card">
+              <div class="card-title">유입 경로</div>
+              <div class="pr"><div class="pl">검색엔진</div><div class="pb"><div class="pf" style="width:54%"></div></div><span class="pn">54%</span></div>
+              <div class="pr"><div class="pl">직접</div><div class="pb"><div class="pf" style="width:28%"></div></div><span class="pn">28%</span></div>
+              <div class="pr"><div class="pl">SNS</div><div class="pb"><div class="pf" style="width:11%"></div></div><span class="pn">11%</span></div>
+              <div class="pr"><div class="pl">기타</div><div class="pb"><div class="pf" style="width:7%"></div></div><span class="pn">7%</span></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ── 사이트 설정 ── -->
-      <div class="section" id="s-settings">
-        <div class="page-title">사이트 설정</div>
-        <div class="page-sub">회사 정보 및 SEO 설정</div>
-
-        <div class="card">
-          <div class="card-title">회사 기본 정보</div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>회사명</label>
-              <input type="text" id="s-company" value="㈜예담정보통신">
+      <!-- 설정 -->
+      <div class="view" id="v-settings">
+        <div class="pg-title">사이트 설정</div>
+        <div class="pg-sub">회사 정보 및 SEO 설정</div>
+        <div class="tab-bar">
+          <div class="tab active" id="tab-set-basic" onclick="swTab('set',['set-basic','set-seo','set-contact'],'set-basic')">기본 정보</div>
+          <div class="tab" id="tab-set-seo" onclick="swTab('set',['set-basic','set-seo','set-contact'],'set-seo')">SEO</div>
+          <div class="tab" id="tab-set-contact" onclick="swTab('set',['set-basic','set-seo','set-contact'],'set-contact')">연락처</div>
+        </div>
+        <div class="tp active" id="tp-set-basic">
+          <div class="card"><div class="card-title">기본 정보</div>
+            <div class="fg-grid">
+              <div class="fg"><label>회사명</label><input type="text" id="s-company" value="㈜예담정보통신"></div>
+              <div class="fg"><label>대표자</label><input type="text" id="s-ceo" value="송규봉"></div>
+              <div class="fg"><label>설립일</label><input type="text" id="s-founded" value="2014-09-01"></div>
+              <div class="fg"><label>사업자번호</label><input type="text" id="s-bizno" value="127-86-57189"></div>
+              <div class="fg full"><label>주소</label><input type="text" id="s-addr" value="서울 금천구 가산디지털1로 212, 1405호"></div>
             </div>
-            <div class="form-group">
-              <label>대표자</label>
-              <input type="text" id="s-ceo" value="박지훈">
-            </div>
-            <div class="form-group">
-              <label>대표 전화</label>
-              <input type="tel" id="s-tel" value="02-0000-0000">
-            </div>
-            <div class="form-group">
-              <label>이메일</label>
-              <input type="email" id="s-email" value="info@yedam.kr">
-            </div>
-            <div class="form-group full">
-              <label>주소</label>
-              <input type="text" id="s-addr" value="서울특별시 강남구 테헤란로 123, 예담빌딩 5층">
-            </div>
-            <div class="form-group full">
-              <label>메타 설명 (SEO)</label>
-              <textarea id="s-meta">예담정보통신은 AI 기반 영유아 관찰 플랫폼 AI PIA, AI ClassBoard 등 에듀테크 솔루션을 제공합니다.</textarea>
-            </div>
-            <div class="form-group full">
-              <label>카카오 채널 URL</label>
-              <input type="url" id="s-kakao" value="https://pf.kakao.com/_yedam">
-            </div>
+            <div class="mt16"><button class="btn bp" onclick="saveSettings()">저장</button></div>
           </div>
-          <div class="mt16">
-            <button class="btn btn-primary" onclick="saveSettings()">저장</button>
+        </div>
+        <div class="tp" id="tp-set-seo">
+          <div class="card"><div class="card-title">SEO 메타</div>
+            <div class="fg-grid">
+              <div class="fg full"><label>페이지 타이틀</label><input type="text" id="s-title" value="㈜예담정보통신 | AI 에듀테크 · 교육 IT 전문기업"></div>
+              <div class="fg full"><label>메타 설명</label><textarea id="s-meta">11년간 비상교육·현대NGV·국방부와 함께한 교육 IT 전문기업. AI PIA, AI ClassBoard.</textarea></div>
+            </div>
+            <div class="mt16"><button class="btn bp" onclick="saveSettings();toast('SEO 설정 저장')">저장</button></div>
+          </div>
+        </div>
+        <div class="tp" id="tp-set-contact">
+          <div class="card"><div class="card-title">연락처</div>
+            <div class="fg-grid">
+              <div class="fg"><label>전화</label><input type="tel" id="s-tel" value="02-851-7714"></div>
+              <div class="fg"><label>이메일</label><input type="email" id="s-email" value="info@yedam.kr"></div>
+              <div class="fg full"><label>카카오 채널</label><input type="url" id="s-kakao" value="https://pf.kakao.com/_yedam"></div>
+            </div>
+            <div class="mt16"><button class="btn bp" onclick="saveSettings();toast('연락처 저장')">저장</button></div>
           </div>
         </div>
       </div>
@@ -760,207 +649,371 @@ tbody tr.clickable{cursor:pointer}
   </div>
 </div>
 
-<!-- Toast -->
+<!-- MODALS -->
+<!-- 기관 상세 -->
+<div class="mbg" id="m-org-detail">
+  <div class="modal modal-lg">
+    <div class="mhdr"><h2 id="md-org-title">기관 상세</h2><button class="mclose" onclick="closeM('m-org-detail')">✕</button></div>
+    <div class="mbody" id="md-org-body"></div>
+    <div class="mfoot"><button class="btn bo" onclick="closeM('m-org-detail')">닫기</button><button class="btn bp" id="md-edit-btn">✏️ 수정</button></div>
+  </div>
+</div>
+
+<!-- 기관 수정 -->
+<div class="mbg" id="m-org-edit">
+  <div class="modal">
+    <div class="mhdr"><h2>기관 정보 수정</h2><button class="mclose" onclick="closeM('m-org-edit')">✕</button></div>
+    <div class="mbody">
+      <div class="fg-grid">
+        <div class="fg"><label>기관명</label><input type="text" id="e-name"></div>
+        <div class="fg"><label>담당자</label><input type="text" id="e-mgr"></div>
+        <div class="fg"><label>원아수</label><input type="number" id="e-ch"></div>
+        <div class="fg"><label>교사수</label><input type="number" id="e-te"></div>
+        <div class="fg"><label>플랜</label><select id="e-plan"><option>베이직</option><option>스탠다드</option><option>프리미엄</option></select></div>
+        <div class="fg"><label>상태</label><select id="e-status"><option>운영중</option><option>체험중</option><option>만료</option></select></div>
+        <div class="fg full"><label>메모</label><textarea id="e-memo"></textarea></div>
+      </div>
+    </div>
+    <div class="mfoot"><button class="btn bo" onclick="closeM('m-org-edit')">취소</button><button class="btn bp" onclick="saveEdit()">저장</button></div>
+  </div>
+</div>
+
+<!-- 파트너 추가 -->
+<div class="mbg" id="m-pa-add">
+  <div class="modal">
+    <div class="mhdr"><h2>파트너 추가</h2><button class="mclose" onclick="closeM('m-pa-add')">✕</button></div>
+    <div class="mbody">
+      <div class="fg-grid">
+        <div class="fg full"><label>파트너명 *</label><input type="text" id="pa-name" placeholder="기관/회사명"></div>
+        <div class="fg full"><label>로고 파일명 *</label><input type="text" id="pa-file" placeholder="logo_example.svg"></div>
+        <div class="fg"><label>URL</label><input type="url" id="pa-url" placeholder="https://..."></div>
+        <div class="fg"><label>초기 상태</label><select id="pa-active"><option value="1">활성</option><option value="0">비활성</option></select></div>
+      </div>
+      <div class="alert-info mt12" style="margin-top:12px">이미지 파일을 /images/ 폴더에 먼저 업로드하세요.</div>
+    </div>
+    <div class="mfoot"><button class="btn bo" onclick="closeM('m-pa-add')">취소</button><button class="btn bp" onclick="addPartner()">추가</button></div>
+  </div>
+</div>
+
+<!-- 체험 상세 -->
+<div class="mbg" id="m-trial">
+  <div class="modal">
+    <div class="mhdr"><h2>체험 신청 상세</h2><button class="mclose" onclick="closeM('m-trial')">✕</button></div>
+    <div class="mbody" id="md-trial-body"></div>
+    <div class="mfoot"><button class="btn bo" onclick="closeM('m-trial')">닫기</button><button class="btn bok" id="trial-approve-btn">✅ 체험 승인</button></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
-// ── 인증 ──
-const PASS = 'yedam2026!';
-const SESSION_KEY = 'yedam_admin_session';
+/* ══ DATA ══ */
+var orgs=[
+  {name:'해피키즈어린이집',mgr:'김영숙',tel:'02-111-2222',email:'happy@kids.kr',ch:48,te:3,start:'2024-03',expire:'2025-03',plan:'프리미엄',status:'운영중',memo:''},
+  {name:'사랑꽃어린이집',mgr:'이미래',tel:'031-222-3333',email:'love@flower.kr',ch:32,te:2,start:'2024-06',expire:'2025-06',plan:'스탠다드',status:'운영중',memo:''},
+  {name:'꿈나무어린이집',mgr:'박소희',tel:'02-333-4444',email:'dream@tree.kr',ch:61,te:4,start:'2023-11',expire:'2024-11',plan:'프리미엄',status:'운영중',memo:''},
+  {name:'별빛어린이집',mgr:'최준호',tel:'032-444-5555',email:'star@light.kr',ch:27,te:2,start:'2024-09',expire:'2025-03',plan:'스탠다드',status:'체험중',memo:'3개월 무료 체험 중'},
+  {name:'무지개어린이집',mgr:'정다연',tel:'051-555-6666',email:'rainbow@sun.kr',ch:55,te:3,start:'2023-08',expire:'2025-08',plan:'프리미엄',status:'운영중',memo:''},
+  {name:'하늘어린이집',mgr:'강민우',tel:'042-666-7777',email:'sky@blue.kr',ch:19,te:1,start:'2025-01',expire:'2025-04',plan:'베이직',status:'체험중',memo:'소규모'},
+  {name:'초록숲어린이집',mgr:'윤하영',tel:'062-777-8888',email:'green@forest.kr',ch:43,te:3,start:'2024-04',expire:'2025-04',plan:'스탠다드',status:'운영중',memo:''},
+];
+var trials=[
+  {date:'06-19',name:'미래어린이집',mgr:'박지수',tel:'010-1234-5678',ch:30,status:'검토중'},
+  {date:'06-18',name:'예쁜어린이집',mgr:'최민호',tel:'010-9876-5432',ch:22,status:'연락완료'},
+  {date:'06-15',name:'햇살어린이집',mgr:'이선영',tel:'010-5555-3333',ch:45,status:'검토중'},
+];
+var inqs=[
+  {date:'06-18',name:'김민준',org:'행복어린이집',tel:'010-5555-1234',email:'kim@happy.kr',type:'AI PIA 도입',status:'미처리',content:'어린이집 원아 45명 대상 AI PIA 도입을 검토 중입니다. 비용과 설치 방법, 교사 교육 일정이 궁금합니다.'},
+  {date:'06-17',name:'이수연',org:'경기교육청',tel:'031-000-0000',email:'lee@gg.go.kr',type:'ClassBoard',status:'처리중',content:'경기도 관내 초등학교 100개교에 ClassBoard 솔루션 도입을 검토 중입니다. 데모 시연 일정을 요청드립니다.'},
+  {date:'06-16',name:'박철수',org:'서울시립어린이집',tel:'02-1234-5678',email:'park@seoul.go.kr',type:'AI PIA 체험',status:'완료',content:'AI PIA 3개월 체험 프로그램 신청합니다. 원아 30명, 담당교사 2명입니다.'},
+  {date:'06-15',name:'최영희',org:'중앙초등학교',tel:'02-9876-5432',email:'choi@school.kr',type:'AREX',status:'미처리',content:'AREX-Climbing 교구 납품 견적서를 요청합니다. 학생 200명 기준입니다.'},
+  {date:'06-14',name:'정다운',org:'부산진구청',tel:'051-000-1111',email:'jung@busanjin.go.kr',type:'디지털간판',status:'완료',content:'구청 로비 디지털 간판 2대 설치 관련 문의입니다.'},
+  {date:'06-13',name:'홍길동',org:'세종시교육청',tel:'044-000-0000',email:'hong@sje.go.kr',type:'AI PIA 도입',status:'미처리',content:'세종시 전 어린이집 AI PIA 일괄 도입을 검토합니다. 기관 수 약 85개소입니다.'},
+  {date:'06-12',name:'강미래',org:'인천서구청',tel:'032-000-0000',email:'kang@incheon.kr',type:'ClassBoard',status:'처리중',content:'인천 서구 관내 유치원 ClassBoard 시범 사업 협의 요청드립니다.'},
+  {date:'06-10',name:'윤지호',org:'대전교육지원청',tel:'042-000-0000',email:'yoon@djei.go.kr',type:'AREX',status:'완료',content:'AREX 클라이밍 교구 시범 학교 결과 공유 및 확대 방안 협의 요청입니다.'},
+];
+var partners=[
+  {name:'비상교육',file:'logo_visang.png',active:true},
+  {name:'현대NGV',file:'logo_hyundai.svg',active:true},
+  {name:'경기도청',file:'logo_gg.gif',active:true},
+  {name:'국방부',file:'logo_mnd.svg',active:true},
+  {name:'YBM',file:'logo_ybm.svg',active:true},
+  {name:'스페이스케이',file:'logo_spacek_dark.svg',active:true},
+  {name:'유비온',file:'logo_ubion.png',active:true},
+  {name:'엔페이지',file:'logo_npage.png',active:true},
+  {name:'TTA',file:'logo_tta.svg',active:true},
+  {name:'공군사관학교',file:'logo_airforce_dark.svg',active:true},
+];
 
+/* ══ AUTH ══ */
+var PASS='yedam2026!',SK='yedam_adm_s';
 function doLogin(){
-  var pw = document.getElementById('pw').value;
-  if(pw === PASS){
-    localStorage.setItem(SESSION_KEY, Date.now());
-    showApp();
+  if(document.getElementById('pw').value===PASS){
+    localStorage.setItem(SK,Date.now());showApp();
   } else {
-    document.getElementById('login-error').style.display='block';
+    var e=document.getElementById('login-err');e.style.display='block';
+    setTimeout(function(){e.style.display='none';},3000);
   }
 }
-document.getElementById('pw').addEventListener('keydown', function(e){
-  if(e.key==='Enter') doLogin();
-});
-
-function doLogout(){
-  localStorage.removeItem(SESSION_KEY);
-  document.getElementById('app').style.display='none';
-  document.getElementById('login-screen').style.display='flex';
-  document.getElementById('pw').value='';
-}
-
+document.getElementById('pw').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+function doLogout(){localStorage.removeItem(SK);document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('pw').value='';}
 function showApp(){
   document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='flex';
-  initPartners();
-  loadSettings();
+  document.getElementById('app').style.display='block';
+  var d=new Date().toISOString().slice(0,10);
+  document.getElementById('hdr-date').textContent=d;
+  document.getElementById('hdr-date2')&&(document.getElementById('hdr-date2').textContent=d);
+  document.getElementById('dash-sub').textContent='yedam.kr 운영 현황 · '+d;
+  initAll();
+}
+(function(){if(localStorage.getItem(SK))showApp();})();
+
+/* ══ INIT ══ */
+function initAll(){renderPia();renderTrials();renderInqs();renderPartners();updateCounts();loadSettings();}
+
+/* ══ NAVIGATION ══ */
+function goView(id){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.sb-item').forEach(function(n){n.classList.remove('active');});
+  var v=document.getElementById('v-'+id);if(v)v.classList.add('active');
+  var n=document.getElementById('n-'+id);if(n)n.classList.add('active');
+}
+function goSub(viewId,subId,snId){
+  goView(viewId);
+  swTab(viewId.replace('aipia','pia').replace('content','cont').replace('inquiry','inq'),
+        viewId==='aipia'?['pia-list','pia-report','pia-trial','pia-add']:
+        viewId==='content'?['cont-hero','cont-sol','cont-about']:
+        viewId==='inquiry'?['inq-all','inq-pend']:[],
+        subId);
+  document.querySelectorAll('.sb-sub-item').forEach(function(s){s.classList.remove('active');});
+  var sn=document.getElementById(snId);if(sn)sn.classList.add('active');
+  if(viewId==='aipia')openAcc('acc-aipia','arr-aipia');
+  if(viewId==='content')openAcc('acc-cont','arr-cont');
+  if(viewId==='inquiry')openAcc('acc-inq','arr-inq');
+}
+function toggleAcc(accId,arrId){
+  document.getElementById(accId).classList.toggle('open');
+  document.getElementById(arrId).classList.toggle('open');
+}
+function openAcc(accId,arrId){
+  document.getElementById(accId).classList.add('open');
+  document.getElementById(arrId).classList.add('open');
 }
 
-// 세션 체크
-(function(){
-  if(localStorage.getItem(SESSION_KEY)){
-    showApp();
-  }
-})();
-
-// ── 내비게이션 ──
-function nav(id, el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('s-'+id).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  el.classList.add('active');
+/* ══ TAB ══ */
+function swTab(pfx,all,active){
+  all.forEach(function(id){
+    var tp=document.getElementById('tp-'+id),tab=document.getElementById('tab-'+id);
+    if(tp)tp.classList.remove('active');
+    if(tab)tab.classList.remove('active');
+  });
+  var atp=document.getElementById('tp-'+active),atab=document.getElementById('tab-'+active);
+  if(atp)atp.classList.add('active');
+  if(atab)atab.classList.add('active');
 }
 
-// ── Toast ──
-var toastTimer;
-function toast(msg){
-  var t=document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 3000);
+/* ══ PIA TABLE ══ */
+function renderPia(){
+  var q=(document.getElementById('pia-search')||{}).value||'';
+  var f=orgs.filter(function(o){return !q||o.name.includes(q);});
+  var act=orgs.filter(function(o){return o.status==='운영중';}).length;
+  var tot=orgs.reduce(function(s,o){return s+o.ch;},0);
+  el('pia-kpi-org',orgs.length+'개');el('pia-kpi-ch',tot+'명');
+  el('pia-cnt-bdg',orgs.length+'개');el('kpi-orgs',act);
+  var h=f.map(function(o,i){
+    var ri=orgs.indexOf(o);
+    var sc=o.status==='운영중'?'bdg-g':o.status==='체험중'?'bdg-y':'bdg-r';
+    var pc=o.plan==='프리미엄'?'bdg-b':o.plan==='베이직'?'bdg-v':'bdg-gr';
+    return '<tr><td><strong>'+o.name+'</strong></td><td>'+o.ch+'명</td><td>'+o.te+'명</td><td>'+o.start+'</td>'+
+      '<td><span class="bdg '+pc+'">'+o.plan+'</span></td><td>'+o.expire+'</td>'+
+      '<td><span class="bdg '+sc+'">'+o.status+'</span></td>'+
+      '<td><button class="btn bo bxs" style="margin-right:4px" onclick="openDetail('+ri+')">상세</button><button class="btn bo bxs" onclick="openEdit('+ri+')">수정</button></td></tr>';
+  }).join('');
+  el('pia-tbody',h||'<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text3)">검색 결과 없음</td></tr>');
 }
 
-// ── AI PIA 폼 ──
-function showAddForm(){ document.getElementById('add-form').style.display='block'; }
-function hideAddForm(){ document.getElementById('add-form').style.display='none'; }
+/* ══ ORG DETAIL ══ */
+var curOrg=-1;
+function openDetail(i){
+  curOrg=i;var o=orgs[i];
+  el('md-org-title',o.name+' · 상세');
+  var sc=o.status==='운영중'?'bdg-g':o.status==='체험중'?'bdg-y':'bdg-r';
+  var pc=o.plan==='프리미엄'?'bdg-b':o.plan==='베이직'?'bdg-v':'bdg-gr';
+  el('md-org-body',
+    '<div class="g2 mb16">'+
+      '<div class="kpi"><div class="kpi-label">원아 수</div><div class="kpi-val">'+o.ch+'명</div></div>'+
+      '<div class="kpi"><div class="kpi-label">담당 교사</div><div class="kpi-val">'+o.te+'명</div></div>'+
+    '</div>'+
+    '<table style="width:100%;font-size:13px;border-collapse:collapse">'+
+      row2('담당자',o.mgr)+row2('연락처',o.tel)+row2('이메일',o.email)+
+      row2('플랜','<span class="bdg '+pc+'">'+o.plan+'</span>')+
+      row2('상태','<span class="bdg '+sc+'">'+o.status+'</span>')+
+      row2('시작일',o.start)+row2('만료일',o.expire)+
+    '</table>'+
+    (o.memo?'<div class="alert-info" style="margin-top:12px;border-radius:8px;padding:10px 14px;font-size:13px">📝 '+o.memo+'</div>':'')
+  );
+  document.getElementById('md-edit-btn').onclick=function(){closeM('m-org-detail');openEdit(i);};
+  openM('m-org-detail');
+}
+function row2(k,v){return '<tr><td style="padding:9px 0;border-bottom:1px solid var(--border);color:var(--text3);font-weight:600;width:80px">'+k+'</td><td style="padding:9px 0;border-bottom:1px solid var(--border)">'+v+'</td></tr>';}
 
-// ── 파트너 데이터 ──
-var partners = [
-  {id:1, name:'비상교육', file:'logo_visang.png', active:true},
-  {id:2, name:'현대NGV', file:'logo_hyundai.svg', active:true},
-  {id:3, name:'경기도청', file:'logo_gg.gif', active:true},
-  {id:4, name:'국방부', file:'logo_mnd.svg', active:true},
-  {id:5, name:'YBM', file:'logo_ybm.svg', active:true},
-  {id:6, name:'스페이스케이', file:'logo_spacek_dark.svg', active:true},
-  {id:7, name:'유비온', file:'logo_ubion.png', active:true},
-  {id:8, name:'엔페이지', file:'logo_npage.png', active:true},
-  {id:9, name:'TTA', file:'logo_tta.svg', active:true},
-  {id:10, name:'공군사관학교', file:'logo_airforce_dark.svg', active:true},
-];
-
-function initPartners(){
-  renderPartners();
+/* ══ ORG EDIT ══ */
+function openEdit(i){
+  curOrg=i;var o=orgs[i];
+  document.getElementById('e-name').value=o.name;
+  document.getElementById('e-mgr').value=o.mgr;
+  document.getElementById('e-ch').value=o.ch;
+  document.getElementById('e-te').value=o.te;
+  document.getElementById('e-plan').value=o.plan;
+  document.getElementById('e-status').value=o.status;
+  document.getElementById('e-memo').value=o.memo||'';
+  openM('m-org-edit');
+}
+function saveEdit(){
+  var i=curOrg;if(i<0)return;
+  orgs[i].name=val('e-name');orgs[i].mgr=val('e-mgr');
+  orgs[i].ch=parseInt(val('e-ch'))||0;orgs[i].te=parseInt(val('e-te'))||0;
+  orgs[i].plan=val('e-plan');orgs[i].status=val('e-status');orgs[i].memo=val('e-memo');
+  closeM('m-org-edit');renderPia();updateCounts();toast('✅ 기관 정보가 수정되었습니다');
 }
 
+/* ══ ADD ORG ══ */
+function addOrg(){
+  var name=val('add-name').trim(),tel=val('add-tel').trim();
+  if(!name){alert('기관명을 입력하세요');return;}
+  if(!tel){alert('연락처를 입력하세요');return;}
+  orgs.push({name:name,mgr:val('add-mgr')||'-',tel:tel,email:val('add-email')||'',
+    ch:parseInt(val('add-ch'))||0,te:parseInt(val('add-te'))||0,
+    plan:val('add-plan'),start:val('add-date')||new Date().toISOString().slice(0,7),
+    expire:'',status:'운영중',memo:val('add-memo')||''});
+  clearAdd();renderPia();updateCounts();
+  swTab('pia',['pia-list','pia-report','pia-trial','pia-add'],'pia-list');
+  toast('✅ 기관 등록: '+name);
+}
+function clearAdd(){['add-name','add-mgr','add-tel','add-email','add-ch','add-te','add-memo','add-date'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});document.getElementById('add-plan').value='스탠다드';}
+
+/* ══ TRIALS ══ */
+var curTrial=-1;
+function renderTrials(){
+  el('trial-tbody',trials.map(function(t,i){
+    var sc=t.status==='검토중'?'bdg-y':'bdg-g';
+    return '<tr><td>'+t.date+'</td><td><strong>'+t.name+'</strong></td><td>'+t.mgr+'</td><td>'+t.tel+'</td><td>'+t.ch+'명</td>'+
+      '<td><span class="bdg '+sc+'">'+t.status+'</span></td>'+
+      '<td><button class="btn bo bxs" onclick="openTrial('+i+')">상세</button></td></tr>';
+  }).join(''));
+}
+function openTrial(i){
+  curTrial=i;var t=trials[i];
+  el('md-trial-body',
+    '<table style="width:100%;font-size:13px;border-collapse:collapse">'+
+      row2('신청일',t.date)+row2('기관명','<strong>'+t.name+'</strong>')+
+      row2('담당자',t.mgr)+row2('연락처',t.tel)+row2('원아수',t.ch+'명')+
+    '</table>'+
+    '<div class="fg" style="margin-top:14px"><label>담당자 메모</label>'+
+    '<textarea style="width:100%;min-height:70px;padding:9px 12px;border:1.5px solid var(--border2);border-radius:8px;font-size:13px;outline:none;resize:vertical;font-family:inherit" placeholder="통화 내용, 다음 액션..."></textarea></div>'
+  );
+  document.getElementById('trial-approve-btn').onclick=function(){approveTrial(i);};
+  openM('m-trial');
+}
+function approveTrial(i){trials[i].status='연락완료';renderTrials();closeM('m-trial');toast('✅ 체험 승인 처리');}
+
+/* ══ INQUIRY ══ */
+function renderInqs(){
+  var pend=inqs.filter(function(q){return q.status==='미처리';});
+  el('inq-total-cnt',inqs.length+'건');
+  el('inq-pend-cnt',pend.length+'건');
+  el('inq-pend-tc',pend.length);
+  el('inq-all-tbody',inqs.map(function(q,i){return inqRow(q,i);}).join(''));
+  el('inq-pend-tbody',pend.map(function(q){var i=inqs.indexOf(q);return inqRow(q,i);}).join(''));
+  el('dash-inq-tbody',inqs.slice(0,5).map(function(q,i){
+    var sc=q.status==='미처리'?'bdg-r':q.status==='처리중'?'bdg-y':'bdg-g';
+    return '<tr class="rh" onclick="goView(\'inquiry\');openInq('+i+',null)"><td>'+q.date+'</td><td>'+q.name+'</td><td>'+q.org+'</td><td>'+q.type+'</td><td><span class="bdg '+sc+'">'+q.status+'</span></td></tr>';
+  }).join(''));
+}
+function inqRow(q,i){
+  var sc=q.status==='미처리'?'bdg-r':q.status==='처리중'?'bdg-y':'bdg-g';
+  return '<tr class="rh" id="ir-'+i+'" onclick="openInq('+i+',this)"><td>'+q.date+'</td><td>'+q.name+'</td><td>'+q.org+'</td><td>'+q.type+'</td>'+
+    '<td id="is-'+i+'"><span class="bdg '+sc+'">'+q.status+'</span></td></tr>';
+}
+var curInq=-1;
+function openInq(i,row){
+  curInq=i;
+  document.querySelectorAll('.rh.rs').forEach(function(r){r.classList.remove('rs');});
+  if(row)row.classList.add('rs');
+  var q=inqs[i];var sc=q.status==='미처리'?'bdg-r':q.status==='처리중'?'bdg-y':'bdg-g';
+  var opts=['미처리','처리중','완료'].map(function(s){return '<option '+(s===q.status?'selected':'')+'>'+s+'</option>';}).join('');
+  el('inq-panel-body',
+    '<div class="flex ic jb mb12"><h3 style="font-size:15px;font-weight:800">'+q.name+'</h3><button class="btn bo bxs" onclick="closeInqPanel()">✕</button></div>'+
+    '<div style="font-size:12px;color:var(--text3);margin-bottom:12px">'+q.date+' · '+q.type+' · <span class="bdg '+sc+'">'+q.status+'</span></div>'+
+    '<table style="width:100%;font-size:13px;border-collapse:collapse;margin-bottom:12px">'+row2('기관',q.org)+row2('연락처',q.tel)+row2('이메일',q.email)+'</table>'+
+    '<div class="div"></div>'+
+    '<div style="font-size:12px;color:var(--text3);font-weight:600;margin-bottom:6px">문의 내용</div>'+
+    '<div style="font-size:13px;line-height:1.7;background:#f8fafc;padding:12px;border-radius:8px;margin-bottom:14px">'+q.content+'</div>'+
+    '<div class="fg mb12"><label>답변 작성</label><textarea id="inq-rep-'+i+'" style="width:100%;min-height:100px;padding:9px 12px;border:1.5px solid var(--border2);border-radius:8px;font-size:13px;resize:vertical;outline:none;font-family:inherit" placeholder="답변을 작성하세요..."></textarea></div>'+
+    '<div class="fg mb12"><label>상태 변경</label><select id="inq-sel-'+i+'" style="width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:8px;font-size:13px;outline:none;background:#fff">'+opts+'</select></div>'+
+    '<button class="btn bp" style="width:100%" onclick="saveInq('+i+')">저장</button>'
+  );
+  document.getElementById('inq-panel').classList.add('open');
+}
+function saveInq(i){
+  var sel=document.getElementById('inq-sel-'+i);if(!sel)return;
+  inqs[i].status=sel.value;
+  renderInqs();updateCounts();toast('✅ 문의가 저장되었습니다');
+}
+function closeInqPanel(){document.getElementById('inq-panel').classList.remove('open');document.querySelectorAll('.rh.rs').forEach(function(r){r.classList.remove('rs');});}
+
+/* ══ PARTNERS ══ */
 function renderPartners(){
-  var tbody = document.getElementById('partner-tbody');
-  tbody.innerHTML = partners.map(function(p,i){
-    return '<tr>'+
-      '<td>'+p.id+'</td>'+
-      '<td><strong>'+p.name+'</strong></td>'+
-      '<td style="font-size:12px;color:var(--text2)">'+p.file+'</td>'+
-      '<td><span class="badge '+(p.active?'badge-green':'badge-gray')+'">'+(p.active?'활성':'비활성')+'</span></td>'+
-      '<td>'+
-        '<button class="order-btn" onclick="movePartner('+i+',-1)" title="위로">↑</button> '+
-        '<button class="order-btn" onclick="movePartner('+i+',1)" title="아래로">↓</button>'+
-      '</td>'+
-      '<td>'+
-        '<label class="toggle">'+
-          '<input type="checkbox" '+(p.active?'checked':'')+' onchange="togglePartner('+i+',this.checked)">'+
-          '<span class="toggle-slider"></span>'+
-        '</label>'+
-      '</td>'+
-    '</tr>';
-  }).join('');
+  el('partner-tbody',partners.map(function(p,i){
+    return '<tr><td>'+(i+1)+'</td><td><strong>'+p.name+'</strong></td><td style="font-size:12px;color:var(--text3)">'+p.file+'</td>'+
+      '<td><button class="ob" onclick="movePart('+i+',-1)">↑</button> <button class="ob" onclick="movePart('+i+',1)">↓</button></td>'+
+      '<td><label class="tog"><input type="checkbox" '+(p.active?'checked':'')+' onchange="togPart('+i+',this.checked)"><span class="tog-sl"></span></label></td>'+
+      '<td><span class="bdg '+(p.active?'bdg-g':'bdg-gr')+'">'+(p.active?'활성':'비활성')+'</span></td></tr>';
+  }).join(''));
+}
+function togPart(i,v){partners[i].active=v;renderPartners();}
+function movePart(i,d){var j=i+d;if(j<0||j>=partners.length)return;var t=partners[i];partners[i]=partners[j];partners[j]=t;renderPartners();}
+function addPartner(){
+  var name=val('pa-name').trim(),file=val('pa-file').trim();
+  if(!name||!file){alert('파트너명과 파일명을 입력하세요');return;}
+  partners.push({name:name,file:file,active:val('pa-active')==='1'});
+  document.getElementById('pa-name').value='';document.getElementById('pa-file').value='';
+  renderPartners();closeM('m-pa-add');toast('✅ 파트너 추가: '+name);
 }
 
-function togglePartner(i, v){
-  partners[i].active = v;
-  renderPartners();
+/* ══ COUNT UPDATE ══ */
+function updateCounts(){
+  var pend=inqs.filter(function(q){return q.status==='미처리';}).length;
+  el('kpi-pend',pend);el('sb-pend',pend);el('inq-pend-tc',pend);
+  var b=document.getElementById('kpi-pend-bdg');
+  if(b){b.textContent=pend>0?'⚠ 긴급':'✅ 없음';b.className='kpi-badge '+(pend>0?'kw':'ku');}
 }
 
-function movePartner(i, dir){
-  var j = i + dir;
-  if(j<0||j>=partners.length) return;
-  var tmp = partners[i]; partners[i]=partners[j]; partners[j]=tmp;
-  renderPartners();
-}
-
-// ── 문의 상세 ──
-var inquiryData = [
-  {date:'2025-06-18',name:'김민준',org:'행복어린이집',tel:'010-5555-1234',email:'kim@happy.kr',type:'AI PIA 도입',status:'미처리',
-   content:'안녕하세요. 어린이집 원아 45명을 대상으로 AI PIA 도입을 검토 중입니다. 비용과 설치 방법, 교사 교육 일정이 궁금합니다. 빠른 답변 부탁드립니다.'},
-  {date:'2025-06-17',name:'이수연',org:'경기교육청',tel:'031-0000-0000',email:'lee@gg.go.kr',type:'ClassBoard',status:'처리중',
-   content:'경기도 관내 초등학교 100개교에 ClassBoard 솔루션 도입을 검토 중입니다. 공공기관 계약 절차와 데모 시연 일정을 요청드립니다.'},
-  {date:'2025-06-16',name:'박철수',org:'서울시립어린이집',tel:'02-1234-5678',email:'park@seoul.go.kr',type:'AI PIA 체험',status:'완료',
-   content:'AI PIA 3개월 체험 프로그램 신청합니다. 원아 30명이며 담당교사 2명입니다.'},
-  {date:'2025-06-15',name:'최영희',org:'중앙초등학교',tel:'02-9876-5432',email:'choi@jung.sch.kr',type:'AREX',status:'미처리',
-   content:'AREX-Climbing 교구 관련 학교 납품 견적서를 요청합니다. 학생 200명 기준으로 부탁드립니다.'},
-  {date:'2025-06-14',name:'정다운',org:'부산진구청',tel:'051-0000-1111',email:'jung@busanjin.go.kr',type:'디지털간판',status:'완료',
-   content:'구청 로비 디지털 간판 2대 설치 관련 문의입니다. AI 기반 콘텐츠 자동 업데이트 기능이 필요합니다.'},
-  {date:'2025-06-13',name:'홍길동',org:'세종시교육청',tel:'044-0000-0000',email:'hong@sje.go.kr',type:'AI PIA 도입',status:'미처리',
-   content:'세종시 전 어린이집 AI PIA 일괄 도입을 검토합니다. 기관 수는 약 85개소입니다. 대규모 계약 시 할인 정책이 있는지 문의드립니다.'},
-  {date:'2025-06-12',name:'강미래',org:'인천서구청',tel:'032-0000-0000',email:'kang@seo.incheon.kr',type:'ClassBoard',status:'처리중',
-   content:'인천 서구 관내 유치원 ClassBoard 시범 사업 관련 협의를 요청드립니다.'},
-  {date:'2025-06-10',name:'윤지호',org:'대전교육지원청',tel:'042-0000-0000',email:'yoon@djei.go.kr',type:'AREX',status:'완료',
-   content:'AREX 클라이밍 교구 시범 학교 적용 결과 공유 및 확대 방안 협의 요청입니다.'},
-];
-
-function openInquiry(i){
-  var d = inquiryData[i];
-  var statusOpts = ['미처리','처리중','완료'].map(function(s){
-    return '<option '+(s===d.status?'selected':'')+'>'+s+'</option>';
-  }).join('');
-  var html =
-    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'+
-    '<h3 style="font-size:15px;font-weight:700">'+d.name+' · '+d.org+'</h3>'+
-    '<button class="btn btn-outline btn-sm" onclick="closeInquiry()">✕</button>'+
-    '</div>'+
-    '<div style="font-size:12px;color:var(--text2);margin-bottom:12px">'+
-      d.date+' · '+d.type+' · <span class="badge '+(d.status==='미처리'?'badge-red':d.status==='처리중'?'badge-yellow':'badge-green')+'">'+d.status+'</span>'+
-    '</div>'+
-    '<div style="font-size:12px;color:var(--text2);margin-bottom:4px">연락처</div>'+
-    '<div style="font-size:13px;margin-bottom:2px">'+d.tel+'</div>'+
-    '<div style="font-size:13px;margin-bottom:12px">'+d.email+'</div>'+
-    '<div class="divider"></div>'+
-    '<div style="font-size:12px;color:var(--text2);margin-bottom:4px">문의 내용</div>'+
-    '<div style="font-size:13px;line-height:1.6;background:#f8fafc;padding:10px;border-radius:6px;margin-bottom:14px">'+d.content+'</div>'+
-    '<div class="form-group" style="margin-bottom:12px">'+
-      '<label>답변 작성</label>'+
-      '<textarea placeholder="답변을 입력하세요..." style="min-height:100px"></textarea>'+
-    '</div>'+
-    '<div class="form-group" style="margin-bottom:12px">'+
-      '<label>상태 변경</label>'+
-      '<select>'+statusOpts+'</select>'+
-    '</div>'+
-    '<button class="btn btn-primary" style="width:100%" onclick="toast(\'저장되었습니다\')">저장</button>';
-  document.getElementById('detail-content').innerHTML = html;
-  document.getElementById('inquiry-detail').classList.add('open');
-}
-
-function closeInquiry(){
-  document.getElementById('inquiry-detail').classList.remove('open');
-}
-
-// ── 설정 저장 ──
-var settingsKey = 'yedam_site_settings';
-
+/* ══ SETTINGS ══ */
+var SK2='yedam_site_cfg';
 function loadSettings(){
-  var saved = localStorage.getItem(settingsKey);
-  if(!saved) return;
-  var s = JSON.parse(saved);
-  if(s.company) document.getElementById('s-company').value = s.company;
-  if(s.ceo) document.getElementById('s-ceo').value = s.ceo;
-  if(s.tel) document.getElementById('s-tel').value = s.tel;
-  if(s.email) document.getElementById('s-email').value = s.email;
-  if(s.addr) document.getElementById('s-addr').value = s.addr;
-  if(s.meta) document.getElementById('s-meta').value = s.meta;
-  if(s.kakao) document.getElementById('s-kakao').value = s.kakao;
+  var s=JSON.parse(localStorage.getItem(SK2)||'{}');
+  var m={company:'s-company',ceo:'s-ceo',founded:'s-founded',bizno:'s-bizno',addr:'s-addr',title:'s-title',meta:'s-meta',tel:'s-tel',email:'s-email',kakao:'s-kakao'};
+  Object.keys(m).forEach(function(k){var e=document.getElementById(m[k]);if(e&&s[k])e.value=s[k];});
+}
+function saveSettings(){
+  var m={company:'s-company',ceo:'s-ceo',founded:'s-founded',bizno:'s-bizno',addr:'s-addr',title:'s-title',meta:'s-meta',tel:'s-tel',email:'s-email',kakao:'s-kakao'};
+  var s={};Object.keys(m).forEach(function(k){var e=document.getElementById(m[k]);if(e)s[k]=e.value;});
+  localStorage.setItem(SK2,JSON.stringify(s));toast('✅ 설정이 저장되었습니다');
 }
 
-function saveSettings(){
-  var s = {
-    company: document.getElementById('s-company').value,
-    ceo: document.getElementById('s-ceo').value,
-    tel: document.getElementById('s-tel').value,
-    email: document.getElementById('s-email').value,
-    addr: document.getElementById('s-addr').value,
-    meta: document.getElementById('s-meta').value,
-    kakao: document.getElementById('s-kakao').value,
-  };
-  localStorage.setItem(settingsKey, JSON.stringify(s));
-  toast('설정이 저장되었습니다');
-}
+/* ══ MODAL ══ */
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('click',function(e){if(e.target.classList.contains('mbg'))e.target.classList.remove('open');});
+
+/* ══ TOAST ══ */
+var ttmr;
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(ttmr);ttmr=setTimeout(function(){t.classList.remove('show');},3000);}
+
+/* ══ HELPERS ══ */
+function el(id,h){var e=document.getElementById(id);if(e)e.innerHTML=h;}
+function val(id){var e=document.getElementById(id);return e?e.value:'';}
 </script>
 </body>
 </html>
