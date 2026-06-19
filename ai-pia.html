@@ -4,8 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>AI PIA v4 — 7-Track 통합검사 + 결과지</title>
+<link rel="preconnect" href="https://cdn.tailwindcss.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://text.pollinations.ai">
+<link rel="dns-prefetch" href="https://ko.wikipedia.org">
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "맑은 고딕", sans-serif; }
   [aria-pressed="true"] { background:#1f2937; color:#fff; }
@@ -300,6 +304,92 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
 /* 결과지 종이 */
 #pia-report .page{box-shadow:0 2px 16px rgba(20,20,19,.12);}
 </style>
+<style id="trend-2026">
+/* 2026 트렌드: 표현적 타이포 · 플로팅 카드 · 목적 있는 마이크로인터랙션 (Claude 팔레트 유지) */
+h1{font-weight:700;letter-spacing:-.02em;}
+h2,h3{letter-spacing:-.015em;}
+header.bg-white{position:sticky;top:0;z-index:30;-webkit-backdrop-filter:saturate(1.1) blur(8px);backdrop-filter:saturate(1.1) blur(8px);background:rgba(255,253,248,.82)!important;}
+section.bg-white,.rounded-2xl.bg-white,#home-content>*{box-shadow:0 1px 2px rgba(20,20,19,.04),0 8px 28px -12px rgba(20,20,19,.10);transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s ease;}
+.rounded-2xl.bg-white:hover{box-shadow:0 2px 4px rgba(20,20,19,.05),0 16px 40px -16px rgba(20,20,19,.16);}
+button{transition:transform .08s ease,background-color .15s ease,box-shadow .15s ease;}
+button:active{transform:scale(.97);}
+section[data-view]:not(.hidden){animation:viewIn .28s cubic-bezier(.2,.7,.3,1);}
+@keyframes viewIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+:focus-visible{outline:2px solid #d97757;outline-offset:2px;border-radius:6px;}
+@media (prefers-reduced-motion: reduce){section[data-view]:not(.hidden){animation:none;}button:active{transform:none;}}
+</style>
+<style id="premium-2026">
+:root{--sh-soft:0 1px 2px rgba(20,20,19,.04),0 14px 38px -18px rgba(20,20,19,.16);--sh-lift:0 3px 8px rgba(20,20,19,.06),0 26px 56px -24px rgba(20,20,19,.26);}
+h1,.text-xl{font-family:'Lora','Iropke Batang',Georgia,serif!important;font-weight:600;letter-spacing:-.02em;}
+section.bg-white,.bg-white.rounded-2xl,#home-content>*{border-radius:18px!important;border:1px solid #ece8dd!important;box-shadow:var(--sh-soft)!important;}
+section.bg-white:hover,.bg-white.rounded-2xl:hover,#home-content>*:hover{box-shadow:var(--sh-lift)!important;}
+header.bg-white{border:1px solid #ece8dd!important;box-shadow:var(--sh-soft)!important;}
+.rounded-xl{border-radius:13px!important;}
+button{border-radius:11px;}
+.bg-blue-600,.bg-indigo-600,.bg-violet-600{box-shadow:0 8px 20px -9px rgba(217,119,87,.55)!important;}
+.bg-slate-900{box-shadow:0 8px 20px -9px rgba(20,20,19,.45)!important;}
+.pill{letter-spacing:.01em;}
+nav button{letter-spacing:.005em;}
+::selection{background:rgba(217,119,87,.22);}
+</style>
+<style id="report-screen-2026">
+/* 결과지: 화면에서는 떠 있는 카드/라운드/정돈된 타이포, 인쇄 시에는 단정한 문서로 자동 전환 */
+@media screen {
+  #pia-report .page{border-radius:14px;box-shadow:0 14px 48px -22px rgba(20,20,19,.32),0 2px 8px rgba(20,20,19,.06);}
+  #pia-report .section-title{border-radius:8px;box-shadow:0 6px 16px -10px rgba(217,119,87,.45);}
+  #pia-report .section-title-diamond,#pia-report .page-title{letter-spacing:-.01em;}
+  #pia-report .grade-box{border-radius:6px;}
+  #pia-report .info-table,#pia-report .data-table{border-radius:10px;}
+}
+@media print {
+  #pia-report .page{box-shadow:none!important;border-radius:0!important;}
+  #pia-report .section-title{box-shadow:none!important;border-radius:0!important;}
+}
+</style>
+<style id="report-premium">
+/* 결과지: 화면 = 고급 문서, 인쇄 = 단정한 평면 문서 */
+@media screen{
+  #pia-report{background:#efebe2;padding:10px 0;}
+  #pia-report .page{border-radius:16px!important;box-shadow:0 18px 60px -26px rgba(20,20,19,.35),0 2px 10px rgba(20,20,19,.06)!important;border:1px solid #e6e0d2!important;}
+  #pia-report .cover-title-main,#pia-report .cover-title-sub,#pia-report .page-title,#pia-report .section-title-diamond{font-family:'Lora','Iropke Batang',Georgia,serif;letter-spacing:-.01em;}
+  #pia-report .cover-badge{border-radius:999px;box-shadow:0 8px 20px -10px rgba(217,119,87,.5);}
+  #pia-report .cover-info-box{border-radius:14px;overflow:hidden;box-shadow:0 12px 32px -18px rgba(20,20,19,.2);}
+  #pia-report .section-title{border-radius:9px;box-shadow:0 8px 18px -11px rgba(217,119,87,.5);letter-spacing:.01em;}
+  #pia-report .info-table{border-radius:10px;overflow:hidden;}
+  #pia-report .data-table{border:1px solid #ece6da;}
+  #pia-report .grade-box{border-radius:7px;}
+}
+@media print{
+  #pia-report{background:#fff!important;}
+  #pia-report .page{box-shadow:none!important;border-radius:0!important;border:none!important;}
+  #pia-report .section-title,#pia-report .cover-badge,#pia-report .cover-info-box,#pia-report .info-table{box-shadow:none!important;border-radius:0!important;}
+}
+</style>
+<style id="design-final">
+/* 본문 리듬 */
+body{line-height:1.55;}
+/* 헤더 상단 클레이 악센트 */
+header.bg-white{border-top:3px solid #d97757!important;}
+/* 리커트·SJT 선택지 — 프리미엄 인터랙션(큰 탭영역·헤어라인·호버 슬라이드) */
+[id^="choices-"] button,#sjt-choices button{
+  border:1px solid #e6e3d8!important;border-radius:14px!important;padding:14px 16px!important;
+  background:#fffdf8!important;color:#2d2b27!important;font-size:14px!important;line-height:1.5!important;
+  transition:transform .12s ease,border-color .15s ease,box-shadow .15s ease,background-color .15s ease!important;
+}
+[id^="choices-"] button:hover,#sjt-choices button:hover{
+  border-color:#d97757!important;background:#fbf1ec!important;transform:translateX(3px);
+  box-shadow:0 10px 24px -13px rgba(217,119,87,.55)!important;
+}
+[id^="choices-"] button:active,#sjt-choices button:active{transform:translateX(3px) scale(.99);}
+/* 결과 영웅 타이포 */
+#hero-type{font-family:'Lora','Iropke Batang',Georgia,serif!important;letter-spacing:-.02em;}
+/* 입력 라운드 통일 */
+input,select,textarea{border-radius:11px!important;}
+/* 스크롤바 */
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:#d8d3c6;border-radius:8px;border:2px solid #faf9f5;}
+@media (prefers-reduced-motion: reduce){[id^="choices-"] button:hover,#sjt-choices button:hover{transform:none;}}
+</style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -308,8 +398,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
 <header class="bg-white rounded-2xl border border-slate-200 px-5 py-4 flex flex-wrap items-center justify-between gap-3">
   <div>
     <div class="flex items-center gap-2">
-      <span class="text-sm font-bold text-slate-700">AI PIA</span>
-      <span class="text-xs text-slate-500">v5.7 · 카탈로그 자동 연동 대시보드</span>
+      <span style="display:inline-flex;align-items:center;background:#141413;border-radius:8px;padding:5px 9px;box-shadow:0 6px 16px -8px rgba(20,20,19,.4);"><img src="https://yedam.kr/images/logo_h_white.png" alt="예담정보통신" style="height:16px;display:block;" onerror="this.parentNode.innerHTML='<span style=\'color:#fff;font-weight:600;font-size:12px\'>YEDAM</span>'"></span>
+      <span class="text-xs text-slate-500">v9.3 · 예담 로고 적용</span>
     </div>
     <h1 class="text-xl font-bold mt-1">학술 검증된 7개 검사 통합</h1>
     <p class="text-xs text-slate-500 mt-0.5">IPIP Big5 · RIASEC · VIA · Grit · SJT · CES-D · PHQ-A · GAD-7 + 자유대화</p>
@@ -327,7 +417,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
 <section data-view="home" class="space-y-4">
   <div class="bg-violet-50 border border-violet-200 rounded-2xl p-4 text-sm text-violet-900">
     <strong class="block mb-1">검사 선택 가이드</strong>
-    정확한 통합 분석을 위해 <strong>Big5 + RIASEC + SJT + VIA</strong> 4개를 우선 권장합니다 (총 약 35분). Grit·CES-D·PHQ-A·GAD-7은 선택사항이며, 정서 스크리닝 결과는 안전 모니터링용입니다.
+    정확한 통합 분석을 위해 <strong>Big5 + RIASEC + SJT + VIA</strong> 4개를 우선 권장합니다 (총 약 35분). Grit·CES-D·PHQ-A·GAD-7은 선택사항입니다. <strong>필수 검사(자유대화·Big5·RIASEC)를 모두 마치면 결과지가 열립니다.</strong>
   </div>
   <div id="home-content" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
 </section>
@@ -406,16 +496,57 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div id="gad-content"></div>
 </section>
 
+<section data-view="rses" class="hidden bg-white rounded-2xl border border-slate-200 p-5">
+  <div class="flex justify-between items-baseline mb-4">
+    <h2 class="text-lg font-bold">Rosenberg 자존감 척도 (RSES)</h2>
+    <button onclick="showView('home')" class="text-xs text-slate-500">← 메뉴</button>
+  </div>
+  <div id="rses-content"></div>
+</section>
+
+<section data-view="who5" class="hidden bg-white rounded-2xl border border-slate-200 p-5">
+  <div class="flex justify-between items-baseline mb-4">
+    <div>
+      <h2 class="text-lg font-bold">WHO-5 웰빙 지수</h2>
+      <p class="text-xs text-amber-700 mt-1">⚠ 지난 2주 빈도. 참고용 웰빙 선별입니다.</p>
+    </div>
+    <button onclick="showView('home')" class="text-xs text-slate-500">← 메뉴</button>
+  </div>
+  <div id="who5-content"></div>
+</section>
+
+<section data-view="learn" class="hidden bg-white rounded-2xl border border-slate-200 p-5">
+  <div class="flex justify-between items-baseline mb-4">
+    <div>
+      <h2 class="text-lg font-bold">과목별 학습 역량 (자가평가)</h2>
+      <p class="text-xs text-slate-500 mt-1">실제 성적이 아닌, 과목별 흥미·자신감 자가평가입니다.</p>
+    </div>
+    <button onclick="showView('home')" class="text-xs text-slate-500">← 메뉴</button>
+  </div>
+  <div id="learn-content"></div>
+</section>
+
+<section data-view="mi" class="hidden bg-white rounded-2xl border border-slate-200 p-5">
+  <div class="flex justify-between items-baseline mb-4">
+    <div>
+      <h2 class="text-lg font-bold">다중지능(MI) 8지능 자가검사</h2>
+      <p class="text-xs text-slate-500 mt-1">가드너 다중지능 이론 기반 자가평가입니다(참고용).</p>
+    </div>
+    <button onclick="showView('home')" class="text-xs text-slate-500">← 메뉴</button>
+  </div>
+  <div id="mi-content"></div>
+</section>
+
 <!-- 자유대화 -->
 <section data-view="chat" class="hidden bg-white rounded-2xl border border-slate-200">
   <div class="flex items-center gap-3 px-5 py-3 border-b border-slate-200">
     <div class="w-10 h-10 rounded-xl bg-slate-900 text-white grid place-items-center text-lg">🤖</div>
     <div>
       <div class="font-semibold">AI PIA와 자유대화</div>
-      <div class="text-xs text-slate-500">5~8분 · CBT 5단계 흐름</div>
+      <div class="text-xs text-slate-500">일상 대화로 성향·흥미 파악 <span id="chat-aistatus" class="ml-1"></span></div>
     </div>
     <div class="ml-auto">
-      <span id="chat-turn" class="text-xs text-slate-500">0 / 10 턴</span>
+      <span id="chat-turn" class="text-xs text-slate-500">0 / 16 턴</span>
       <button onclick="showView('home')" class="ml-2 text-xs text-slate-500">← 메뉴</button>
     </div>
   </div>
@@ -424,6 +555,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
       안녕! 나는 AI 피아야. 편한 속도로 이야기 시작하면 돼. 짧게 말해도 충분해.
     </div></div>
   </div>
+  <div id="chat-profile" class="px-4 pt-2 text-[11px] text-slate-500"></div>
   <div class="px-4 py-3 border-t border-slate-200 space-y-2">
     <div class="flex gap-2">
       <input id="chat-input" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="예: 친구들이 나랑 안 놀아줘 (Enter로 전송)" />
@@ -574,6 +706,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
     <div id="careers-live" class="mt-3"></div>
   </div>
 
+  <div id="result-qa" class="bg-white rounded-2xl border border-slate-200 p-4">
+    <h3 class="font-semibold text-sm mb-1">🤖 내 결과 물어보기</h3>
+    <p class="text-xs text-slate-500 mb-3">결과에 대해 궁금한 점을 물어보면, AI가 <strong>내 검사 결과를 근거로</strong> 답해줘요.</p>
+    <div class="flex gap-2">
+      <input id="qa-input" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="예: 나한테 맞는 직업은? / 공부는 어떻게?" />
+      <button id="qa-send" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">질문</button>
+    </div>
+    <div class="flex flex-wrap gap-1 mt-2">
+      <button class="qa-quick bg-slate-100 px-2 py-1 rounded text-xs">나한테 맞는 직업은?</button>
+      <button class="qa-quick bg-slate-100 px-2 py-1 rounded text-xs">내 강점은?</button>
+      <button class="qa-quick bg-slate-100 px-2 py-1 rounded text-xs">공부 어떻게 하면 좋아?</button>
+    </div>
+    <div id="qa-answer" class="mt-3 text-sm text-slate-700 leading-relaxed"></div>
+  </div>
+
   <div class="bg-slate-50 rounded-2xl p-4 text-xs text-slate-600">
     <strong>사용된 검사 도구 (모두 공유저작 또는 비영리 학술 사용 허용)</strong>
     <ul class="mt-2 space-y-1">
@@ -623,6 +770,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
 ================================= -->
 <div class="page" id="p-cover">
   <div class="cover-wrap">
+    <div style="display:flex;justify-content:center;margin-bottom:12px;"><span style="display:inline-flex;align-items:center;background:#141413;border-radius:10px;padding:8px 16px;"><img src="https://yedam.kr/images/logo_h_white.png" alt="예담정보통신" style="height:24px;display:block;"></span></div>
     <div style="font-size:11px;color:#888;margin-bottom:6px;">교육부 인가 제262호 · 사)한국인간과학연구소</div>
     <div class="cover-title-main">표준화 인·적성 검사</div>
     <div class="cover-title-sub">AI PIA 검사 결과지</div>
@@ -674,7 +822,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
     <!-- 점수 표시 -->
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px;">
       <span style="font-size:11px;color:#555;">인성 종합 점수</span>
-      <span style="font-size:18px;font-weight:900;color:#d97757;">72점 &nbsp;<span class="grade-box grade-B-plus">B+</span></span>
+      <span style="font-size:18px;font-weight:900;color:#d97757;"><span id="rep-pers-score">72</span>점 &nbsp;<span class="grade-box grade-B-plus" id="rep-pers-grade">B+</span></span>
     </div>
     <!-- 레인보우 바 -->
     <div class="rainbow-bar-wrap" id="rb-personality">
@@ -812,7 +960,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div class="item-card">
     <div class="item-card-head">
       <span class="item-name">P1 공감 능력 (Empathy)</span>
-      <span class="grade-box grade-A">A &nbsp; 85점</span>
+      <span data-headgrade="P1" class="grade-box grade-A">A &nbsp; 85점</span>
     </div>
     <div class="item-card-body">
       <div class="two-col">
@@ -828,7 +976,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
           <div class="compare-index">전체평균 비교지수 : 70 (보통)</div>
         </div>
         <div>
-          <p class="desc-para">홍길동 학생은 타인의 감정과 입장을 이해하고 공감하는 능력이 매우 우수합니다. 주변 친구들의 정서를 민감하게 파악하며 위로와 지지를 제공하는 성향이 강합니다. 이 역량은 사회적 유대관계 형성에 큰 자산이 됩니다.</p>
+          <p class="desc-para" data-desc="P1">홍길동 학생은 타인의 감정과 입장을 이해하고 공감하는 능력이 매우 우수합니다. 주변 친구들의 정서를 민감하게 파악하며 위로와 지지를 제공하는 성향이 강합니다. 이 역량은 사회적 유대관계 형성에 큰 자산이 됩니다.</p>
           <div class="alert-box" style="background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;" >
             <strong>※ 강점 영역 :</strong> 타인 감정 공감, 갈등 중재, 정서적 지지 역할에 탁월합니다.
           </div>
@@ -849,7 +997,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div class="item-card">
     <div class="item-card-head">
       <span class="item-name">P2 자기통제 (Self-Control)</span>
-      <span class="grade-box grade-B">B &nbsp; 64점</span>
+      <span data-headgrade="P2" class="grade-box grade-B">B &nbsp; 64점</span>
     </div>
     <div class="item-card-body">
       <div class="two-col">
@@ -864,7 +1012,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
           <div class="compare-index">전체평균 비교지수 : 68 (보통)</div>
         </div>
         <div>
-          <p class="desc-para">자기통제 능력은 평균 수준입니다. 즉각적인 욕구 충족보다 장기적 목표를 위해 참을 수 있는 기회를 늘려야 합니다. 감정이 고조될 때 호흡 조절이나 잠시 멈추는 기술을 연습하면 효과적입니다.</p>
+          <p class="desc-para" data-desc="P2">자기통제 능력은 평균 수준입니다. 즉각적인 욕구 충족보다 장기적 목표를 위해 참을 수 있는 기회를 늘려야 합니다. 감정이 고조될 때 호흡 조절이나 잠시 멈추는 기술을 연습하면 효과적입니다.</p>
           <div class="alert-box">
             <strong>※ 주의 :</strong> 충동적 발언이나 행동이 간헐적으로 관찰됩니다. 규칙적인 마음챙김 활동을 권장합니다.
           </div>
@@ -885,7 +1033,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div class="item-card">
     <div class="item-card-head">
       <span class="item-name">P3 도덕성 (Morality)</span>
-      <span class="grade-box grade-B-plus">B+ &nbsp; 78점</span>
+      <span data-headgrade="P3" class="grade-box grade-B-plus">B+ &nbsp; 78점</span>
     </div>
     <div class="item-card-body">
       <div class="two-col">
@@ -900,7 +1048,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
           <div class="compare-index">전체평균 비교지수 : 72 (양호)</div>
         </div>
         <div>
-          <p class="desc-para">도덕적 판단 능력이 또래 평균보다 높습니다. 옳고 그름에 대한 기준이 명확하고 불공정한 상황에 민감하게 반응합니다. 도덕적 용기를 발휘해 주변에 긍정적 영향력을 미칠 수 있습니다.</p>
+          <p class="desc-para" data-desc="P3">도덕적 판단 능력이 또래 평균보다 높습니다. 옳고 그름에 대한 기준이 명확하고 불공정한 상황에 민감하게 반응합니다. 도덕적 용기를 발휘해 주변에 긍정적 영향력을 미칠 수 있습니다.</p>
         </div>
       </div>
       <table class="data-table" style="margin-top:8px;">
@@ -929,7 +1077,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div class="item-card">
     <div class="item-card-head">
       <span class="item-name">P4 사회성 (Sociability)</span>
-      <span class="grade-box grade-A-plus">A+ &nbsp; 91점</span>
+      <span data-headgrade="P4" class="grade-box grade-A-plus">A+ &nbsp; 91점</span>
     </div>
     <div class="item-card-body">
       <div class="two-col">
@@ -944,7 +1092,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
           <div class="compare-index">전체평균 비교지수 : 73 (매우 양호)</div>
         </div>
         <div>
-          <p class="desc-para">사회성이 매우 우수합니다. 집단 내에서 자연스럽게 어울리고 친화력이 높아 또래 관계에서 중심적 역할을 합니다. 다양한 배경의 사람들과 긍정적인 관계를 맺는 능력이 뛰어납니다.</p>
+          <p class="desc-para" data-desc="P4">사회성이 매우 우수합니다. 집단 내에서 자연스럽게 어울리고 친화력이 높아 또래 관계에서 중심적 역할을 합니다. 다양한 배경의 사람들과 긍정적인 관계를 맺는 능력이 뛰어납니다.</p>
           <div class="alert-box" style="background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;">
             <strong>※ 강점 :</strong> 또래 관계에서 핵심 인물로 긍정적 영향력 발휘 가능합니다.
           </div>
@@ -961,7 +1109,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div class="item-card">
     <div class="item-card-head">
       <span class="item-name">P5 책임감 (Responsibility)</span>
-      <span class="grade-box grade-B-plus">B+ &nbsp; 70점</span>
+      <span data-headgrade="P5" class="grade-box grade-B-plus">B+ &nbsp; 70점</span>
     </div>
     <div class="item-card-body">
       <div class="two-col">
@@ -976,7 +1124,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
           <div class="compare-index">전체평균 비교지수 : 71 (보통)</div>
         </div>
         <div>
-          <p class="desc-para">책임감은 평균 수준이며 소집단 과제에서는 성실히 역할을 수행합니다. 단, 장기 과제에서 마무리 단계에 집중력이 떨어지는 경향이 관찰됩니다. 계획 수립과 자기 점검 습관이 필요합니다.</p>
+          <p class="desc-para" data-desc="P5">책임감은 평균 수준이며 소집단 과제에서는 성실히 역할을 수행합니다. 단, 장기 과제에서 마무리 단계에 집중력이 떨어지는 경향이 관찰됩니다. 계획 수립과 자기 점검 습관이 필요합니다.</p>
         </div>
       </div>
       <table class="data-table" style="margin-top:8px;">
@@ -990,7 +1138,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div class="item-card">
     <div class="item-card-head">
       <span class="item-name">P6 정서 안정 (Emotional Stability)</span>
-      <span class="grade-box grade-C">C &nbsp; 56점</span>
+      <span data-headgrade="P6" class="grade-box grade-C">C &nbsp; 56점</span>
     </div>
     <div class="item-card-body">
       <div class="two-col">
@@ -1005,7 +1153,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
           <div class="compare-index">전체평균 비교지수 : 66 (주의)</div>
         </div>
         <div>
-          <p class="desc-para">정서 안정성이 또래 평균에 비해 낮은 편입니다. 스트레스 상황에서 불안 수준이 올라가고 기분의 기복이 심해질 수 있습니다. 규칙적인 수면·운동과 감정 일기 작성이 도움이 됩니다.</p>
+          <p class="desc-para" data-desc="P6">정서 안정성이 또래 평균에 비해 낮은 편입니다. 스트레스 상황에서 불안 수준이 올라가고 기분의 기복이 심해질 수 있습니다. 규칙적인 수면·운동과 감정 일기 작성이 도움이 됩니다.</p>
           <div class="alert-box">
             <strong>⚠ 주의 요망 :</strong> C등급 이하 항목은 전문 상담사와의 추가 상담을 권장합니다. 학교 상담실 또는 Wee 클래스를 적극 활용하세요.
           </div>
@@ -1035,7 +1183,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
       <div class="item-card">
         <div class="item-card-head">
           <span class="item-name">P7 리더십</span>
-          <span class="grade-box grade-A">A &nbsp; 82점</span>
+          <span data-headgrade="P7" class="grade-box grade-A">A &nbsp; 82점</span>
         </div>
         <div class="item-card-body">
           <div style="display:flex;flex-direction:column;align-items:center;">
@@ -1057,7 +1205,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
       <div class="item-card">
         <div class="item-card-head">
           <span class="item-name">P8 창의성</span>
-          <span class="grade-box grade-B-plus">B+ &nbsp; 75점</span>
+          <span data-headgrade="P8" class="grade-box grade-B-plus">B+ &nbsp; 75점</span>
         </div>
         <div class="item-card-body">
           <div style="display:flex;flex-direction:column;align-items:center;">
@@ -1079,7 +1227,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
       <div class="item-card">
         <div class="item-card-head">
           <span class="item-name">P9 진로성숙</span>
-          <span class="grade-box grade-B">B &nbsp; 68점</span>
+          <span data-headgrade="P9" class="grade-box grade-B">B &nbsp; 68점</span>
         </div>
         <div class="item-card-body">
           <div style="display:flex;flex-direction:column;align-items:center;">
@@ -1150,8 +1298,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
       <th>구분</th><th>종합 지능 지수</th><th>가장 높은 영역</th><th>가장 낮은 영역</th><th>종합 등급</th>
     </tr>
     <tr>
-      <td class="row-head">홍길동</td>
-      <td><strong>IQ 112</strong></td>
+      <td class="row-head" data-pia="name">홍길동</td>
+      <td><strong id="intel-iq">IQ 112</strong></td>
       <td>언어적 지능 (A+)</td>
       <td>수·공간 지능 (B)</td>
       <td><span class="grade-box grade-A">A · 상위 22%</span></td>
@@ -1346,14 +1494,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div class="section-title"><span class="section-icon">■</span> 계열 적합도 종합 의견</div>
   <table class="data-table">
     <tr><th style="width:70px;">계열</th><th>종합 점수</th><th>적합 등급</th><th>비고</th></tr>
-    <tr><td class="row-head">인문계</td><td>82</td><td><span class="grade-box grade-A">A · 매우 적합</span></td><td style="text-align:left;">언어·사회 계열 진학 강력 추천</td></tr>
-    <tr><td class="row-head">자연계</td><td>64</td><td><span class="grade-box grade-B">B · 보통</span></td><td style="text-align:left;">수리 보완 후 재검토 권장</td></tr>
-    <tr><td class="row-head">예능계</td><td>75</td><td><span class="grade-box grade-B-plus">B+ · 적합</span></td><td style="text-align:left;">음악·미디어 계열 고려 가능</td></tr>
-    <tr><td class="row-head">체육계</td><td>80</td><td><span class="grade-box grade-A">A · 적합</span></td><td style="text-align:left;">스포츠·체육교육 계열 추천</td></tr>
+    <tr><td class="row-head">인문계</td><td id="apt-hum-sc">82</td><td><span class="grade-box grade-A" id="apt-hum-g">A · 매우 적합</span></td><td style="text-align:left;">언어·사회 계열 진학 강력 추천</td></tr>
+    <tr><td class="row-head">자연계</td><td id="apt-nat-sc">64</td><td><span class="grade-box grade-B" id="apt-nat-g">B · 보통</span></td><td style="text-align:left;">수리 보완 후 재검토 권장</td></tr>
+    <tr><td class="row-head">예능계</td><td id="apt-art-sc">75</td><td><span class="grade-box grade-B-plus" id="apt-art-g">B+ · 적합</span></td><td style="text-align:left;">음악·미디어 계열 고려 가능</td></tr>
+    <tr><td class="row-head">체육계</td><td id="apt-pe-sc">80</td><td><span class="grade-box grade-A" id="apt-pe-g">A · 적합</span></td><td style="text-align:left;">스포츠·체육교육 계열 추천</td></tr>
   </table>
 
   <div class="alert-box" style="background:#fff8e1;border-color:#ffe082;color:#5d4037;margin-top:10px;">
-    <strong>※ 최우선 추천 진로 계열 : 인문계</strong><br>
+    <strong>※ 최우선 추천 진로 계열 : <span id="apt-top">인문계</span></strong><br>
     언어적 지능(A+), 사회성(A+), 대인지능(A)이 모두 높아 인문·사회·미디어 계열이 가장 적합합니다.
   </div>
 </div>
@@ -1443,40 +1591,41 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div class="section-title"><span class="section-icon">■</span> 학습 역량 세부 분석</div>
   <table class="data-table">
     <tr><th>역량</th><th>점수</th><th>평균</th><th style="width:180px;">그래프</th><th>등급</th><th>코멘트</th></tr>
-    <tr>
+    <tr data-lskill="focus">
       <td class="row-head">집중력</td><td>78</td><td>65</td>
       <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:78%"></div></div><span class="prog-bar-val">78</span></div></td>
       <td><span class="grade-box grade-B-plus">B+</span></td>
       <td style="text-align:left;font-size:10px;">장시간 집중 가능, 게임 시 주의</td>
     </tr>
-    <tr>
+    <tr data-lskill="memory">
       <td class="row-head">기억력</td><td>82</td><td>67</td>
       <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:82%"></div></div><span class="prog-bar-val">82</span></div></td>
       <td><span class="grade-box grade-A">A</span></td>
       <td style="text-align:left;font-size:10px;">단기 기억 우수, 복습 강화 권장</td>
     </tr>
-    <tr>
+    <tr data-lskill="meta">
       <td class="row-head">메타인지</td><td>66</td><td>61</td>
       <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:66%"></div></div><span class="prog-bar-val">66</span></div></td>
       <td><span class="grade-box grade-B">B</span></td>
       <td style="text-align:left;font-size:10px;">자기 학습 인식 향상 필요</td>
     </tr>
-    <tr>
+    <tr data-lskill="motiv">
       <td class="row-head">학습 동기</td><td>72</td><td>64</td>
       <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:72%"></div></div><span class="prog-bar-val">72</span></div></td>
       <td><span class="grade-box grade-B-plus">B+</span></td>
       <td style="text-align:left;font-size:10px;">목표 설정 시 동기 상승</td>
     </tr>
-    <tr>
+    <tr data-lskill="selfdir">
       <td class="row-head">자기주도학습</td><td>68</td><td>63</td>
       <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:68%"></div></div><span class="prog-bar-val">68</span></div></td>
       <td><span class="grade-box grade-B-plus">B+</span></td>
       <td style="text-align:left;font-size:10px;">학습 계획 루틴화 권장</td>
     </tr>
   </table>
+  <p style="font-size:9px;color:#999;margin-top:4px;">※ 세부 역량 점수는 성격(Big5)·끈기(Grit)·다중지능 검사를 바탕으로 추정한 값이며, '평균' 칼럼은 참고용 표준 기준치입니다.</p>
 
   <div class="section-title"><span class="section-icon">■</span> 학습역량 종합 의견</div>
-  <p class="desc-para">홍길동 학생은 국어·외국어·사회 과목에서 전국 평균 대비 높은 역량을 보이며, 언어·사회 계열 학습에 적합한 특성을 갖추고 있습니다. 수학·과학 영역은 보완이 필요하지만, 강점 과목을 중심으로 진로를 설계하면 높은 성취가 기대됩니다. 메타인지 역량 향상을 위해 학습 일지 작성과 자기 점검 습관을 기를 것을 권장합니다.</p>
+  <p class="desc-para" data-desc="concl">결과를 바탕으로 학습·진로 방향을 정리합니다.</p>
 </div>
 
 <!-- ==============================
@@ -1493,9 +1642,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <p style="font-size:10.5px;color:#666;margin-bottom:8px;">※ 본 결과는 의료·임상 진단이 아닌 선별(스크리닝) 참고 자료입니다. HIGH 판정 시 전문가 상담을 권장합니다.</p>
   <table class="data-table" style="margin-bottom:14px;">
     <tr><th>척도</th><th>측정 영역</th><th>점수</th><th>판정</th><th style="text-align:left;">해석</th></tr>
-    <tr><td class="row-head">CES-D-10</td><td>우울 (지난 1주)</td><td>7 / 30</td><td><span class="grade-box grade-A">정상</span></td><td style="text-align:left;">경미한 정상 변동 범위로 양호합니다.</td></tr>
-    <tr><td class="row-head">PHQ-A</td><td>청소년 우울 (2주)</td><td>5 / 27</td><td><span class="grade-box grade-B-plus">경도</span></td><td style="text-align:left;">생활 리듬·수면을 가볍게 관찰해 주세요.</td></tr>
-    <tr><td class="row-head">GAD-7</td><td>불안 (2주)</td><td>4 / 21</td><td><span class="grade-box grade-A">정상</span></td><td style="text-align:left;">유의 수준 이하로 안정적입니다.</td></tr>
+    <tr><td class="row-head">CES-D-10</td><td>우울 (지난 1주)</td><td id="sc-cesd">7 / 30</td><td><span class="grade-box grade-A" id="sc-cesd-g">정상</span></td><td style="text-align:left;">경미한 정상 변동 범위로 양호합니다.</td></tr>
+    <tr><td class="row-head">PHQ-A</td><td>청소년 우울 (2주)</td><td id="sc-phqa">5 / 27</td><td><span class="grade-box grade-B-plus" id="sc-phqa-g">경도</span></td><td style="text-align:left;">생활 리듬·수면을 가볍게 관찰해 주세요.</td></tr>
+    <tr><td class="row-head">GAD-7</td><td>불안 (2주)</td><td id="sc-gad">4 / 21</td><td><span class="grade-box grade-A" id="sc-gad-g">정상</span></td><td style="text-align:left;">유의 수준 이하로 안정적입니다.</td></tr>
   </table>
 
   <div class="section-title"><span class="section-icon">■</span> 마음 건강 셀프케어 5가지</div>
@@ -1533,21 +1682,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
   <div class="section-title-diamond">◆ AI PIA 종합 평가 요약</div>
   <table class="data-table" style="margin-bottom:12px;">
     <tr><th>평가 영역</th><th>종합 점수</th><th>등급</th><th>비고</th></tr>
-    <tr><td class="row-head">인성 검사</td><td>72</td><td><span class="grade-box grade-B-plus">B+</span></td><td style="text-align:left;">사회성·공감 강점, 정서안정 보완 필요</td></tr>
-    <tr><td class="row-head">지능 지수</td><td>IQ 112</td><td><span class="grade-box grade-A">A</span></td><td style="text-align:left;">언어·대인지능 탁월</td></tr>
-    <tr><td class="row-head">진로 적성</td><td>82</td><td><span class="grade-box grade-A">A</span></td><td style="text-align:left;">인문계열 최적합</td></tr>
-    <tr><td class="row-head">학습 역량</td><td>77</td><td><span class="grade-box grade-B-plus">B+</span></td><td style="text-align:left;">국어·외국어 강세</td></tr>
-    <tr style="background:#f3ebe1;"><td class="row-head bold">종 합</td><td><strong>78</strong></td><td><span class="grade-box grade-B-plus">B+</span></td><td style="text-align:left;font-weight:700;">인문·사회·미디어 계열 강력 추천</td></tr>
+    <tr><td class="row-head">인성 검사</td><td id="cc-pers-sc">72</td><td><span class="grade-box grade-B-plus" id="cc-pers-gr">B+</span></td><td style="text-align:left;">사회성·공감 강점, 정서안정 보완 필요</td></tr>
+    <tr><td class="row-head">지능 지수</td><td id="cc-iq-sc">IQ 112</td><td><span class="grade-box grade-A" id="cc-iq-gr">A</span></td><td style="text-align:left;">언어·대인지능 탁월</td></tr>
+    <tr><td class="row-head">진로 적성</td><td id="cc-apt-sc">82</td><td><span class="grade-box grade-A" id="cc-apt-gr">A</span></td><td style="text-align:left;">인문계열 최적합</td></tr>
+    <tr><td class="row-head">학습 역량</td><td id="cc-learn-sc">77</td><td><span class="grade-box grade-B-plus" id="cc-learn-gr">B+</span></td><td style="text-align:left;">국어·외국어 강세</td></tr>
+    <tr style="background:#f3ebe1;"><td class="row-head bold">종 합</td><td><strong id="cc-all-sc">78</strong></td><td><span class="grade-box grade-B-plus" id="cc-all-gr">B+</span></td><td style="text-align:left;font-weight:700;">인문·사회·미디어 계열 강력 추천</td></tr>
   </table>
 
   <div class="section-title"><span class="section-icon">■</span> AI 진로 추천 직업군 (Top 5)</div>
   <table class="data-table" style="margin-bottom:12px;">
     <tr><th>순위</th><th>직업군</th><th>관련 계열</th><th>적합 근거</th></tr>
-    <tr><td>1위</td><td class="row-head">언론인 / 방송 PD</td><td>인문·미디어</td><td style="text-align:left;">언어지능 A+, 사회성 A+, 리더십 A</td></tr>
-    <tr><td>2위</td><td class="row-head">사회복지사 / 상담사</td><td>사회·복지</td><td style="text-align:left;">공감능력 A, 도덕성 B+, 대인지능 A</td></tr>
-    <tr><td>3위</td><td class="row-head">교사 / 교육 전문가</td><td>사범·교육</td><td style="text-align:left;">리더십 A, 사회성 A+, 언어지능 A+</td></tr>
-    <tr><td>4위</td><td class="row-head">스포츠 지도자</td><td>체육·스포츠</td><td style="text-align:left;">신체지능 A, 리더십 A, 사회성 A+</td></tr>
-    <tr><td>5위</td><td class="row-head">음악 치료사</td><td>예능·복지</td><td style="text-align:left;">음악지능 B+, 공감능력 A, 정서 관심</td></tr>
+    <tr><td>1위</td><td class="row-head" id="top5-1">언론인 / 방송 PD</td><td>인문·미디어</td><td style="text-align:left;">언어지능 A+, 사회성 A+, 리더십 A</td></tr>
+    <tr><td>2위</td><td class="row-head" id="top5-2">사회복지사 / 상담사</td><td>사회·복지</td><td style="text-align:left;">공감능력 A, 도덕성 B+, 대인지능 A</td></tr>
+    <tr><td>3위</td><td class="row-head" id="top5-3">교사 / 교육 전문가</td><td>사범·교육</td><td style="text-align:left;">리더십 A, 사회성 A+, 언어지능 A+</td></tr>
+    <tr><td>4위</td><td class="row-head" id="top5-4">스포츠 지도자</td><td>체육·스포츠</td><td style="text-align:left;">신체지능 A, 리더십 A, 사회성 A+</td></tr>
+    <tr><td>5위</td><td class="row-head" id="top5-5">음악 치료사</td><td>예능·복지</td><td style="text-align:left;">음악지능 B+, 공감능력 A, 정서 관심</td></tr>
   </table>
 
   <div class="section-title"><span class="section-icon">■</span> 담당교사·부모님께 드리는 종합 코멘트</div>
@@ -1628,6 +1777,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
       <span class="text-xs text-slate-600">엔진 모드</span>
       <select id="cfg-mode" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm">
         <option value="LOCAL">로컬 규칙형 (오프라인)</option>
+        <option value="AUTO_FREE">⚡ 자동 무료 (키 불필요·권장)</option>
         <option value="HYPERCLOVA">HyperCLOVA X (네이버, 국내, 권장)</option>
         <option value="SOLAR">Upstage SOLAR (국내, Apache 2.0)</option>
         <option value="CLAUDE_HAIKU">Anthropic Claude Haiku 4.5</option>
@@ -1649,10 +1799,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--c-clay)!important;box
       <input id="cfg-model" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
     </label>
   </div>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2 items-center">
+    <button id="cfg-auto-free" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">⚡ 무료 AI 자동 연결</button>
     <button id="cfg-save" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">저장</button>
     <span id="cfg-status" class="self-center text-xs text-slate-500"></span>
   </div>
+  <p class="text-xs text-slate-500 -mt-2">키가 없어도 <strong>무료 AI 자동 연결</strong> 한 번이면 자유대화에 바로 적용됩니다. (무료 공용 게이트웨이라 호출 간격 제한이 있을 수 있어요)</p>
+  <label class="block text-xs text-slate-600">무료 AI 모델
+    <select id="cfg-free-model" class="ml-1 border border-slate-300 rounded px-2 py-1 text-xs">
+      <option value="openai">openai (기본)</option>
+      <option value="openai-fast">openai-fast (빠름)</option>
+      <option value="mistral">mistral</option>
+    </select>
+  </label>
   <div class="border-t border-slate-200 pt-4">
     <h3 class="font-semibold text-sm mb-2">백엔드 프록시 연동 (국내 공공 API)</h3>
     <p class="text-xs text-slate-500 mb-3">커리어넷·워크넷처럼 CORS가 막힌 API는 <code class="bg-slate-100 px-1 rounded">pia-proxy</code> 서버를 통해 호출합니다. 서버 실행 후 주소를 입력하고 연동 테스트를 누르세요.</p>
@@ -1702,52 +1861,52 @@ const IPIP_BIG5_50 = [
   { f:'E', s: 1, t:'나는 파티의 중심이 되는 편이다.' },
   { f:'A', s:-1, t:'나는 다른 사람의 일에 별로 관심이 없다.' },
   { f:'C', s: 1, t:'나는 항상 준비가 되어있다.' },
-  { f:'N', s:-1, t:'나는 쉽게 스트레스를 받는다.' },
+  { f:'N', s: 1, t:'나는 쉽게 스트레스를 받는다.' },
   { f:'O', s: 1, t:'나는 풍부한 어휘를 가지고 있다.' },
   { f:'E', s:-1, t:'나는 별로 말이 없다.' },
   { f:'A', s: 1, t:'나는 사람들의 안부가 궁금하다.' },
   { f:'C', s:-1, t:'나는 물건을 제자리에 두지 않는다.' },
-  { f:'N', s: 1, t:'나는 대부분의 시간이 편안하다.' },
+  { f:'N', s:-1, t:'나는 대부분의 시간이 편안하다.' },
   { f:'O', s:-1, t:'나는 추상적인 아이디어에 별 관심이 없다.' },
   { f:'E', s: 1, t:'나는 사람들과 어울리는 것이 편하다.' },
   { f:'A', s:-1, t:'나는 다른 사람들을 모욕할 때가 있다.' },
   { f:'C', s: 1, t:'나는 세세한 부분까지 주의를 기울인다.' },
-  { f:'N', s:-1, t:'나는 자주 걱정한다.' },
+  { f:'N', s: 1, t:'나는 자주 걱정한다.' },
   { f:'O', s: 1, t:'나는 풍부한 상상력을 갖고 있다.' },
   { f:'E', s:-1, t:'나는 사람들의 관심을 받는 것을 피한다.' },
   { f:'A', s: 1, t:'나는 다른 사람의 감정에 공감한다.' },
   { f:'C', s:-1, t:'나는 일을 미루는 경향이 있다.' },
-  { f:'N', s: 1, t:'나는 거의 화를 내지 않는다.' },
+  { f:'N', s:-1, t:'나는 거의 화를 내지 않는다.' },
   { f:'O', s:-1, t:'나는 추상적 사고에 흥미가 없다.' },
   { f:'E', s: 1, t:'나는 다양한 사람들과 대화를 시작한다.' },
   { f:'A', s:-1, t:'나는 다른 사람의 문제에는 관심이 없다.' },
   { f:'C', s: 1, t:'나는 일정을 잘 지킨다.' },
-  { f:'N', s:-1, t:'나는 쉽게 우울해진다.' },
+  { f:'N', s: 1, t:'나는 쉽게 우울해진다.' },
   { f:'O', s: 1, t:'나는 훌륭한 아이디어를 자주 떠올린다.' },
   { f:'E', s:-1, t:'나는 다른 사람과 이야기할 때 별로 할 말이 없다.' },
   { f:'A', s: 1, t:'나는 따뜻한 마음을 가지고 있다.' },
   { f:'C', s:-1, t:'나는 잊어버리고 책임을 다하지 않을 때가 있다.' },
-  { f:'N', s: 1, t:'나는 자주 감정의 기복이 적은 편이다.' },
+  { f:'N', s:-1, t:'나는 자주 감정의 기복이 적은 편이다.' },
   { f:'O', s:-1, t:'나는 추상적인 토론에 흥미가 없다.' },
   { f:'E', s: 1, t:'나는 사람들의 관심을 끄는 것이 좋다.' },
   { f:'A', s: 1, t:'나는 다른 사람과 시간을 보내는 것이 즐겁다.' },
   { f:'C', s: 1, t:'나는 일을 빠짐없이 처리한다.' },
-  { f:'N', s:-1, t:'나는 종종 우울한 기분이 든다.' },
+  { f:'N', s: 1, t:'나는 종종 우울한 기분이 든다.' },
   { f:'O', s: 1, t:'나는 사물에 대해 깊이 생각하는 것을 좋아한다.' },
   { f:'E', s:-1, t:'나는 말수가 적은 편이다.' },
   { f:'A', s:-1, t:'나는 다른 사람에게 별로 관심이 없다.' },
   { f:'C', s: 1, t:'나는 정해진 계획을 끝까지 따른다.' },
-  { f:'N', s: 1, t:'나는 자주 기분이 좋다.' },
+  { f:'N', s:-1, t:'나는 자주 기분이 좋다.' },
   { f:'O', s: 1, t:'나는 새로운 아이디어를 잘 떠올린다.' },
   { f:'E', s: 1, t:'나는 활기차다.' },
   { f:'A', s: 1, t:'나는 사람들을 편안하게 해준다.' },
   { f:'C', s: 1, t:'나는 일을 정확하게 한다.' },
-  { f:'N', s:-1, t:'나는 자주 슬프거나 의기소침해진다.' },
+  { f:'N', s: 1, t:'나는 자주 슬프거나 의기소침해진다.' },
   { f:'O', s: 1, t:'나는 깊이 있는 생각을 즐긴다.' },
   { f:'E', s:-1, t:'나는 사람들과 거리를 두는 편이다.' },
   { f:'A', s: 1, t:'나는 다른 사람과 잘 협조한다.' },
   { f:'C', s:-1, t:'나는 정리정돈에 약하다.' },
-  { f:'N', s:-1, t:'나는 자주 마음이 불안하다.' },
+  { f:'N', s: 1, t:'나는 자주 마음이 불안하다.' },
   { f:'O', s: 1, t:'나는 다양한 분야에 호기심을 가진다.' }
 ];
 
@@ -2139,6 +2298,11 @@ async function callLLM(prompt, systemPrompt = '') {
         system: systemPrompt,
         messages: [{ role:'user', content: prompt }]
       });
+    } else if (mode === 'AUTO_FREE') {
+      // 키 불필요·CORS 무료 LLM 게이트웨이 (Pollinations · OpenAI 호환)
+      url = cfg.endpoint || 'https://text.pollinations.ai/openai';
+      headers = { 'Content-Type':'application/json' };
+      body = JSON.stringify({ model: cfg.model || 'openai', messages, max_tokens: 250, temperature: 0.7, referrer: 'ai-pia', private: true });
     } else if (mode === 'CUSTOM_OAI') {
       url = cfg.endpoint;
       headers = { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + cfg.key };
@@ -2173,6 +2337,37 @@ async function callLLM(prompt, systemPrompt = '') {
   }
 }
 
+// 키 불필요 무료 게이트웨이 직접 호출 (cfg 무관 · 자유대화 자동 연결용)
+async function callLLMFree(prompt, systemPrompt) {
+  const messages = [];
+  if (systemPrompt) messages.push({ role:'system', content: systemPrompt });
+  messages.push({ role:'user', content: prompt });
+  // 1차: OpenAI 호환 POST (Pollinations · 키 불필요)
+  try {
+    const ctrl = new AbortController(); const t = setTimeout(function(){ ctrl.abort(); }, 15000);
+    const res = await fetch('https://text.pollinations.ai/openai', {
+      method:'POST', headers:{ 'Content-Type':'application/json' }, signal: ctrl.signal,
+      body: JSON.stringify({ model:(state.cfg&&state.cfg.freeModel)||'openai', messages, max_tokens:300, temperature:0.7, referrer:'ai-pia', private:true })
+    });
+    clearTimeout(t);
+    if (res.ok) {
+      const data = await res.json();
+      const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      if (c && c.trim()) return c.trim();
+    }
+  } catch(e) {}
+  // 2차: 단순 GET (plain text) — 1차 실패/레이트리밋 시
+  try {
+    const ctrl2 = new AbortController(); const t2 = setTimeout(function(){ ctrl2.abort(); }, 15000);
+    const u = 'https://text.pollinations.ai/' + encodeURIComponent(prompt)
+      + '?model=' + encodeURIComponent((state.cfg&&state.cfg.freeModel)||'openai') + '&referrer=ai-pia' + (systemPrompt ? '&system=' + encodeURIComponent(systemPrompt) : '');
+    const res2 = await fetch(u, { signal: ctrl2.signal });
+    clearTimeout(t2);
+    if (res2.ok) { const txt = await res2.text(); if (txt && txt.trim()) return txt.trim(); }
+  } catch(e) {}
+  return null;
+}
+
 // CBT-aware 시스템 프롬프트 생성
 function buildSystemPrompt(stage, topic) {
   const stageGuide = {
@@ -2182,16 +2377,25 @@ function buildSystemPrompt(stage, topic) {
     ACTION: '오늘 실천 가능한 작은 행동 1가지를 정하도록 도와주세요.',
     CHECKOUT: '오늘 대화의 의미를 정리하고 가져갈 한 가지를 묻습니다.'
   };
-  return `당신은 한국 청소년(초·중·고등학생)을 돕는 상담 AI "피아"입니다. 반드시 다음 규칙을 지키세요:
-1. 또래의 다정한 형/누나 같은, 따뜻하고 비판하지 않는 어조의 부드러운 반말을 씁니다.
-2. 먼저 학생의 감정을 한 번 짧게 비춰준 뒤(반영적 경청), 1~3문장 안에서 답하고 끝에 열린 질문 하나만 둡니다.
-3. 설교·훈계·긴 조언·여러 개의 질문을 한꺼번에 하지 않습니다.
-4. CBT 단계: ${stage} — ${stageGuide[stage] || stageGuide.RAPPORT}
-5. 현재 주제: ${topic}
-6. 의료 진단·약물 권유·자해 방법 언급은 절대 하지 않습니다.
-7. 자해·자살·학대·폭력 신호가 보이면 즉시 공감한 뒤 "청소년상담 1388, 정신건강위기상담 1577-0199, 가까운 신뢰하는 어른"에게 도움을 요청하도록 안내합니다.
-8. 이모지는 최대 1개까지만, 과하지 않게 사용합니다.
-9. 응답은 반드시 한국어로만 합니다.`;
+  // 지금까지 신호가 가장 적게 모인 성향 영역을 다음 탐색 대상으로 추론
+  const dims = (state.results.conv && state.results.conv.dims) || {};
+  const probeOrder = ['창의','탐구','분석','공감','실천','감성','계획','관찰','도전','자유','현실','책임','외향','내향'];
+  const probe = probeOrder.slice().sort(function(a,b){ return ((dims[a]||0)-(dims[b]||0)); })[0];
+  const probeHint = {
+    창의:'상상하거나 만드는 걸 좋아하는지', 탐구:'궁금한 걸 파고드는 편인지', 분석:'이유나 원리를 따져보는 편인지',
+    공감:'친구 마음을 잘 살피는지', 실천:'생각보다 바로 행동하는 편인지', 감성:'감정·분위기를 예민하게 느끼는지',
+    계획:'미리 계획·정리하는 편인지', 관찰:'조용히 지켜보며 알아채는지', 도전:'새로운 것에 도전하는 편인지',
+    자유:'규칙보다 자유로운 걸 좋아하는지', 현실:'실제로 쓸모 있는 걸 중시하는지', 책임:'맡은 걸 끝까지 해내는지',
+    외향:'사람들과 어울릴 때 힘이 나는지', 내향:'혼자만의 시간이 편한지'
+  };
+  return `당신은 한국 청소년(초·중·고)과 '일상 수다'를 나누는 친근한 AI "피아"입니다. 이 대화는 검사처럼 느껴지지 않는 자연스러운 대화이면서, 대화 속에서 학생의 성향·흥미·강점을 파악하는 것이 목적입니다. 규칙:
+1. 또래의 다정한 형/누나 같은 따뜻한 반말. 비판·설교·긴 조언 금지.
+2. 학생이 질문하면 먼저 그 질문에 진짜로(짧고 쉽게) 답해줘. 회피하거나 질문으로만 받아치지 말 것.
+3. 답한 뒤, 끝에 열린 질문 '하나'만 자연스럽게 곁들여 대화를 이어가. 이번 질문은 학생이 [${probe}] 영역(${probeHint[probe] || ''})이 드러나도록 일상적으로 던져(취미·좋아하는 것·오늘 하루·친구·상상 등). 절대 검사 문항처럼 묻지 말 것.
+4. 2~4문장으로 자연스럽고 충분하게(너무 길지 않게). 감정이 보이면 먼저 한 번 살짝 공감하고, 학생이 먼저 끝내자고 하기 전에는 네가 먼저 대화를 마무리하지 마.
+5. CBT 단계: ${stage} — ${stageGuide[stage] || stageGuide.RAPPORT}. 현재 주제: ${topic}.
+6. 의료 진단·약물·자해 방법은 언급하지 않음. 자해·자살·학대·폭력 신호가 보이면 즉시 공감 후 "청소년상담 1388, 정신건강위기 1577-0199, 가까운 믿을 어른"에게 도움을 요청하도록 안내.
+7. 이모지는 최대 1개. 한국어로만.`;
 }
 
 // -----------------------------------------------------------------
@@ -2377,7 +2581,17 @@ const FREE_API_CATALOG = [
   { category:'⚡ 자동 연동 — 키 불필요·브라우저 직접(CORS, 웹검증)', items:[
     { name:'위키백과 REST (한국어)', url:'https://ko.wikipedia.org/api/rest_v1/', limit:'무료·무인증', models:'직업·개념 요약(summary)', notes:'CORS ✓ — 결과지 진로 섹션에 자동 연동됨', auto:true, ping:'https://ko.wikipedia.org/api/rest_v1/page/summary/%EC%8B%AC%EB%A6%AC%ED%95%99' },
     { name:'Wikipedia REST (English)', url:'https://en.wikipedia.org/api/rest_v1/', limit:'무료·무인증', models:'영문 요약(폴백)', notes:'CORS ✓ — ko 미존재 시 자동 폴백', auto:true, ping:'https://en.wikipedia.org/api/rest_v1/page/summary/Psychology' },
-    { name:'Wikidata / Wikimedia', url:'https://www.wikidata.org/w/rest.php', limit:'무료·무인증', models:'구조화 지식', notes:'CORS ✓ — 키 없이 호출', auto:true, ping:'https://www.wikidata.org/w/api.php?action=wbsearchentities&search=psychology&language=en&format=json&origin=*' }
+    { name:'Wikidata / Wikimedia', url:'https://www.wikidata.org/w/rest.php', limit:'무료·무인증', models:'구조화 지식', notes:'CORS ✓ — 키 없이 호출', auto:true, ping:'https://www.wikidata.org/w/api.php?action=wbsearchentities&search=psychology&language=en&format=json&origin=*' },
+    { name:'MyMemory 번역', url:'https://mymemory.translated.net/', limit:'무료·무인증(~5천 단어/일)', models:'EN↔KO 등 번역', notes:'CORS ✓ — AI 요약 영어 번역에 사용', auto:true, ping:'https://api.mymemory.translated.net/get?q=hello&langpair=en%7Cko' },
+    { name:'Free Dictionary', url:'https://dictionaryapi.dev/', limit:'무료·무인증', models:'영어 단어 뜻·발음', notes:'CORS ✓ — 용어 풀이', auto:true, ping:'https://api.dictionaryapi.dev/api/v2/entries/en/test' }
+  ]},
+  { category:'🧩 확장 가능 오픈 검사도구 — 청소년·무료/공개 (웹검증 2026)', items:[
+    { name:'Rosenberg 자존감 척도(RSES)', url:'https://www.testable.org/scale/rses-rosenberg-self-esteem-scale', limit:'퍼블릭 도메인', models:'자존감 10문항(역채점 5)', notes:'무료·공개 — 출처표기 권장' },
+    { name:'WHO-5 웰빙 지수', url:'https://www.psykiatri-regionh.dk/who-5/Pages/default.aspx', limit:'무료(WHO)', models:'정서적 웰빙 5문항', notes:'9세+ 검증·한국어판 존재' },
+    { name:'Brief Resilience Scale(BRS)', url:'https://ogg.osu.edu/media/documents/MB%20Stream/Brief%20Resilience%20Scale.pdf', limit:'무료(연구·교육)', models:'회복탄력성 6문항', notes:'Smith 2008 · 출처표기' },
+    { name:'일반적 자기효능감(GSE)', url:'https://userpage.fu-berlin.de/~health/faq_gse.pdf', limit:'무료(연구·교육)', models:'자기효능감 10문항', notes:'Schwarzer & Jerusalem' },
+    { name:'커리어넷 진로심리검사(6종)', url:'https://www.career.go.kr/cnet/front/examen/examenMain.do', limit:'무료(정부)', models:'직업흥미·적성·가치관·진로성숙도', notes:'무상 응시·해석(KRIVET)' },
+    { name:'워크넷 청소년 직업심리검사', url:'https://www.work.go.kr/consltJobCarpa/jobPsyExam/jobPsyExamIntro.do', limit:'무료(정부)', models:'흥미·적성·가치관·진로발달', notes:'무상 응시·해석(고용정보원)' }
   ]},
   { category:'🧪 인적성·심리검사 구현용 오픈소스 (웹검증 2026)', items:[
     { name:'IPIP Item Pool', url:'https://ipip.ori.org/', limit:'퍼블릭 도메인', models:'Big5 등 3,300+ 문항', notes:'저작권 無 · 상업·연구 자유 이용' },
@@ -2515,6 +2729,10 @@ const STORAGE = {
   cesd:'pia_v3_cesd',
   phqa:'pia_v3_phqa',
   gad:'pia_v3_gad',
+  who5:'pia_v3_who5',
+  rses:'pia_v3_rses',
+  learn:'pia_v3_learn',
+  mi:'pia_v3_mi',
   sjt:'pia_v3_sjt',
   conv:'pia_v3_conv',
   cfg:'pia_v3_cfg',
@@ -2695,6 +2913,7 @@ const TOPIC_KW = [
 
 const PROVIDERS = {
   LOCAL: { endpoint:'', model:'', label:'로컬 규칙형' },
+  AUTO_FREE: { endpoint:'https://text.pollinations.ai/openai', model:'openai', label:'자동 무료 (키 불필요)' },
   HYPERCLOVA: { endpoint:'https://clovastudio.stream.ntruss.com/v1/chat-completions/HCX-005', model:'HCX-005', label:'HyperCLOVA X' },
   SOLAR: { endpoint:'https://api.upstage.ai/v1/solar/chat/completions', model:'solar-1-mini-chat', label:'Upstage SOLAR' },
   CLAUDE_HAIKU: { endpoint:'https://api.anthropic.com/v1/messages', model:'claude-haiku-4-5-20251001', label:'Claude Haiku 4.5' },
@@ -2717,33 +2936,38 @@ let state = {
     cesd: { answers: [], scores: null },
     phqa: { answers: [], scores: null },
     gad: { answers: [], scores: null },
-    sjt: { answers: [], dims: {} },
+    who5: { answers: [], scores: null },
+    rses: { answers: [], scores: null },
+    learn: { answers: [], scores: null },
+    mi: { answers: [], scores: null },
+    sjt: { answers: [], dims: {}, order: [], adaptive: false },
     conv: { turns: 0, dims: {}, riskHist: [], topics: {}, transcript: [] }
   },
-  cfg: { mode:'LOCAL', endpoint:'', key:'', model:'', proxy:'' }
+  cfg: { mode:'AUTO_FREE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'', freeModel:'openai', grade:'mid', easy:false }
 };
 
 function load() {
   try {
     for (const k of Object.keys(STORAGE)) {
-      const v = localStorage.getItem(STORAGE[k]);
+      const v = sessionStorage.getItem(STORAGE[k]);
       if (v) {
-        if (k === 'cfg') state.cfg = JSON.parse(v);
-        else if (k === 'meta') state.meta = JSON.parse(v);
-        else if (k === 'conv') state.results.conv = JSON.parse(v);
-        else if (k === 'sjt') state.results.sjt = JSON.parse(v);
-        else state.results[k] = JSON.parse(v);
+        const parsed = JSON.parse(v);
+        if (k === 'cfg') state.cfg = Object.assign({}, state.cfg, parsed);
+        else if (k === 'meta') state.meta = Object.assign({}, state.meta, parsed);
+        else if (k === 'conv') state.results.conv = Object.assign({ turns:0, dims:{}, riskHist:[], topics:{}, transcript:[] }, parsed);
+        else if (k === 'sjt') state.results.sjt = Object.assign({ answers:[], dims:{}, order:[], adaptive:false }, parsed);
+        else state.results[k] = Object.assign({ answers:[], scores:null }, parsed);
       }
     }
   } catch(e) { console.error(e); }
 }
 function save() {
-  localStorage.setItem(STORAGE.cfg, JSON.stringify(state.cfg));
-  localStorage.setItem(STORAGE.meta, JSON.stringify(state.meta));
-  localStorage.setItem(STORAGE.conv, JSON.stringify(state.results.conv));
-  localStorage.setItem(STORAGE.sjt, JSON.stringify(state.results.sjt));
-  for (const k of ['big5','riasec','via','grit','cesd','phqa','gad']) {
-    localStorage.setItem(STORAGE[k], JSON.stringify(state.results[k]));
+  sessionStorage.setItem(STORAGE.cfg, JSON.stringify(state.cfg));
+  sessionStorage.setItem(STORAGE.meta, JSON.stringify(state.meta));
+  sessionStorage.setItem(STORAGE.conv, JSON.stringify(state.results.conv));
+  sessionStorage.setItem(STORAGE.sjt, JSON.stringify(state.results.sjt));
+  for (const k of ['big5','riasec','via','grit','cesd','phqa','gad','who5','rses','learn','mi']) {
+    sessionStorage.setItem(STORAGE[k], JSON.stringify(state.results[k]));
   }
 }
 
@@ -2862,6 +3086,38 @@ function scoreGad() {
     level: total >= 15 ? 'HIGH' : total >= 10 ? 'MEDIUM' : total >= 5 ? 'LOW' : 'NONE'
   };
 }
+function scoreWho5() {
+  const r = state.results.who5.answers; // 1~6
+  if (r.length < WHO5.length) return null;
+  const raw = r.reduce((s,v)=>s+(v-1), 0); // 0~25
+  const pct = Math.round(raw / (WHO5.length*5) * 100);
+  return { raw, pct, level: pct >= 50 ? '양호' : '낮음(돌봄 권장)' };
+}
+function scoreRses() {
+  const r = state.results.rses.answers; // 1~4
+  if (r.length < RSES.length) return null;
+  let total = 0;
+  RSES.forEach((it,i)=>{ total += it.s > 0 ? r[i] : (5 - r[i]); });
+  return { total, level: total >= 31 ? '높음' : total >= 21 ? '보통' : '낮음' };
+}
+function scoreLearn() {
+  const r = state.results.learn.answers; // 1~5
+  if (r.length < LEARN_ITEMS.length) return null;
+  const sums = {}, cnt = {};
+  LEARN_ITEMS.forEach(function(it,i){ sums[it.f]=(sums[it.f]||0)+r[i]; cnt[it.f]=(cnt[it.f]||0)+1; });
+  const out = {};
+  for (const k in sums) out[k] = Math.round(sums[k] / (cnt[k]*5) * 100);
+  return out;
+}
+function scoreMi() {
+  const r = state.results.mi.answers; // 1~5
+  if (r.length < MI_ITEMS.length) return null;
+  const sums = {}, cnt = {};
+  MI_ITEMS.forEach(function(it,i){ sums[it.f]=(sums[it.f]||0)+r[i]; cnt[it.f]=(cnt[it.f]||0)+1; });
+  const out = {};
+  for (const k in sums) out[k] = Math.round(sums[k] / (cnt[k]*5) * 100);
+  return out;
+}
 
 // =================================================================
 //  Integrated PIA 16-type inference (가중 평균)
@@ -2870,85 +3126,67 @@ function inferIntegratedType() {
   const big5 = state.results.big5.scores;
   const riasec = state.results.riasec.scores;
   const via = state.results.via.scores;
+  const grit = state.results.grit.scores;
   const sjtDims = state.results.sjt.dims;
   const convDims = state.results.conv.dims;
 
-  // 정규화된 차원 점수 (0~100)
-  const dims = {
-    창의:0, 분석:0, 공감:0, 실천:0, 탐구:0, 감성:0, 계획:0, 관찰:0,
-    도전:0, 자유:0, 현실:0, 책임:0, 외향:0, 내향:0, 균형:0, 끈기:0
-  };
+  const DIMS = ['창의','분석','공감','실천','탐구','감성','계획','관찰','도전','자유','현실','책임','외향','내향','균형','끈기'];
+  const acc = {}; DIMS.forEach(function(d){ acc[d] = []; });
+  function add(d, v){ if (v != null && !isNaN(v)) acc[d].push(v); }
 
-  // Big5 매핑 (있을 때)
   if (big5) {
-    dims.외향 = big5.E;
-    dims.공감 = big5.A;
-    dims.계획 = big5.C;
-    dims.책임 = big5.C;
-    dims.창의 = big5.O;
-    dims.탐구 = big5.O;
-    // 정서 안정 = 100 - N (N은 정서불안)
-    const stable = 100 - big5.N;
-    dims.균형 = stable;
+    add('외향', big5.E); add('내향', 100 - big5.E);
+    add('공감', big5.A);
+    add('계획', big5.C); add('책임', big5.C);
+    add('창의', big5.O); add('탐구', big5.O); add('자유', big5.O);
+    add('균형', 100 - big5.N);
   }
-
-  // RIASEC 매핑
   if (riasec) {
-    dims.현실 = (dims.현실 + riasec.R) / (dims.현실?2:1);
-    dims.분석 = riasec.I;
-    dims.감성 = (dims.감성 + riasec.A) / (dims.감성?2:1);
-    dims.공감 = (dims.공감 + riasec.S) / 2;
-    dims.도전 = riasec.E;
-    dims.계획 = (dims.계획 + riasec.C) / (dims.계획?2:1);
+    add('현실', riasec.R); add('실천', riasec.R);
+    add('분석', riasec.I); add('탐구', riasec.I); add('관찰', riasec.I);
+    add('감성', riasec.A); add('자유', riasec.A); add('창의', riasec.A);
+    add('공감', riasec.S);
+    add('도전', riasec.E); add('외향', riasec.E);
+    add('계획', riasec.C);
   }
-
-  // VIA 매핑
   if (via) {
-    dims.창의 = ((dims.창의||0) + via['창의']) / 2;
-    dims.공감 = ((dims.공감||0) + via['친절']) / 2;
-    dims.책임 = ((dims.책임||0) + via['끈기']) / 2;
-    dims.끈기 = via['끈기'];
-    dims.도전 = ((dims.도전||0) + via['용기']) / 2;
-    dims.관찰 = via['신중'];
+    add('창의', via['창의']); add('공감', via['친절']);
+    add('책임', via['끈기']); add('끈기', via['끈기']);
+    add('도전', via['용기']); add('관찰', via['신중']);
   }
-
-  // SJT/대화 dims를 0~100으로 정규화 후 가중치 0.3 추가
-  const normDims = (raw) => {
-    const max = Math.max(1, ...Object.values(raw));
-    const out = {};
-    for (const k of Object.keys(raw)) out[k] = (raw[k]/max)*100;
-    return out;
-  };
-  const sjtNorm = sjtDims && Object.keys(sjtDims).length ? normDims(sjtDims) : {};
-  const convNorm = convDims && Object.keys(convDims).length ? normDims(convDims) : {};
-  for (const k of Object.keys(dims)) {
-    let parts = [dims[k]].filter(v => v > 0);
-    if (sjtNorm[k]) parts.push(sjtNorm[k]);
-    if (convNorm[k]) parts.push(convNorm[k]);
-    dims[k] = parts.length ? parts.reduce((s,v)=>s+v,0)/parts.length : 0;
+  if (grit) {
+    add('끈기', grit.overall); add('책임', grit.perseverance); add('실천', grit.perseverance);
   }
+  // SJT/대화 신호 정규화 후 가중 반영
+  function normDims(raw){ const vals = Object.values(raw); const max = Math.max.apply(null, [1].concat(vals)); const out = {}; for (const k in raw) out[k] = (raw[k] / max) * 100; return out; }
+  const sjtNorm = (sjtDims && Object.keys(sjtDims).length) ? normDims(sjtDims) : {};
+  const convNorm = (convDims && Object.keys(convDims).length) ? normDims(convDims) : {};
+  DIMS.forEach(function(d){ if (sjtNorm[d]) acc[d].push(sjtNorm[d]); if (convNorm[d]) acc[d].push(convNorm[d]); });
 
-  // 16유형 매핑
-  const sorted = Object.entries(dims).sort((a,b)=>b[1]-a[1]);
-  const top2 = [sorted[0][0], sorted[1][0]];
+  const dims = {};
+  DIMS.forEach(function(d){ const arr = acc[d]; dims[d] = arr.length ? Math.round(arr.reduce(function(s,v){ return s + v; }, 0) / arr.length) : 0; });
 
-  if (top2.includes('창의') && top2.includes('탐구')) return PIA_TYPES.find(t=>t.code==='CR-EX');
-  if (top2.includes('분석')) return PIA_TYPES.find(t=>t.code==='LO-AN');
-  if (top2.includes('공감') && top2.includes('외향')) return PIA_TYPES.find(t=>t.code==='EM-CO');
-  if (top2.includes('실천') && top2.includes('도전')) return PIA_TYPES.find(t=>t.code==='EX-LE');
-  if (top2.includes('탐구') && top2.includes('내향')) return PIA_TYPES.find(t=>t.code==='QT-RS');
-  if (top2.includes('감성') && top2.includes('창의')) return PIA_TYPES.find(t=>t.code==='EX-CR');
-  if (top2.includes('계획') && top2.includes('책임')) return PIA_TYPES.find(t=>t.code==='PL-MG');
-  if (top2.includes('공감') && top2.includes('관찰')) return PIA_TYPES.find(t=>t.code==='RE-CO');
-  if (top2.includes('도전') && top2.includes('외향')) return PIA_TYPES.find(t=>t.code==='CH-PI');
-  if (top2.includes('자유') && top2.includes('감성')) return PIA_TYPES.find(t=>t.code==='AR-EX');
-  if (top2.includes('현실') && top2.includes('실천')) return PIA_TYPES.find(t=>t.code==='PR-HA');
-  if (top2.includes('분석') && top2.includes('계획')) return PIA_TYPES.find(t=>t.code==='FU-ST');
-  if (top2.includes('책임') && top2.includes('공감')) return PIA_TYPES.find(t=>t.code==='RP-CL');
-  if (top2.includes('탐구') && top2.includes('분석')) return PIA_TYPES.find(t=>t.code==='IN-SP');
-  if (top2.includes('균형')) return PIA_TYPES.find(t=>t.code==='BA-GR');
-
-  return PIA_TYPES.find(t=>t.code==='PT-EX');
+  // 유형 규칙을 '평균 점수'로 비교해 최고점 유형 선택(선매칭 편향 제거, 전 유형 도달 가능)
+  const RULES = [
+    {code:'CR-EX', keys:['창의','탐구']},
+    {code:'EM-CO', keys:['공감','외향']},
+    {code:'EX-LE', keys:['실천','도전']},
+    {code:'QT-RS', keys:['탐구','내향']},
+    {code:'EX-CR', keys:['감성','창의']},
+    {code:'PL-MG', keys:['계획','책임']},
+    {code:'RE-CO', keys:['공감','관찰']},
+    {code:'CH-PI', keys:['도전','외향']},
+    {code:'AR-EX', keys:['자유','감성']},
+    {code:'PR-HA', keys:['현실','실천']},
+    {code:'FU-ST', keys:['분석','계획']},
+    {code:'RP-CL', keys:['책임','공감']},
+    {code:'IN-SP', keys:['탐구','분석']},
+    {code:'LO-AN', keys:['분석']},
+    {code:'BA-GR', keys:['균형','끈기']}
+  ];
+  let best = 'PT-EX', bestScore = -1;
+  RULES.forEach(function(r){ let sum = 0; r.keys.forEach(function(k){ sum += (dims[k] || 0); }); const sc = sum / r.keys.length; if (sc > bestScore) { bestScore = sc; best = r.code; } });
+  return PIA_TYPES.find(function(t){ return t.code === best; }) || PIA_TYPES.find(function(t){ return t.code === 'PT-EX'; }) || PIA_TYPES[0];
 }
 
 // =================================================================
@@ -2983,10 +3221,10 @@ function calcReliability() {
 //  Reply generation (LOCAL rules)
 // =================================================================
 function inferStage(turns) {
-  if (turns <= 1) return 'RAPPORT';
-  if (turns <= 3) return 'EXPLORE';
-  if (turns <= 6) return 'REFRAME';
-  if (turns <= 8) return 'ACTION';
+  if (turns <= 2) return 'RAPPORT';
+  if (turns <= 6) return 'EXPLORE';
+  if (turns <= 11) return 'REFRAME';
+  if (turns <= 15) return 'ACTION';
   return 'CHECKOUT';
 }
 
@@ -3082,6 +3320,54 @@ function generateReply(text) {
   return { reply: `${empathy} ${question}`, risk, topic, forced:false, stage };
 }
 
+function updateChatProfile() {
+  const box = document.getElementById('chat-profile');
+  if (!box) return;
+  const dims = (state.results.conv && state.results.conv.dims) || {};
+  const top = Object.entries(dims).filter(function(e){ return e[1] > 0; }).sort(function(a,b){ return b[1]-a[1]; }).slice(0,3);
+  const aiOn = !!(state.results.conv && state.results.conv.aiDims);
+  box.innerHTML = top.length
+    ? (aiOn ? '🧠 AI가 분석한 성향: ' : '🔎 대화에서 파악 중인 성향: ') + top.map(function(e){ return '<span class="pill bg-violet-100 text-violet-900 text-[10px] mr-1">' + e[0] + '</span>'; }).join('')
+    : '🔎 편하게 이야기하다 보면 성향이 자연스럽게 파악돼요.';
+}
+
+// ===== 대화 내용을 LLM이 직접 분석해 성향 점수 추론 (키워드 매칭 보강) =====
+let _aiInferBusy = false;
+async function aiInferTraits() {
+  if (_aiInferBusy) return;
+  const tr = (state.results.conv && state.results.conv.transcript) || [];
+  if (tr.length < 2) return;
+  _aiInferBusy = true;
+  try {
+    const convText = tr.slice(-8).map(function(t){ return '학생: ' + t.msg; }).join('\n');
+    const dimsList = '창의,분석,공감,실천,탐구,감성,계획,관찰,도전,자유,현실,책임,외향,내향';
+    const sys = '너는 청소년 대화에서 성향 신호를 추론하는 분석가야. 반드시 JSON 객체 하나만 출력하고 설명은 쓰지 마.';
+    const prompt = '다음은 학생이 한 말이야:\n' + convText
+      + '\n\n이 말들에서 드러나는 성향을 아래 14개 중 근거가 있는 것만 골라 0~3 점수로 평가해. 키는 한국어 그대로, JSON 객체 하나만 출력:\n['
+      + dimsList + ']\n예시: {"공감":2,"탐구":1}';
+    const out = await callLLMFree(prompt, sys);
+    if (out) {
+      const m = out.match(/\{[\s\S]*\}/);
+      if (m) {
+        const obj = JSON.parse(m[0]);
+        const valid = dimsList.split(',');
+        state.results.conv.aiDims = state.results.conv.aiDims || {};
+        for (const k in obj) {
+          if (valid.indexOf(k) >= 0) {
+            const v = Math.max(0, Math.min(3, Number(obj[k]) || 0));
+            if (v > 0) {
+              state.results.conv.aiDims[k] = (state.results.conv.aiDims[k] || 0) + v;
+              state.results.conv.dims[k] = (state.results.conv.dims[k] || 0) + v; // 통합 추론 파이프라인 반영
+            }
+          }
+        }
+        save();
+        if (typeof updateChatProfile === 'function') updateChatProfile();
+      }
+    }
+  } catch (e) { /* JSON 파싱/네트워크 실패 시 무시 */ } finally { _aiInferBusy = false; }
+}
+
 function scoreConvDims(text) {
   const dims = {};
   const map = {
@@ -3115,6 +3401,7 @@ function showView(name) {
   document.querySelectorAll('section[data-view]').forEach(s => {
     s.classList.toggle('hidden', s.dataset.view !== name);
   });
+  try { if (name !== 'chat' && typeof releaseMicStream === 'function') releaseMicStream(); } catch(e) {}
   document.querySelectorAll('#topNav button').forEach(btn => {
     btn.setAttribute('aria-pressed', btn.dataset.go === name);
   });
@@ -3125,6 +3412,10 @@ function showView(name) {
   if (name === 'cesd') renderCesd();
   if (name === 'phqa') renderPhqa();
   if (name === 'gad') renderGad();
+  if (name === 'who5') renderWho5();
+  if (name === 'rses') renderRses();
+  if (name === 'learn') renderLearn();
+  if (name === 'mi') renderMi();
   if (name === 'sjt') renderSjt();
   if (name === 'result') renderResult();
   if (name === 'fullreport') { document.getElementById('btn-fullreport-nav').classList.remove('hidden'); }
@@ -3133,6 +3424,52 @@ function showView(name) {
 // =================================================================
 //  Generic Likert renderer (검사 모듈)
 // =================================================================
+// ===== 나이/난이도 맞춤 — 쉬운 말 모드 =====
+const EASY_GLOSSARY = {
+  '대체로':'보통','경향':'편','융통성':'유연함','즉흥적':'그때그때','체계적':'차근차근',
+  '객관적':'있는 그대로','신중하게':'조심스럽게','발휘':'잘 발휘','추구':'좇는','인내':'참고 버티기',
+  '희망적':'기대되는','협력':'같이 하기','관찰':'잘 살펴보기','적성':'잘 맞는 것','가치관':'중요하게 여기는 것'
+};
+function applyEasy(text){
+  if(!text) return text;
+  if(!(state.cfg && state.cfg.easy)) return text;
+  let t = String(text);
+  for(const k in EASY_GLOSSARY){ t = t.split(k).join(EASY_GLOSSARY[k]); }
+  return t;
+}
+function easyControls(viewId){
+  const g=(state.cfg&&state.cfg.grade)||'mid', e=!!(state.cfg&&state.cfg.easy);
+  return `<div class="flex flex-wrap items-center justify-end gap-2 mb-3 text-xs">
+    <span class="text-slate-400">읽기 난이도</span>
+    <select onchange="setGrade(this.value)" class="border border-slate-200 rounded px-2 py-1 text-xs">
+      <option value="elem"${g==='elem'?' selected':''}>초등</option>
+      <option value="mid"${g==='mid'?' selected':''}>중등</option>
+      <option value="high"${g==='high'?' selected':''}>고등</option>
+    </select>
+    <button type="button" onclick="toggleEasy()" class="px-2 py-1 rounded border ${e?'bg-emerald-600 text-white border-emerald-600':'border-slate-300 text-slate-600'}">쉬운 말 ${e?'ON':'OFF'}</button>
+    <button type="button" onclick="aiSimplify('${viewId}')" class="px-2 py-1 rounded bg-violet-100 text-violet-900">🧒 더 쉽게(AI)</button>
+  </div>`;
+}
+function setGrade(v){ state.cfg = Object.assign({}, state.cfg, { grade:v }); save(); rerenderActiveTest(); }
+function toggleEasy(){ state.cfg = Object.assign({}, state.cfg, { easy: !(state.cfg&&state.cfg.easy) }); save(); rerenderActiveTest(); }
+function rerenderActiveTest(){
+  const map = { big5:renderBig5, riasec:renderRiasec, via:renderVia, grit:renderGrit, cesd:renderCesd, phqa:renderPhqa, gad:renderGad, who5:renderWho5, rses:renderRses, sjt:renderSjt };
+  for(const v in map){ const sec=document.querySelector('section[data-view="'+v+'"]'); if(sec && !sec.classList.contains('hidden')){ try{ map[v](); }catch(e){} return; } }
+}
+async function aiSimplify(viewId){
+  const cont = el(viewId+'-content'); if(!cont) return;
+  const qel = cont.querySelector('.js-qtext'); if(!qel) return;
+  const orig = qel.getAttribute('data-orig') || qel.textContent;
+  qel.setAttribute('data-orig', orig);
+  const gradeWord = {elem:'초등학생',mid:'중학생',high:'고등학생'}[(state.cfg&&state.cfg.grade)||'mid'];
+  const prev = qel.textContent;
+  qel.textContent = '쉽게 바꾸는 중…';
+  const sys = '너는 검사 문항을 더 쉬운 한국어로 바꿔주는 도우미야. 뜻은 그대로 유지하고 어려운 단어만 쉬운 말로 바꿔. 따옴표·설명 없이 바뀐 문장만 한국어로 한 줄로.';
+  let out = null;
+  try { out = await callLLMFree(orig + '\n\n위 문장을 ' + gradeWord + '도 바로 이해할 수 있게 아주 쉬운 말로 바꿔줘.', sys); } catch(e){ out = null; }
+  qel.textContent = (out && out.trim()) ? out.trim().replace(/^["'\s]+|["'\s]+$/g,'') : prev;
+}
+
 function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
   return function render() {
     const container = el(viewId + '-content');
@@ -3159,11 +3496,13 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
     const item = dataset[current];
     const pct = Math.round((current/total)*100);
     container.innerHTML = `
+      ${easyControls(viewId)}
+      ${current===0 ? '<div class="text-xs bg-sky-50 border border-sky-200 rounded-lg p-2 mb-3 text-sky-900">🙂 정답은 없어요. 솔직하게 답할수록 결과가 정확해져요.</div>' : ''}
       <div class="mb-2 text-xs text-slate-500">${current+1} / ${total}</div>
       <div class="w-full bg-slate-100 rounded-full h-1.5 mb-5">
         <div class="bg-emerald-500 h-1.5 rounded-full" style="width:${pct}%"></div>
       </div>
-      <div class="text-base leading-relaxed mb-6">${item.t || item}</div>
+      <div class="text-base leading-relaxed mb-6 js-qtext" data-orig="">${applyEasy(item.t || item)}</div>
       <div class="grid gap-2" id="choices-${viewId}"></div>
       <div class="mt-4 flex justify-between text-xs text-slate-500">
         <button onclick="state.results['${stateKey}'].answers.pop(); save(); render${viewId.charAt(0).toUpperCase()+viewId.slice(1)}()" ${current===0?'disabled style="opacity:.4"':''}>← 이전</button>
@@ -3185,6 +3524,68 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
   };
 }
 
+// WHO-5 웰빙 지수 (무료, WHO) — 지난 2주, 0~5 빈도(6점)
+const WHO5 = [
+  '지난 2주간 나는 밝고 기분이 좋았다.',
+  '지난 2주간 나는 차분하고 편안했다.',
+  '지난 2주간 나는 활기차고 기운이 넘쳤다.',
+  '지난 2주간 나는 푹 자고 상쾌하게 일어났다.',
+  '지난 2주간 나의 일상은 흥미로운 일로 채워졌다.'
+];
+const WHO5_SCALE = ['전혀 그렇지 않았다','가끔 그랬다','종종 그랬다','자주 그랬다','대부분 그랬다','항상 그랬다'];
+// Rosenberg 자존감 척도(RSES, 공개) — 1~4, 5문항 역채점
+const RSES = [
+  { s: 1, t:'나는 내가 적어도 다른 사람만큼은 가치 있는 사람이라고 느낀다.' },
+  { s:-1, t:'나는 좋은 점이 별로 없다고 느낀다.' },
+  { s: 1, t:'나는 대체로 내가 실패자라고 생각하지 않는다.' },
+  { s: 1, t:'나는 다른 사람들만큼 일을 잘할 수 있다.' },
+  { s:-1, t:'나는 자랑할 만한 것이 별로 없다고 느낀다.' },
+  { s:-1, t:'나는 때때로 내가 쓸모없다고 느낀다.' },
+  { s: 1, t:'나는 적어도 남들만큼은 괜찮은 사람이라고 느낀다.' },
+  { s:-1, t:'나는 나 자신을 좀 더 존중할 수 있으면 좋겠다.' },
+  { s:-1, t:'나는 가끔 내가 정말 쓸모없다고 느낀다.' },
+  { s: 1, t:'나는 나 자신에 대해 긍정적인 태도를 가지고 있다.' }
+];
+const RSES_SCALE = ['전혀 그렇지 않다','그렇지 않다','그렇다','매우 그렇다'];
+
+// 과목별 학습역량 자가검사 (흥미·자신감) — 7과목 ×2문항
+const LEARN_ITEMS = [
+  { f:'korean',  t:'글이나 책을 읽고 내용을 잘 이해한다.' },
+  { f:'korean',  t:'내 생각을 글로 잘 표현한다.' },
+  { f:'math',    t:'수학 문제를 푸는 것이 어렵지 않다.' },
+  { f:'math',    t:'숫자·규칙·논리를 다루는 것이 재미있다.' },
+  { f:'english', t:'영어 문장을 읽고 뜻을 잘 파악한다.' },
+  { f:'english', t:'영어로 말하거나 쓰는 것에 자신이 있다.' },
+  { f:'social',  t:'역사·사회 현상에 흥미가 있다.' },
+  { f:'social',  t:'사회 과목 내용을 잘 이해하고 기억한다.' },
+  { f:'science', t:'과학 원리를 이해하는 것이 즐겁다.' },
+  { f:'science', t:'실험·관찰 활동을 잘한다.' },
+  { f:'arts',    t:'그림·음악 등 예술 활동에 소질이 있다.' },
+  { f:'arts',    t:'예술(미술·음악) 수업이 즐겁다.' },
+  { f:'pe',      t:'몸을 움직이는 활동·운동을 잘한다.' },
+  { f:'pe',      t:'체육 수업이 즐겁고 자신 있다.' }
+];
+
+// 가드너 다중지능(MI) 8지능 자가검사 — 각 2문항
+const MI_ITEMS = [
+  { f:'verbal',        t:'말이나 글로 내 생각을 잘 표현한다.' },
+  { f:'verbal',        t:'새로운 단어나 표현을 배우는 것이 즐겁다.' },
+  { f:'logical',       t:'숫자·규칙·논리 문제를 잘 푼다.' },
+  { f:'logical',       t:'원인과 결과를 따져 생각하는 것을 좋아한다.' },
+  { f:'spatial',       t:'그림·지도·도형을 머릿속에 잘 떠올린다.' },
+  { f:'spatial',       t:'길이나 공간 구조를 잘 기억한다.' },
+  { f:'musical',       t:'리듬이나 멜로디를 잘 느끼고 기억한다.' },
+  { f:'musical',       t:'노래하거나 악기 다루는 것을 좋아한다.' },
+  { f:'bodily',        t:'몸을 쓰는 활동이나 운동을 잘한다.' },
+  { f:'bodily',        t:'손으로 만들거나 조작하는 것을 잘한다.' },
+  { f:'interpersonal', t:'친구의 기분을 잘 알아채고 잘 어울린다.' },
+  { f:'interpersonal', t:'여러 사람과 협력하는 것을 좋아한다.' },
+  { f:'intrapersonal', t:'내 감정과 생각을 잘 이해한다.' },
+  { f:'intrapersonal', t:'혼자 차분히 돌아보는 시간을 갖는다.' },
+  { f:'naturalist',    t:'동식물·자연 현상에 관심이 많다.' },
+  { f:'naturalist',    t:'자연을 관찰하고 분류하는 것을 좋아한다.' }
+];
+
 const LIKERT5 = ['전혀 그렇지 않다','그렇지 않다','보통이다','그렇다','매우 그렇다'];
 const LIKERT4 = ['전혀 그렇지 않다(0)','며칠 동안(1)','절반 이상(2)','거의 매일(3)'];
 
@@ -3195,12 +3596,38 @@ const renderGrit = makeLikertRenderer('grit', GRIT_S, 'grit', LIKERT5, true);
 const renderCesd = makeLikertRenderer('cesd', CES_D_10, 'cesd', LIKERT4, true);
 const renderPhqa = makeLikertRenderer('phqa', PHQ_A, 'phqa', LIKERT4, false);
 const renderGad = makeLikertRenderer('gad', GAD_7, 'gad', LIKERT4, false);
+const renderWho5 = makeLikertRenderer('who5', WHO5, 'who5', WHO5_SCALE, false);
+const renderRses = makeLikertRenderer('rses', RSES, 'rses', RSES_SCALE, true);
+const renderLearn = makeLikertRenderer('learn', LEARN_ITEMS, 'learn', LIKERT5, false);
+const renderMi = makeLikertRenderer('mi', MI_ITEMS, 'mi', LIKERT5, false);
 
 // =================================================================
 //  SJT renderer
 // =================================================================
+// 자유대화 신호로 SJT 시나리오 관련도 정렬 (자체 도구 → 타당성 영향 없음)
+function computeSjtOrder() {
+  const cd = (state.results.conv && state.results.conv.dims) || {};
+  const idxs = SJT_30.map(function(_, i){ return i; });
+  const hasSignal = Object.keys(cd).some(function(k){ return cd[k] > 0; });
+  if (!hasSignal) return { order: idxs, adaptive: false };
+  function relevance(sc) {
+    let r = 0;
+    sc.choices.forEach(function(c){ for (const d in c.w) { r += (cd[d] || 0) * c.w[d]; } });
+    return r;
+  }
+  const ordered = idxs.slice().sort(function(a, b){ return relevance(SJT_30[b]) - relevance(SJT_30[a]); });
+  return { order: ordered, adaptive: true };
+}
 function renderSjt() {
   const container = el('sjt-content');
+  // 첫 진입(응답 0개) 시 자유대화 신호로 순서를 1회 고정 구성
+  if (!state.results.sjt.order || state.results.sjt.order.length !== SJT_30.length) {
+    const r = computeSjtOrder();
+    state.results.sjt.order = r.order;
+    state.results.sjt.adaptive = r.adaptive;
+    save();
+  }
+  const seq = state.results.sjt.order;
   const answers = state.results.sjt.answers;
   const idx = answers.length;
   if (idx >= SJT_30.length) {
@@ -3211,18 +3638,23 @@ function renderSjt() {
         <div class="text-lg font-semibold mb-1">SJT 30문항 완료</div>
         <div class="text-sm text-slate-500 mb-4">행동 예측 신뢰도가 가장 높은 검사입니다.</div>
         <button onclick="showView('home')" class="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm">메뉴로</button>
-        <button onclick="state.results.sjt={answers:[],dims:{}}; save(); renderSjt()" class="bg-slate-100 px-5 py-2 rounded-lg text-sm ml-2">다시</button>
+        <button onclick="state.results.sjt={answers:[],dims:{},order:[],adaptive:false}; save(); renderSjt()" class="bg-slate-100 px-5 py-2 rounded-lg text-sm ml-2">다시</button>
       </div>`;
     return;
   }
-  const q = SJT_30[idx];
+  const q = SJT_30[seq[idx]];
   const pct = Math.round((idx/SJT_30.length)*100);
+  const banner = state.results.sjt.adaptive
+    ? '<div class="mb-4 text-xs bg-violet-50 border border-violet-200 rounded-lg p-2 text-violet-900">💬 자유대화에서 파악한 관심사·성향에 맞춰 시나리오 순서가 <strong>맞춤 구성</strong>되었습니다.</div>'
+    : '';
   container.innerHTML = `
+    ${banner}
+    ${easyControls('sjt')}
     <div class="mb-2 text-xs text-slate-500">시나리오 ${idx+1} / ${SJT_30.length}</div>
     <div class="w-full bg-slate-100 rounded-full h-1.5 mb-5">
       <div class="bg-emerald-500 h-1.5 rounded-full" style="width:${pct}%"></div>
     </div>
-    <div class="text-base leading-relaxed mb-2 font-medium">${q.q}</div>
+    <div class="text-base leading-relaxed mb-2 font-medium js-qtext" data-orig="">${applyEasy(q.q)}</div>
     <div class="text-xs text-slate-500 mb-5">당신이라면 어떻게 하시겠습니까?</div>
     <div class="grid gap-2" id="sjt-choices"></div>
   `;
@@ -3230,7 +3662,7 @@ function renderSjt() {
   q.choices.forEach((c, ci) => {
     const btn = document.createElement('button');
     btn.className = 'text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 text-sm transition';
-    btn.textContent = `${String.fromCharCode(65+ci)}) ${c.t}`;
+    btn.textContent = `${String.fromCharCode(65+ci)}) ${applyEasy(c.t)}`;
     btn.addEventListener('click', () => {
       state.results.sjt.answers.push(ci);
       for (const [dim, w] of Object.entries(c.w)) {
@@ -3277,7 +3709,19 @@ function renderHome() {
       dur:'2분', items:9, key:'phqa', track:'정서 안전', priority:'선택', color:'pink', sensitive:true },
     { id:'gad', step:9, title:'GAD-7 불안 스크리닝', icon:'😰', desc:'7문항 불안 자가 평가.',
       detail:'지난 2주 불안 증상 자가 진단. 청소년 정신건강 모니터링.',
-      dur:'2분', items:7, key:'gad', track:'정서 안전', priority:'선택', color:'red', sensitive:true }
+      dur:'2분', items:7, key:'gad', track:'정서 안전', priority:'선택', color:'red', sensitive:true },
+    { id:'rses', step:10, title:'Rosenberg 자존감(RSES)', icon:'💎', desc:'자아존중감 10문항 (공개 척도).',
+      detail:'전반적 자아존중감 수준. 강점 기반 코칭과 자기이해의 출발점입니다.',
+      dur:'2분', items:10, key:'rses', track:'P (인성)', priority:'권장', color:'indigo' },
+    { id:'who5', step:11, title:'WHO-5 웰빙 지수', icon:'🌤️', desc:'정서적 웰빙 5문항 (WHO).',
+      detail:'지난 2주 정서적 웰빙. 점수가 낮으면 마음 돌봄이 필요하다는 신호이며 진단이 아닙니다.',
+      dur:'1분', items:5, key:'who5', track:'정서 안전', priority:'선택', color:'sky', sensitive:true },
+    { id:'learn', step:12, title:'과목별 학습 역량', icon:'📚', desc:'국·영·수·사·과·예체능 자가평가.',
+      detail:'과목별 흥미·자신감을 스스로 평가합니다. 결과지의 학습역량 페이지에 실측값으로 반영됩니다.',
+      dur:'2분', items:14, key:'learn', track:'I (학습)', priority:'권장', color:'indigo' },
+    { id:'mi', step:13, title:'다중지능(MI) 8지능', icon:'🧩', desc:'가드너 8가지 지능 자가검사.',
+      detail:'언어·논리수학·공간·음악·신체·대인·자기성찰·자연 8지능을 스스로 평가합니다. 결과지의 지능 페이지에 실측값으로 반영됩니다.',
+      dur:'2분', items:16, key:'mi', track:'I (지능)', priority:'권장', color:'orange' }
   ];
 
   // 전체 완료율
@@ -3285,7 +3729,7 @@ function renderHome() {
   const done = cards.filter(c => {
     if (c.key === 'conv') return state.results.conv.turns >= 8;
     if (c.key === 'sjt') return state.results.sjt.answers.length >= SJT_30.length;
-    const expected = c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: 100;
+    const expected = c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100;
     return state.results[c.key]?.answers?.length >= expected;
   }).length;
   const progress = Math.round(done/total*100);
@@ -3310,7 +3754,7 @@ function renderHome() {
         <div class="flex items-center justify-between mb-3 flex-wrap gap-3">
           <div>
             <h2 class="text-lg font-bold text-slate-900">권장 검사 순서</h2>
-            <p class="text-xs text-slate-600 mt-1">아래 순서대로 진행하면 가장 정확한 통합 분석을 받을 수 있습니다. 필수 4개 + 권장 2개 + 선택 3개.</p>
+            <p class="text-xs text-slate-600 mt-1">아래 순서대로 진행하면 가장 정확한 통합 분석을 받을 수 있습니다. 총 13개 검사 — 많이 완료할수록 분석이 정확해집니다.</p>
           </div>
           <div class="text-right">
             <div class="text-xs text-slate-500">전체 진행</div>
@@ -3331,13 +3775,13 @@ function renderHome() {
   ` + cards.map(c => {
     const isDone = c.key === 'conv' ? state.results.conv.turns >= 8 :
                    c.key === 'sjt' ? state.results.sjt.answers.length >= SJT_30.length :
-                   state.results[c.key]?.answers?.length >= (c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: 100);
+                   state.results[c.key]?.answers?.length >= (c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100);
 
     // 진행 중 표시
     const currentItems = c.key === 'conv' ? state.results.conv.turns :
                          c.key === 'sjt' ? state.results.sjt.answers.length :
                          (state.results[c.key]?.answers?.length || 0);
-    const totalItems = c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='sjt'?30: 10;
+    const totalItems = c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: c.id==='sjt'?30: 10;
     const inProgress = currentItems > 0 && !isDone;
     const itemProgress = Math.round((currentItems/totalItems)*100);
 
@@ -3444,8 +3888,64 @@ function destroyCharts() {
   }
 }
 
+function hasAnyResult() {
+  const r = state.results;
+  return !!(r.big5.scores || r.riasec.scores || r.via.scores || r.grit.scores || r.cesd.scores || r.phqa.scores || r.gad.scores
+    || (r.who5 && r.who5.scores) || (r.rses && r.rses.scores) || (r.learn && r.learn.scores) || (r.mi && r.mi.scores)
+    || (r.sjt && r.sjt.answers && r.sjt.answers.length > 0) || (r.conv && r.conv.turns > 0));
+}
+const REQUIRED_TESTS = [
+  { id:'chat',   label:'자유대화',        done:function(){ return state.results.conv.turns >= 8; } },
+  { id:'big5',   label:'IPIP Big5-50',    done:function(){ return !!state.results.big5.scores; } },
+  { id:'riasec', label:'RIASEC 진로흥미', done:function(){ return !!state.results.riasec.scores; } }
+];
+function missingRequired(){ return REQUIRED_TESTS.filter(function(t){ return !t.done(); }); }
+
+function resultContext(){
+  const r=state.results; const b=r.big5.scores, ri=r.riasec.scores, v=r.via.scores;
+  let type=null; try{ type=inferIntegratedType(); }catch(e){}
+  let c='학생 검사 결과 요약:\n';
+  if(type) c+='통합유형: '+type.name+' — '+type.desc+'\n';
+  if(b) c+='Big5: 외향'+b.E+' 우호'+b.A+' 성실'+b.C+' 정서안정'+(100-b.N)+' 개방'+b.O+'\n';
+  if(ri){ const t=Object.entries(ri).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0];}).join(''); c+='RIASEC 상위: '+t+'\n'; }
+  if(v){ const t=Object.entries(v).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0];}).join(', '); c+='대표강점(VIA): '+t+'\n'; }
+  if(r.learn&&r.learn.scores){ const t=Object.entries(r.learn.scores).sort(function(a,b){return b[1]-a[1];}).slice(0,2); c+='학습 강점 과목: '+t.map(function(e){return e[0]+' '+e[1];}).join(', ')+'\n'; }
+  if(r.mi&&r.mi.scores){ const t=Object.entries(r.mi.scores).sort(function(a,b){return b[1]-a[1];}).slice(0,2).map(function(e){return e[0];}).join(', '); c+='강한 지능영역: '+t+'\n'; }
+  return c;
+}
+async function askResultQuestion(q){
+  const ans=el('qa-answer'); if(!ans) return;
+  if(!q||!q.trim()) return;
+  ans.textContent='🤖 생각 중…';
+  const sys='너는 청소년 진로·자기이해를 돕는 상담가야. 아래 학생의 실제 검사 결과에 근거해서만, 따뜻하고 쉽게 3~5문장으로 답해. 결과에 없는 단정·진단은 피하고 한국어로만.';
+  const prompt=resultContext()+'\n학생 질문: '+q+'\n위 결과에 근거해 답해줘.';
+  let out=null; try{ out=await callLLMFree(prompt, sys); }catch(e){ out=null; }
+  ans.textContent=(out&&out.trim())?out.trim():'지금은 답변을 불러오지 못했어요(무료 AI 혼잡). 잠시 후 다시 시도해줘.';
+}
+function initResultQA(){
+  const inp=el('qa-input'), btn=el('qa-send'); if(!btn) return;
+  btn.onclick=function(){ askResultQuestion(inp?inp.value:''); };
+  if(inp) inp.onkeydown=function(e){ if(e.key==='Enter') askResultQuestion(inp.value); };
+  document.querySelectorAll('.qa-quick').forEach(function(b){ b.onclick=function(){ if(inp) inp.value=b.textContent; askResultQuestion(b.textContent); }; });
+}
+
 function renderResult() {
   destroyCharts();
+  const _sec = document.querySelector('section[data-view="result"]');
+  const _missing = (typeof missingRequired==='function') ? missingRequired() : [];
+  if (_missing.length > 0) {
+    if (_sec) Array.prototype.forEach.call(_sec.children, function(c){ if(c.id!=='result-empty') c.classList.add('hidden'); });
+    let emp = document.getElementById('result-empty');
+    if (!emp && _sec) { emp = document.createElement('div'); emp.id='result-empty'; emp.className='bg-white rounded-2xl border border-slate-200 p-8 text-center'; _sec.insertBefore(emp, _sec.firstChild); }
+    if (emp) {
+      emp.classList.remove('hidden');
+      const chips = _missing.map(function(t){ return '<button onclick="showView(\'' + t.id + '\')" class="bg-rose-100 text-rose-800 px-3 py-1.5 rounded-lg text-sm font-semibold m-1">' + t.label + ' →</button>'; }).join('');
+      emp.innerHTML = '<div class="text-4xl mb-3">🔒</div><div class="text-lg font-bold mb-1">필수 검사를 먼저 완료해주세요</div><p class="text-sm text-slate-500 mb-4">결과지는 <strong>필수 검사(자유대화·Big5·RIASEC)</strong>를 모두 마친 뒤 볼 수 있어요. 남은 필수 검사 ' + _missing.length + '개:</p><div class="flex flex-wrap justify-center">' + chips + '</div>';
+    }
+    return;
+  }
+  const _emp = document.getElementById('result-empty'); if (_emp) _emp.classList.add('hidden');
+  if (_sec) Array.prototype.forEach.call(_sec.children, function(c){ if(c.id!=='result-empty') c.classList.remove('hidden'); });
   const big5 = state.results.big5.scores;
   const riasec = state.results.riasec.scores;
   const via = state.results.via.scores;
@@ -3550,6 +4050,7 @@ function renderResult() {
   try { renderDimCharts(big5, riasec, via); } catch(e) { console.warn('차원별 차트 렌더 실패:', e); }
   try { loadLiveCareers(type); } catch(e) { console.warn('라이브 진로 로드 실패:', e); }
   try { renderAutoCareerInfo(type); } catch(e) { console.warn('자동 위키 연동 실패:', e); }
+  try { initResultQA(); } catch(e) {}
 }
 
 // =================================================================
@@ -3598,6 +4099,7 @@ function initChat() {
     for (const [k,v] of Object.entries(dims)) {
       state.results.conv.dims[k] = (state.results.conv.dims[k]||0) + v;
     }
+    updateChatProfile();
 
     // 안전 우선: 위험·주제 판별은 항상 로컬에서 먼저 수행
     const risk = detectRisk(clean);
@@ -3608,17 +4110,18 @@ function initChat() {
     if (risk === 'HIGH') {
       // 고위험 신호는 LLM에 맡기지 않고 안전 응답을 강제
       reply = generateReply(clean).reply;
-    } else if (mode !== 'LOCAL') {
-      // LLM 모드: 타이핑 인디케이터 → 호출 → 실패 시 로컬 폴백
+    } else {
+      // 견고한 AI 캐스케이드: (1)설정 엔진(키) → (2)무료 게이트웨이(2중 폴백) → (3)로컬 규칙형
       const typing = appendTyping();
       const stage = inferStage(state.results.conv.turns);
       const sys = buildSystemPrompt(stage, topic);
+      const ctx = buildConvContext(clean);
+      const keyed = (mode !== 'LOCAL' && mode !== 'AUTO_FREE');
       let out = null;
-      try { out = await callLLM(buildConvContext(clean), sys); } catch(e) { out = null; }
+      if (keyed) { try { out = await callLLM(ctx, sys); } catch (e) { out = null; } }
+      if (!out || !out.trim()) { try { out = await callLLMFree(ctx, sys); } catch (e) { out = null; } }
       removeTyping(typing);
       reply = (out && out.trim()) ? out.trim() : generateReply(clean).reply;
-    } else {
-      reply = generateReply(clean).reply;
     }
 
     state.results.conv.turns++;
@@ -3629,17 +4132,22 @@ function initChat() {
 
     appendMsg(reply, 'ai');
     if (typeof window.speakReply === 'function') window.speakReply(reply);
-    turnCounter.textContent = `${state.results.conv.turns} / 10 턴`;
+    turnCounter.textContent = `${state.results.conv.turns} / 16 턴`;
     if (sendBtn) sendBtn.disabled = false;
     try { messageInput.focus(); } catch(e) {}
 
-    if (state.results.conv.turns >= 10) {
+    // 대화가 쌓이면 LLM이 직접 성향을 추론(비차단·3턴마다·고위험 제외)
+    try { if (risk !== 'HIGH' && state.results.conv.turns >= 3 && state.results.conv.turns % 3 === 0) aiInferTraits(); } catch(e) {}
+
+    if (state.results.conv.turns === 16) {
       setTimeout(() => {
-        const close = '오늘은 여기까지 잘 따라와줘서 고마워. 통합 결과지로 이동할게.';
-        appendMsg(close, 'ai');
-        if (typeof window.speakReply === 'function') window.speakReply(close);
-        showView('result');
-      }, 800);
+        appendMsg('얘기 많이 들려줘서 고마워! 더 이야기해도 좋고, 준비되면 아래 버튼으로 결과를 봐도 돼.', 'ai');
+        const wrap = document.createElement('div');
+        wrap.className = 'flex';
+        wrap.innerHTML = '<button onclick="showView(\'result\')" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">📊 통합 결과 보기</button>';
+        chat.appendChild(wrap);
+        chat.scrollTop = chat.scrollHeight;
+      }, 700);
     }
   }
 
@@ -3649,7 +4157,8 @@ function initChat() {
     messageInput.value = b.textContent; send();
   }));
 
-  turnCounter.textContent = `${state.results.conv.turns} / 10 턴`;
+  turnCounter.textContent = `${state.results.conv.turns} / 16 턴`;
+  updateChatProfile();
 
   // ========== 음성 입력 (Web Speech API) ==========
   const micBtn = el('chat-mic');
@@ -3668,7 +4177,7 @@ function initChat() {
       let interimText = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const r = e.results[i];
-        if (r.isFinal) finalText += r[0].transcript;
+        if (r.isFinal) { var _c=r[0].confidence; if(!(typeof _c==='number'&&_c>0&&_c<0.4) && (typeof vadHasVoice!=='function'||vadHasVoice())) finalText += r[0].transcript; }
         else interimText += r[0].transcript;
       }
       if (interimText) {
@@ -3697,10 +4206,12 @@ function initChat() {
       micBtn.classList.remove('bg-red-700','animate-pulse');
       micBtn.classList.add('bg-rose-500');
     };
-    micBtn.addEventListener('click', () => {
+    micBtn.addEventListener('click', async () => {
       if (!recording) {
         try {
           messageInput.value = '';
+          if (typeof ensureMicStream === 'function') { try { await ensureMicStream(); } catch(e) {} }
+          if (typeof resetVADPeak === 'function') resetVADPeak();
           recognition.start();
           recording = true;
           micBtn.textContent = '■';
@@ -3758,6 +4269,47 @@ function initSettings() {
     save();
     el('cfg-status').textContent = '저장됨: ' + (PROVIDERS[state.cfg.mode]?.label || state.cfg.mode);
   });
+  // ⚡ 무료 AI 자동 연결 (키 불필요)
+  const autoFreeBtn = el('cfg-auto-free');
+  if (autoFreeBtn) autoFreeBtn.addEventListener('click', async () => {
+    const p = PROVIDERS.AUTO_FREE;
+    state.cfg = Object.assign({}, state.cfg, { mode:'AUTO_FREE', endpoint:p.endpoint, key:'', model:p.model });
+    modeSel.value = 'AUTO_FREE';
+    el('cfg-endpoint').value = p.endpoint; el('cfg-model').value = p.model; el('cfg-key').value = '';
+    save();
+    el('cfg-status').textContent = '⚡ 무료 AI 연결 테스트 중…';
+    try {
+      const r = await callLLM('한 문장으로 짧게 자기소개 해줘.', '너는 친절한 한국어 비서야. 한국어로만 답해.');
+      el('cfg-status').textContent = (r && r.trim())
+        ? '✅ 무료 AI 연결 성공 — 자유대화에서 바로 사용됩니다.'
+        : '⚠ 응답이 비어있어요(무료 게이트웨이 호출 간격 제한). 잠시 후 다시 시도하거나 자유대화에서 바로 사용해 보세요.';
+    } catch (e) {
+      el('cfg-status').textContent = '⚠ 연결 실패 — 자유대화는 로컬 규칙형으로 자동 폴백됩니다.';
+    }
+  });
+  // 무료 AI 모델 선택기 — /models에서 동적 로드(실패 시 기본 목록)
+  const freeModelSel = el('cfg-free-model');
+  if (freeModelSel) {
+    freeModelSel.value = (state.cfg && state.cfg.freeModel) || 'openai';
+    freeModelSel.addEventListener('change', function(){
+      state.cfg = Object.assign({}, state.cfg, { freeModel: freeModelSel.value });
+      save();
+      el('cfg-status').textContent = '무료 모델: ' + freeModelSel.value;
+    });
+    (async function(){
+      try {
+        const res = await fetch('https://text.pollinations.ai/models');
+        if (!res.ok) return;
+        const list = await res.json();
+        const names = Array.isArray(list) ? list.map(function(m){ return (typeof m === 'string') ? m : (m.name || m.id || m.model); }).filter(Boolean) : [];
+        if (names.length) {
+          const cur = freeModelSel.value;
+          freeModelSel.innerHTML = names.slice(0,30).map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('');
+          freeModelSel.value = names.indexOf(cur) >= 0 ? cur : (names.indexOf('openai')>=0?'openai':names[0]);
+        }
+      } catch(e) {}
+    })();
+  }
   // Apply
   modeSel.value = state.cfg.mode || 'LOCAL';
   const p = PROVIDERS[state.cfg.mode] || PROVIDERS.LOCAL;
@@ -3848,24 +4400,24 @@ async function renderAutoCareerInfo(type) {
   const jobs = (type && type.careers) ? type.careers.slice(0, 3) : [];
   if (!jobs.length) { box.innerHTML = ''; return; }
   box.innerHTML = '<div class="text-xs text-slate-500">위키백과에서 직업 설명 자동 로드 중…</div>';
-  const cards = [];
-  for (const job of jobs) {
+  // 위키 3건 병렬 조회(순차 대비 지연 단축)
+  const results = await Promise.all(jobs.map(async function(job){
     let d = null;
     try { d = await autoEnrichWiki(job, 'ko'); } catch (e) {}
     if (!d) { try { d = await autoEnrichWiki(job, 'en'); } catch (e) {} }
-    if (d) {
-      const thumb = (d.thumbnail && d.thumbnail.source)
-        ? '<img src="' + d.thumbnail.source + '" alt="" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">' : '';
-      const link = (d.content_urls && d.content_urls.desktop && d.content_urls.desktop.page) ? d.content_urls.desktop.page : '#';
-      cards.push('<div class="border border-slate-200 rounded-lg p-3 mb-2 bg-white flex gap-3">'
-        + thumb
-        + '<div class="min-w-0"><div class="font-semibold text-sm">' + job
-        + ' <span class="pill bg-emerald-100 text-emerald-800">자동연동</span></div>'
-        + '<p class="text-xs text-slate-600 mt-1 leading-relaxed">' + String(d.extract).slice(0, 160) + '</p>'
-        + '<a href="' + link + '" target="_blank" rel="noopener" class="text-xs text-sky-700 hover:underline">위키백과에서 더 보기 →</a>'
-        + '</div></div>');
-    }
-  }
+    if (!d) return '';
+    const thumb = (d.thumbnail && d.thumbnail.source)
+      ? '<img src="' + d.thumbnail.source + '" alt="" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">' : '';
+    const link = (d.content_urls && d.content_urls.desktop && d.content_urls.desktop.page) ? d.content_urls.desktop.page : '#';
+    return '<div class="border border-slate-200 rounded-lg p-3 mb-2 bg-white flex gap-3">'
+      + thumb
+      + '<div class="min-w-0"><div class="font-semibold text-sm">' + job
+      + ' <span class="pill bg-emerald-100 text-emerald-800">자동연동</span></div>'
+      + '<p class="text-xs text-slate-600 mt-1 leading-relaxed">' + String(d.extract).slice(0, 160) + '</p>'
+      + '<a href="' + link + '" target="_blank" rel="noopener" class="text-xs text-sky-700 hover:underline">위키백과에서 더 보기 →</a>'
+      + '</div></div>';
+  }));
+  const cards = results.filter(function(x){ return x; });
   box.innerHTML = cards.length
     ? '<div class="text-xs font-semibold text-slate-600 mb-2">📖 위키백과 자동 직업 정보 <span class="pill bg-emerald-100 text-emerald-800">키 불필요·실시간</span></div>' + cards.join('')
     : '<div class="text-xs text-slate-400">위키백과 자동 직업 정보를 찾지 못했어요.</div>';
@@ -3878,11 +4430,37 @@ document.querySelectorAll('#topNav button').forEach(btn => {
   btn.addEventListener('click', () => showView(btn.dataset.go));
 });
 
+async function autoConnectFreeAI() {
+  const badge = document.getElementById('chat-aistatus');
+  // 사용자가 '자기 API 키'를 직접 입력한 경우만 그대로 둠
+  const hasUserKey = !!(state.cfg && state.cfg.key && state.cfg.mode !== 'LOCAL' && state.cfg.mode !== 'AUTO_FREE');
+  if (hasUserKey) {
+    if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">엔진 연결됨</span>';
+    return;
+  }
+  // 그 외에는 페이지를 열 때마다 항상 '무료 AI'로 자동 설정
+  const p = PROVIDERS.AUTO_FREE;
+  state.cfg = Object.assign({}, state.cfg, { mode:'AUTO_FREE', endpoint:p.endpoint, model:(state.cfg.freeModel||'openai') });
+  save();
+  const ms = el('cfg-mode'); if (ms) ms.value = 'AUTO_FREE';
+  const ce = el('cfg-endpoint'); if (ce) ce.value = p.endpoint;
+  const cm = el('cfg-model'); if (cm) cm.value = state.cfg.freeModel || 'openai';
+  const cs = el('cfg-status'); if (cs) cs.textContent = '⚡ 무료 AI 자동 연결됨';
+  if (badge) badge.innerHTML = '<span class="pill bg-amber-100 text-amber-800 text-[10px]">무료 AI 연결 확인 중…</span>';
+  let ok = false;
+  try { const r = await callLLMFree('안녕', '한 단어로만 답해.'); ok = !!(r && r.trim()); } catch (e) { ok = false; }
+  // 핑 실패(혼잡)여도 모드는 AUTO_FREE 유지 → 대화 시 자동 재시도, 안 되면 로컬 폴백
+  if (badge) badge.innerHTML = ok
+    ? '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 무료 AI 연결됨</span>'
+    : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">무료 AI 준비중(대화 시 자동 재시도)</span>';
+}
+
 load();
 initChat();
 initSettings();
 renderHome();
 showView('home');
+autoConnectFreeAI();
 
 // =================================================================
 //  Help (상담 자원) 화면 렌더링
@@ -3950,22 +4528,26 @@ function renderApiCatalog() {
   autoConnectCatalog();
 }
 async function autoConnectCatalog() {
+  window._catStatus = window._catStatus || {};
   const nodes = document.querySelectorAll('#api-catalog .api-status[data-ping]');
-  let ok = 0, done = 0;
+  function paint(node, st){
+    if(st==='ok'){ node.className='pill bg-emerald-100 text-emerald-800 text-[10px] whitespace-nowrap'; node.textContent='✅ 연결됨'; }
+    else if(st==='warn'){ node.className='pill bg-amber-100 text-amber-800 text-[10px] whitespace-nowrap'; node.textContent='⚠ 응답 지연'; }
+    else { node.className='pill bg-rose-100 text-rose-800 text-[10px] whitespace-nowrap'; node.textContent='⚠ 미응답'; }
+  }
+  let ok=0, done=0;
   await Promise.all(Array.prototype.map.call(nodes, async function(node){
     const url = node.getAttribute('data-ping');
-    const ctrl = new AbortController();
-    const timer = setTimeout(function(){ ctrl.abort(); }, 6000);
+    if (window._catStatus[url]) { paint(node, window._catStatus[url]); if(window._catStatus[url]==='ok')ok++; done++; return; }
+    const ctrl = new AbortController(); const timer = setTimeout(function(){ ctrl.abort(); }, 6000);
     try {
       const res = await fetch(url, { signal: ctrl.signal, headers: { 'Accept':'application/json' } });
-      if (res.ok) { node.className = 'pill bg-emerald-100 text-emerald-800 text-[10px] whitespace-nowrap'; node.textContent = '✅ 연결됨'; ok++; }
-      else { node.className = 'pill bg-amber-100 text-amber-800 text-[10px] whitespace-nowrap'; node.textContent = '⚠ ' + res.status; }
-    } catch (e) {
-      node.className = 'pill bg-rose-100 text-rose-800 text-[10px] whitespace-nowrap'; node.textContent = '⚠ 미응답';
-    } finally { clearTimeout(timer); done++; }
+      const st = res.ok ? 'ok' : 'warn'; window._catStatus[url]=st; paint(node, st); if(st==='ok')ok++;
+    } catch (e) { window._catStatus[url]='err'; paint(node, 'err'); }
+    finally { clearTimeout(timer); done++; }
   }));
   const sum = el('api-auto-summary');
-  if (sum) sum.innerHTML = '⚡ 자동 연동 결과: <strong>' + ok + ' / ' + done + '</strong> 연결됨 (키 불필요·CORS 항목, 브라우저에서 직접 호출)';
+  if (sum) sum.innerHTML = '⚡ 자동 연동 결과: <strong>' + ok + ' / ' + done + '</strong> 연결됨 (키 불필요·CORS · 세션 캐시)';
 }
 
 // 진로 카드 보강 함수 — 결과지에 직업 상세 정보 추가
@@ -4293,6 +4875,42 @@ function renderAudienceActions(audience, type) {
 // 메인 상세 렌더링 함수
 let currentAudience = 'student';
 
+function renderMiCard() {
+  const sc = state.results.mi && state.results.mi.scores;
+  if (!sc) return '';
+  const labels = { verbal:'언어', logical:'논리수학', spatial:'공간', musical:'음악', bodily:'신체운동', interpersonal:'대인', intrapersonal:'자기성찰', naturalist:'자연' };
+  const rows = Object.keys(labels).filter(function(k){ return sc[k]!=null; }).sort(function(a,b){ return sc[b]-sc[a]; }).map(function(k){
+    const v = sc[k];
+    return '<div class="flex items-center gap-3 py-1.5"><span class="text-sm w-16">'+labels[k]+'</span>'
+      + '<div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden"><div class="h-2 rounded-full" style="width:'+v+'%;background:#788c5d"></div></div>'
+      + '<span class="text-xs text-slate-500 w-8 text-right">'+v+'</span></div>';
+  }).join('');
+  return '<div class="mt-5 bg-white rounded-2xl border border-slate-200 p-4"><h3 class="font-semibold text-sm mb-2">다중지능(MI) 8지능 (자가평가)</h3>' + rows + '<p class="text-xs text-slate-500 mt-2">가드너 다중지능 이론 기반 자가평가입니다. 참고용이며 IQ 검사가 아닙니다.</p></div>';
+}
+
+function renderLearnCard() {
+  const sc = state.results.learn && state.results.learn.scores;
+  if (!sc) return '';
+  const labels = { korean:'국어', math:'수학', english:'영어', social:'사회', science:'과학', arts:'예술', pe:'체육' };
+  const rows = Object.keys(labels).filter(function(k){ return sc[k]!=null; }).sort(function(a,b){ return sc[b]-sc[a]; }).map(function(k){
+    const v = sc[k];
+    return '<div class="flex items-center gap-3 py-1.5"><span class="text-sm w-12">'+labels[k]+'</span>'
+      + '<div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden"><div class="h-2 rounded-full" style="width:'+v+'%;background:#6a9bcc"></div></div>'
+      + '<span class="text-xs text-slate-500 w-8 text-right">'+v+'</span></div>';
+  }).join('');
+  return '<div class="mt-5 bg-white rounded-2xl border border-slate-200 p-4"><h3 class="font-semibold text-sm mb-2">과목별 학습 역량 (자가평가)</h3>' + rows + '<p class="text-xs text-slate-500 mt-2">스스로 평가한 과목 흥미·자신감입니다. 실제 성적과 다를 수 있어요.</p></div>';
+}
+
+function renderExtraScales() {
+  const w = state.results.who5 && state.results.who5.scores;
+  const r = state.results.rses && state.results.rses.scores;
+  if (!w && !r) return '';
+  let rows = '';
+  if (w) rows += '<div class="flex justify-between text-sm py-1 border-b border-slate-100"><span>WHO-5 웰빙</span><span class="text-slate-600">' + w.pct + ' / 100 · ' + w.level + '</span></div>';
+  if (r) rows += '<div class="flex justify-between text-sm py-1"><span>자존감(RSES)</span><span class="text-slate-600">' + r.total + ' / 40 · ' + r.level + '</span></div>';
+  return '<div class="mt-5 bg-white rounded-2xl border border-slate-200 p-4"><h3 class="font-semibold text-sm mb-2">추가 검사 — 웰빙·자존감</h3>' + rows + '<p class="text-xs text-slate-500 mt-2">WHO-5는 정서적 웰빙(높을수록 양호), RSES는 자아존중감 수준입니다. 참고용 선별이며 진단이 아닙니다.</p></div>';
+}
+
 function audienceTheme(a) {
   if (a === 'parent') return { emoji:'👨‍👩‍👧', title:'학부모용 · 자녀 이해 리포트', sub:'자녀의 성향을 이해하고 가정에서 도울 방법을 중심으로 정리했습니다.', bg:'#eef3f9', bd:'#c4d8ec', fg:'#2c4a6b' };
   if (a === 'teacher') return { emoji:'🏫', title:'교사용 · 지도 참고 자료', sub:'객관적 근거(신뢰도·규준)와 생활지도·상담 활용 정보를 제공합니다.', bg:'#fbf1ec', bd:'#eccfc1', fg:'#8a3d22' };
@@ -4343,6 +4961,111 @@ function audienceScreeningNote(a) {
   </div>`;
 }
 
+let _aiSumSig = null, _aiSumCache = {};
+function aiSummarySignature(d){ const b=d.big5||{}, r=d.riasec||{}; return [d.type&&d.type.code,b.E,b.A,b.C,b.N,b.O,r.R,r.I,r.A,r.S,r.E,r.C].join('|'); }
+function localSummary(audience, d){
+  const t=d.type||{};
+  if(audience==='parent') return `자녀는 '${t.name||'성장형'}' 성향으로 보입니다. ${t.desc||''} 강점을 먼저 구체적으로 인정해 주시고, 성장 포인트는 한 번에 한 가지씩 함께 시도해 보세요.`;
+  if(audience==='teacher') return `학생은 '${t.name||'성장형'}' 유형입니다. ${t.desc||''} 강점 기반 역할 부여와 관찰 중심 지도가 효과적이며, 정서 신호는 정기적으로 점검해 주세요.`;
+  return `너는 '${t.name||'성장형'}' 유형이야. ${t.desc||''} 너의 강점을 하루 한 번 의도적으로 써보면 훨씬 더 빛날 거야.`;
+}
+function buildSummaryPrompt(audience, d){
+  const b=d.big5, r=d.riasec, v=d.via, t=d.type;
+  const vtop = v ? Object.entries(v).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join(', ') : '';
+  const rtop = r ? Object.entries(r).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join('') : '';
+  const lines=[];
+  lines.push(`통합유형: ${(t&&t.name)||''} (${(t&&t.code)||''})`);
+  if(b) lines.push(`Big5 — 외향 ${b.E}, 우호 ${b.A}, 성실 ${b.C}, 정서안정 ${100-b.N}, 개방 ${b.O}`);
+  if(rtop) lines.push(`흥미(RIASEC) 상위: ${rtop}`);
+  if(vtop) lines.push(`대표 강점(VIA): ${vtop}`);
+  const who = audience==='parent'?'학부모':audience==='teacher'?'교사':'학생 본인';
+  const tone = audience==='parent'?'정중한 존댓말로, 자녀 이해와 가정에서의 지원 팁을 담아':audience==='teacher'?'객관적이고 전문적인 어조로, 생활지도·상담 활용 포인트를 담아':'따뜻한 반말로, 강점과 격려를 담아';
+  return `다음은 한 청소년의 인적성 검사 요약 데이터야.\n${lines.join('\n')}\n\n이 데이터를 바탕으로 ${who}에게 전하는 종합 해석을 ${tone} 3~4문장으로 작성해줘. 과장·의료적 진단 표현은 피하고, 구체적 강점과 실천 제안 한 가지를 포함해. 한국어로만.`;
+}
+async function fillAiSummary(audience, d){
+  const card = el('ai-summary-card');
+  if(!card) return;
+  const sig = aiSummarySignature(d);
+  if(sig !== _aiSumSig){ _aiSumSig = sig; _aiSumCache = {}; }
+  function render(text, src){
+    card.innerHTML = '<div class="flex items-center justify-between mb-1"><div class="font-bold text-violet-900">🤖 AI 종합 해석</div>'
+      + '<span class="pill ' + (src==='ai'?'bg-emerald-100 text-emerald-800':'bg-slate-200 text-slate-700') + ' text-[10px] whitespace-nowrap">' + (src==='ai'?'AI 생성':'기본 요약') + '</span></div>'
+      + '<p class="text-sm text-slate-700 leading-relaxed">' + text + '</p>'
+      + '<button id="ai-sum-regen" class="mt-2 text-xs text-violet-700 hover:underline">↻ 다시 생성</button>'
+      + '<button id="ai-sum-translate" class="mt-2 ml-3 text-xs text-sky-700 hover:underline">🌐 영어로</button>';
+    const btn = el('ai-sum-regen');
+    if(btn) btn.addEventListener('click', function(){ delete _aiSumCache[audience]; card.innerHTML='<div class="text-xs text-violet-900">🤖 다시 생성 중…</div>'; fillAiSummary(audience, d); });
+    const tb = el('ai-sum-translate');
+    if(tb) tb.addEventListener('click', async function(){
+      tb.textContent='번역 중…';
+      try {
+        const q = String(text).slice(0,480);
+        const r = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(q) + '&langpair=ko%7Cen');
+        const j = await r.json();
+        const en = j && j.responseData && j.responseData.translatedText;
+        if(en){ const p=document.createElement('p'); p.className='text-xs text-slate-500 mt-2 italic'; p.textContent='EN: ' + en; card.appendChild(p); tb.remove(); }
+        else { tb.textContent='🌐 번역 실패'; }
+      } catch(e){ tb.textContent='🌐 번역 실패'; }
+    });
+  }
+  if(_aiSumCache[audience]){ render(_aiSumCache[audience], 'ai'); return; }
+  const sys = '너는 청소년 인적성 결과를 해석하는 전문 상담가야. 한국어로만, 따뜻하고 정확하게 답해.';
+  const prompt = buildSummaryPrompt(audience, d);
+  let out = null;
+  try {
+    const mode = (state.cfg && state.cfg.mode) || 'LOCAL';
+    out = (mode !== 'LOCAL' && mode !== 'AUTO_FREE') ? await callLLM(prompt, sys) : await callLLMFree(prompt, sys);
+    if((!out || !out.trim()) ) { out = await callLLMFree(prompt, sys); }
+  } catch(e) { out = null; }
+  if(out && out.trim()){ _aiSumCache[audience] = out.trim(); render(out.trim(), 'ai'); }
+  else { render(localSummary(audience, d), 'local'); }
+}
+
+function renderStudentBrief(via, type) {
+  const top = via ? Object.entries(via).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0];}) : [];
+  return '<div class="bg-white rounded-2xl border border-slate-200 p-4">'
+    + '<h3 class="font-semibold text-sm mb-2">나의 핵심 강점</h3>'
+    + (top.length ? '<div class="flex flex-wrap gap-2 mb-2">' + top.map(function(t){return '<span class="pill bg-emerald-100 text-emerald-800">'+t+'</span>';}).join('') + '</div>' : '')
+    + '<p class="text-sm text-slate-700 leading-relaxed">너는 <strong>' + ((type&&type.name)||'성장형') + '</strong>! ' + ((type&&type.desc)||'') + ' 위 강점을 하루 한 번 의도적으로 써보면 더 빛날 거야.</p>'
+    + '<p class="text-xs text-slate-400 mt-2">더 자세한 분석은 부모님·선생님용 결과지에서 볼 수 있어요.</p>'
+    + '</div>';
+}
+function counselLocal(d) {
+  const t = d.type || {};
+  const strengths = (d.viaTop || []).slice(0,2).join('·') || '강점';
+  let s = '교사: "' + (d.sid||'OO') + ' 학생은 검사에서 \'' + (t.name||'성장형') + '\' 유형으로 나왔어요. ' + (t.desc||'') + '"\n'
+    + '부모: "그렇군요. 집에서는 무엇을 도와주면 좋을까요?"\n'
+    + '교사: "먼저 ' + strengths + ' 같은 강점을 구체적으로 칭찬해 주세요. 성장 포인트는 한 번에 한 가지만 부드럽게 권해보시는 걸 추천드립니다."\n'
+    + '부모: "진로는 어떻게 이야기하면 좋을까요?"\n'
+    + '교사: "정답을 정하기보다, 아이가 흥미를 보인 분야를 함께 탐색해 보시는 게 좋아요. 아이 속도를 존중해 주세요."';
+  if (d.anyHigh) s += '\n교사: "정서 선별에서 주의가 필요한 신호가 있어, 필요하시면 Wee클래스·청소년상담 1388 연계도 함께 안내드리겠습니다."';
+  return s;
+}
+function buildCounselPrompt(d) {
+  const t = d.type || {}, b = d.big5;
+  let info = '학생 통합유형: ' + (t.name||'') + ' (' + (t.desc||'') + ').';
+  if (b) info += ' Big5 외향' + b.E + '/우호' + b.A + '/성실' + b.C + '/정서안정' + (100-b.N) + '/개방' + b.O + '.';
+  if (d.viaTop && d.viaTop.length) info += ' 대표강점: ' + d.viaTop.join(', ') + '.';
+  info += d.anyHigh ? ' 정서 선별에서 주의(HIGH) 신호 있음.' : ' 정서 선별은 대체로 양호.';
+  return '다음 검사 결과에 맞춰, 담임 교사가 학부모 상담에서 바로 활용할 수 있는 대화 예시를 만들어줘.\n' + info
+    + '\n\n"교사:"와 "부모:" 라벨을 번갈아 붙여 5~7줄로, 강점 인정 → 가정 지원 제안 → (필요시) 정서 지원 안내 흐름으로 써줘. 진단·단정 표현은 피하고 따뜻하고 구체적으로. 한국어로만.';
+}
+async function fillCounselScript(d) {
+  const card = el('counsel-card');
+  if (!card) return;
+  function render(text, src) {
+    card.innerHTML = '<div class="flex items-center justify-between mb-1"><div class="font-bold text-amber-900">🗣️ 결과 맞춤 학부모 상담 예시</div>'
+      + '<span class="pill ' + (src==='ai'?'bg-emerald-100 text-emerald-800':'bg-slate-200 text-slate-700') + ' text-[10px]">' + (src==='ai'?'AI 생성':'기본 예시') + '</span></div>'
+      + '<pre class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap" style="font-family:inherit;margin:0">' + text + '</pre>'
+      + '<button id="counsel-regen" class="mt-2 text-xs text-amber-800 hover:underline">↻ 다시 생성</button>';
+    const b = el('counsel-regen');
+    if (b) b.addEventListener('click', function(){ card.innerHTML='<div class="text-xs text-amber-900">🗣️ 다시 생성 중…</div>'; fillCounselScript(d); });
+  }
+  let out = null;
+  try { out = await callLLMFree(buildCounselPrompt(d), '너는 학교 상담교사를 돕는 도우미야. 한국어로만, 따뜻하고 실용적으로.'); } catch(e) { out = null; }
+  if (out && out.trim()) render(out.trim(), 'ai'); else render(counselLocal(d), 'local');
+}
+
 function renderDetailedResult() {
   const big5 = state.results.big5.scores;
   const riasec = state.results.riasec.scores;
@@ -4361,12 +5084,17 @@ function renderDetailedResult() {
   const viaC    = via    ? '<div class="mt-5">' + renderVIADetailed(via) + '</div>' : '';
   const careerC = '<div class="mt-5">' + renderCareerDetailed(type, currentAudience) + '</div>';
   const actionsC= '<div class="mt-5">' + renderAudienceActions(currentAudience, type) + '</div>';
+  const _cesd = state.results.cesd.scores, _phqa = state.results.phqa.scores, _gad = state.results.gad.scores;
+  const anyHigh = (_cesd && _cesd.level==='HIGH') || (_phqa && _phqa.level==='HIGH') || (_gad && _gad.level==='HIGH') || (_phqa && _phqa.selfHarm>0);
+  const viaTop = via ? Object.entries(via).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0];}) : [];
 
   // ===== 청중별로 구성·순서·강조를 다르게 =====
   let detailedHTML = audienceBanner(currentAudience);
+  detailedHTML += '<div id="ai-summary-card" class="rounded-2xl border border-violet-200 bg-violet-50 p-4 mb-5"><div class="text-xs text-violet-900">🤖 AI 종합 해석 생성 중…</div></div>';
   if (currentAudience === 'student') {
     // 강점 먼저 → 흥미 → 성격 → 진로 → 실천 → 마음체크
-    detailedHTML += (viaC||big5C) + riasecC + (viaC?big5C:'') + careerC + actionsC + audienceScreeningNote('student');
+    // 아이에게는 핵심만 간략히 (상세 표는 부모·교사용에서)
+    detailedHTML += renderStudentBrief(via, type) + actionsC + audienceScreeningNote('student');
   } else if (currentAudience === 'parent') {
     // 성격 이해 → 흥미 → 강점 → 진로 → 정서안내 → 가정 실천
     detailedHTML += big5C + riasecC + viaC + careerC + audienceScreeningNote('parent') + actionsC;
@@ -4376,7 +5104,7 @@ function renderDetailedResult() {
         <h3 class="font-semibold text-sm mb-2">검사 신뢰도·근거</h3>
         <p class="text-sm text-slate-700">신뢰도 등급 <strong>${reliability.grade}</strong> (${reliability.label}) · 완료 검사: ${(reliability.completed&&reliability.completed.join(', '))||'없음'}${reliability.screening&&reliability.screening.length?' · 스크리닝: '+reliability.screening.join(', '):''}</p>
         <p class="text-xs text-slate-500 mt-1">점수는 또래 규준 대비 상대적 위치이며, 학생 평가·서열화 도구가 아닙니다.</p>
-      </div>` + big5C + riasecC + viaC + careerC + audienceScreeningNote('teacher') + actionsC;
+      </div>` + big5C + riasecC + viaC + careerC + audienceScreeningNote('teacher') + '<div id="counsel-card" class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4"><div class="text-xs text-amber-900">🗣️ 결과 맞춤 학부모 상담 예시 생성 중…</div></div>' + actionsC;
   }
 
   // 자유대화 인용 — 학생·교사만 (학부모 리포트에는 생략)
@@ -4390,6 +5118,9 @@ function renderDetailedResult() {
     </div>`;
   }
 
+  detailedHTML += renderLearnCard();
+  detailedHTML += renderMiCard();
+  detailedHTML += renderExtraScales();
   detailedHTML += `<div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600">
     <strong>고지사항:</strong> 본 검사는 의료·임상 진단이 아닌 교육·진로·자기이해를 위한 참고용 성장분석 도구입니다.
     위험 신호 감지 시 즉시 학교 상담교사, 청소년상담 1388, 정신건강위기 1577-0199, 자살예방상담 109 등을 이용해 주세요.
@@ -4407,6 +5138,8 @@ function renderDetailedResult() {
     if (parent) parent.appendChild(container);
   }
   container.innerHTML = detailedHTML;
+  try { fillAiSummary(currentAudience, { big5:big5, riasec:riasec, via:via, type:type, reliability:reliability }); } catch(e) {}
+  if (currentAudience === 'teacher') { try { fillCounselScript({ type:type, big5:big5, viaTop:viaTop, anyHigh:anyHigh, sid:sid }); } catch(e) {} }
 }
 
 // 텍스트 형식 결과지 생성 (다운로드용)
@@ -5308,6 +6041,39 @@ function ensureStudentProfile() {
   });
 }
 
+// ---- 학생 전환/초기화 ----
+function freshResults() {
+  return {
+    big5:{answers:[],scores:null}, riasec:{answers:[],scores:null}, via:{answers:[],scores:null},
+    grit:{answers:[],scores:null}, cesd:{answers:[],scores:null}, phqa:{answers:[],scores:null},
+    gad:{answers:[],scores:null}, who5:{answers:[],scores:null}, rses:{answers:[],scores:null}, learn:{answers:[],scores:null}, mi:{answers:[],scores:null},
+    sjt:{answers:[],dims:{},order:[],adaptive:false},
+    conv:{turns:0,dims:{},riskHist:[],topics:{},transcript:[]}
+  };
+}
+function editProfile() {
+  // 이름·학년만 다시 입력 (검사 데이터는 유지)
+  state.profile = null; save();
+  ensureStudentProfile().then(function(){ if (typeof renderHome==='function') renderHome(); });
+}
+function newStudent() {
+  if (!confirm('새 학생을 시작할까요?\n현재 학생의 검사 답안·결과·대화가 모두 초기화됩니다. (엔진 설정은 유지)')) return;
+  const hasData = (state.results.big5.scores) || (state.results.conv && state.results.conv.turns > 0) || (state.results.via.scores);
+  if (hasData && confirm('초기화 전에 현재 학생 데이터를 백업(다운로드)할까요?')) {
+    try { exportAllData(); } catch(e) {}
+  }
+  state.results = freshResults();
+  state.profile = null;
+  state.studentId = 'S001';
+  currentAudience = 'student';
+  try { _aiSumCache = {}; _aiSumSig = null; } catch(e) {}
+  save();
+  // 결과 화면 잔여 컨테이너 정리
+  ['detailed-result','extended-sections','tiposs-charts'].forEach(function(id){ const e=document.getElementById(id); if(e) e.innerHTML=''; });
+  if (typeof destroyCharts==='function') { try { destroyCharts(); } catch(e){} }
+  ensureStudentProfile().then(function(){ if (typeof renderHome==='function') renderHome(); if (typeof showView==='function') showView('home'); });
+}
+
 // ---- 학생 프로필 표시 바 (헤더 하단) ----
 function renderProfileBar() {
   let bar = el('profile-bar');
@@ -5329,7 +6095,8 @@ function renderProfileBar() {
     </div>
     <div class="flex items-center gap-2 text-xs">
       <span id="autosave-indicator" class="text-emerald-600">💾 자동 저장됨</span>
-      <button onclick="state.profile=null; save(); ensureStudentProfile()" class="text-xs text-slate-500 underline">프로필 변경</button>
+      <button onclick="editProfile()" class="text-xs text-slate-500 underline">이름·학년 수정</button>
+      <button onclick="newStudent()" class="text-xs text-rose-600 underline font-semibold">🔄 새 학생(초기화)</button>
     </div>`;
 }
 
@@ -5533,7 +6300,7 @@ function addBackupRestoreUI() {
     '<div class="flex gap-2 flex-wrap">' +
     '<button onclick="exportAllData()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">💾 백업 내보내기</button>' +
     '<label class="bg-sky-600 text-white px-4 py-2 rounded-lg text-sm cursor-pointer">📂 복원<input type="file" accept=".json" class="hidden" onchange="if(this.files[0]) importAllData(this.files[0])" /></label>' +
-    '<button onclick="if(confirm(\'모든 데이터를 삭제할까요?\')) { localStorage.clear(); location.reload(); }" class="bg-rose-600 text-white px-4 py-2 rounded-lg text-sm">🗑 모두 삭제</button>' +
+    '<button onclick="if(confirm(\'모든 데이터를 삭제할까요?\')) { sessionStorage.clear(); location.reload(); }" class="bg-rose-600 text-white px-4 py-2 rounded-lg text-sm">🗑 모두 삭제</button>' +
     '</div>';
   settings.appendChild(div);
 }
@@ -5551,6 +6318,8 @@ window.addEventListener("DOMContentLoaded", () => {
 window.exportAllData = exportAllData;
 window.importAllData = importAllData;
 window.ensureStudentProfile = ensureStudentProfile;
+window.newStudent = newStudent;
+window.editProfile = editProfile;
 
 // =================================================================
 //  v3.8 — 서비스급 종합 보강
@@ -5731,11 +6500,11 @@ function applyDarkMode(on) {
   if (on) {
     document.documentElement.style.filter = 'invert(1) hue-rotate(180deg)';
     document.querySelectorAll('img, canvas').forEach(e => e.style.filter = 'invert(1) hue-rotate(180deg)');
-    localStorage.setItem('pia_v3_dark', '1');
+    sessionStorage.setItem('pia_v3_dark', '1');
   } else {
     document.documentElement.style.filter = '';
     document.querySelectorAll('img, canvas').forEach(e => e.style.filter = '');
-    localStorage.removeItem('pia_v3_dark');
+    sessionStorage.removeItem('pia_v3_dark');
   }
 }
 function toggleDarkMode() {
@@ -5745,7 +6514,7 @@ function toggleDarkMode() {
 
 // ---- 약관 동의 모달 ----
 function showConsentModalIfNeeded() {
-  if (localStorage.getItem('pia_v3_consent') === '1') return Promise.resolve();
+  if (sessionStorage.getItem('pia_v3_consent') === '1') return Promise.resolve();
   return new Promise(resolve => {
     const modal = document.createElement('div');
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1001;padding:20px;';
@@ -5792,7 +6561,7 @@ function showConsentModalIfNeeded() {
       update();
     });
     document.getElementById('consent-confirm').addEventListener('click', () => {
-      localStorage.setItem('pia_v3_consent', '1');
+      sessionStorage.setItem('pia_v3_consent', '1');
       modal.remove();
       resolve();
     });
@@ -6001,7 +6770,7 @@ function injectGlobalActions() {
 // ---- 초기화 ----
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(async () => {
-    if (localStorage.getItem('pia_v3_dark') === '1') applyDarkMode(true);
+    if (sessionStorage.getItem('pia_v3_dark') === '1') applyDarkMode(true);
     await showConsentModalIfNeeded();
     injectGlobalActions();
   }, 100);
@@ -6124,17 +6893,43 @@ showView = function(name) {
 };
 
 // 마이크 권한 사전 요청 (모바일에서 유저 인터랙션 시점에)
-async function preRequestMicPermission() {
-  if (!navigator.mediaDevices?.getUserMedia) return;
+let _micStream = null;
+// 마이크 스트림을 대화 세션 동안 1회만 확보해 재사용(발화마다 재요청 방지)
+// ===== 음성 활동 감지(VAD) — 사람 목소리 에너지에만 반응, 노이즈 차단 =====
+let _vadCtx=null,_vadAnalyser=null,_vadBuf=null,_vadPeak=0,_vadRAF=null; const _VAD_FLOOR=0.035;
+function startVAD(stream){
+  try{
+    if(_vadCtx) return;
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    _vadCtx=new AC();
+    const src=_vadCtx.createMediaStreamSource(stream);
+    _vadAnalyser=_vadCtx.createAnalyser(); _vadAnalyser.fftSize=512; _vadAnalyser.smoothingTimeConstant=0.4;
+    src.connect(_vadAnalyser); _vadBuf=new Uint8Array(_vadAnalyser.fftSize);
+    const loop=function(){ if(!_vadAnalyser) return; _vadAnalyser.getByteTimeDomainData(_vadBuf); let sum=0; for(let i=0;i<_vadBuf.length;i++){ const v=(_vadBuf[i]-128)/128; sum+=v*v; } const rms=Math.sqrt(sum/_vadBuf.length); if(rms>_vadPeak) _vadPeak=rms; _vadRAF=requestAnimationFrame(loop); };
+    loop();
+  }catch(e){}
+}
+function resetVADPeak(){ _vadPeak=0; }
+function vadHasVoice(){ if(!_vadAnalyser) return true; return _vadPeak>=_VAD_FLOOR; } // 분석 불가 환경에선 차단 안 함
+function stopVAD(){ if(_vadRAF) cancelAnimationFrame(_vadRAF); _vadRAF=null; if(_vadCtx){ try{ _vadCtx.close(); }catch(e){} } _vadCtx=null; _vadAnalyser=null; _vadPeak=0; }
+
+async function ensureMicStream() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    stream.getTracks().forEach(t => t.stop());
+    if (_micStream && _micStream.getTracks().some(function(t){ return t.readyState === 'live'; })) return true;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return false;
+    _micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+    try { startVAD(_micStream); } catch(e) {}
     return true;
   } catch(e) {
-    console.warn('마이크 권한 거부:', e.message);
+    console.warn('마이크 권한:', e.message);
     return false;
   }
 }
+function releaseMicStream() {
+  try { stopVAD(); } catch(e) {}
+  if (_micStream) { try { _micStream.getTracks().forEach(function(t){ t.stop(); }); } catch(e) {} _micStream = null; }
+}
+async function preRequestMicPermission() { return ensureMicStream(); }
 
 // 검사 메뉴에서 자유대화 카드 클릭 시 모바일이면 권한 사전 요청
 window.addEventListener('click', async (e) => {
@@ -6182,6 +6977,8 @@ async function safeStartRecognition() {
     _globalRecording = false;
     await new Promise(r => setTimeout(r, 400));
   }
+  await ensureMicStream();
+  if (typeof resetVADPeak === 'function') resetVADPeak();
   try {
     rec.start();
     _globalRecording = true;
@@ -6241,7 +7038,7 @@ function rebindMicButton() {
     let finalText = '', interimText = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const r = e.results[i];
-      if (r.isFinal) finalText += r[0].transcript;
+      if (r.isFinal) { var _c=r[0].confidence; if(!(typeof _c==='number'&&_c>0&&_c<0.4) && (typeof vadHasVoice!=='function'||vadHasVoice())) finalText += r[0].transcript; }
       else interimText += r[0].transcript;
     }
     if (interimText && micStatus) micStatus.textContent = '듣는 중: ' + interimText.slice(0, 30);
@@ -6353,9 +7150,7 @@ const _origShow6 = showView;
 showView = function(name) {
   _origShow6(name);
   if (name === 'chat') {
-    setTimeout(() => {
-      rebindMicButton();
-    }, 300);
+    setTimeout(() => { rebindMicButton(); }, 0);
   }
 };
 
@@ -6389,7 +7184,7 @@ function insertMarker(barId, score, label, cssClass, offset) {
 }
 
 // ════════════════════════════════════════════════
-// localStorage 동적 데이터 로드 시스템
+// sessionStorage 동적 데이터 로드 시스템
 // ════════════════════════════════════════════════
 const GRADE_THRESHOLDS = [
   {min:85,cls:'grade-A-plus',label:'A+'},
@@ -6402,7 +7197,7 @@ const GRADE_THRESHOLDS = [
 function getGrade(sc){return GRADE_THRESHOLDS.find(g=>sc>=g.min)||GRADE_THRESHOLDS[5];}
 function gradeHtml(sc){const g=getGrade(sc);return `<span class="grade-box ${g.cls}">${g.label}</span>`;}
 
-// 기본 샘플 데이터 (localStorage가 없을 때)
+// 기본 샘플 데이터 (sessionStorage가 없을 때)
 const DEFAULT_DATA = {
   name:'홍길동', school:'한국중학교', grade:'2학년 3반', num:'15번',
   gender:'남', age:14, testDate:'2026-06-13T09:30:00', t16:'INFJ',
@@ -6419,14 +7214,28 @@ const DEFAULT_DATA = {
 
 function loadPiaData(){
   try{
-    const id = localStorage.getItem('pia_current_id');
-    const all = JSON.parse(localStorage.getItem('pia_results')||'[]');
+    const id = sessionStorage.getItem('pia_current_id');
+    const all = JSON.parse(sessionStorage.getItem('pia_results')||'[]');
     if(id && all.length>0){
       const found=all.find(s=>s.id===id)||all[all.length-1];
       if(found) return found;
     }
   }catch(e){}
   return DEFAULT_DATA;
+}
+
+function setGB(id, v){ const e=document.getElementById(id); if(e){ const g=getGrade(v); e.textContent=g.label; e.className='grade-box '+g.cls; } }
+function pDimDesc(label, v){
+  const band = v>=75?'high':v>=50?'mid':'low';
+  const T={
+    '공감':{high:'타인의 감정과 입장을 깊이 이해하고 잘 공감합니다. 관계 형성의 큰 자산입니다.',mid:'상황에 따라 공감하며 관계를 맺습니다. 경청을 조금 더 연습하면 좋습니다.',low:'사실·논리를 더 중시하는 편입니다. 상대의 감정을 한 번 더 살피면 관계가 부드러워집니다.'},
+    '자기통제':{high:'충동을 잘 조절하고 목표를 위해 인내하는 힘이 강합니다.',mid:'자기통제는 평균 수준입니다. 잠시 멈추기·호흡 조절 연습이 도움이 됩니다.',low:'즉각적 욕구를 조절하기 어려울 때가 있습니다. 작은 규칙과 멈춤 연습을 권합니다.'},
+    '도덕성':{high:'옳고 그름의 기준이 분명하고 공정함에 민감합니다.',mid:'도덕적 판단이 무난한 수준입니다.',low:'상황에 따라 기준이 흔들릴 수 있어, 함께 규칙을 정해보면 좋습니다.'},
+    '사회성':{high:'또래와 자연스럽게 어울리고 친화력이 높습니다.',mid:'사회성은 평균 수준으로 익숙한 사이에서 편안해합니다.',low:'소수와 깊게 지내는 편입니다. 작은 모임부터 천천히 넓혀보세요.'},
+    '책임감':{high:'맡은 일을 끝까지 성실히 해냅니다.',mid:'책임감은 평균 수준이며 마무리 점검 습관이 도움이 됩니다.',low:'마무리·꾸준함이 과제입니다. 작은 체크리스트가 도움이 됩니다.'},
+    '정서안정':{high:'스트레스 상황에서도 비교적 침착함을 유지합니다.',mid:'정서 안정은 평균 수준입니다. 규칙적인 생활이 도움이 됩니다.',low:'스트레스에 민감할 수 있어 규칙적 수면·운동·감정 표현이 도움이 됩니다.'}
+  };
+  return (T[label]&&T[label][band]) || '';
 }
 
 function populateResult(d){
@@ -6529,6 +7338,74 @@ function populateResult(d){
   const topRiasec = sc.riasec ? Object.entries(sc.riasec).sort((a,b)=>b[1]-a[1]) : [['A',87]];
   const rMap = {R:'현실형',I:'탐구형',A:'예술형',S:'사회형',E:'사업형',C:'관습형'};
 
+  // ── 발급일 ──
+  setText('cover-issue', fmtDate(new Date().toISOString()));
+  // ── 인성 종합 점수 ──
+  const _pv = sc.personality||72;
+  setText('rep-pers-score', _pv); setGB('rep-pers-grade', _pv);
+  // ── 인성 차원 해석문(P1~P6) 점수 기반 + 결론문 ──
+  const _PLAB={P1:'공감',P2:'자기통제',P3:'도덕성',P4:'사회성',P5:'책임감',P6:'정서안정'};
+  document.querySelectorAll('[data-desc]').forEach(function(el){
+    const k=el.getAttribute('data-desc');
+    if(_PLAB[k]) el.textContent = pDimDesc(_PLAB[k], sc[k]||70);
+  });
+  // ── 지능 IQ ──
+  setText('intel-iq', 'IQ '+(sc.iq||100)+' (추정)');
+  // ── 종합결론 표 ──
+  const _subj=sc.subjects||{}; const _sv=Object.values(_subj); const _subjAvg=_sv.length?Math.round(_sv.reduce((a,b)=>a+b,0)/_sv.length):70;
+  const _apt=sc.aptitude||{}; const _av=Object.values(_apt); const _aptAvg=_av.length?Math.round(_av.reduce((a,b)=>a+b,0)/_av.length):70;
+  const _overall=Math.round((_pv+_aptAvg+_subjAvg)/3);
+  setText('cc-pers-sc', _pv); setGB('cc-pers-gr', _pv);
+  setText('cc-iq-sc', 'IQ '+(sc.iq||100)+' (추정)');
+  (function(){ var q=sc.iq||100; var g=el('cc-iq-gr'); if(g){ var lab=q>=120?'A+':q>=110?'A':q>=100?'B+':q>=90?'B':'C'; var cls=q>=120?'grade-A-plus':q>=110?'grade-A':q>=100?'grade-B-plus':q>=90?'grade-B':'grade-C'; g.textContent=lab; g.className='grade-box '+cls; } })();
+  setText('cc-apt-sc', _aptAvg); setGB('cc-apt-gr', _aptAvg);
+  setText('cc-learn-sc', _subjAvg); setGB('cc-learn-gr', _subjAvg);
+  setText('cc-all-sc', _overall); setGB('cc-all-gr', _overall);
+  // ── 결론 해석문 (강점 과목 기반) ──
+  const _cel=document.querySelector('[data-desc="concl"]');
+  if(_cel){
+    const _lab={korean:'국어',math:'수학',english:'영어',social:'사회',science:'과학',arts:'예술',pe:'체육'};
+    const _top=Object.entries(_subj).sort(function(a,b){return b[1]-a[1];}).slice(0,2).map(function(e){return _lab[e[0]]||e[0];});
+    _cel.textContent=(d.name||'학생')+' 학생은 '+(_top.join('·')||'강점 과목')+' 영역에서 상대적으로 높은 역량을 보입니다. 강점을 중심으로 진로를 설계하고, 약한 영역은 작은 목표부터 차근차근 보완하길 권장합니다.';
+  }
+  // ── 항목 헤더 배지(P1~P9) 점수 동기화 ──
+  for (let _n=1; _n<=9; _n++){ const _e=document.querySelector('[data-headgrade="P'+_n+'"]'); if(_e){ const _v=sc['P'+_n]||70; const _g=getGrade(_v); _e.textContent=_g.label+'  '+_v+'점'; _e.className='grade-box '+_g.cls; } }
+  // ── 정서 스크리닝(page9) 실측 바인딩 ──
+  (function(){
+    function bl(lv){ return lv==='HIGH'?'높음':lv==='MEDIUM'?'주의':lv==='LOW'?'경도':'정상'; }
+    function bc(lv){ return lv==='HIGH'?'grade-D':lv==='MEDIUM'?'grade-C':lv==='LOW'?'grade-B-plus':'grade-A'; }
+    function setRow(idS, idG, val, max, lv){ const e=el(idS); if(e) e.textContent = (val!=null) ? (val+' / '+max) : '미실시'; const g=el(idG); if(g){ if(val!=null){ g.textContent=bl(lv); g.className='grade-box '+bc(lv); } else { g.textContent='—'; g.className='grade-box'; } } }
+    const cz=state.results.cesd.scores, pz=state.results.phqa.scores, gz=state.results.gad.scores;
+    setRow('sc-cesd','sc-cesd-g', cz?cz.total:null, 30, cz&&cz.level);
+    setRow('sc-phqa','sc-phqa-g', pz?pz.total:null, 27, pz&&pz.level);
+    setRow('sc-gad','sc-gad-g', gz?gz.total:null, 21, gz&&gz.level);
+  })();
+  // ── 진로 추천 Top5(page10) 통합유형 기반 ──
+  (function(){
+    let _t=null; try{ _t=inferIntegratedType(); }catch(e){}
+    const cs=(_t&&_t.careers)?_t.careers:[];
+    for(let k=0;k<5;k++){ const e=el('top5-'+(k+1)); if(e && cs[k]) e.textContent=cs[k]; }
+  })();
+  // ── 계열 적성(page7) 실측 바인딩 ──
+  (function(){
+    const ap = sc.aptitude || {};
+    function band(v){ return v>=80?{l:'A · 매우 적합',c:'grade-A'}:v>=70?{l:'B+ · 적합',c:'grade-B-plus'}:v>=60?{l:'B · 보통',c:'grade-B'}:{l:'C · 보완 필요',c:'grade-C'}; }
+    const m={hum:'인문',nat:'자연',art:'예능',pe:'체육'};
+    Object.keys(m).forEach(function(k){ const v=ap[m[k]]; if(v==null) return; setText('apt-'+k+'-sc', v); const b=band(v); const g=el('apt-'+k+'-g'); if(g){ g.textContent=b.l; g.className='grade-box '+b.c; } });
+    const top=Object.entries(ap).sort(function(a,b){return b[1]-a[1];})[0];
+    if(top){ const e=el('apt-top'); if(e) e.textContent=top[0]+'계'; }
+  })();
+  // ── 학습 세부역량(page8) 추정 바인딩 ──
+  (function(){
+    const b=state.results.big5.scores||{}, gr=state.results.grit.scores||{}, it=sc.intel||{};
+    function av(){ var a=[].slice.call(arguments).filter(function(x){return x!=null&&!isNaN(x);}); return a.length?Math.round(a.reduce(function(s,x){return s+x;},0)/a.length):70; }
+    function setLS(key,v){ const tr=document.querySelector('[data-lskill="'+key+'"]'); if(!tr)return; const tds=tr.querySelectorAll('td'); if(tds[1])tds[1].textContent=v; const f=tr.querySelector('.prog-bar-fill'); if(f)f.style.width=v+'%'; const vv=tr.querySelector('.prog-bar-val'); if(vv)vv.textContent=v; const g=tr.querySelector('.grade-box'); if(g){var gg=getGrade(v); g.textContent=gg.label; g.className='grade-box '+gg.cls;} }
+    setLS('focus', av(b.C, gr.overall));
+    setLS('memory', av(b.O, it.verbal));
+    setLS('meta', av(it.intrapersonal, b.O));
+    setLS('motiv', av(gr.overall, b.C));
+    setLS('selfdir', av(b.C, gr.perseverance));
+  })();
   // 뒤로가기 버튼 표시
   const backBtn=document.getElementById('btn-back-student');
   if(backBtn)backBtn.style.display='inline-flex';
@@ -6569,6 +7446,7 @@ function buildRadar(svgId, scores){
 
 // ── 페이지 로드 시 실행 ──
 document.addEventListener('DOMContentLoaded', function(){
+  if (typeof hasAnyResult === 'function' && !hasAnyResult()) return; // 검사 전 샘플 렌더 방지
   const d = loadPiaData();
   populateResult(d);
   // 오각형 레이더 (데이터 기반)
@@ -6659,12 +7537,12 @@ function mapAiPiaToResultData() {
   const P7 = clamp(avg(riasec.E, big5.E, big5.A));                   // 리더십
   const P8 = clamp(avg(big5.O, riasec.A, via['창의']||0));           // 창의성
   const P9 = clamp(avg(grit.overall,
-    riasec ? Math.max(...Object.values(riasec)) : 70));               // 진로성숙
+    (riasec && Object.keys(riasec).length) ? Math.max.apply(null, Object.values(riasec)) : 70));               // 진로성숙
 
   const personality = clamp(avg(P1,P2,P3,P4,P5,P6,P7,P8,P9));
 
   // 다중지능
-  const intel = {
+  const intel = (state.results.mi && state.results.mi.scores) ? state.results.mi.scores : {
     verbal:       clamp(avg(big5.O, riasec.A, riasec.I)),
     logical:      clamp(avg(big5.O, riasec.I, big5.C)),
     spatial:      clamp(avg(riasec.R, riasec.A)),
@@ -6692,7 +7570,7 @@ function mapAiPiaToResultData() {
     scores: {
       P1,P2,P3,P4,P5,P6,P7,P8,P9,
       personality,
-      iq: clamp(avg(big5.O, riasec.I, 100)),
+      iq: (function(){ var vv=Object.values(intel); var m=vv.length?vv.reduce(function(s,x){return s+x;},0)/vv.length:60; return Math.round(Math.min(145, Math.max(70, 85+(m-50)*0.8))); })(),
       intel,
       riasec: riasec,
       aptitude: {
@@ -6701,7 +7579,7 @@ function mapAiPiaToResultData() {
         '예능': clamp(avg(riasec.A, big5.O)),
         '체육': clamp(avg(riasec.R, big5.E))
       },
-      subjects: {
+      subjects: (state.results.learn && state.results.learn.scores) ? state.results.learn.scores : {
         korean:  clamp(avg(riasec.A, big5.O, big5.A)),
         math:    clamp(avg(riasec.I, big5.O, big5.C)),
         english: clamp(avg(riasec.A, riasec.I, big5.O)),
@@ -6715,6 +7593,12 @@ function mapAiPiaToResultData() {
 }
 
 function openFullReport() {
+  const _miss = (typeof missingRequired==='function') ? missingRequired() : [];
+  if (_miss.length > 0) {
+    alert('필수 검사(' + _miss.map(function(t){return t.label;}).join(', ') + ')를 모두 완료한 뒤 전체 결과지를 볼 수 있어요.');
+    showView('result');
+    return;
+  }
   const d = mapAiPiaToResultData();
   showView('fullreport');
   setTimeout(()=>{
@@ -6724,7 +7608,7 @@ function openFullReport() {
     insertMarker('rainbow-bar-1', sc.personality||70, null);
     insertMarker('rainbow-bar-1', 68, 'CLASS', 'cls', 0);
     insertMarker('rainbow-bar-1', 65, 'SCHOOL', 'sch', 0);
-    document.getElementById('fullreport-wrap')?.scrollTo(0,0);
+    var _fw=document.getElementById('fullreport-wrap'); if(_fw && _fw.scrollTo) _fw.scrollTo(0,0);
   }, 80);
 }
 
