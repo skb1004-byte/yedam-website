@@ -8,671 +8,893 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" as="style" crossorigin
-  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="256x256" href="images/favicon_256.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <style>
-/* ===== DESIGN TOKENS ===== */
+/* ═══════════════════════════════════════
+   LUXURY DESIGN TOKENS
+═══════════════════════════════════════ */
 :root{
-  --navy:#0d1b3e; --navy2:#162447; --blue:#2563eb; --blue2:#1d4ed8;
-  --cyan:#06b6d4; --gold:#f59e0b; --white:#fff; --off:#f8f9fc;
-  --g100:#f1f3f8; --g200:#e2e8f0; --g400:#94a3b8; --g600:#475569; --g800:#1e293b;
+  --ink:#05090f;
+  --ink2:#0b1423;
+  --navy:#0d1b3e;
+  --navy2:#131e3a;
+  --blue:#2563eb;
+  --blue2:#1d4ed8;
+  --electric:#4d9fff;
+  --gold:#c9a227;
+  --gold2:#e8c547;
+  --cream:#f5f0e8;
+  --white:#ffffff;
+  --off:#f7f8fc;
+  --g100:#f1f3f8;
+  --g200:#e2e8f0;
+  --g400:#94a3b8;
+  --g600:#475569;
+  --g800:#1e293b;
+  --glass:rgba(255,255,255,.06);
+  --glass2:rgba(255,255,255,.1);
+  --glass-border:rgba(255,255,255,.12);
   --f:'Pretendard','Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;
-  --r:12px; --rl:20px;
-  --sh:0 4px 24px rgba(13,27,62,.10);
-  --shl:0 12px 48px rgba(13,27,62,.18);
+  --r:16px;
+  --rl:24px;
+  --sh:0 4px 32px rgba(5,9,15,.18);
+  --shg:0 20px 80px rgba(5,9,15,.3);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--f);background:var(--white);color:var(--g800);line-height:1.65;overflow-x:hidden}
-::selection{background:var(--blue);color:#fff}
+body{font-family:var(--f);background:var(--ink);color:var(--cream);line-height:1.7;overflow-x:hidden}
+::selection{background:var(--gold);color:var(--ink)}
 img{max-width:100%;height:auto;display:block}
 a{text-decoration:none;color:inherit}
 
-/* ===== GNB ===== */
+/* ═══════════════════════════════════════
+   GLOBAL NOISE TEXTURE
+═══════════════════════════════════════ */
+body::before{
+  content:'';
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  opacity:.4;pointer-events:none;z-index:0;
+}
+
+/* ═══════════════════════════════════════
+   SCROLL-REVEAL
+═══════════════════════════════════════ */
+.rv{opacity:0;transform:translateY(32px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.rv.d1{transition-delay:.12s}
+.rv.d2{transition-delay:.22s}
+.rv.d3{transition-delay:.32s}
+.rv.visible{opacity:1;transform:none}
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
 .gnb{
   position:fixed;top:0;left:0;right:0;z-index:200;
-  background:rgba(13,27,62,.97);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,.08);
-  transition:box-shadow .3s;
+  transition:all .4s cubic-bezier(.16,1,.3,1);
+  padding-top:8px;
 }
-.gnb.scrolled{box-shadow:0 4px 32px rgba(0,0,0,.35)}
+.gnb.scrolled{
+  background:rgba(5,9,15,.88);
+  backdrop-filter:blur(24px) saturate(160%);
+  -webkit-backdrop-filter:blur(24px) saturate(160%);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  padding-top:0;
+  box-shadow:0 8px 40px rgba(0,0,0,.4);
+}
 .gnb-inner{
-  max-width:1280px;margin:0 auto;padding:0 40px;
+  max-width:1320px;margin:0 auto;padding:0 48px;
   display:flex;align-items:center;justify-content:space-between;
-  height:68px;
+  height:72px;
 }
-/* ── 로고: 투명 PNG, 필터 없이 원본 오렌지 색상 그대로 ── */
-.gnb-logo{display:flex;align-items:center}
-.gnb-logo img{height:38px;width:auto;display:block}
-
-.gnb-nav{display:flex;gap:36px;list-style:none}
-.gnb-nav a{font-size:14px;font-weight:500;color:rgba(255,255,255,.72);transition:color .2s}
+.gnb-logo img{height:36px;width:auto;display:block}
+.gnb-nav{display:flex;gap:40px;list-style:none;align-items:center}
+.gnb-nav a{
+  font-size:13px;font-weight:500;
+  color:rgba(255,255,255,.6);
+  letter-spacing:.02em;
+  transition:color .25s;
+  position:relative;
+}
+.gnb-nav a::after{
+  content:'';position:absolute;left:0;bottom:-4px;
+  width:0;height:1px;background:var(--gold);
+  transition:width .3s cubic-bezier(.16,1,.3,1);
+}
 .gnb-nav a:hover{color:#fff}
+.gnb-nav a:hover::after{width:100%}
 .gnb-cta{
-  background:var(--blue);color:#fff;
-  padding:10px 22px;border-radius:6px;
-  font-size:13px;font-weight:700;transition:all .2s;
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#7c3aed,#5b21b6);
+  color:#fff;padding:10px 22px;border-radius:100px;
+  font-size:13px;font-weight:700;
+  box-shadow:0 4px 20px rgba(124,58,237,.35);
+  transition:all .3s;letter-spacing:.01em;
 }
-.gnb-cta:hover{background:var(--blue2);transform:translateY(-1px)}
-/* ===== 햄버거 버튼 ===== */
+.gnb-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.5)}
+
 .gnb-hamburger{
   display:none;flex-direction:column;justify-content:center;gap:5px;
   width:40px;height:40px;cursor:pointer;padding:6px;
   background:none;border:none;
 }
 .gnb-hamburger span{
-  display:block;width:24px;height:2px;
-  background:rgba(255,255,255,.85);border-radius:2px;
-  transition:all .3s;
+  display:block;width:24px;height:1.5px;
+  background:rgba(255,255,255,.8);border-radius:2px;
+  transition:all .3s cubic-bezier(.16,1,.3,1);
 }
-.gnb-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
-.gnb-hamburger.open span:nth-child(2){opacity:0}
-.gnb-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.gnb-hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.gnb-hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.gnb-hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
 
-/* ===== 모바일 메뉴 오버레이 ===== */
+/* 모바일 메뉴 */
 .mob-menu{
-  display:none;position:fixed;top:68px;left:0;right:0;bottom:0;
-  background:rgba(13,27,62,.98);backdrop-filter:blur(20px);
-  z-index:199;flex-direction:column;padding:32px 28px;
-  overflow-y:auto;
-  transform:translateX(100%);transition:transform .3s ease;
+  display:none;position:fixed;top:72px;left:0;right:0;bottom:0;
+  background:rgba(5,9,15,.97);backdrop-filter:blur(30px);
+  z-index:199;flex-direction:column;padding:40px 32px;gap:8px;
 }
-.mob-menu.open{transform:translateX(0)}
-.mob-menu ul{list-style:none;display:flex;flex-direction:column;gap:0}
-.mob-menu ul li{border-bottom:1px solid rgba(255,255,255,.08)}
+.mob-menu.open{display:flex}
+.mob-menu ul{list-style:none;display:flex;flex-direction:column;gap:4px}
 .mob-menu ul li a{
-  display:block;padding:18px 4px;
-  font-size:17px;font-weight:600;color:rgba(255,255,255,.85);
-  transition:color .2s;
+  display:block;font-size:24px;font-weight:700;color:rgba(255,255,255,.75);
+  padding:12px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  transition:color .2s;letter-spacing:-.02em;
 }
 .mob-menu ul li a:hover{color:#fff}
-.mob-menu ul li a.pia-link{color:#a78bfa;font-weight:700}
 .mob-menu-cta{
-  margin-top:28px;display:block;text-align:center;
-  background:#7c3aed;color:#fff;padding:16px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-top:32px;background:linear-gradient(135deg,#7c3aed,#5b21b6);
+  color:#fff;padding:16px 32px;border-radius:14px;
   font-size:16px;font-weight:700;
 }
 
-@media(max-width:960px){
-  .gnb-nav{display:none}
-  .gnb-hamburger{display:flex}
-  .mob-menu{display:flex}
-}
-@media(max-width:640px){
-  .gnb-inner{padding:0 16px}
-  .gnb-cta{display:none}
-  /* 모바일 가로 overflow 방지 */
-  html,body{max-width:100vw;overflow-x:hidden}
-  .hero{padding:120px 20px 60px}
-  .hero-grid{grid-template-columns:1fr !important}
-  .hero-img{display:none}
-}
-
-/* ===== HERO ===== */
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
 .hero{
-  background:var(--navy);min-height:100vh;
-  padding:140px 40px 80px;
-  display:flex;flex-direction:column;justify-content:center;
-  position:relative;overflow:hidden;
+  position:relative;min-height:100vh;
+  display:flex;align-items:center;
+  background:var(--ink);
+  overflow:hidden;
+  padding:120px 0 80px;
 }
-.hero::before{
-  content:'';position:absolute;inset:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 80% 60% at 70% 40%,rgba(37,99,235,.18) 0%,transparent 65%),
-    radial-gradient(ellipse 50% 50% at 20% 80%,rgba(6,182,212,.10) 0%,transparent 60%);
+/* 배경 그라디언트 오브 */
+.hero-orb{
+  position:absolute;border-radius:50%;
+  filter:blur(100px);pointer-events:none;
 }
-.hero-inner{max-width:1280px;margin:0 auto;width:100%;position:relative;z-index:1}
-.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-@media(max-width:960px){.hero-grid{grid-template-columns:1fr;gap:48px}}
+.hero-orb-1{
+  width:700px;height:700px;
+  background:radial-gradient(circle,rgba(37,99,235,.25) 0%,transparent 70%);
+  top:-200px;right:-100px;
+  animation:orbFloat1 8s ease-in-out infinite;
+}
+.hero-orb-2{
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(201,162,39,.15) 0%,transparent 70%);
+  bottom:-100px;left:-100px;
+  animation:orbFloat2 10s ease-in-out infinite;
+}
+.hero-orb-3{
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(124,58,237,.2) 0%,transparent 70%);
+  top:30%;left:40%;
+  animation:orbFloat3 12s ease-in-out infinite;
+}
+@keyframes orbFloat1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,30px) scale(1.05)}}
+@keyframes orbFloat2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-40px) scale(1.08)}}
+@keyframes orbFloat3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-20px,20px) scale(.95)}}
 
+/* 격자 패턴 */
+.hero::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 40%,transparent 100%);
+  pointer-events:none;
+}
+
+.hero-inner{
+  position:relative;z-index:2;
+  max-width:1320px;margin:0 auto;padding:0 48px;
+  width:100%;
+}
+.hero-grid{
+  display:grid;
+  grid-template-columns:1fr 1.1fr;
+  gap:80px;align-items:center;
+}
 .hero-kicker{
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);
-  padding:6px 14px;border-radius:100px;
-  font-size:12px;font-weight:700;color:#93c5fd;
-  letter-spacing:.08em;text-transform:uppercase;margin-bottom:28px;
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(37,99,235,.15);
+  border:1px solid rgba(37,99,235,.3);
+  padding:8px 18px;border-radius:100px;
+  font-size:12px;font-weight:700;color:var(--electric);
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:28px;
 }
-.kicker-dot{width:6px;height:6px;border-radius:50%;background:#60a5fa;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.hero h1{
-  font-size:clamp(36px,5.5vw,72px);font-weight:800;color:#fff;
-  line-height:1.1;letter-spacing:-.035em;margin-bottom:28px;
+.kicker-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--electric);
+  box-shadow:0 0 8px var(--electric);
+  animation:pulse 2s ease-in-out infinite;
 }
-.hero h1 .hl{color:#60a5fa}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+h1.hero-h1{
+  font-size:clamp(44px,5.5vw,80px);
+  font-weight:900;
+  letter-spacing:-.04em;
+  line-height:1.08;
+  color:#fff;
+  margin-bottom:28px;
+}
+.hero-h1 .hl{
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
 .hero-desc{
-  font-size:clamp(15px,1.5vw,18px);color:rgba(255,255,255,.65);
-  line-height:1.75;max-width:520px;margin-bottom:48px;font-weight:300;
+  font-size:clamp(14px,1.3vw,17px);
+  color:rgba(255,255,255,.55);
+  line-height:1.85;
+  font-weight:300;
+  max-width:520px;
+  margin-bottom:40px;
 }
-.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.hero-btns{
+  display:flex;gap:16px;flex-wrap:wrap;
+  margin-bottom:56px;
+}
 .btn-p{
-  background:var(--blue);color:#fff;padding:15px 32px;border-radius:8px;
-  font-size:15px;font-weight:700;transition:all .2s;
   display:inline-flex;align-items:center;gap:8px;
+  background:var(--blue);color:#fff;
+  padding:14px 32px;border-radius:12px;
+  font-size:15px;font-weight:700;
+  box-shadow:0 8px 32px rgba(37,99,235,.4);
+  transition:all .3s;
 }
-.btn-p:hover{background:var(--blue2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(37,99,235,.4)}
+.btn-p:hover{background:var(--blue2);transform:translateY(-2px);box-shadow:0 12px 40px rgba(37,99,235,.5)}
 .btn-s{
-  background:rgba(255,255,255,.1);color:#fff;padding:15px 32px;border-radius:8px;
-  font-size:15px;font-weight:600;border:1px solid rgba(255,255,255,.2);transition:all .2s;
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--glass2);color:rgba(255,255,255,.85);
+  border:1px solid var(--glass-border);
+  padding:14px 32px;border-radius:12px;
+  font-size:15px;font-weight:600;
+  backdrop-filter:blur(12px);
+  transition:all .3s;
 }
-.btn-s:hover{background:rgba(255,255,255,.18)}
+.btn-s:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.25);transform:translateY(-2px)}
+
+/* 히어로 스탯 */
 .hero-stats{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:20px;
-  margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.12);
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;overflow:hidden;
 }
-.stat-num{font-size:42px;font-weight:800;color:#fff;line-height:1;letter-spacing:-.04em;margin-bottom:6px}
-.stat-num span{color:#60a5fa;font-size:.6em}
-.stat-lbl{font-size:13px;color:rgba(255,255,255,.5)}
+.hero-stats>div{
+  background:rgba(255,255,255,.03);
+  padding:20px 16px;text-align:center;
+  transition:background .3s;
+}
+.hero-stats>div:hover{background:rgba(255,255,255,.07)}
+.stat-num{
+  font-size:clamp(28px,3vw,36px);font-weight:900;
+  color:#fff;letter-spacing:-.04em;line-height:1;
+  margin-bottom:6px;
+}
+.stat-num span{font-size:.55em;color:var(--gold);font-weight:700}
+.stat-lbl{font-size:11px;color:rgba(255,255,255,.45);font-weight:500;letter-spacing:.02em}
+
+/* 히어로 이미지 */
 .hero-img{
-  border-radius:var(--rl);overflow:hidden;
-  box-shadow:var(--shl),0 0 0 1px rgba(255,255,255,.08);
   position:relative;
+  border-radius:24px;overflow:hidden;
+  aspect-ratio:16/11;
+  box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.08);
 }
-.hero-img img{width:100%;object-fit:cover}
+.hero-img img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}
 .hero-img-cap{
   position:absolute;bottom:0;left:0;right:0;
-  padding:14px 18px;
+  padding:16px 20px;
   background:linear-gradient(transparent,rgba(0,0,0,.7));
-  font-size:11px;color:rgba(255,255,255,.8);font-weight:500;
+  font-size:11px;color:rgba(255,255,255,.7);
+  font-weight:500;letter-spacing:.02em;
 }
+/* 이미지 글로우 */
+.hero-img::before{
+  content:'';position:absolute;inset:-2px;
+  background:linear-gradient(135deg,var(--blue),var(--gold),#7c3aed);
+  border-radius:26px;z-index:-1;opacity:.5;
+  animation:borderGlow 4s ease-in-out infinite;
+}
+@keyframes borderGlow{0%,100%{opacity:.3}50%{opacity:.6}}
 
-/* ===== SECTIONS ===== */
-.sec{padding:100px 40px}
-.sec-in{max-width:1280px;margin:0 auto}
+/* ═══════════════════════════════════════
+   공통 섹션
+═══════════════════════════════════════ */
+.sec{padding:120px 0;position:relative}
+.sec-in{max-width:1320px;margin:0 auto;padding:0 48px}
+.sec-head{text-align:center;margin-bottom:72px}
+
+/* 공통 kicker */
 .kicker{
-  font-size:12px;font-weight:700;color:var(--blue);
-  letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;
+  display:inline-block;
+  font-size:11px;font-weight:700;
+  color:var(--gold);letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:20px;
 }
+/* 공통 제목 */
 .title{
-  font-size:clamp(28px,4vw,48px);font-weight:800;
-  letter-spacing:-.03em;line-height:1.15;color:var(--navy);margin-bottom:20px;
+  font-size:clamp(30px,4vw,52px);font-weight:900;
+  letter-spacing:-.04em;line-height:1.1;
+  color:#fff;margin-bottom:20px;
 }
-.title .em{color:var(--blue)}
-.desc{font-size:17px;color:var(--g600);line-height:1.75;max-width:640px;font-weight:300}
-.sec-head{margin-bottom:60px}
-.divider{height:1px;background:var(--g200)}
+.em{
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.desc{
+  font-size:clamp(14px,1.3vw,17px);
+  color:rgba(255,255,255,.5);
+  line-height:1.85;font-weight:300;
+}
 
-/* ===== ABOUT ===== */
-.about{background:var(--white)}
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
-@media(max-width:860px){.about-grid{grid-template-columns:1fr;gap:40px}}
-.lead{font-size:20px;font-weight:500;color:var(--navy);line-height:1.7;margin-bottom:20px;letter-spacing:-.02em}
-.about-p{font-size:16px;color:var(--g600);line-height:1.8;margin-bottom:16px;font-weight:300}
-.info-tbl{width:100%;border-collapse:collapse;margin-top:32px}
-.info-tbl tr{border-bottom:1px solid var(--g200)}
-.info-tbl td{padding:16px 0;font-size:14px;vertical-align:top}
-.info-tbl .lbl{width:96px;color:var(--g400);font-weight:600;font-size:13px;padding-right:16px}
-.info-tbl .val{color:var(--g800);font-weight:500}
+/* ═══════════════════════════════════════
+   ABOUT
+═══════════════════════════════════════ */
+.about{background:linear-gradient(180deg,var(--ink) 0%,var(--ink2) 100%)}
+.about-grid{
+  display:grid;grid-template-columns:1fr 1.3fr;gap:80px;align-items:start;
+}
+.about-hi{display:flex;flex-direction:column;gap:16px;margin-top:40px}
+.about-hi-item{
+  display:flex;align-items:center;gap:20px;
+  padding:20px 24px;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:16px;
+  backdrop-filter:blur(12px);
+  transition:all .3s;
+}
+.about-hi-item:hover{background:var(--glass2);border-color:rgba(201,162,39,.3);transform:translateX(4px)}
+.about-hi-num{
+  font-size:36px;font-weight:900;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:-.05em;min-width:56px;line-height:1;
+}
+.about-hi-txt strong{display:block;font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+.about-hi-txt span{font-size:12px;color:rgba(255,255,255,.45)}
+
+.lead{
+  font-size:clamp(17px,1.6vw,22px);font-weight:700;
+  color:#fff;line-height:1.5;margin-bottom:24px;
+  letter-spacing:-.02em;
+}
+.about-p{
+  font-size:15px;color:rgba(255,255,255,.55);
+  line-height:1.9;margin-bottom:16px;font-weight:300;
+}
+
+/* 기업정보 테이블 */
+.info-tbl{
+  width:100%;border-collapse:collapse;
+  margin-top:36px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;overflow:hidden;
+}
+.info-tbl tr{border-bottom:1px solid rgba(255,255,255,.06)}
+.info-tbl tr:last-child{border-bottom:none}
+.info-tbl .lbl{
+  padding:14px 20px;font-size:12px;font-weight:700;
+  color:rgba(255,255,255,.4);letter-spacing:.05em;
+  background:rgba(255,255,255,.03);width:120px;white-space:nowrap;
+  vertical-align:middle;
+}
+.info-tbl .val{
+  padding:14px 20px;font-size:14px;color:rgba(255,255,255,.8);
+  font-weight:500;vertical-align:middle;
+}
 .badge{
-  display:inline-block;font-size:11px;font-weight:700;
-  padding:2px 8px;border-radius:4px;
-  background:rgba(37,99,235,.1);color:var(--blue);
-  letter-spacing:.04em;margin-left:8px;
+  display:inline-block;
+  font-size:10px;font-weight:700;
+  background:rgba(201,162,39,.2);color:var(--gold2);
+  border:1px solid rgba(201,162,39,.3);
+  padding:2px 8px;border-radius:100px;
+  margin-left:8px;letter-spacing:.05em;
 }
 
-/* ===== SOLUTIONS ===== */
-.sol-sec{background:var(--navy);color:#fff}
-.sol-kicker{font-size:12px;font-weight:700;color:#60a5fa;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px}
-.sol-title{font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-.03em;line-height:1.15;color:#fff;margin-bottom:20px}
-.sol-desc{font-size:17px;color:rgba(255,255,255,.6);line-height:1.75;max-width:640px;font-weight:300}
+/* ═══════════════════════════════════════
+   SOLUTIONS
+═══════════════════════════════════════ */
+.sol-sec{background:var(--ink2)}
+.sol-kicker{
+  font-size:11px;font-weight:700;color:var(--gold);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:20px;
+}
+.sol-title{
+  font-size:clamp(32px,4.5vw,56px);font-weight:900;
+  letter-spacing:-.04em;line-height:1.08;
+  color:#fff;margin-bottom:20px;
+}
+.sol-desc{
+  font-size:clamp(14px,1.3vw,17px);
+  color:rgba(255,255,255,.5);line-height:1.85;
+  font-weight:300;max-width:600px;
+}
+.sol-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);margin:80px 0}
 
-/* 쇼케이스 (Sol01, Sol02) */
+/* Showcase 카드 */
 .showcase{
-  display:grid;grid-template-columns:1fr 1.1fr;
-  gap:64px;align-items:center;margin-top:72px;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:64px;align-items:center;
+  margin-top:64px;
 }
-.showcase.rev{grid-template-columns:1.1fr 1fr}
-@media(max-width:960px){
-  .showcase,.showcase.rev{grid-template-columns:1fr;gap:40px}
-  .showcase.rev .sh-img{order:-1}
+.showcase.rev{direction:rtl}
+.showcase.rev>*{direction:ltr}
+
+.sh-img{
+  aspect-ratio:4/3;border-radius:20px;overflow:hidden;
+  position:relative;
+  box-shadow:var(--shg);
+  border:1px solid rgba(255,255,255,.06);
 }
-.sh-img{border-radius:var(--rl);overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5)}
-.sh-img img{width:100%;display:block}
+.sh-img img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.sh-img:hover img{transform:scale(1.04)}
+
 .sh-tag{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:11px;font-weight:700;color:#60a5fa;
-  letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;
+  font-size:10px;font-weight:700;color:var(--gold);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;
 }
-.sh-h3{font-size:32px;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.2;margin-bottom:16px}
-.sh-p{font-size:16px;color:rgba(255,255,255,.65);line-height:1.8;margin-bottom:28px;font-weight:300}
-.sh-list{list-style:none}
+.sh-h3{
+  font-size:clamp(24px,2.5vw,36px);font-weight:900;
+  letter-spacing:-.04em;line-height:1.15;
+  color:#fff;margin-bottom:20px;
+}
+.sh-p{
+  font-size:15px;color:rgba(255,255,255,.55);
+  line-height:1.9;margin-bottom:28px;font-weight:300;
+}
+.sh-list{list-style:none;display:flex;flex-direction:column;gap:12px}
 .sh-list li{
-  display:flex;align-items:flex-start;gap:12px;
-  font-size:14px;color:rgba(255,255,255,.75);
-  padding:12px 0;border-top:1px solid rgba(255,255,255,.08);
-  font-weight:400;line-height:1.6;
+  display:flex;gap:12px;font-size:14px;
+  color:rgba(255,255,255,.7);line-height:1.7;
 }
-.sh-list li .dot{
-  width:22px;height:22px;border-radius:50%;
-  background:rgba(37,99,235,.3);color:#60a5fa;
-  display:grid;place-items:center;font-size:10px;
-  flex-shrink:0;margin-top:2px;
-}
-.sol-divider{height:1px;background:rgba(255,255,255,.08);margin:72px 0}
+.dot{color:var(--gold);font-size:8px;margin-top:7px;flex-shrink:0}
 
-/* Sol 03·04 다크 카드 */
-.dark-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:40px}
-@media(max-width:760px){.dark-cards{grid-template-columns:1fr}}
+/* 다크 카드 2열 */
+.dark-cards{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .dc{
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:var(--rl);overflow:hidden;
-  transition:background .3s,transform .3s;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:24px;overflow:hidden;
+  transition:all .4s cubic-bezier(.16,1,.3,1);
 }
-.dc:hover{background:rgba(255,255,255,.09);transform:translateY(-4px)}
-.dc-img{aspect-ratio:16/9;overflow:hidden}
-.dc-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
-.dc:hover .dc-img img{transform:scale(1.04)}
-.dc-contain .dc-img img{object-fit:contain;background:#f0f4f8}
-.dc-body{padding:28px 30px 32px}
-.dc-lbl{font-size:11px;font-weight:700;color:#fbbf24;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
-.dc-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:12px;line-height:1.25}
-.dc-desc{font-size:14px;color:rgba(255,255,255,.6);line-height:1.75;font-weight:300;margin-bottom:20px}
-.dc-tags{display:flex;gap:8px;flex-wrap:wrap}
+.dc:hover{
+  background:rgba(255,255,255,.07);
+  border-color:rgba(255,255,255,.15);
+  transform:translateY(-6px);
+  box-shadow:0 40px 80px rgba(0,0,0,.4);
+}
+.dc-img{aspect-ratio:16/10;overflow:hidden;background:rgba(255,255,255,.03)}
+.dc-img img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.dc:hover .dc-img img{transform:scale(1.06)}
+.dc-body{padding:32px}
+.dc-lbl{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+.dc-title{font-size:clamp(18px,1.8vw,24px);font-weight:800;color:#fff;line-height:1.3;margin-bottom:16px;letter-spacing:-.03em}
+.dc-desc{font-size:14px;color:rgba(255,255,255,.5);line-height:1.85;margin-bottom:20px;font-weight:300}
+.dc-tags{display:flex;flex-wrap:wrap;gap:8px}
 .tg-d{
-  font-size:11px;font-weight:600;padding:4px 10px;border-radius:4px;
-  background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);letter-spacing:-.01em;
+  font-size:11px;font-weight:700;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.65);
+  padding:4px 12px;border-radius:100px;
+  letter-spacing:.04em;
 }
+.dc-contain .dc-img{background:#0c1a35}
 
-/* ===== FEATURE BLOCKS ===== */
-.feat{background:var(--white)}
-.feat.alt{background:var(--off)}
+/* ═══════════════════════════════════════
+   FEATURE 섹션
+═══════════════════════════════════════ */
+.feat{background:var(--ink)}
+.feat.alt{background:var(--ink2)}
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.feat-grid.rev .fv{order:2}
-@media(max-width:860px){
-  .feat-grid,.feat-grid.rev{grid-template-columns:1fr;gap:40px}
-  .feat-grid.rev .fv{order:0}
+.feat-grid.rev{direction:rtl}
+.feat-grid.rev>*{direction:ltr}
+
+.fv{
+  aspect-ratio:4/3;border-radius:20px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:var(--shg);
 }
-.fv{border-radius:var(--rl);overflow:hidden;box-shadow:var(--shl);border:1px solid var(--g200)}
-.fv img{width:100%}
-.ft .kicker{margin-bottom:12px}
-.ft .title{font-size:clamp(24px,3.5vw,40px);margin-bottom:16px}
-.ft .desc{font-size:16px;margin-bottom:28px}
-.feat-list{list-style:none;margin-top:24px}
+.fv img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;transition:transform .6s}
+.fv:hover img{transform:scale(1.04)}
+
+.ft .kicker{margin-bottom:16px}
+.ft .title{margin-bottom:16px}
+.ft .desc{margin-bottom:28px}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:16px}
 .feat-list li{
-  display:flex;align-items:flex-start;gap:14px;
-  padding:14px 0;border-bottom:1px solid var(--g200);
-  font-size:14px;color:var(--g600);line-height:1.65;
+  display:flex;gap:16px;
+  font-size:15px;color:rgba(255,255,255,.65);
+  line-height:1.75;
+  padding:16px 20px;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:12px;
+  transition:all .3s;
 }
-.feat-list li .d{
-  width:8px;height:8px;border-radius:50%;
-  background:var(--blue);flex-shrink:0;margin-top:6px;
+.feat-list li:hover{background:var(--glass2);border-color:rgba(201,162,39,.2)}
+.feat-list li strong{color:#fff;font-weight:700}
+.d{
+  width:6px;height:6px;min-width:6px;border-radius:50%;
+  background:var(--gold);margin-top:8px;
+  box-shadow:0 0 8px rgba(201,162,39,.5);
 }
-.feat-list li strong{font-weight:700;color:var(--navy)}
 
-/* ===== TRACK RECORD ===== */
-.record{background:var(--navy);color:#fff}
-.record .kicker{color:#60a5fa}
-.record .title,.record .tl-title{color:#fff}
-.record .desc{color:rgba(255,255,255,.6)}
-.tl{position:relative;padding-left:28px;margin-top:56px}
-.tl::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.12)}
-.tl-item{position:relative;padding-bottom:48px;display:grid;grid-template-columns:100px 1fr;gap:40px}
-.tl-item::before{
-  content:'';position:absolute;left:-28px;top:5px;
-  width:15px;height:15px;border-radius:50%;
-  background:var(--navy);border:2px solid rgba(255,255,255,.25);
+/* ═══════════════════════════════════════
+   DETAIL SOLUTIONS HEADER
+═══════════════════════════════════════ */
+.detail-hdr{
+  background:linear-gradient(180deg,var(--ink2) 0%,var(--ink) 100%);
+  padding:100px 0 80px;
+  text-align:center;
+  position:relative;overflow:hidden;
 }
-.tl-item.hot::before{background:var(--blue);border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.25)}
-.tl-year{font-size:18px;font-weight:800;color:rgba(255,255,255,.35);letter-spacing:-.02em;padding-top:2px}
-.tl-item.hot .tl-year{color:#60a5fa}
+.detail-hdr::before{
+  content:'';position:absolute;
+  width:600px;height:600px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(37,99,235,.15) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+
+/* ═══════════════════════════════════════
+   FEAT SUM GRID (small image cards)
+═══════════════════════════════════════ */
+.feat-sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px}
+.feat-sum-card{
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:20px;padding:28px;
+  backdrop-filter:blur(12px);
+}
+.feat-sum-card-label{
+  font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:16px;
+}
+.feat-sum-inner{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.feat-sum-item{
+  background:rgba(255,255,255,.04);
+  border-radius:12px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);
+  transition:all .3s;
+}
+.feat-sum-item:hover{background:rgba(255,255,255,.08);transform:translateY(-2px)}
+.feat-sum-item img{width:100%;height:110px;object-fit:contain;display:block;background:rgba(255,255,255,.03)}
+.feat-sum-item-txt{padding:12px 14px}
+.feat-sum-item-txt strong{display:block;font-size:13px;font-weight:600;color:#fff;margin-bottom:3px}
+.feat-sum-item-txt span{font-size:11px;color:rgba(255,255,255,.45)}
+
+/* ═══════════════════════════════════════
+   FEAT STRAT GRID
+═══════════════════════════════════════ */
+.feat-strat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.strat-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;overflow:hidden;
+  transition:all .4s;
+}
+.strat-card:hover{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(201,162,39,.25);
+  transform:translateY(-6px);
+  box-shadow:0 32px 64px rgba(0,0,0,.4);
+}
+.strat-card img{width:100%;height:160px;object-fit:cover;cursor:zoom-in;transition:transform .6s}
+.strat-card:hover img{transform:scale(1.06)}
+.strat-card-body{padding:20px 22px}
+.strat-card-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px}
+.strat-card-desc{font-size:12px;color:rgba(255,255,255,.5);line-height:1.65}
+
+/* ═══════════════════════════════════════
+   TRACK RECORD
+═══════════════════════════════════════ */
+.record{background:var(--ink2)}
+.tl{display:flex;flex-direction:column;gap:0;position:relative}
+.tl::before{
+  content:'';position:absolute;left:88px;top:0;bottom:0;
+  width:1px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.1) 10%,rgba(255,255,255,.1) 90%,transparent);
+}
+.tl-item{
+  display:flex;gap:40px;align-items:flex-start;
+  padding:36px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  transition:all .3s;
+  position:relative;
+}
+.tl-item:last-child{border-bottom:none}
+.tl-item:hover{padding-left:8px}
+.tl-year{
+  font-size:13px;font-weight:800;color:var(--gold);
+  min-width:72px;padding-top:4px;text-align:right;
+  letter-spacing:.02em;
+}
+.tl-item::after{
+  content:'';position:absolute;left:83px;top:44px;
+  width:11px;height:11px;border-radius:50%;
+  background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.2);
+  z-index:1;
+}
+.tl-item.hot::after{
+  background:var(--gold);
+  border-color:rgba(201,162,39,.5);
+  box-shadow:0 0 16px rgba(201,162,39,.5);
+}
 .tl-client{
-  display:inline-block;font-size:11px;font-weight:700;
-  padding:3px 10px;border-radius:4px;
-  background:rgba(37,99,235,.25);color:#93c5fd;
-  letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;
+  display:inline-block;
+  font-size:11px;font-weight:700;
+  background:rgba(37,99,235,.2);color:var(--electric);
+  border:1px solid rgba(37,99,235,.3);
+  padding:3px 10px;border-radius:100px;
+  margin-bottom:10px;letter-spacing:.05em;
 }
-.tl-title{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
-.tl-desc{font-size:14px;color:rgba(255,255,255,.55);line-height:1.7;font-weight:300}
-.tl-amount{font-size:14px;font-weight:700;color:var(--cyan);margin-top:8px}
-@media(max-width:640px){.tl-item{grid-template-columns:1fr;gap:6px}}
+.tl-title{
+  font-size:clamp(15px,1.4vw,18px);font-weight:700;
+  color:#fff;line-height:1.4;margin-bottom:10px;
+  letter-spacing:-.02em;
+}
+.tl-desc{
+  font-size:14px;color:rgba(255,255,255,.5);
+  line-height:1.85;font-weight:300;
+}
+.tl-amount{
+  margin-top:14px;
+  display:inline-flex;align-items:center;
+  background:linear-gradient(135deg,rgba(201,162,39,.15),rgba(201,162,39,.05));
+  border:1px solid rgba(201,162,39,.3);
+  padding:8px 18px;border-radius:10px;
+  font-size:13px;font-weight:700;color:var(--gold2);
+  letter-spacing:.01em;
+}
 
-/* ===== CLIENTS ===== */
-.clients{background:var(--off)}
-.cl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px}
-@media(max-width:860px){.cl-grid{grid-template-columns:repeat(2,1fr)}}
+/* ═══════════════════════════════════════
+   CLIENTS
+═══════════════════════════════════════ */
+.clients{background:var(--ink)}
+.cl-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:16px;
+}
 .cl-card{
-  background:#fff;border-radius:var(--r);
-  padding:32px 24px;text-align:center;
-  border:1px solid var(--g200);transition:all .3s;box-shadow:var(--sh);
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:16px;padding:24px 20px;
+  text-align:center;
+  transition:all .35s cubic-bezier(.16,1,.3,1);
+  cursor:pointer;
 }
-.cl-card:hover{transform:translateY(-4px);box-shadow:var(--shl);border-color:#bfdbfe}
-a.cl-card{text-decoration:none;display:block;cursor:pointer}
-.cl-name{font-size:17px;font-weight:700;color:var(--navy);letter-spacing:-.02em;margin-bottom:6px}
-.cl-role{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.08em;text-transform:uppercase}
+.cl-card:hover{
+  background:var(--glass2);
+  border-color:rgba(201,162,39,.3);
+  transform:translateY(-4px);
+  box-shadow:0 20px 40px rgba(0,0,0,.3);
+}
+.cl-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-.01em}
+.cl-role{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
 
-/* ===== METRICS ===== */
-.metrics{background:#fff}
-.mt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
-@media(max-width:760px){.mt-grid{grid-template-columns:1fr}}
-.mt-card{
-  border-radius:var(--rl);padding:40px 36px;
-  background:var(--navy);color:#fff;position:relative;overflow:hidden;
-}
-.mt-card::before{
-  content:'';position:absolute;top:-40px;right:-40px;
-  width:160px;height:160px;border-radius:50%;
-  background:rgba(37,99,235,.12);
-}
-.mt-lbl{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
-.mt-num{font-size:60px;font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:12px}
-.mt-num .u{font-size:.45em;color:#60a5fa;font-weight:700}
-.mt-desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;font-weight:300}
-
-/* ===== CONTACT ===== */
-.contact{background:var(--g800);color:#fff}
-.contact .kicker{color:#60a5fa}
-.contact .title{color:#fff}
-.ct-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:80px;align-items:start}
-@media(max-width:860px){.ct-grid{grid-template-columns:1fr;gap:40px}}
+/* ═══════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════ */
+.contact{background:linear-gradient(180deg,var(--ink2),var(--ink))}
+.ct-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
 .ct-row{
-  display:grid;grid-template-columns:80px 1fr;
-  gap:16px;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.08);
-  font-size:15px;align-items:baseline;
+  display:flex;gap:0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  padding:16px 0;
 }
-.ct-row .l{font-size:12px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.08em}
-.ct-row .v{color:rgba(255,255,255,.85);font-weight:400}
-.ct-row .v a{color:#93c5fd;border-bottom:1px solid rgba(147,197,253,.3);transition:color .2s}
+.ct-row .l{
+  font-size:12px;font-weight:700;
+  color:rgba(255,255,255,.35);letter-spacing:.05em;
+  min-width:90px;padding-top:2px;
+}
+.ct-row .v{
+  font-size:14px;color:rgba(255,255,255,.75);
+  font-weight:500;line-height:1.6;
+}
+.ct-row .v a{color:var(--electric);transition:color .2s}
 .ct-row .v a:hover{color:#fff}
-.ct-box{background:#fff;color:var(--g800);border-radius:var(--rl);padding:40px}
-.ct-box h4{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.02em;margin-bottom:10px}
-.ct-box p{font-size:14px;color:var(--g600);margin-bottom:28px;line-height:1.65;font-weight:300}
+.ct-box{
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:24px;padding:40px;
+  backdrop-filter:blur(16px);
+}
+.ct-box h4{
+  font-size:22px;font-weight:800;color:#fff;
+  margin-bottom:14px;letter-spacing:-.03em;
+}
+.ct-box p{
+  font-size:14px;color:rgba(255,255,255,.5);
+  line-height:1.85;margin-bottom:28px;font-weight:300;
+}
+.ct-btn-m,.ct-btn-t{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 24px;border-radius:12px;
+  font-size:14px;font-weight:700;
+  transition:all .3s;margin-bottom:12px;
+}
 .ct-btn-m{
-  display:flex;align-items:center;justify-content:center;gap:10px;
   background:var(--blue);color:#fff;
-  padding:16px 28px;border-radius:8px;
-  font-size:15px;font-weight:700;transition:all .2s;width:100%;
+  box-shadow:0 4px 20px rgba(37,99,235,.35);
 }
-.ct-btn-m:hover{background:var(--blue2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,.3)}
+.ct-btn-m:hover{background:var(--blue2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(37,99,235,.5)}
 .ct-btn-t{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  background:var(--off);color:var(--navy);
-  padding:14px 28px;border-radius:8px;
-  font-size:15px;font-weight:700;transition:all .2s;width:100%;
-  border:1px solid var(--g200);margin-top:12px;
+  background:var(--glass2);color:rgba(255,255,255,.8);
+  border:1px solid var(--glass-border);
 }
-.ct-btn-t:hover{background:var(--g100)}
+.ct-btn-t:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.25)}
 
-/* ===== FOOTER ===== */
+/* ═══════════════════════════════════════
+   AI PIA CTA
+═══════════════════════════════════════ */
+.pia-cta{
+  background:linear-gradient(135deg,#0f0527 0%,#1a0545 40%,#110f30 100%);
+  padding:100px 48px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.pia-cta::before{
+  content:'';position:absolute;
+  width:700px;height:700px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(124,58,237,.25) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+.pia-cta-inner{position:relative;z-index:1;max-width:720px;margin:0 auto}
+.pia-cta-badge{
+  display:inline-block;
+  background:rgba(167,139,250,.15);
+  border:1px solid rgba(167,139,250,.3);
+  padding:7px 18px;border-radius:100px;
+  font-size:11px;font-weight:700;color:#c4b5fd;
+  letter-spacing:.1em;margin-bottom:28px;
+}
+.pia-cta h2{
+  font-size:clamp(32px,4.5vw,56px);font-weight:900;
+  color:#fff;line-height:1.15;margin-bottom:18px;
+  letter-spacing:-.04em;
+}
+.pia-cta p{
+  font-size:clamp(14px,1.3vw,17px);
+  color:rgba(255,255,255,.55);margin-bottom:44px;
+  line-height:1.85;font-weight:300;
+}
+.pia-btn{
+  display:inline-flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,#7c3aed,#5b21b6);
+  color:#fff;padding:18px 52px;border-radius:100px;
+  font-size:17px;font-weight:700;
+  box-shadow:0 12px 48px rgba(124,58,237,.5);
+  transition:all .3s;letter-spacing:-.01em;
+}
+.pia-btn:hover{transform:translateY(-3px);box-shadow:0 20px 60px rgba(124,58,237,.65)}
+.pia-note{margin-top:18px;font-size:13px;color:rgba(255,255,255,.3);letter-spacing:.02em}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
 footer{
-  background:var(--navy);color:rgba(255,255,255,.4);
-  padding:40px;font-size:13px;font-weight:300;
+  background:var(--ink);
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:48px 0;
 }
 .ft-inner{
-  max-width:1280px;margin:0 auto;
-  display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center;
+  max-width:1320px;margin:0 auto;padding:0 48px;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  flex-wrap:wrap;gap:24px;
 }
-/* 푸터 로고: 투명 PNG, 원본 오렌지 그대로 */
-.ft-logo{height:30px;width:auto;display:block;margin-bottom:10px}
-.ft-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:12px}
-.ft-meta span{color:rgba(255,255,255,.45)}
-.ft-meta span+span::before{content:'·';margin-right:10px;opacity:.4}
-.ft-cr{font-size:12px;color:rgba(255,255,255,.3);white-space:nowrap}
+.ft-logo{height:32px;width:auto;margin-bottom:16px;opacity:.75}
+.ft-meta{display:flex;flex-wrap:wrap;gap:8px 24px}
+.ft-meta span{font-size:12px;color:rgba(255,255,255,.3);font-weight:400}
+.ft-cr{font-size:12px;color:rgba(255,255,255,.25);font-weight:400}
 
-/* ===== LIGHTBOX ===== */
-.lb-wrap{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;backdrop-filter:blur(6px);overflow:hidden;padding:20px;box-sizing:border-box}
+/* ═══════════════════════════════════════
+   LIGHTBOX
+═══════════════════════════════════════ */
+.lb-wrap{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.93);z-index:9999;
+  align-items:center;justify-content:center;
+  cursor:zoom-out;backdrop-filter:blur(20px);
+  padding:24px;box-sizing:border-box;
+}
 .lb-wrap.open{display:flex}
-.lb-wrap img{max-width:88vw;max-height:84vh;width:auto;height:auto;display:block;border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,.6);cursor:default;object-fit:contain;flex-shrink:0}
-.lb-close{position:absolute;top:20px;right:28px;font-size:36px;color:#fff;cursor:pointer;line-height:1;opacity:.8;transition:opacity .2s}
-.lb-close:hover{opacity:1}
-.lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);font-size:48px;color:#fff;cursor:pointer;opacity:.6;transition:opacity .2s;user-select:none;padding:0 16px}
-.lb-prev{left:8px}.lb-next{right:8px}
-.lb-prev:hover,.lb-next:hover{opacity:1}
-.lb-counter{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:13px}
-/* 클릭 가능 이미지 커서 */
-.sh-img img,.fv img,.dc-img img,.hero-img img{cursor:zoom-in}
-/* ===== REVEAL ===== */
-.rv{opacity:1;transform:none;transition:none}
-.rv.on{opacity:1;transform:none}
-@media(max-width:640px){
-  /* 디지털 간판 & AREX 요약 카드 → 1열 */
-  .feat-sum-grid{grid-template-columns:1fr !important;gap:16px !important;margin-top:28px !important}
-  .feat-sum-grid img{height:70px !important}
-  /* 스마트스쿨 전략 카드 3열 → 1열 */
-  .feat-strat-grid{grid-template-columns:1fr !important;gap:12px !important}
-  .feat-strat-grid > div img{height:90px !important}
-  /* feat-list 모바일 간략화: 4개만 표시 (5번째부터 숨김) */
-  .feat-list li:nth-child(n+5){display:none !important}
-  /* 영유아 통계 큰 숫자 폰트 축소 */
-  .feat-sum-grid [style*="font-size:48px"]{font-size:36px !important}
-  /* 섹션 패딩 줄이기 */
-  .sec-in{padding:60px 20px !important}
-  .feat-grid{gap:28px !important}
+.lb-wrap img{
+  max-width:88vw;max-height:84vh;width:auto;height:auto;
+  display:block;border-radius:12px;
+  box-shadow:0 40px 120px rgba(0,0,0,.8);
+  cursor:default;object-fit:contain;flex-shrink:0;
 }
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}
-.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+.lb-close{
+  position:absolute;top:24px;right:32px;
+  font-size:32px;color:rgba(255,255,255,.6);
+  cursor:pointer;line-height:1;transition:all .2s;
+  width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:rgba(255,255,255,.08);
+}
+.lb-close:hover{color:#fff;background:rgba(255,255,255,.15)}
+.lb-prev,.lb-next{
+  position:absolute;top:50%;transform:translateY(-50%);
+  font-size:40px;color:rgba(255,255,255,.5);
+  cursor:pointer;transition:all .2s;
+  user-select:none;padding:0 20px;
+  width:72px;height:72px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:rgba(255,255,255,.08);
+}
+.lb-prev{left:16px}.lb-next{right:16px}
+.lb-prev:hover,.lb-next:hover{color:#fff;background:rgba(255,255,255,.15)}
+.lb-counter{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  color:rgba(255,255,255,.4);font-size:12px;
+  background:rgba(0,0,0,.4);padding:6px 16px;border-radius:100px;
+}
 
-/* ===== 2026 VISUAL REFRESH ===== */
-:root{
-  --navy:#0a1228;
-  --navy2:#101b39;
-  --blue:#1f6dff;
-  --blue2:#124de0;
-  --cyan:#22c8da;
-  --gold:#f6b64f;
-  --off:#f4f7ff;
-  --g100:#edf2fb;
-  --g200:#d8e2f2;
-  --g400:#7a8ba9;
-  --g600:#374868;
-  --g800:#0f172a;
-  --r:16px;
-  --rl:24px;
-  --sh:0 16px 40px rgba(15,23,42,.10);
-  --shl:0 32px 72px rgba(10,18,40,.18);
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media(max-width:1100px){
+  .hero-grid{gap:48px}
+  .about-grid{gap:48px}
+  .feat-grid{gap:48px}
+  .showcase{gap:48px}
 }
-body{
-  background:
-    radial-gradient(circle at 6% 2%,rgba(31,109,255,.08) 0,transparent 30%),
-    radial-gradient(circle at 94% 14%,rgba(34,200,218,.07) 0,transparent 36%),
-    #fff;
-}
-.gnb{
-  background:rgba(9,16,36,.82);
-  backdrop-filter:blur(20px) saturate(145%);
-}
-.gnb::after{
-  content:'';position:absolute;left:0;right:0;bottom:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(147,197,253,.45),transparent);
-}
-.gnb-inner{max-width:1320px;height:74px}
-.gnb-nav a{
-  position:relative;font-size:13px;font-weight:600;letter-spacing:.01em;color:rgba(255,255,255,.76)
-}
-.gnb-nav a::after{
-  content:'';position:absolute;left:0;bottom:-7px;height:2px;width:100%;
-  transform:scaleX(0);transform-origin:left;
-  background:linear-gradient(90deg,#60a5fa,#22d3ee);transition:transform .25s;
-}
-.gnb-nav a:hover::after{transform:scaleX(1)}
-.gnb-cta{
-  border-radius:999px;
-  background:linear-gradient(135deg,#2f7dff,#2e63ff 56%,#2262ee);
-  box-shadow:0 10px 28px rgba(31,109,255,.35);
-}
-.hero{
-  min-height:96vh;
-  padding:160px 40px 96px;
-  background:linear-gradient(145deg,#070f23 0%,#112044 48%,#0f1d3d 100%);
-}
-.hero::before{
-  background:
-    radial-gradient(ellipse 64% 56% at 76% 34%,rgba(59,130,246,.34) 0%,transparent 66%),
-    radial-gradient(ellipse 48% 44% at 18% 84%,rgba(34,211,238,.19) 0%,transparent 64%),
-    radial-gradient(ellipse 36% 30% at 58% 72%,rgba(148,163,184,.10) 0%,transparent 70%);
-}
-.hero::after{
-  content:'';position:absolute;width:60vmax;height:60vmax;left:-16vmax;top:-26vmax;border-radius:50%;
-  background:radial-gradient(circle at center,rgba(56,189,248,.16) 0,rgba(56,189,248,0) 72%);
-  pointer-events:none;animation:heroAura 13s ease-in-out infinite;
-}
-@keyframes heroAura{
-  0%,100%{transform:translate3d(0,0,0) scale(1)}
-  50%{transform:translate3d(2.4vmax,3.2vmax,0) scale(1.08)}
-}
-.hero-kicker{
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(96,165,250,.52);
-  color:#c8ddff;
-}
-.hero h1{font-weight:900;letter-spacing:-.04em}
-.hero h1 .hl{
-  background:linear-gradient(90deg,#8fd4ff 0%,#87f7ff 48%,#f0fbff 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-.hero-desc{
-  color:rgba(255,255,255,.78);
-  max-width:560px;
-}
-.btn-p{
-  border-radius:999px;
-  background:linear-gradient(130deg,#2b74ff,#1c58f1);
-  box-shadow:0 16px 34px rgba(20,89,255,.34);
-}
-.btn-s{
-  border-radius:999px;
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.28);
-}
-.hero-stats{
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:20px;
-  padding:26px 22px;
-}
-.stat-num{font-size:44px}
-.sec{padding:clamp(82px,9vw,126px) 40px}
-.sec-in{max-width:1320px}
-.title{font-weight:850}
-.desc,.about-p,.sh-p,.dc-desc,.tl-desc,.mt-desc,.ct-box p{font-weight:400}
-.about-grid,.showcase,.feat-grid,.ct-grid{gap:72px}
-.info-tbl{
-  background:#fff;
-  border:1px solid var(--g200);
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:var(--sh);
-}
-.info-tbl td{padding:17px 18px}
-.sol-sec{
-  background:
-    radial-gradient(1200px 420px at 80% -40%,rgba(59,130,246,.28),transparent 62%),
-    linear-gradient(160deg,#071127 0%,#0e1d3f 52%,#0a1734 100%);
-}
-.showcase,.dc,.fv,.hero-img,.ct-box,.mt-card,.cl-card{
-  border-radius:24px;
-}
-.showcase .sh-txt{position:relative}
-.sh-img,.fv,.hero-img{
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:var(--shl);
-}
-.dc{
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.16);
-  box-shadow:0 20px 50px rgba(3,10,25,.22);
-}
-.dc-body{padding:30px}
-.feat{position:relative}
-.feat::before{
-  content:'';position:absolute;left:0;right:0;top:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(15,23,42,.12),transparent);
-}
-.record{
-  background:
-    radial-gradient(circle at 10% 10%,rgba(59,130,246,.24) 0,transparent 36%),
-    linear-gradient(165deg,#08112a 0%,#0a1634 56%,#08122b 100%);
-}
-.tl-item{padding-bottom:56px}
-.clients{
-  background:
-    linear-gradient(to bottom,#f7f9ff 0%,#f5f8ff 100%);
-}
-.cl-card{
-  border:1px solid rgba(148,163,184,.25);
-  box-shadow:0 14px 38px rgba(15,23,42,.08);
-}
-.cl-card:hover{transform:translateY(-6px)}
-.metrics{background:#fff}
-.mt-card{
-  border:1px solid rgba(255,255,255,.16);
-  background:linear-gradient(150deg,#0e1a3a 0%,#11244e 56%,#0f2146 100%);
-}
-.contact{
-  background:
-    radial-gradient(circle at 88% 4%,rgba(34,211,238,.20) 0,transparent 34%),
-    linear-gradient(165deg,#0b142f 0%,#0f1d3d 58%,#0b1834 100%);
-}
-.ct-box{
-  border:1px solid rgba(148,163,184,.26);
-  box-shadow:0 24px 48px rgba(15,23,42,.18);
-}
-.ct-btn-m,.ct-btn-t,.btn-p,.btn-s,.gnb-cta{
-  transition:transform .26s, box-shadow .26s, background .26s, color .26s;
-}
-.ct-btn-m,.ct-btn-t{border-radius:999px}
-footer{
-  background:linear-gradient(180deg,#0b1631 0%,#091127 100%);
-}
-@media(max-width:1024px){
-  .hero{padding-top:136px}
-  .about-grid,.showcase,.feat-grid,.ct-grid{gap:44px}
+@media(max-width:960px){
+  .gnb-nav{display:none}
+  .gnb-cta{display:none}
+  .gnb-hamburger{display:flex}
+  .hero-grid{grid-template-columns:1fr}
+  .hero-img{display:none}
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+  .about-grid{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr}
+  .feat-grid.rev{direction:ltr}
+  .showcase{grid-template-columns:1fr}
+  .showcase.rev{direction:ltr}
+  .dark-cards{grid-template-columns:1fr}
+  .cl-grid{grid-template-columns:repeat(3,1fr)}
+  .ct-grid{grid-template-columns:1fr}
+  .feat-sum-grid{grid-template-columns:1fr}
+  .feat-strat-grid{grid-template-columns:1fr}
+  .fv{aspect-ratio:16/9}
+  .sh-img{aspect-ratio:16/9}
 }
 @media(max-width:640px){
-  .hero{padding:128px 20px 72px}
-  .sec{padding:72px 20px}
-  .hero-stats{gap:14px;padding:18px 14px}
-  .stat-num{font-size:34px}
-  .ct-btn-m,.ct-btn-t,.btn-p,.btn-s{width:100%;justify-content:center}
+  .gnb-inner{padding:0 24px}
+  .hero-inner,.sec-in,.ft-inner,.pia-cta{padding-left:24px;padding-right:24px}
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+  .cl-grid{grid-template-columns:repeat(2,1fr)}
+  .feat-strat-grid{grid-template-columns:1fr 1fr}
+  .tl::before{left:0}
+  .tl-item{flex-direction:column;gap:8px}
+  .tl-year{text-align:left;min-width:unset}
+  .tl-item::after{display:none}
 }
-@media(prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-}
-
-/* ===== LAYOUT & TYPOGRAPHY REFINEMENTS ===== */
-
-/* Hero: image column wider on desktop for visual balance */
-@media(min-width:961px){
-  .hero-grid{grid-template-columns:1fr 1.2fr}
-}
-/* Hero image: consistent display */
-.hero-img{aspect-ratio:16/11}
-.hero-img img{height:100%;object-fit:cover}
-
-/* About: right column (dense table) gets proportional room */
-@media(min-width:861px){
-  .about-grid{grid-template-columns:1fr 1.4fr}
-}
-
-/* About left column: stat highlight badges */
-.about-hi{display:flex;flex-direction:column;gap:14px;margin-top:36px}
-.about-hi-item{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--off);border-radius:14px;border:1px solid var(--g200)}
-.about-hi-num{font-size:30px;font-weight:900;color:var(--blue);letter-spacing:-.04em;min-width:52px;line-height:1}
-.about-hi-txt strong{display:block;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px}
-.about-hi-txt span{font-size:12px;color:var(--g600)}
-
-/* Showcase images: consistent 4:3 aspect ratio (desktop) */
-.sh-img{aspect-ratio:4/3}
-.sh-img img{height:100%;object-fit:cover}
-@media(max-width:960px){.sh-img{aspect-ratio:16/9}}
-
-/* Feature block images: consistent 4:3 */
-.fv{aspect-ratio:4/3}
-.fv img{height:100%;object-fit:cover}
-@media(max-width:960px){.fv{aspect-ratio:16/9}}
-@media(max-width:640px){.fv{aspect-ratio:3/2}}
-
-/* Sol 04 signage: dark background matching card theme */
-.dc-contain .dc-img{background:#0c1a35}
-.dc-contain .dc-img img{background:transparent}
-
-/* Typography refinements */
-.sh-h3{font-size:clamp(22px,2.5vw,32px)}
-.feat-list li{font-size:15px}
-
 </style>
 </head>
 <body>
@@ -681,7 +903,6 @@ footer{
 <header class="gnb" id="gnb">
   <div class="gnb-inner">
     <a href="#" class="gnb-logo">
-      <!-- 투명 PNG: 오렌지+블랙 원본 색상 그대로 -->
       <img src="images/logo_h_white.png" alt="㈜예담정보통신 YEDAM">
     </a>
     <ul class="gnb-nav">
@@ -691,10 +912,9 @@ footer{
       <li><a href="#record">수행실적</a></li>
       <li><a href="#clients">고객사</a></li>
       <li><a href="#contact">문의</a></li>
-      <li><a href="ai-pia.html" style="color:#60a5fa;font-weight:700">🧠 AI PIA 체험</a></li>
+      <li><a href="ai-pia.html" style="color:#a78bfa;font-weight:700">🧠 AI PIA 체험</a></li>
     </ul>
-    <a href="ai-pia.html" class="gnb-cta" style="background:#7c3aed">🧠 AI PIA 체험</a>
-    <!-- 햄버거 버튼 (모바일) -->
+    <a href="ai-pia.html" class="gnb-cta">🧠 AI PIA 체험</a>
     <button class="gnb-hamburger" id="hamburger" aria-label="메뉴">
       <span></span><span></span><span></span>
     </button>
@@ -716,13 +936,16 @@ footer{
 
 <!-- ══ HERO ══ -->
 <section class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
   <div class="hero-inner">
     <div class="hero-grid">
       <div>
         <div class="hero-kicker rv">
           <span class="kicker-dot"></span>AI EduTech · 교육 IT 전문기업
         </div>
-        <h1 class="rv">
+        <h1 class="hero-h1 rv">
           교육의 다음을<br><span class="hl">함께 설계</span>합니다.
         </h1>
         <p class="hero-desc rv">
@@ -733,21 +956,31 @@ footer{
           <a href="#contact" class="btn-s">프로젝트 문의</a>
         </div>
         <div class="hero-stats rv">
-          <div><div class="stat-num">11<span>년</span></div><div class="stat-lbl">업력 · 2014년 설립</div></div>
-          <div><div class="stat-num">15<span>+</span></div><div class="stat-lbl">주요 수행 프로젝트</div></div>
-          <div><div class="stat-num">9<span>년</span></div><div class="stat-lbl">비상교육 파트너십</div></div>
-          <div><div class="stat-num">25<span>%</span></div><div class="stat-lbl">영업이익률 (2020)</div></div>
+          <div>
+            <div class="stat-num">11<span>년</span></div>
+            <div class="stat-lbl">업력 · 2014년 설립</div>
+          </div>
+          <div>
+            <div class="stat-num">15<span>+</span></div>
+            <div class="stat-lbl">주요 수행 프로젝트</div>
+          </div>
+          <div>
+            <div class="stat-num">9<span>년</span></div>
+            <div class="stat-lbl">비상교육 파트너십</div>
+          </div>
+          <div>
+            <div class="stat-num">25<span>%</span></div>
+            <div class="stat-lbl">영업이익률 (2020)</div>
+          </div>
         </div>
       </div>
       <div class="hero-img rv d2">
-        <img loading="lazy" src="images/hero_masterplan.jpg" alt="차세대 AI 스마트 학교 마스터플랜 — Mind · Space · Body 통합 비전">
+        <img loading="lazy" src="images/hero_masterplan.jpg" alt="차세대 AI 스마트 학교 마스터플랜">
         <div class="hero-img-cap">차세대 AI 스마트 학교 통합 마스터플랜 — Mind · Space · Body</div>
       </div>
     </div>
   </div>
 </section>
-
-<div class="divider"></div>
 
 <!-- ══ ABOUT ══ -->
 <section class="sec about" id="about">
@@ -758,9 +991,18 @@ footer{
         <h2 class="title">신뢰의 11년,<br><span class="em">혁신의 다음.</span></h2>
         <p class="desc">교육과 공공의 디지털 전환을 가장 가까이에서 지원하는 IT 파트너.</p>
         <div class="about-hi">
-          <div class="about-hi-item"><span class="about-hi-num">11</span><div class="about-hi-txt"><strong>년 사업 이력</strong><span>2014년 설립 · 정보시스템 전문기업</span></div></div>
-          <div class="about-hi-item"><span class="about-hi-num">9</span><div class="about-hi-txt"><strong>년 파트너십</strong><span>비상교육 핵심 서비스 연속 수행</span></div></div>
-          <div class="about-hi-item"><span class="about-hi-num">4</span><div class="about-hi-txt"><strong>대 신규 솔루션</strong><span>AI · IoT · 실감형 기술 융합</span></div></div>
+          <div class="about-hi-item">
+            <span class="about-hi-num">11</span>
+            <div class="about-hi-txt"><strong>년 사업 이력</strong><span>2014년 설립 · 정보시스템 전문기업</span></div>
+          </div>
+          <div class="about-hi-item">
+            <span class="about-hi-num">9</span>
+            <div class="about-hi-txt"><strong>년 파트너십</strong><span>비상교육 핵심 서비스 연속 수행</span></div>
+          </div>
+          <div class="about-hi-item">
+            <span class="about-hi-num">4</span>
+            <div class="about-hi-txt"><strong>대 신규 솔루션</strong><span>AI · IoT · 실감형 기술 융합</span></div>
+          </div>
         </div>
       </div>
       <div class="rv d1">
@@ -780,22 +1022,19 @@ footer{
   </div>
 </section>
 
-<div class="divider"></div>
-
 <!-- ══ SOLUTIONS ══ -->
 <section class="sec sol-sec" id="solutions">
   <div class="sec-in">
     <div class="rv">
       <div class="sol-kicker">Our Solutions</div>
-      <h2 class="sol-title">차세대 교육을 설계하는<br><span style="color:#60a5fa">4대 핵심 솔루션.</span></h2>
+      <h2 class="sol-title">차세대 교육을 설계하는<br><span style="background:linear-gradient(135deg,#60a5fa,#4d9fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">4대 핵심 솔루션.</span></h2>
       <p class="sol-desc">Mind · Space · Body · City — 학생을 둘러싼 네 가지 차원을 데이터와 AI로 연결합니다.</p>
     </div>
 
     <!-- Sol 01: AI PIA -->
     <div class="showcase rv">
       <div class="sh-img">
-        <img loading="lazy" src="images/sol1_pia_ecosystem.jpg"
-             alt="AI PIA 5단계 반복형 성장관리 플랫폼 — Engage · Diagnose · Educate · Support · Manage">
+        <img loading="lazy" src="images/sol1_pia_ecosystem.jpg" alt="AI PIA 5단계 반복형 성장관리 플랫폼">
       </div>
       <div class="sh-txt">
         <div class="sh-tag">01 · MIND · GROWTH PLATFORM</div>
@@ -812,7 +1051,7 @@ footer{
 
     <div class="sol-divider"></div>
 
-    <!-- Sol 02: AI ClassBoard (이미지 오른쪽) -->
+    <!-- Sol 02: Smart Schoolboard -->
     <div class="showcase rev rv">
       <div class="sh-txt">
         <div class="sh-tag">02 · SPACE · CLASSROOM OS</div>
@@ -826,53 +1065,47 @@ footer{
         </ul>
       </div>
       <div class="sh-img">
-        <img loading="lazy" src="images/sol2_classboard_tworoom.jpg"
-             alt="AI ClassBoard — 하나의 플랫폼, 두 개의 스마트 공간 (교실용 후면칠판 + 교무실 디지털 공문 게시판)">
+        <img loading="lazy" src="images/sol2_classboard_tworoom.jpg" alt="AI ClassBoard — 하나의 플랫폼, 두 개의 스마트 공간">
       </div>
     </div>
 
     <div class="sol-divider"></div>
 
-    <!-- Sol 03 & 04: 다크 카드 2열 -->
+    <!-- Sol 03 & 04 -->
     <div class="rv">
       <div class="sol-kicker" style="color:#fbbf24">Solution 03 &amp; 04</div>
-      <h3 style="color:#fff;font-size:clamp(22px,3vw,36px);font-weight:800;letter-spacing:-.03em;margin-bottom:40px">
-        학교를 넘어 도시 인프라까지 —<br><span style="color:#60a5fa">스마트 시설 솔루션.</span>
+      <h3 style="color:#fff;font-size:clamp(22px,3vw,36px);font-weight:900;letter-spacing:-.04em;margin-bottom:40px;line-height:1.15">
+        학교를 넘어 도시 인프라까지 —<br><span style="background:linear-gradient(135deg,#60a5fa,#4d9fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">스마트 시설 솔루션.</span>
       </h3>
     </div>
     <div class="dark-cards rv">
-      <!-- 03 AREX -->
       <div class="dc">
         <div class="dc-img">
-          <img loading="lazy" src="images/sol3_arex_detail.jpg"
-               alt="AREX-Climbing — AR/VR 실내 암벽등반 + PGMS 체육교육관리시스템 융합 솔루션 (Pillar 3)">
+          <img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AREX-Climbing">
         </div>
         <div class="dc-body">
           <div class="dc-lbl">03 · BODY · IMMERSIVE PE</div>
           <div class="dc-title">🧗 AREX CLIMB<br>실감형 체육 솔루션</div>
-          <p class="dc-desc">IT 기술이 접목된 안전한 미래형 체육 교육 — AR/VR 게임과 AI 기반 PGMS(체육교육관리시스템)이 융합된 실내 암벽등반 솔루션. 5m×3m 공암벽에 Blended Learning 콘텐츠를 결합합니다.</p>
+          <p class="dc-desc">IT 기술이 접목된 안전한 미래형 체육 교육 — AR/VR 게임과 AI 기반 PGMS(체육교육관리시스템)이 융합된 실내 암벽등반 솔루션.</p>
           <div class="dc-tags">
             <span class="tg-d">AR/VR</span><span class="tg-d">PGMS</span><span class="tg-d">실내체육</span><span class="tg-d">데이터화</span>
           </div>
         </div>
       </div>
-      <!-- 04 디지털간판 -->
       <div class="dc dc-contain">
         <div class="dc-img">
-          <img loading="lazy" src="images/sol4_signage_new.jpg"
-               alt="AI 디지털 간판 플랫폼 — 건물 공지·광고 디지털화, 입주사 수익 창출">
+          <img loading="lazy" src="images/sol4_signage_new.jpg" alt="AI 디지털 간판 플랫폼">
         </div>
         <div class="dc-body">
           <div class="dc-lbl">04 · CITY · SMART SIGNAGE</div>
           <div class="dc-title">AI 디지털 간판<br>플랫폼</div>
-          <p class="dc-desc">종이 게시판을 대체하여 건물 공지·광고를 디지털화하고, AI 광고 제작·QR 상담·입주사 광고 수익 모델을 제공하는 스마트 시설 솔루션. 지식산업센터·공공시설관리공단 특화.</p>
+          <p class="dc-desc">종이 게시판을 대체하여 건물 공지·광고를 디지털화하고, AI 광고 제작·QR 상담·입주사 광고 수익 모델을 제공하는 스마트 시설 솔루션.</p>
           <div class="dc-tags">
             <span class="tg-d">AI광고</span><span class="tg-d">시설관리</span><span class="tg-d">수익화</span><span class="tg-d">B2B/B2G</span>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </section>
 
@@ -881,7 +1114,7 @@ footer{
   <div class="sec-in">
     <div class="feat-grid rv">
       <div class="fv">
-        <img loading="lazy" src="images/infra_3pillar.jpg" alt="미래 교육을 완성하는 3대 디지털 전환 인프라 — Mind · Space · Body">
+        <img loading="lazy" src="images/infra_3pillar.jpg" alt="미래 교육을 완성하는 3대 디지털 전환 인프라">
       </div>
       <div class="ft">
         <div class="kicker">Integrated Vision</div>
@@ -902,7 +1135,7 @@ footer{
   <div class="sec-in">
     <div class="feat-grid rev rv">
       <div class="fv">
-        <img loading="lazy" src="images/biz_4solutions.jpg" alt="AI 기반 교육 통합 플랫폼 4대 핵심 비즈니스 솔루션 — 3년 매출 로드맵">
+        <img loading="lazy" src="images/biz_4solutions.jpg" alt="AI 기반 교육 통합 플랫폼 4대 핵심 비즈니스 솔루션">
       </div>
       <div class="ft">
         <div class="kicker">Business Model</div>
@@ -920,22 +1153,20 @@ footer{
 </section>
 
 <!-- ══ DETAIL SOLUTIONS HEADER ══ -->
-<section class="sec" style="background:var(--navy);padding-bottom:0" id="detail-solutions">
-  <div class="sec-in">
-    <div class="rv" style="text-align:center;padding-bottom:80px">
-      <div style="font-size:12px;font-weight:700;color:#60a5fa;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px">Solution Detail</div>
-      <h2 style="font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-.03em;line-height:1.15;color:#fff;margin-bottom:20px">
-        3대 핵심 솔루션 <span style="color:#60a5fa">심층 비전</span>
-      </h2>
-      <p style="font-size:17px;color:rgba(255,255,255,.6);line-height:1.75;max-width:640px;margin:0 auto;font-weight:300">
-        AI 디지털 간판·AREX-Climbing, 차세대 스마트 스쿨, AI 영유아 플랫폼 — 각 솔루션의 핵심 기능과 시장 전략을 상세히 확인하세요.
-      </p>
-    </div>
+<section class="detail-hdr" id="detail-solutions">
+  <div class="sec-in rv" style="text-align:center">
+    <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;margin-bottom:20px">Solution Detail</div>
+    <h2 style="font-size:clamp(30px,4.5vw,52px);font-weight:900;letter-spacing:-.04em;line-height:1.1;color:#fff;margin-bottom:20px">
+      3대 핵심 솔루션 <span class="em">심층 비전</span>
+    </h2>
+    <p style="font-size:17px;color:rgba(255,255,255,.5);line-height:1.85;max-width:640px;margin:0 auto;font-weight:300">
+      AI 디지털 간판·AREX-Climbing, 차세대 스마트 스쿨, AI 영유아 플랫폼 — 각 솔루션의 핵심 기능과 시장 전략을 상세히 확인하세요.
+    </p>
   </div>
 </section>
 
-<!-- ══ DETAIL A: 통합 스마트 시설 솔루션 (AI 디지털 간판 + AREX-Climbing) ══ -->
-<section class="sec feat" id="signage-arex" style="background:var(--off)">
+<!-- ══ DETAIL A: 통합 스마트 시설 솔루션 ══ -->
+<section class="sec feat" id="signage-arex" style="background:var(--ink2)">
   <div class="sec-in">
     <div class="feat-grid rv">
       <div class="fv">
@@ -946,7 +1177,7 @@ footer{
         <h2 class="title">AI 디지털 간판 &amp; AREX-Climbing<br><span class="em">통합 스마트 시설 솔루션</span></h2>
         <p class="desc">건물의 공지·광고를 디지털화하는 AI 디지털 간판과 데이터 기반 AREX-Climbing 실감형 체육을 결합하여 운영 효율을 높이고 새로운 수익을 창출합니다.</p>
         <ul class="feat-list">
-          <li><span class="d"></span><div><strong>AI 디지털 간판:</strong> 공지·광고 송출, AI 광고 제작, QR 상담으로 종이 게시판을 대체. 입주사 광고 수익·시설관리 업무 경감 동시 달성.</div></li>
+          <li><span class="d"></span><div><strong>AI 디지털 간판:</strong> 공지·광고 송출, AI 광고 제작, QR 상담으로 종이 게시판을 대체.</div></li>
           <li><span class="d"></span><div><strong>AREX-Climbing:</strong> AR/VR 게임 + PGMS 체육 관리 + 키오스크. 체육 활동 데이터화로 학생 체력 관리 및 참여도 향상.</div></li>
           <li><span class="d"></span><div><strong>타깃별 도입 패키지:</strong> 지식산업센터 수익형 모델부터 시설관리공단·공공시설형까지 현장 최적화 구성 제안.</div></li>
           <li><span class="d"></span><div><strong>정부 예산 연계:</strong> 스마트그린산단, 소상공인 스마트상점, 둔체부 체육 예산 등 다양한 국비 지원 활용 가능.</div></li>
@@ -954,43 +1185,30 @@ footer{
         </ul>
       </div>
     </div>
-    <!-- 핵심 기능 요약 카드 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px" class="rv feat-sum-grid">
-      <div style="background:#fff;border:1px solid var(--g200);border-radius:var(--rl);padding:32px;box-shadow:var(--sh)">
-        <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">AI 디지털 간판</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div style="background:var(--off);border-radius:10px;overflow:hidden">
-            <img loading="lazy" src="images/sol_signage_arex.jpg" style="width:100%;height:110px;object-fit:contain;background:#f8f9fb;display:block">
-            <div style="padding:12px 14px">
-              <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px">공지·광고 송출</div>
-              <div style="font-size:11px;color:var(--g600)">AI 광고 제작 · QR 상담</div>
-            </div>
+    <div class="feat-sum-grid rv">
+      <div class="feat-sum-card">
+        <div class="feat-sum-card-label" style="color:var(--electric)">AI 디지털 간판</div>
+        <div class="feat-sum-inner">
+          <div class="feat-sum-item">
+            <img loading="lazy" src="images/sol_signage_arex.jpg" style="object-fit:contain;background:rgba(255,255,255,.04)">
+            <div class="feat-sum-item-txt"><strong>공지·광고 송출</strong><span>AI 광고 제작 · QR 상담</span></div>
           </div>
-          <div style="background:var(--off);border-radius:10px;overflow:hidden">
-            <img loading="lazy" src="images/biz_4solutions.jpg" style="width:100%;height:110px;object-fit:cover;display:block">
-            <div style="padding:12px 14px">
-              <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px">광고 수익 창출</div>
-              <div style="font-size:11px;color:var(--g600)">시설관리 업무 경감</div>
-            </div>
+          <div class="feat-sum-item">
+            <img loading="lazy" src="images/biz_4solutions.jpg" style="object-fit:cover">
+            <div class="feat-sum-item-txt"><strong>광고 수익 창출</strong><span>시설관리 업무 경감</span></div>
           </div>
         </div>
       </div>
-      <div style="background:#fff;border:1px solid var(--g200);border-radius:var(--rl);padding:32px;box-shadow:var(--sh)">
-        <div style="font-size:11px;font-weight:700;color:#f59e0b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">AREX-Climbing</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div style="background:var(--off);border-radius:10px;overflow:hidden">
-            <img loading="lazy" src="images/sol3_arex_detail.jpg" style="width:100%;height:110px;object-fit:cover;display:block">
-            <div style="padding:12px 14px">
-              <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px">AR/VR 게임</div>
-              <div style="font-size:11px;color:var(--g600)">PGMS 체육 관리</div>
-            </div>
+      <div class="feat-sum-card">
+        <div class="feat-sum-card-label" style="color:var(--gold2)">AREX-Climbing</div>
+        <div class="feat-sum-inner">
+          <div class="feat-sum-item">
+            <img loading="lazy" src="images/sol3_arex_detail.jpg" style="object-fit:cover">
+            <div class="feat-sum-item-txt"><strong>AR/VR 게임</strong><span>PGMS 체육 관리</span></div>
           </div>
-          <div style="background:var(--off);border-radius:10px;overflow:hidden">
-            <img loading="lazy" src="images/infra_3pillar.jpg" style="width:100%;height:110px;object-fit:cover;display:block">
-            <div style="padding:12px 14px">
-              <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px">체육 데이터화</div>
-              <div style="font-size:11px;color:var(--g600)">참여도 향상</div>
-            </div>
+          <div class="feat-sum-item">
+            <img loading="lazy" src="images/infra_3pillar.jpg" style="object-fit:cover">
+            <div class="feat-sum-item-txt"><strong>체육 데이터화</strong><span>참여도 향상</span></div>
           </div>
         </div>
       </div>
@@ -998,49 +1216,48 @@ footer{
   </div>
 </section>
 
-<!-- ══ DETAIL B: 차세대 스마트 스쿨 통합 솔루션 ══ -->
+<!-- ══ DETAIL B: 차세대 스마트 스쿨 ══ -->
 <section class="sec feat" id="smart-school">
   <div class="sec-in">
     <div class="feat-grid rev rv">
       <div class="fv">
-        <img loading="lazy" src="images/sol_classboard_strategy.jpg" alt="차세대 스마트 스쿨 통합 솔루션 — AI PIA · Smart Schoolboard · AREX CLIMB">
+        <img loading="lazy" src="images/sol_classboard_strategy.jpg" alt="차세대 스마트 스쿨 통합 솔루션">
       </div>
       <div class="ft">
         <div class="kicker">Smart School · AI PIA &amp; Schoolboard &amp; AREX</div>
         <h2 class="title">데이터와 AI로 완성하는<br><span class="em">미래형 학교</span></h2>
         <p class="desc">학교의 성장 관리, 행정 효율화, 실감형 체육 교육을 아우르는 차세대 에듀테크 통합 생태계.</p>
         <ul class="feat-list">
-          <li><span class="d"></span><div><strong>AI PIA — 5단계 성장 생태계:</strong> 흥미 유발(Interest) → 심층 진단(Deep Diagnosis) → 맞춤 교육 → 현장 지원 → 데이터 관리의 반복 선순환.</div></li>
-          <li><span class="d"></span><div><strong>Smart Schoolboard — 행정 누락 제로(Zero)화:</strong> AI가 공문 요약·마감일 자동 추출하여 교무실 업무 호율 극대화. 아날로그 게시판의 디지털 창작·소통 공간화.</div></li>
-          <li><span class="d"></span><div><strong>맞춤형 교육 패키지 자동 매핑:</strong> 16가지 유형으로 분류한 전단 결과와 창의·논리·공감·실전 최적화 솔루션 자동 연결.</div></li>
-          <li><span class="d"></span><div><strong>AREX CLIMB — 친환경 실감형 체육:</strong> 100% 자작나무 및 친환경 시공. 유매플칠 없는 소머락 안전 매트. AR/VR 융합 게임 콘텐츠로 자발적 참여 유도.</div></li>
+          <li><span class="d"></span><div><strong>AI PIA — 5단계 성장 생태계:</strong> 흥미 유발 → 심층 진단 → 맞춤 교육 → 현장 지원 → 데이터 관리의 반복 선순환.</div></li>
+          <li><span class="d"></span><div><strong>Smart Schoolboard — 행정 누락 제로(Zero)화:</strong> AI가 공문 요약·마감일 자동 추출하여 교무실 업무 효율 극대화.</div></li>
+          <li><span class="d"></span><div><strong>맞춤형 교육 패키지 자동 매핑:</strong> 16가지 유형 분류 결과와 창의·논리·공감·실전 최적화 솔루션 자동 연결.</div></li>
+          <li><span class="d"></span><div><strong>AREX CLIMB — 친환경 실감형 체육:</strong> 100% 자작나무 및 친환경 시공. AR/VR 융합 게임 콘텐츠로 자발적 참여 유도.</div></li>
           <li><span class="d"></span><div><strong>AI 기반 PGMS 연계:</strong> 체육 교육 관리 시스템으로 개인별 활동 데이터를 체계적으로 기록·관리.</div></li>
         </ul>
       </div>
     </div>
-    <!-- 블루오션 전략 3개 솔루션 -->
     <div style="margin-top:56px" class="rv">
-      <div style="font-size:13px;font-weight:700;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px;text-align:center">핵심 솔루션 '블루오션' 전략 가치 제안</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" class="feat-strat-grid">
-        <div style="background:var(--navy);color:#fff;border-radius:var(--rl);overflow:hidden">
-          <img loading="lazy" src="images/sol_pia_hero.jpg" style="width:100%;height:140px;object-fit:cover;display:block">
-          <div style="padding:20px 22px">
-            <div style="font-size:15px;font-weight:700;margin-bottom:8px">AI PIA</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.65">밀착형 성장 진단 및 반응형 상담 지원</div>
+      <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px;text-align:center">핵심 솔루션 · 블루오션 전략 가치 제안</div>
+      <div class="feat-strat-grid">
+        <div class="strat-card">
+          <img loading="lazy" src="images/sol_pia_hero.jpg">
+          <div class="strat-card-body">
+            <div class="strat-card-title">AI PIA</div>
+            <div class="strat-card-desc">밀착형 성장 진단 및 반응형 상담 지원</div>
           </div>
         </div>
-        <div style="background:var(--navy);color:#fff;border-radius:var(--rl);overflow:hidden">
-          <img loading="lazy" src="images/sol_classboard_hero.jpg" style="width:100%;height:140px;object-fit:cover;display:block">
-          <div style="padding:20px 22px">
-            <div style="font-size:15px;font-weight:700;margin-bottom:8px">Smart Schoolboard</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.65">아날로그 게시판의 디지털 창작·소통 공간화</div>
+        <div class="strat-card">
+          <img loading="lazy" src="images/sol_classboard_hero.jpg">
+          <div class="strat-card-body">
+            <div class="strat-card-title">Smart Schoolboard</div>
+            <div class="strat-card-desc">아날로그 게시판의 디지털 창작·소통 공간화</div>
           </div>
         </div>
-        <div style="background:var(--navy);color:#fff;border-radius:var(--rl);overflow:hidden">
-          <img loading="lazy" src="images/sol3_arex_detail.jpg" style="width:100%;height:140px;object-fit:cover;display:block">
-          <div style="padding:20px 22px">
-            <div style="font-size:15px;font-weight:700;margin-bottom:8px">AREX CLIMB</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.65">IT 기술이 접목된 안전한 미래형 체육 교육</div>
+        <div class="strat-card">
+          <img loading="lazy" src="images/sol3_arex_detail.jpg">
+          <div class="strat-card-body">
+            <div class="strat-card-title">AREX CLIMB</div>
+            <div class="strat-card-desc">IT 기술이 접목된 안전한 미래형 체육 교육</div>
           </div>
         </div>
       </div>
@@ -1048,35 +1265,35 @@ footer{
   </div>
 </section>
 
-<!-- ══ DETAIL C: AI 영유아 성장·놀이·소통 플랫폼 ══ -->
+<!-- ══ DETAIL C: AI 영유아 플랫폼 ══ -->
 <section class="sec feat alt" id="infant-platform">
   <div class="sec-in">
     <div class="feat-grid rv">
       <div class="fv">
-        <img loading="lazy" src="images/sol_pia_hero.jpg" alt="AI 영유아 성장·놀이·소통 플랫폼 — 전국 3.5만 개소 대상">
+        <img loading="lazy" src="images/sol_pia_hero.jpg" alt="AI 영유아 성장·놀이·소통 플랫폼">
       </div>
       <div class="ft">
         <div class="kicker">AI Kids Platform · 영유아 성장</div>
         <h2 class="title">AI 영유아<br><span class="em">성장·놀이·소통</span> 플랫폼</h2>
         <p class="desc">'학습' 중심에서 '놀이와 성장' 중심으로 — 전국 3.5만 개소 어린이집·유치원 대상 확산형 구독 플랫폼.</p>
         <ul class="feat-list">
-          <li><span class="d"></span><div><strong>전국 3.5만 개소 시장:</strong> 어린이집 27,402개소(아동 943,681명) + 유치원 8,140개소(아동 약 480,000명) — 방대한 기관 수 기반 사업 확장에 최적.</div></li>
+          <li><span class="d"></span><div><strong>전국 3.5만 개소 시장:</strong> 어린이집 27,402개소(아동 943,681명) + 유치원 8,140개소(아동 약 480,000명)</div></li>
           <li><span class="d"></span><div><strong>맞춤형 AI 그림책·놀이/감정 카드:</strong> 자연, 친구, 안전, 감정 등 영유아 필수 주제를 AI 콘텐츠로 제공하여 생활습관 형성.</div></li>
-          <li><span class="d"></span><div><strong>AI Kids Growth Platform:</strong> 아이의 놀이 활동·작품·정서 표현을 쉽고 안전하게 기록·공유. 놀이 활동 기록 → 작품 공유 → 정서 표현 분석 연동.</div></li>
+          <li><span class="d"></span><div><strong>AI Kids Growth Platform:</strong> 아이의 놀이 활동·작품·정서 표현을 쉽고 안전하게 기록·공유.</div></li>
           <li><span class="d"></span><div><strong>AI 키오스크 소통 체계:</strong> 등·하원 정보 확인, 사진 업로드, 가정 연계 놀이 신청 등 교사↔학부모 실시간 소통 지원.</div></li>
         </ul>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px" class="rv feat-sum-grid">
-      <div style="background:var(--navy);color:#fff;border-radius:var(--rl);padding:36px;">
-        <div style="font-size:12px;font-weight:700;color:#60a5fa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">전국 어린이집</div>
-        <div style="font-size:48px;font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:8px">27,402<span style="font-size:.4em;color:#60a5fa;font-weight:700">개소</span></div>
-        <div style="font-size:14px;color:rgba(255,255,255,.55)">아동 수 943,681명</div>
+      <div style="background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.25);border-radius:24px;padding:40px;">
+        <div style="font-size:11px;font-weight:700;color:var(--electric);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">전국 어린이집</div>
+        <div style="font-size:56px;font-weight:900;letter-spacing:-.05em;line-height:1;margin-bottom:10px;color:#fff">27,402<span style="font-size:.38em;color:var(--electric);font-weight:700">개소</span></div>
+        <div style="font-size:14px;color:rgba(255,255,255,.45);font-weight:300">아동 수 943,681명</div>
       </div>
-      <div style="background:var(--navy);color:#fff;border-radius:var(--rl);padding:36px;">
-        <div style="font-size:12px;font-weight:700;color:#fbbf24;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">전국 유치원</div>
-        <div style="font-size:48px;font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:8px">8,140<span style="font-size:.4em;color:#fbbf24;font-weight:700">개소</span></div>
-        <div style="font-size:14px;color:rgba(255,255,255,.55)">아동 수 약 480,000명</div>
+      <div style="background:rgba(201,162,39,.08);border:1px solid rgba(201,162,39,.25);border-radius:24px;padding:40px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">전국 유치원</div>
+        <div style="font-size:56px;font-weight:900;letter-spacing:-.05em;line-height:1;margin-bottom:10px;color:#fff">8,140<span style="font-size:.38em;color:var(--gold);font-weight:700">개소</span></div>
+        <div style="font-size:14px;color:rgba(255,255,255,.45);font-weight:300">아동 수 약 480,000명</div>
       </div>
     </div>
   </div>
@@ -1087,7 +1304,7 @@ footer{
   <div class="sec-in">
     <div class="sec-head rv">
       <div class="kicker">Track Record</div>
-      <h2 class="title" style="color:#fff">검증된 11년의<br><span style="color:#60a5fa">수행 실적.</span></h2>
+      <h2 class="title">검증된 11년의<br><span class="em">수행 실적.</span></h2>
       <p class="desc">2016년 비상교육 RMS 시스템개편을 시작으로 핵심 서비스 9년 연속 수행. 공식 실적증명원 및 계약서로 확인된 대표 프로젝트입니다.</p>
     </div>
     <div class="tl rv">
@@ -1147,28 +1364,26 @@ footer{
       <p class="desc">단발성 거래가 아닌, 장기적 파트너십으로 이어진 교육·공공·민간 네트워크.</p>
     </div>
     <div class="cl-grid">
-      <a class="cl-card rv d1" href="https://www.visang.com" target="_blank" rel="noopener"><div class="cl-name">㈜비상교육</div><div class="cl-role">9-Year Partner</div></a>
-      <a class="cl-card rv d2" href="https://www.hyundai-ngv.com" target="_blank" rel="noopener"><div class="cl-name">현대NGV</div><div class="cl-role">Consortium</div></a>
-      <a class="cl-card rv d3" href="https://www.gg.go.kr" target="_blank" rel="noopener"><div class="cl-name">경기도청</div><div class="cl-role">Government</div></a>
-      <a class="cl-card rv d4" href="https://www.mnd.go.kr" target="_blank" rel="noopener"><div class="cl-name">국방부</div><div class="cl-role">Defense</div></a>
-      <a class="cl-card rv d1" href="https://www.ybm.co.kr" target="_blank" rel="noopener"><div class="cl-name">YBM</div><div class="cl-role">Education</div></a>
-      <a class="cl-card rv d2" href="https://www.spacekai.com" target="_blank" rel="noopener"><div class="cl-name">스페이스케이</div><div class="cl-role">Aerospace</div></a>
-      <a class="cl-card rv d3" href="https://www.ubion.co.kr" target="_blank" rel="noopener"><div class="cl-name">유비온</div><div class="cl-role">Edu Platform</div></a>
-      <a class="cl-card rv d4" href="https://www.npage.co.kr" target="_blank" rel="noopener"><div class="cl-name">엔페이지</div><div class="cl-role">Mobile Dev</div></a>
-      <a class="cl-card rv d1" href="https://www.tta.or.kr" target="_blank" rel="noopener"><div class="cl-name">정보통신기술협회</div><div class="cl-role">TTA · Certification</div></a>
-      <a class="cl-card rv d2" href="https://www.afa.ac.kr" target="_blank" rel="noopener"><div class="cl-name">공군사관학교</div><div class="cl-role">Defense · Academy</div></a>
+      <a class="cl-card rv" href="https://www.visang.com" target="_blank" rel="noopener"><div class="cl-name">㈜비상교육</div><div class="cl-role">9-Year Partner</div></a>
+      <a class="cl-card rv d1" href="https://www.hyundai-ngv.com" target="_blank" rel="noopener"><div class="cl-name">현대NGV</div><div class="cl-role">Consortium</div></a>
+      <a class="cl-card rv d2" href="https://www.gg.go.kr" target="_blank" rel="noopener"><div class="cl-name">경기도청</div><div class="cl-role">Government</div></a>
+      <a class="cl-card rv d3" href="https://www.mnd.go.kr" target="_blank" rel="noopener"><div class="cl-name">국방부</div><div class="cl-role">Defense</div></a>
+      <a class="cl-card rv" href="https://www.ybm.co.kr" target="_blank" rel="noopener"><div class="cl-name">YBM</div><div class="cl-role">Education</div></a>
+      <a class="cl-card rv d1" href="https://www.spacekai.com" target="_blank" rel="noopener"><div class="cl-name">스페이스케이</div><div class="cl-role">Aerospace</div></a>
+      <a class="cl-card rv d2" href="https://www.ubion.co.kr" target="_blank" rel="noopener"><div class="cl-name">유비온</div><div class="cl-role">Edu Platform</div></a>
+      <a class="cl-card rv d3" href="https://www.npage.co.kr" target="_blank" rel="noopener"><div class="cl-name">엔페이지</div><div class="cl-role">Mobile Dev</div></a>
+      <a class="cl-card rv" href="https://www.tta.or.kr" target="_blank" rel="noopener"><div class="cl-name">정보통신기술협회</div><div class="cl-role">TTA · Certification</div></a>
+      <a class="cl-card rv d1" href="https://www.afa.ac.kr" target="_blank" rel="noopener"><div class="cl-name">공군사관학교</div><div class="cl-role">Defense · Academy</div></a>
     </div>
   </div>
 </section>
-
-<!-- ══ METRICS ══ -->
 
 <!-- ══ CONTACT ══ -->
 <section class="sec contact" id="contact">
   <div class="sec-in">
     <div class="sec-head rv">
       <div class="kicker">Contact Us</div>
-      <h2 class="title">함께 만들 다음의<br><span style="color:#60a5fa">교육을 이야기합시다.</span></h2>
+      <h2 class="title">함께 만들 다음의<br><span class="em">교육을 이야기합시다.</span></h2>
     </div>
     <div class="ct-grid">
       <div class="rv">
@@ -1192,17 +1407,13 @@ footer{
 </section>
 
 <!-- ══ AI PIA CTA ══ -->
-<section style="background:linear-gradient(135deg,#1e0a3c 0%,#3b0764 50%,#1e1b4b 100%);padding:80px 40px;text-align:center;">
-  <div style="max-width:720px;margin:0 auto;">
-    <div style="display:inline-block;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.35);padding:6px 16px;border-radius:100px;font-size:12px;font-weight:700;color:#c4b5fd;letter-spacing:.08em;margin-bottom:24px;">🧠 AI PIA · 밀착형 성장 진단</div>
-    <h2 style="font-size:clamp(28px,4vw,48px);font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px;">지금 바로 AI PIA를<br>체험해보세요</h2>
-    <p style="font-size:clamp(14px,1.5vw,17px);color:rgba(255,255,255,.65);margin-bottom:40px;line-height:1.7;">Big5 성격 · RIASEC 흥미 · 강점 · 그릿 · 사회적 판단력<br>7가지 학습 검증 검사를 무료로 체험할 수 있습니다.</p>
-    <a href="ai-pia.html" style="display:inline-flex;align-items:center;gap:10px;background:#7c3aed;color:#fff;padding:18px 48px;border-radius:12px;font-size:17px;font-weight:700;text-decoration:none;box-shadow:0 8px 32px rgba(124,58,237,.45);transition:all .2s;"
-       onmouseover="this.style.background='#6d28d9';this.style.transform='translateY(-2px)'"
-       onmouseout="this.style.background='#7c3aed';this.style.transform='translateY(0)'">
-      🧠 AI PIA 체험 시작하기
-    </a>
-    <p style="margin-top:16px;font-size:13px;color:rgba(255,255,255,.4);">무료 · 회원가입 불필요 · 약 35분 소요</p>
+<section class="pia-cta">
+  <div class="pia-cta-inner rv">
+    <div class="pia-cta-badge">🧠 AI PIA · 밀착형 성장 진단</div>
+    <h2>지금 바로 AI PIA를<br>체험해보세요</h2>
+    <p>Big5 성격 · RIASEC 흥미 · 강점 · 그릿 · 사회적 판단력<br>7가지 학습 검증 검사를 무료로 체험할 수 있습니다.</p>
+    <a href="ai-pia.html" class="pia-btn">🧠 AI PIA 체험 시작하기</a>
+    <p class="pia-note">무료 · 회원가입 불필요 · 약 35분 소요</p>
   </div>
 </section>
 
@@ -1232,11 +1443,24 @@ footer{
 </div>
 
 <script>
+/* ── GNB 스크롤 ── */
+const gnb = document.getElementById('gnb');
+window.addEventListener('scroll', () => {
+  gnb.classList.toggle('scrolled', window.scrollY > 60);
+}, {passive:true});
+
+/* ── 스크롤 리빌 ── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); }
+  });
+}, {threshold:.12, rootMargin:'0px 0px -48px 0px'});
+document.querySelectorAll('.rv').forEach(el => observer.observe(el));
+
 /* ── 햄버거 메뉴 ── */
 const hamburger = document.getElementById('hamburger');
 const mobMenu   = document.getElementById('mobMenu');
 const mobLinks  = document.querySelectorAll('.mob-link');
-
 hamburger.addEventListener('click', () => {
   hamburger.classList.toggle('open');
   mobMenu.classList.toggle('open');
@@ -1258,42 +1482,18 @@ mobLinks.forEach(link => {
   const lbPrev  = document.getElementById('lb-prev');
   const lbNext  = document.getElementById('lb-next');
   const lbCtr   = document.getElementById('lb-counter');
-
-  // zoom-in 커서 이미지 모두 수집
-  const imgs = Array.from(document.querySelectorAll('.sh-img img, .fv img, .dc-img img, .hero-img img, .feat-sum-grid img, .feat-strat-grid img'));
+  const imgs = Array.from(document.querySelectorAll('.sh-img img,.fv img,.dc-img img,.hero-img img,.feat-sum-item img,.strat-card img'));
   let cur = 0;
-
-  function open(idx){
-    cur = idx;
-    lbImg.src = imgs[cur].src;
-    lbImg.alt = imgs[cur].alt;
-    lbCtr.textContent = (cur+1) + ' / ' + imgs.length;
-    lb.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function close(){
-    lb.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  function prev(){ open((cur - 1 + imgs.length) % imgs.length); }
-  function next(){ open((cur + 1) % imgs.length); }
-
-  imgs.forEach((img, i) => {
-    img.style.cursor = 'zoom-in';
-    img.addEventListener('click', () => open(i));
-  });
-
-  lbClose.addEventListener('click', close);
-  lb.addEventListener('click', e => { if(e.target === lb) close(); });
-  lbPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
-  lbNext.addEventListener('click', e => { e.stopPropagation(); next(); });
-
-  document.addEventListener('keydown', e => {
-    if(!lb.classList.contains('open')) return;
-    if(e.key === 'Escape') close();
-    if(e.key === 'ArrowLeft') prev();
-    if(e.key === 'ArrowRight') next();
-  });
+  function open(idx){ cur=idx; lbImg.src=imgs[cur].src; lbImg.alt=imgs[cur].alt; lbCtr.textContent=(cur+1)+' / '+imgs.length; lb.classList.add('open'); document.body.style.overflow='hidden'; }
+  function close(){ lb.classList.remove('open'); document.body.style.overflow=''; }
+  function prev(){ open((cur-1+imgs.length)%imgs.length); }
+  function next(){ open((cur+1)%imgs.length); }
+  imgs.forEach((img,i) => { img.style.cursor='zoom-in'; img.addEventListener('click',()=>open(i)); });
+  lbClose.addEventListener('click',close);
+  lb.addEventListener('click',e=>{ if(e.target===lb) close(); });
+  lbPrev.addEventListener('click',e=>{ e.stopPropagation(); prev(); });
+  lbNext.addEventListener('click',e=>{ e.stopPropagation(); next(); });
+  document.addEventListener('keydown',e=>{ if(!lb.classList.contains('open')) return; if(e.key==='Escape') close(); if(e.key==='ArrowLeft') prev(); if(e.key==='ArrowRight') next(); });
 })();
 
 /* ── 부드러운 스크롤 ── */
