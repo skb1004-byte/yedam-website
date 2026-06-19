@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -386,6 +386,16 @@ textarea.form-inp{resize:vertical;min-height:120px;font-family:var(--f)}
   .hero-stats{grid-template-columns:1fr 1fr}
   .cl-grid{grid-template-columns:1fr 1fr}
 }
+
+/* ═══════════ LANG TOGGLE ═══════════ */
+.lang-toggle{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:50px;padding:3px;margin-left:8px}
+.lang-btn{padding:5px 14px;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:.06em;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.45);transition:all .2s;font-family:var(--f)}
+.lang-btn.active{background:var(--gold);color:var(--ink)}
+.lang-btn:hover:not(.active){color:#fff}
+[data-lang="en"] .ko-text{display:none}
+[data-lang="en"] .en-text{display:inline}
+[data-lang="ko"] .ko-text{display:inline}
+[data-lang="ko"] .en-text{display:none}
 </style>
 <script type="application/ld+json">
 {
@@ -433,13 +443,17 @@ textarea.form-inp{resize:vertical;min-height:120px;font-family:var(--f)}
       <img src="images/logo_h_white.png" alt="예담정보통신 로고">
     </a>
     <ul class="gnb-nav">
-      <li><a href="#about">About</a></li>
-      <li><a href="#solutions">Solutions</a></li>
-      <li><a href="#record">실적</a></li>
-      <li><a href="#clients">파트너</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="#about"><span class="ko-text">회사소개</span><span class="en-text">About</span></a></li>
+      <li><a href="#solutions"><span class="ko-text">솔루션</span><span class="en-text">Solutions</span></a></li>
+      <li><a href="#record"><span class="ko-text">실적</span><span class="en-text">Record</span></a></li>
+      <li><a href="#clients"><span class="ko-text">파트너</span><span class="en-text">Partners</span></a></li>
+      <li><a href="#contact"><span class="ko-text">문의</span><span class="en-text">Contact</span></a></li>
     </ul>
-    <a href="ai-pia.html" class="gnb-cta" target="_blank">AI PIA 체험 →</a>
+    <a href="ai-pia.html" class="gnb-cta" target="_blank"><span class="ko-text">AI PIA 체험 →</span><span class="en-text">Try AI PIA →</span></a>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KR</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
     <button class="hamburger" id="hamburger" aria-label="메뉴">
       <span></span><span></span><span></span>
     </button>
@@ -468,36 +482,36 @@ textarea.form-inp{resize:vertical;min-height:120px;font-family:var(--f)}
     <div class="hero-grid">
       <div>
         <div class="hero-kicker rv">
-          <span class="kicker-dot"></span>AI EduTech · 교육 IT 전문기업
+          <span class="kicker-dot"></span><span class="ko-text">AI EduTech · 교육 IT 전문기업</span><span class="en-text">AI EduTech · Education IT Specialist</span>
         </div>
         <h1 class="hero-h1 rv d1">
-          교육의 다음을<br><span class="hl">함께 설계</span>합니다.
+          <span class="ko-text">교육의 다음을<br><span class="hl">함께 설계</span>합니다.</span><span class="en-text">Designing the<br><span class="hl">Future of Education.</span></span>
         </h1>
         <p class="hero-desc rv d2">
-          ㈜예담정보통신은 비상교육·현대NGV·국방부 등 국내 주요 교육·공공기관과 함께
+          <span class="ko-text">㈜예담정보통신은 비상교육·현대NGV·국방부 등 국내 주요 교육·공공기관과 함께
           11년간 핵심 IT 시스템을 구축해온 전문기업입니다. AI PIA, AI ClassBoard,
-          AREX-Climbing, AI 디지털 간판으로 차세대 에듀테크 시장을 열어갑니다.
+          AREX-Climbing, AI 디지털 간판으로 차세대 에듀테크 시장을 열어갑니다.</span><span class="en-text">Yedam IT has partnered with leading Korean education and public institutions including Visang, Hyundai NGV, and MND for 11 years. We are pioneering the next EdTech market with AI PIA, AI ClassBoard, AREX-Climbing, and AI Digital Signage.</span>
         </p>
         <div class="hero-btns rv d3">
-          <a href="#solutions" class="btn-p">솔루션 살펴보기 →</a>
-          <a href="#contact" class="btn-s">프로젝트 문의</a>
+          <a href="#solutions" class="btn-p"><span class="ko-text">솔루션 살펴보기 →</span><span class="en-text">View Solutions →</span></a>
+          <a href="#contact" class="btn-s"><span class="ko-text">프로젝트 문의</span><span class="en-text">Contact Us</span></a>
         </div>
         <div class="hero-stats rv d4">
           <div class="stat-item">
             <div class="stat-num"><span class="counter" data-target="11">0</span><span>년</span></div>
-            <div class="stat-lbl">업력 · 2014년 설립</div>
+            <div class="stat-lbl"><span class="ko-text">업력 · 2014년 설립</span><span class="en-text">Years · Est. 2014</span></div>
           </div>
           <div class="stat-item">
             <div class="stat-num"><span class="counter" data-target="15">0</span><span>+</span></div>
-            <div class="stat-lbl">주요 수행 프로젝트</div>
+            <div class="stat-lbl"><span class="ko-text">주요 수행 프로젝트</span><span class="en-text">Key Projects</span></div>
           </div>
           <div class="stat-item">
             <div class="stat-num"><span class="counter" data-target="9">0</span><span>년</span></div>
-            <div class="stat-lbl">비상교육 파트너십</div>
+            <div class="stat-lbl"><span class="ko-text">비상교육 파트너십</span><span class="en-text">Visang Partnership</span></div>
           </div>
           <div class="stat-item">
             <div class="stat-num"><span class="counter" data-target="25">0</span><span>%</span></div>
-            <div class="stat-lbl">영업이익률 (2020)</div>
+            <div class="stat-lbl"><span class="ko-text">영업이익률 (2020)</span><span class="en-text">Operating Margin (2020)</span></div>
           </div>
         </div>
       </div>
@@ -551,7 +565,7 @@ textarea.form-inp{resize:vertical;min-height:120px;font-family:var(--f)}
       <div>
         <div class="sec-num rv">01 — About</div>
         <div class="kicker rv">예담정보통신</div>
-        <h2 class="title rv d1">신뢰의 11년,<br><span class="em">혁신의 다음.</span></h2>
+        <h2 class="title rv d1"><span class="ko-text">신뢰의 11년,<br><span class="em">혁신의 다음.</span></span><span class="en-text">11 Years of Trust,<br><span class="em">The Next Innovation.</span></span></h2>
         <p class="desc rv d2">교육과 공공의 디지털 전환을 가장 가까이에서 지원하는 IT 파트너.</p>
         <div class="about-kpi rv d3">
           <div class="kpi-card">
@@ -1038,7 +1052,7 @@ textarea.form-inp{resize:vertical;min-height:120px;font-family:var(--f)}
     <h2 class="pia-cta-h rv d1">AI PIA로<br><span>영유아 발달 분석</span>을 경험해보세요.</h2>
     <p class="pia-cta-p rv d2">Claude AI 기반의 맞춤형 발달 리포트를 무료로 체험할 수 있습니다.</p>
     <div class="rv d3">
-      <a href="ai-pia.html" class="btn-p" target="_blank" style="display:inline-flex;font-size:15px;padding:18px 48px">AI PIA 무료 체험 →</a>
+      <a href="ai-pia.html" class="btn-p" target="_blank" style="display:inline-flex;font-size:15px;padding:18px 48px"><span class="ko-text">AI PIA 무료 체험 →</span><span class="en-text">Try AI PIA Free →</span></a>
     </div>
   </div>
 </section>
@@ -1273,6 +1287,17 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
     if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
   });
 });
+
+/* ══ LANGUAGE TOGGLE ══ */
+function setLang(lang) {
+  document.documentElement.setAttribute('data-lang', lang);
+  document.documentElement.lang = lang === 'ko' ? 'ko' : 'en';
+  document.getElementById('btn-ko').classList.toggle('active', lang === 'ko');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  localStorage.setItem('yedam_lang', lang);
+}
+// 저장된 언어 설정 복원
+(function(){ var l = localStorage.getItem('yedam_lang'); if(l) setLang(l); })();
 </script>
 </body>
 </html>
