@@ -58,11 +58,23 @@ main{flex:1;position:relative;background:var(--paper)}
   <a class="home" href="index.html">← 홈으로</a>
 </header>
 <main>
-  <iframe id="f-results" class="frame active" src="results-admin.html" title="검사 결과 관리" loading="eager"></iframe>
-  <iframe id="f-biz" class="frame" src="admin.html" title="사업 및 웹사이트 관리" loading="lazy"></iframe>
+  <iframe id="f-results" class="frame active" src="results-admin.html" title="검사 결과 관리" loading="eager" onload="paperUnify(this)"></iframe>
+  <iframe id="f-biz" class="frame" src="admin.html" title="사업 및 웹사이트 관리" loading="lazy" onload="paperUnify(this)"></iframe>
 </main>
 <div class="hint" id="hint">한 곳에서 검사 결과와 사업·웹 관리를 함께 운영합니다 · 탭으로 전환</div>
 <script>
+  function paperUnify(ifr){
+    try{
+      var d=ifr.contentDocument; if(!d||!d.head) return;
+      if(d.getElementById('__paperUnify')) return;
+      var css=":root{--primary:#d97757!important;--primary-h:#c4623f!important;--primary-hh:#a9512f!important;"
+        +"--violet:#6a9bcc!important;--sidebar:#141413!important;--bg:#faf9f5!important;--card:#ffffff!important;"
+        +"--text:#141413!important;--text2:#3d3d3a!important;--text3:#b0aea5!important;--border:#e3e0d6!important;"
+        +"--border2:#efece2!important;--ok:#788c5d!important;--info:#6a9bcc!important;}"
+        +"body{font-family:'Noto Sans KR',-apple-system,sans-serif!important;}a{color:#d97757}";
+      var st=d.createElement('style'); st.id='__paperUnify'; st.textContent=css; d.head.appendChild(st);
+    }catch(e){}
+  }
   var tabs=document.querySelectorAll('.tab');
   tabs.forEach(function(t){
     t.addEventListener('click',function(){
@@ -72,7 +84,7 @@ main{flex:1;position:relative;background:var(--paper)}
       document.getElementById(t.dataset.f).classList.add('active');
     });
   });
-  setTimeout(function(){var h=document.getElementById('hint'); if(h) h.style.transition='opacity .6s', h.style.opacity='0';},4500);
+  setTimeout(function(){var h=document.getElementById('hint'); if(h){h.style.transition='opacity .6s'; h.style.opacity='0';}},4500);
 </script>
 </body>
 </html>
