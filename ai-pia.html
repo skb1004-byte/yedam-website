@@ -4696,18 +4696,32 @@ function initChat() {
 // =================================================================
 function _hfTok(){ return (state.cfg && state.cfg.hfToken) || ''; }
 async function hfEmotion(text){
-  const tok=_hfTok(); if(!tok || !text) return null;
+  if(!text) return null;
   const model=(state.cfg&&state.cfg.hfEmotionModel)||'matthewburke/korean_sentiment';
+  // 1차: 서버 워커(키 불필요·전 기기 자동)
+  try{
+    const r=await fetch(PIA_CHAT_PROXY+'?task=emotion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,model:model})});
+    if(r.ok){ const j=await r.json().catch(function(){return null;}); if(j && !j.error) return j; }
+  }catch(e){}
+  // 2차: 이 브라우저에 저장된 개인 HF 토큰(있을 때만)
+  const tok=_hfTok(); if(!tok) return null;
   try{
     const res=await fetch('https://api-inference.huggingface.co/models/'+model,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({inputs:text})});
     if(!res.ok) return null; return await res.json();
   }catch(e){ return null; }
 }
 async function hfTranscribe(file){
-  const tok=_hfTok(); if(!tok || !file) return null;
+  if(!file) return null;
   const model=(state.cfg&&state.cfg.hfSttModel)||'openai/whisper-large-v3';
+  const buf=await file.arrayBuffer();
+  // 1차: 서버 워커(키 불필요·전 기기 자동)
   try{
-    const buf=await file.arrayBuffer();
+    const r=await fetch(PIA_CHAT_PROXY+'?task=stt&model='+encodeURIComponent(model),{method:'POST',headers:{'Content-Type':(file.type||'application/octet-stream')},body:buf});
+    if(r.ok){ const j=await r.json().catch(function(){return null;}); const t=j&&(j.text||(Array.isArray(j)&&j[0]&&j[0].text)); if(t) return t; }
+  }catch(e){}
+  // 2차: 개인 HF 토큰(있을 때만)
+  const tok=_hfTok(); if(!tok) return null;
+  try{
     const res=await fetch('https://api-inference.huggingface.co/models/'+model,{method:'POST',headers:{'Authorization':'Bearer '+tok},body:buf});
     if(!res.ok) return null; const j=await res.json(); return j.text || (Array.isArray(j)&&j[0]&&j[0].text) || '';
   }catch(e){ return null; }
