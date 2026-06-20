@@ -674,6 +674,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
         <div class="text-xs text-slate-500">통합 16유형 (7개 검사 가중 평균)</div>
         <div class="text-2xl font-bold" id="hero-type">검사 진행 필요</div>
         <div class="text-xs text-slate-500 mt-0.5" id="hero-desc"></div>
+        <div class="mt-1.5" id="hero-mbti"></div>
       </div>
       <div class="text-center px-4 border-l border-slate-200">
         <div class="text-xs text-slate-500">신뢰도 등급</div>
@@ -3334,6 +3335,13 @@ function scoreMi() {
 // =================================================================
 //  Integrated PIA 16-type inference (가중 평균)
 // =================================================================
+function big5ToMbti(){
+  var sc=(state.results.big5&&state.results.big5.scores)||null; if(!sc) return null;
+  function pk(v,hi,lo){ return (Number(v)>=50)?hi:lo; }
+  var t=pk(sc.E,'E','I')+pk(sc.O,'N','S')+pk(sc.A,'F','T')+pk(sc.C,'J','P');
+  var NM={INTJ:'전략가',INTP:'논리술사',ENTJ:'통솔자',ENTP:'변론가',INFJ:'옹호자',INFP:'중재자',ENFJ:'선도자',ENFP:'활동가',ISTJ:'현실주의자',ISFJ:'수호자',ESTJ:'경영자',ESFJ:'집정관',ISTP:'장인',ISFP:'모험가',ESTP:'사업가',ESFP:'연예인'};
+  return { type:t, name:(NM[t]||'') };
+}
 function inferIntegratedType() {
   const big5 = state.results.big5.scores;
   const riasec = state.results.riasec.scores;
@@ -4283,6 +4291,7 @@ function renderResult() {
   el('hero-icon').textContent = type.icon;
   el('hero-type').textContent = type.name;
   el('hero-desc').textContent = type.desc;
+  try{ var _mb=big5ToMbti(); var _me=el('hero-mbti'); if(_me){ _me.innerHTML = _mb ? '<span style="display:inline-flex;align-items:center;gap:5px;background:var(--rust-tint,#f6e9e2);color:var(--rust-deep,#c4623f);font-weight:800;font-size:12.5px;padding:3px 11px;border-radius:999px;letter-spacing:.02em;">\uD83E\uDDE9 '+_mb.type+(_mb.name?(' \u00B7 '+_mb.name):'')+'</span> <span style="font-size:11px;color:#94a3b8;margin-left:6px;">Big5 \uAE30\uBC18 \uCD94\uC815 \uC720\uD615(\uCC38\uACE0\uC6A9)</span>' : ''; } }catch(e){}
   el('hero-grade').textContent = reliability.grade;
   el('hero-grade-label').textContent = reliability.label;
   el('hero-completed').innerHTML = reliability.completed.length ? reliability.completed.map(c => `<span class="pill bg-slate-100 text-slate-700 mr-1 mb-1">${c}</span>`).join('') : '<span class="text-xs text-slate-400">완료된 검사 없음</span>';
