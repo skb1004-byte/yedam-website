@@ -629,7 +629,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
       </div>
       <div class="flex items-center gap-2">
         <span id="chat-mic-status" class="text-xs text-slate-500"></span>
-        <label class="flex items-center gap-1 text-xs text-slate-500"><input id="chat-tts" type="checkbox" checked /> 응답 음성 재생</label>
+        <label class="flex items-center gap-1 text-xs text-slate-500"><input id="chat-tts" type="checkbox" checked /> 응답 음성 재생</label><label class="flex items-center gap-1 text-xs text-slate-500" title="구글 자연 음성(온라인). 실패하면 자동으로 내장 음성으로 전환됩니다."><input id="chat-gtts" type="checkbox" checked /> 자연 음성</label>
       </div>
     </div>
   </div>
@@ -4617,16 +4617,54 @@ function initChat() {
     loadVoices();
     speechSynthesis.onvoiceschanged = loadVoices;
   }
-  window.speakReply = function(text) {
-    if (!ttsToggle.checked) return;
-    if (!('speechSynthesis' in window)) return;
+  // 구글 번역 TTS(온라인 자연 음성). Audio 재생은 CORS 영향을 받지 않음.
+  let _gAudio = null;
+  function _gttsChunks(s){
+    s=String(s||'').replace(/\s+/g,' ').trim(); var out=[], max=180;
+    while(s.length>max){
+      var head=s.slice(0,max); var idx=Math.max(head.lastIndexOf('. '),head.lastIndexOf('! '),head.lastIndexOf('? '),head.lastIndexOf('。'),head.lastIndexOf('… '));
+      var cut=head.lastIndexOf(' ');
+      var at = idx>40 ? idx+1 : (cut>40 ? cut : max);
+      out.push(s.slice(0,at).trim()); s=s.slice(at).trim();
+    }
+    if(s) out.push(s); return out;
+  }
+  function googleTTS(text){
+    return new Promise(function(resolve,reject){
+      var t=(window._ttsClean?window._ttsClean(text):text);
+      var chunks=_gttsChunks(t); if(!chunks.length){ resolve(); return; }
+      var i=0, failed=false; window.__gttsPlaying=true;
+      function done(fn,arg){ window.__gttsPlaying=false; _gAudio=null; fn(arg); }
+      function next(){
+        if(i>=chunks.length){ done(resolve); return; }
+        var url='https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q='+encodeURIComponent(chunks[i]);
+        var a=new Audio(url); _gAudio=a;
+        a.onended=function(){ i++; next(); };
+        a.onerror=function(){ if(!failed){ failed=true; done(reject,new Error('gtts')); } };
+        var pr=a.play(); if(pr&&pr.catch) pr.catch(function(){ if(!failed){ failed=true; done(reject,new Error('gtts-play')); } });
+      }
+      next();
+    });
+  }
+  function _afterSpeak(){ if (_micWant && !_globalRecording) setTimeout(function(){ if (_micWant && !_globalRecording) { try { window.safeStartRecognition && window.safeStartRecognition(); } catch(e){} } }, 350); }
+  function _speakBuiltin(text){
+    if (!('speechSynthesis' in window)) { _afterSpeak(); return; }
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance((window._ttsClean?window._ttsClean(text):text));
     if (ttsVoice) u.voice = ttsVoice;
     u.lang = 'ko-KR';
     u.rate = 0.96; u.pitch = 1.02;
-    u.onend = function(){ if (_micWant && !_globalRecording) setTimeout(function(){ if (_micWant && !_globalRecording) { try { window.safeStartRecognition && window.safeStartRecognition(); } catch(e){} } }, 350); };
+    u.onend = _afterSpeak;
     speechSynthesis.speak(u);
+  }
+  window.speakReply = function(text) {
+    if (!ttsToggle.checked) return;
+    try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+    try{ if(_gAudio){ _gAudio.onended=null; _gAudio.onerror=null; _gAudio.pause(); _gAudio=null; } }catch(e){}
+    window.__gttsPlaying=false;
+    var gEl=document.getElementById('chat-gtts'); var useG = gEl ? gEl.checked : false;
+    if (useG) { googleTTS(text).then(_afterSpeak).catch(function(){ _speakBuiltin(text); }); }
+    else { _speakBuiltin(text); }
   };
 }
 
@@ -7739,7 +7777,7 @@ function rebindMicButton() {
     // 핸즈프리: 사용자가 켜둔 상태면 자동 재시작 (TTS 재생 중엔 대기)
     if (_micWant) {
       setTimeout(function(){
-        if (_micWant && !_globalRecording && !(('speechSynthesis' in window) && speechSynthesis.speaking)) {
+        if (_micWant && !_globalRecording && !(('speechSynthesis' in window) && speechSynthesis.speaking) && !window.__gttsPlaying) {
           safeStartRecognition();
         }
       }, messageInput.value.trim() ? 1800 : 700);
@@ -7766,7 +7804,7 @@ function rebindMicButton() {
     // 핸즈프리: 침묵/중단으로 끊겨도 자동 재시작 (권한거부 제외)
     if (_micWant && e.error !== 'not-allowed' && e.error !== 'service-not-allowed') {
       setTimeout(function(){
-        if (_micWant && !_globalRecording && !(('speechSynthesis' in window) && speechSynthesis.speaking)) { safeStartRecognition(); }
+        if (_micWant && !_globalRecording && !(('speechSynthesis' in window) && speechSynthesis.speaking) && !window.__gttsPlaying) { safeStartRecognition(); }
       }, 500);
     }
   };
