@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>AI PIA · 결과 관리자</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--navy:#0d1b3e;--navy2:#162447;--blue:#2563eb;--cyan:#06b6d4;--gold:#f59e0b;
+--g100:#f1f3f8;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;--card:#fff;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard','Noto Sans KR',system-ui,sans-serif;background:#eef1f7;color:var(--g800)}
+header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:16px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header h1{font-size:18px;font-weight:800;letter-spacing:-.3px}
+header .sp{flex:1}
+.badge{font-size:12px;background:rgba(255,255,255,.14);padding:4px 10px;border-radius:999px}
+.wrap{max-width:1180px;margin:0 auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--g200);border-radius:14px;box-shadow:0 4px 24px rgba(13,27,62,.06);padding:18px;margin-bottom:18px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,button{font:inherit}
+input[type=text],input[type=password]{padding:10px 12px;border:1px solid var(--g200);border-radius:10px;min-width:200px;background:#fff}
+button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;font-weight:700;background:var(--blue);color:#fff}
+button.ghost{background:#fff;color:var(--g800);border:1px solid var(--g200)}
+button.warn{background:#dc2626}
+button.sm{padding:6px 10px;font-size:13px}
+.muted{color:var(--g600);font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--g100);text-align:left;white-space:nowrap}
+th{font-size:12px;color:var(--g600);background:#f8fafc;position:sticky;top:0}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#f1f5ff}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.stat .b{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border-radius:12px;padding:14px}
+.stat .b .n{font-size:26px;font-weight:800}
+.stat .b .l{font-size:12px;opacity:.85;margin-top:2px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.charts{grid-template-columns:1fr}}
+.hidden{display:none}
+.tableScroll{max-height:60vh;overflow:auto;border:1px solid var(--g100);border-radius:10px}
+dialog{border:0;border-radius:16px;padding:0;max-width:760px;width:92vw;box-shadow:0 20px 70px rgba(0,0,0,.35)}
+dialog header{border-radius:0}
+.dbody{padding:18px;max-height:72vh;overflow:auto}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:14px;margin-bottom:12px}
+.kv b{color:var(--g600);font-weight:600}
+.scoreGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:10px 0}
+.scoreGrid .s{background:#f8fafc;border:1px solid var(--g100);border-radius:10px;padding:8px 10px}
+.scoreGrid .s .t{font-size:11px;color:var(--g600)}
+.scoreGrid .s .v{font-weight:700}
+pre{background:#0f172a;color:#cbd5e1;padding:12px;border-radius:10px;overflow:auto;font-size:12px;max-height:240px}
+.err{color:#dc2626;font-size:13px}
+.ok{color:#059669;font-size:13px}
+a.link{color:var(--blue);text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎓 AI PIA 결과 관리자</h1>
+  <span class="badge" id="envBadge">서버 미연결</span>
+  <span class="sp"></span>
+  <a class="link" href="ai-pia.html" style="color:#bcd2ff">← PIA 검사로</a>
+</header>
+
+<div class="wrap">
+
+  <!-- 로그인/설정 -->
+  <div class="card" id="loginCard">
+    <div class="row" style="margin-bottom:10px">
+      <strong>접속 설정</strong>
+      <span class="muted">결과 API 주소와 관리자 비밀번호를 입력하세요.</span>
+    </div>
+    <div class="row" style="margin-bottom:10px">
+      <input type="text" id="apiBase" placeholder="API 주소 (비워두면 현재 사이트 = 같은 도메인)" style="flex:1;min-width:280px">
+    </div>
+    <div class="row">
+      <input type="password" id="pw" placeholder="관리자 비밀번호">
+      <button id="loginBtn">로그인</button>
+      <button class="ghost sm" id="pingBtn">서버 상태확인</button>
+      <span id="loginMsg" class="muted"></span>
+    </div>
+  </div>
+
+  <!-- 대시보드 -->
+  <div id="dash" class="hidden">
+    <div class="card">
+      <div class="row" style="margin-bottom:14px">
+        <strong>통계 요약</strong>
+        <span class="sp"></span>
+        <input type="text" id="search" placeholder="이름/학교/유형 검색" style="min-width:220px">
+        <button class="ghost sm" id="reloadBtn">새로고침</button>
+        <button class="ghost sm" id="csvBtn">CSV 내보내기</button>
+        <button class="ghost sm" id="logoutBtn">로그아웃</button>
+      </div>
+      <div class="stat" id="stat"></div>
+    </div>
+
+    <div class="card">
+      <div class="charts">
+        <div><canvas id="chartGrade" height="200"></canvas></div>
+        <div><canvas id="chartType" height="200"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:10px">
+        <strong>학생 목록</strong>
+        <span class="muted" id="listCount"></span>
+      </div>
+      <div class="tableScroll">
+        <table>
+          <thead><tr>
+            <th>이름</th><th>학년</th><th>반</th><th>학교</th><th>통합유형</th><th>신뢰도</th><th>완료검사</th><th>저장시각</th><th></th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 상세 -->
+<dialog id="detail">
+  <header><h1 id="dTitle">학생 결과</h1><span class="sp"></span>
+    <button class="ghost sm" onclick="document.getElementById('detail').close()">닫기</button></header>
+  <div class="dbody" id="dBody"></div>
+</dialog>
+
+<script>
+const $=s=>document.querySelector(s);
+const LS_BASE='pia_api_base';
+let PW='', BASE='', LIST=[], chartG=null, chartT=null;
+
+function apiUrl(params){
+  let b=(BASE||location.origin).replace(/\/+$/,'');
+  const u=new URL(b+'/api/results');
+  for(const k in params) if(params[k]!=null) u.searchParams.set(k,params[k]);
+  return u.toString();
+}
+function setEnv(ok){ $('#envBadge').textContent= ok?('서버 연결됨'):'서버 미연결'; $('#envBadge').style.background= ok?'rgba(16,185,129,.30)':'rgba(255,255,255,.14)'; }
+
+async function ping(){
+  BASE=$('#apiBase').value.trim();
+  if(BASE) localStorage.setItem(LS_BASE,BASE);
+  try{
+    const r=await fetch(apiUrl({ping:1}));
+    const j=await r.json();
+    $('#loginMsg').innerHTML='<span class="ok">서버 응답 OK'+(j.hasPassword?' · 비번 설정됨':' · ⚠️비번 미설정')+'</span>';
+    setEnv(true); return j;
+  }catch(e){ $('#loginMsg').innerHTML='<span class="err">연결 실패: '+e.message+'</span>'; setEnv(false); return null; }
+}
+
+async function login(){
+  BASE=$('#apiBase').value.trim(); PW=$('#pw').value;
+  if(BASE) localStorage.setItem(LS_BASE,BASE);
+  $('#loginMsg').textContent='확인 중…';
+  try{
+    const r=await fetch(apiUrl({admin:PW,list:1}));
+    if(r.status===401){ $('#loginMsg').innerHTML='<span class="err">비밀번호가 틀립니다.</span>'; return; }
+    if(r.status===503){ $('#loginMsg').innerHTML='<span class="err">서버에 비밀번호(ADMIN_PASSWORD)가 설정되지 않았습니다.</span>'; return; }
+    const j=await r.json();
+    if(!j.ok){ $('#loginMsg').innerHTML='<span class="err">'+(j.error||'오류')+'</span>'; return; }
+    setEnv(true);
+    $('#loginCard').classList.add('hidden'); $('#dash').classList.remove('hidden');
+    render(j.results||[]);
+  }catch(e){ $('#loginMsg').innerHTML='<span class="err">연결 실패: '+e.message+'</span>'; }
+}
+
+function render(list){
+  LIST=list;
+  const q=($('#search').value||'').trim().toLowerCase();
+  const f=q? list.filter(s=>((s.name||'')+(s.school||'')+(s.type||'')).toLowerCase().includes(q)) : list;
+  $('#listCount').textContent='('+f.length+'명'+(q?(' / 전체 '+list.length):'')+')';
+  // 통계
+  $('#stat').innerHTML='';
+  const stat=[['전체 학생',list.length],['오늘',list.filter(s=>(s.savedAt||'').slice(0,10)===new Date().toISOString().slice(0,10)).length],
+    ['고유 학교',new Set(list.map(s=>s.school).filter(Boolean)).size],['고유 유형',new Set(list.map(s=>s.type).filter(Boolean)).size]];
+  for(const [l,n] of stat){ const d=document.createElement('div'); d.className='b'; d.innerHTML='<div class="n">'+n+'</div><div class="l">'+l+'</div>'; $('#stat').appendChild(d); }
+  // 표
+  const rows=$('#rows'); rows.innerHTML='';
+  for(const s of f){
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td><b>'+esc(s.name)+'</b></td><td>'+esc(s.grade)+'</td><td>'+esc(s.klass)+'</td><td>'+esc(s.school)+'</td><td>'+esc(s.type)+'</td><td>'+esc(s.reliability)+'</td><td>'+(s.doneCount||0)+'</td><td class="muted">'+fmt(s.savedAt)+'</td>'+
+      '<td><button class="warn sm" data-del="'+esc(s.id)+'">삭제</button></td>';
+    tr.addEventListener('click',ev=>{ if(ev.target.dataset.del) return; openDetail(s.id); });
+    rows.appendChild(tr);
+  }
+  rows.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();delRec(b.dataset.del,b.closest('tr'));}));
+  drawCharts(list);
+}
+
+function drawCharts(list){
+  const byGrade=group(list,'grade'), byType=group(list,'type');
+  chartG=bar(chartG,'chartGrade','학년별 인원',byGrade,'#2563eb');
+  chartT=bar(chartT,'chartType','통합유형별 인원',byType,'#06b6d4');
+}
+function group(list,key){const m={};list.forEach(s=>{const k=s[key]||'(미입력)';m[k]=(m[k]||0)+1;});return m;}
+function bar(old,id,label,obj,color){
+  if(old) old.destroy();
+  const ctx=document.getElementById(id);
+  return new Chart(ctx,{type:'bar',data:{labels:Object.keys(obj),datasets:[{label,data:Object.values(obj),backgroundColor:color,borderRadius:6}]},
+    options:{plugins:{legend:{display:true}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+}
+
+async function openDetail(id){
+  const d=$('#detail'); $('#dBody').innerHTML='<p class="muted">불러오는 중…</p>'; d.showModal();
+  try{
+    const r=await fetch(apiUrl({admin:PW,id})); const j=await r.json();
+    if(!j.ok){ $('#dBody').innerHTML='<p class="err">'+(j.error||'오류')+'</p>'; return; }
+    const rec=j.result; $('#dTitle').textContent=(rec.name||'익명')+' 결과';
+    let h='<div class="kv">'+
+      kv('이름',rec.name)+kv('학년',rec.grade)+kv('반',rec.klass||rec.class)+kv('학교',rec.school)+
+      kv('통합유형',rec.type)+kv('신뢰도',rec.reliability)+kv('완료검사',rec.doneCount)+kv('저장시각',fmt(rec.savedAt))+'</div>';
+    // 점수 요약
+    const sc=scoreSummary(rec.results||{});
+    if(sc.length){ h+='<div style="font-weight:700;margin:6px 0">검사 점수 요약</div><div class="scoreGrid">';
+      sc.forEach(x=>{h+='<div class="s"><div class="t">'+esc(x.t)+'</div><div class="v">'+esc(x.v)+'</div></div>';}); h+='</div>'; }
+    h+='<details style="margin-top:10px"><summary class="muted">원본 데이터(JSON)</summary><pre>'+esc(JSON.stringify(rec,null,2))+'</pre></details>';
+    $('#dBody').innerHTML=h;
+  }catch(e){ $('#dBody').innerHTML='<p class="err">'+e.message+'</p>'; }
+}
+
+// 각 검사 결과에서 대표 점수만 추출(있으면)
+function scoreSummary(R){
+  const out=[]; const push=(t,v)=>{ if(v!=null&&v!=='') out.push({t,v}); };
+  try{
+    if(R.big5&&R.big5.scores){for(const k in R.big5.scores)push('Big5·'+k,Math.round(R.big5.scores[k]));}
+    if(R.riasec&&R.riasec.scores){const s=R.riasec.scores;const top=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join('');push('RIASEC Top3',top);}
+    if(R.grit&&R.grit.scores)push('Grit',JSON.stringify(R.grit.scores).slice(0,40));
+    ['cesd','phqa','gad','who5','rses'].forEach(k=>{ if(R[k]&&R[k].scores!=null){const v=R[k].scores; push(k.toUpperCase(), typeof v==='object'?(v.total??JSON.stringify(v).slice(0,30)):v);} });
+    if(R.conv&&R.conv.turns!=null)push('대화 턴수',R.conv.turns);
+  }catch(e){}
+  return out;
+}
+
+async function delRec(id,tr){
+  if(!confirm('이 결과를 삭제할까요? 되돌릴 수 없습니다.')) return;
+  try{ const r=await fetch(apiUrl({admin:PW,del:id})); const j=await r.json();
+    if(j.ok){ if(tr)tr.remove(); LIST=LIST.filter(s=>s.id!==id); render(LIST); } else alert(j.error||'삭제 실패'); }
+  catch(e){ alert(e.message); }
+}
+
+function csv(){
+  const head=['이름','학년','반','학교','통합유형','신뢰도','완료검사','저장시각'];
+  const lines=[head.join(',')];
+  LIST.forEach(s=>lines.push([s.name,s.grade,s.klass,s.school,s.type,s.reliability,s.doneCount,s.savedAt].map(csvCell).join(',')));
+  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='AI_PIA_결과목록_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+const csvCell=v=>{v=(v==null?'':String(v));return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+const esc=v=>(v==null?'':String(v)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const kv=(k,v)=>'<b>'+k+'</b><span>'+esc(v??'')+'</span>';
+const fmt=s=>{ if(!s)return''; try{const d=new Date(s);return d.toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return s;} };
+
+$('#loginBtn').onclick=login;
+$('#pingBtn').onclick=ping;
+$('#reloadBtn').onclick=login;
+$('#logoutBtn').onclick=()=>{PW='';$('#dash').classList.add('hidden');$('#loginCard').classList.remove('hidden');$('#pw').value='';};
+$('#csvBtn').onclick=csv;
+$('#search').addEventListener('input',()=>render(LIST));
+window.addEventListener('DOMContentLoaded',()=>{ const b=localStorage.getItem(LS_BASE)||'https://brilliant-macaron-4b3ed2.netlify.app'; $('#apiBase').value=b; });
+</script>
+</body>
+</html>

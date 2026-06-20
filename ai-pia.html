@@ -328,6 +328,13 @@ button,a,select,input,textarea,label,[onclick]{touch-action:manipulation;}
   .flex.flex-wrap.gap-2>button,.flex.flex-wrap.gap-3>button{flex:1 1 auto;}
   nav button,#topNav button{padding-top:.5rem;padding-bottom:.5rem;}
 }
+@media (hover: none), (pointer: coarse), (max-width: 768px){
+  header.bg-white{ -webkit-backdrop-filter:none!important; backdrop-filter:none!important; background:#fffdf8!important; }
+  section.bg-white,.rounded-2xl.bg-white,#home-content>*{ transition:none!important; }
+  .rounded-2xl.bg-white:hover{ box-shadow:0 1px 2px rgba(20,20,19,.04),0 8px 28px -12px rgba(20,20,19,.10)!important; transform:none!important; }
+  section[data-view]:not(.hidden){ animation:none!important; }
+  *{ will-change:auto!important; }
+}
 </style>
 <style id="premium-2026">
 :root{--sh-soft:0 1px 2px rgba(20,20,19,.04),0 14px 38px -18px rgba(20,20,19,.16);--sh-lift:0 3px 8px rgba(20,20,19,.06),0 26px 56px -24px rgba(20,20,19,.26);}
@@ -583,7 +590,7 @@ input,select,textarea{border-radius:11px!important;}
       </div>
       <div class="flex items-center gap-2">
         <span id="chat-mic-status" class="text-xs text-slate-500"></span>
-        <label class="flex items-center gap-1 text-xs text-slate-500"><input id="chat-tts" type="checkbox" /> 응답 음성 재생</label>
+        <label class="flex items-center gap-1 text-xs text-slate-500"><input id="chat-tts" type="checkbox" checked /> 응답 음성 재생</label>
       </div>
     </div>
   </div>
@@ -2388,7 +2395,10 @@ async function callLLM(prompt, systemPrompt = '') {
     const _proxy = (cfg.proxy || '').trim().replace(/\/$/, '');
     const _viaProxy = _proxy && ['OPENROUTER_FREE','GROQ','CUSTOM_OAI','SOLAR','HYPERCLOVA','HF_LLM','GITHUB_MODELS','CEREBRAS','TOGETHER','CLOUDFLARE'].indexOf(mode) >= 0;
     let res;
-    if (_viaProxy) {
+    if (_viaProxy && mode === 'GITHUB_MODELS') {
+      // 키를 서버(.env)에만 두는 전용 라우트 — 브라우저로 키 전송 안 함
+      res = await fetch(_proxy + '/api/github/chat', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ messages, model: cfg.model || 'openai/gpt-4o-mini' }) });
+    } else if (_viaProxy) {
       let _payload; try { _payload = JSON.parse(body); } catch(e) { _payload = {}; }
       res = await fetch(_proxy + '/api/llm', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ endpoint: url, key: cfg.key, payload: _payload }) });
     } else {
@@ -2416,7 +2426,7 @@ async function callLLM(prompt, systemPrompt = '') {
 
 // 브라우저 온디바이스 추론 — Chrome 내장 Prompt API(Gemini Nano) 우선, 없으면 Transformers.js(WebGPU/WASM)
 let _ondevicePipe = null;
-let _ondeviceAllowDL = true; // 온디바이스 사용 시 Transformers.js 모델을 필요할 때 자동 다운로드
+let _ondeviceAllowDL = false; // 모바일은 대용량 모델 자동 다운로드 차단(버튼 먹통 방지) · 데스크톱+WebGPU에서만 활성
 async function callOnDevice(prompt, systemPrompt) {
   try {
     const LM = (typeof self!=='undefined' && self.LanguageModel) || (typeof window!=='undefined' && window.ai && window.ai.languageModel) || null;
@@ -3077,7 +3087,7 @@ let state = {
     sjt: { answers: [], dims: {}, order: [], adaptive: false },
     conv: { turns: 0, dims: {}, riskHist: [], topics: {}, transcript: [] }
   },
-  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
+  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'ai-proxy.php', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
 };
 
 function load() {
@@ -3096,7 +3106,9 @@ function load() {
   } catch(e) { console.error(e); }
   try { const lc = localStorage.getItem(STORAGE.cfg); if (lc) state.cfg = Object.assign({}, state.cfg, JSON.parse(lc)); } catch(e) {}
   // 사용자가 직접 엔진을 고른 적이 없으면 기본을 온디바이스로 강제(예전 저장값에 덮이지 않게)
-  if (!state.cfg || !state.cfg._engineChosen) { state.cfg = Object.assign({}, state.cfg, { mode:'ONDEVICE' }); }
+  /* 함수 미사용: 프록시 비움 — 모바일은 무료 AI 직접 호출 */ try { state.cfg.proxy=''; } catch(e){}
+  var _mobDef=(typeof isMobile==='function'&&isMobile());
+  if (!state.cfg || !state.cfg._engineChosen) { state.cfg = Object.assign({}, state.cfg, { mode: _mobDef ? 'AUTO_FREE' : 'ONDEVICE' }); }
 }
 function save() {
   sessionStorage.setItem(STORAGE.cfg, JSON.stringify(state.cfg));
@@ -4260,6 +4272,7 @@ function initChat() {
   function removeTyping(node) { if (node && node.parentNode) node.parentNode.removeChild(node); }
 
   async function send() {
+    try { if (!window.__ttsPrimed && ('speechSynthesis' in window)) { var _w=new SpeechSynthesisUtterance(' '); _w.volume=0; speechSynthesis.speak(_w); speechSynthesis.resume(); window.__ttsPrimed=true; } } catch(e){}
     const text = messageInput.value.trim();
     if (!text) return;
     const clean = maskPII(text);
@@ -4424,6 +4437,7 @@ function initChat() {
     if (ttsVoice) u.voice = ttsVoice;
     u.lang = 'ko-KR';
     u.rate = 1.0;
+    u.onend = function(){ if (_micWant && !_globalRecording) setTimeout(function(){ if (_micWant && !_globalRecording) { try { window.safeStartRecognition && window.safeStartRecognition(); } catch(e){} } }, 350); };
     speechSynthesis.speak(u);
   };
 }
@@ -4502,15 +4516,23 @@ function initSettings() {
     save();
     const label = (PROVIDERS[m] && PROVIDERS[m].label) || m;
     if (m === 'ONDEVICE') {
-      _ondeviceAllowDL = true;
+      _ondeviceAllowDL = !(typeof isMobile==='function'&&isMobile());
       el('cfg-status').textContent = '🖥 온디바이스 확인 중… (첫 응답 시 모델 준비될 수 있어요)';
       try { const r = await callOnDevice('안녕? 한 문장으로 자기소개 해줘.','한국어로만 짧게.'); el('cfg-status').textContent = (r && r.trim()) ? '✅ 온디바이스 동작 확인 — 인터넷·키 없이 자유대화에 사용됩니다.' : 'ℹ 온디바이스 준비/미지원 — 지원 브라우저(WebGPU 또는 Chrome 내장 AI)면 첫 대화에서 모델을 받아 이후 오프라인 동작, 아니면 로컬 규칙형으로 폴백.'; } catch(e) { el('cfg-status').textContent = 'ℹ 온디바이스 미지원 — 로컬 규칙형 폴백.'; }
       return;
     }
     if (m === 'LOCAL') { el('cfg-status').textContent = '✅ 수동(로컬 규칙형) 적용됨 — 키 없이 오프라인으로 동작합니다. (설정은 영구 저장)'; return; }
     if (m === 'AUTO_FREE') { el('cfg-status').textContent = '저장됨: ' + label + ' (자유대화에서 바로 사용 · 영구 저장)'; return; }
+    const _proxySet = !!(state.cfg.proxy && String(state.cfg.proxy).trim());
+    if (_proxySet && m === 'GITHUB_MODELS') {
+      el('cfg-status').textContent = '저장됨: GitHub Models (프록시 경유·서버 키) — 연결 테스트 중…';
+      try { const r = await callLLM('한 문장으로 짧게 자기소개 해줘.', '너는 친절한 한국어 비서야. 한국어로만 답해.');
+        el('cfg-status').textContent = (r && r.trim()) ? '✅ GitHub Models 연결됨 (프록시 경유·서버 키 사용 — 브라우저 키 입력 불필요)' : '⚠ 응답 비어있음 — 서버 토큰(GITHUB_MODELS_TOKEN)/프록시 확인. 실패 시 무료 AI→로컬 폴백.';
+      } catch (e) { el('cfg-status').textContent = '⚠ GitHub Models(프록시) 연결 실패 — 서버 토큰/프록시 확인.'; }
+      return;
+    }
     const keyed = (m !== 'LOCAL' && m !== 'AUTO_FREE');
-    if (keyed && !state.cfg.key) { el('cfg-status').textContent = '⚠ ' + label + ' 저장됨 — API Key가 비어 있어요. 키를 입력해야 이 엔진이 적용됩니다.'; return; }
+    if (keyed && !state.cfg.key) { el('cfg-status').textContent = '⚠ ' + label + ' 저장됨 — API Key가 비어 있어요. 키를 입력하거나 프록시를 설정하세요.'; return; }
     el('cfg-status').textContent = '저장됨: ' + label + ' — 키 연결 테스트 중…';
     try {
       const r = await callLLM('한 문장으로 짧게 자기소개 해줘.', '너는 친절한 한국어 비서야. 한국어로만 답해.');
@@ -4527,7 +4549,8 @@ function initSettings() {
     const tmp = Object.assign({}, state.cfg, { mode:m, endpoint:el('cfg-endpoint').value.trim(), key:el('cfg-key').value.trim(), model:el('cfg-model').value.trim() });
     const label = (PROVIDERS[m] && PROVIDERS[m].label) || m;
     if (m === 'LOCAL') { el('cfg-status').textContent = 'ℹ 로컬 규칙형은 오프라인 동작이라 연결 테스트가 필요 없습니다.'; return; }
-    if ((m!=='AUTO_FREE') && !tmp.key) { el('cfg-status').textContent = '⚠ ' + label + ': API Key를 먼저 입력하세요.'; return; }
+    var _pxT = !!(tmp.proxy && String(tmp.proxy).trim());
+    if ((m!=='AUTO_FREE') && !tmp.key && !(_pxT && m==='GITHUB_MODELS')) { el('cfg-status').textContent = '⚠ ' + label + ': API Key를 먼저 입력하세요.'; return; }
     el('cfg-status').textContent = '🔌 ' + label + ' 연동 테스트 중…';
     const saved = state.cfg; state.cfg = tmp;
     try {
@@ -4581,6 +4604,7 @@ function initSettings() {
   modeSel.value = state.cfg.mode || 'LOCAL';
   try { initHuggingFace(); } catch(e) {}
   if ((state.cfg.mode||'LOCAL')==='ONDEVICE') { const _cs=el('cfg-status'); if(_cs && !_cs.textContent) _cs.textContent = window._ondeviceReady ? '✅ 온디바이스 AI 자동 활성화됨 — 인터넷·키 없이 대화' : (window._ondeviceLazy ? '🖥 온디바이스 기본 — 첫 대화에서 자동 로드(저사양/모바일 데이터 절약)' : '🖥 온디바이스 AI 자동 기동 중…'); }
+  if ((state.cfg.mode||'')==='GITHUB_MODELS') { const _csg=el('cfg-status'); if(_csg) _csg.textContent = (state.cfg.proxy ? '✅ GitHub Models 사용 중 (프록시·서버 키 — API Key 입력 불필요)' : 'ℹ GitHub Models — 프록시 미설정 시 API Key 필요'); }
   const p = PROVIDERS[state.cfg.mode] || PROVIDERS.LOCAL;
   el('cfg-endpoint').value = state.cfg.endpoint || p.endpoint;
   el('cfg-key').value = state.cfg.key || '';
@@ -4706,12 +4730,33 @@ async function autoConnectFreeAI() {
   const hasUserKey = !!(state.cfg && state.cfg.key && state.cfg.mode !== 'LOCAL' && state.cfg.mode !== 'AUTO_FREE' && state.cfg.mode !== 'ONDEVICE');
   if (savedCfg || hasUserKey) {
     const ms0 = el('cfg-mode'); if (ms0 && state.cfg.mode) ms0.value = state.cfg.mode;
-    if (state.cfg.mode === 'ONDEVICE') _ondeviceAllowDL = true; // 사용자가 온디바이스를 저장했으면 모델 사용 허용
+    if (state.cfg.mode === 'ONDEVICE' && !(typeof isMobile==='function'&&isMobile())) _ondeviceAllowDL = true; // 데스크톱만 모델 다운로드 허용(모바일은 내장 AI/무료 AI)
     const lbl = (PROVIDERS[state.cfg.mode] && PROVIDERS[state.cfg.mode].label) || state.cfg.mode;
     if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">엔진: ' + lbl + '</span>';
     return;
   }
-  // 기본값: 🖥 온디바이스(브라우저) — 키·서버 불필요. 다운로드는 강제하지 않고 브라우저 내장 AI 우선
+  // 기본값: 모바일은 무료 AI(키 불필요·즉시), 데스크톱은 🖥 온디바이스(브라우저)
+  const _mob = (typeof isMobile==='function' && isMobile());
+  if (_mob) {
+    const _hasProxy = !!(state.cfg && state.cfg.proxy && state.cfg.proxy.trim());
+    if (_hasProxy) {
+      // 모바일 기본: GitHub Models — 프록시 경유(키는 서버 .env에만)
+      state.cfg = Object.assign({}, state.cfg, { mode:'GITHUB_MODELS', endpoint:(PROVIDERS.GITHUB_MODELS&&PROVIDERS.GITHUB_MODELS.endpoint)||'', model:(PROVIDERS.GITHUB_MODELS&&PROVIDERS.GITHUB_MODELS.model)||'openai/gpt-4o-mini', key:'' });
+      save();
+      const msG = el('cfg-mode'); if (msG) msG.value = 'GITHUB_MODELS';
+      const csG = el('cfg-status'); if (csG) csG.textContent = '📱 모바일 기본: GitHub Models(프록시 경유·키는 서버 보관)';
+      if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 GitHub Models(프록시) 연결</span>';
+      try { const r = await callLLM('안녕','한 단어로만 답해.'); if (badge && !(r&&r.trim())) badge.innerHTML = '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚠ 프록시/토큰 확인 — 실패 시 무료 AI→로컬</span>'; } catch(e) {}
+      return;
+    }
+    state.cfg = Object.assign({}, state.cfg, { mode:'AUTO_FREE', endpoint:(PROVIDERS.AUTO_FREE&&PROVIDERS.AUTO_FREE.endpoint)||'https://text.pollinations.ai/openai', model:(state.cfg.freeModel||'openai'), key:'' });
+    save();
+    const msM = el('cfg-mode'); if (msM) msM.value = 'AUTO_FREE';
+    const csM = el('cfg-status'); if (csM) csM.textContent = '📱 모바일 기본: 무료 AI 자동(키 불필요) — 프록시 설정 시 GitHub Models 경유';
+    if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">⚡ 무료 AI 자동 연결(모바일)</span>';
+    try { const r = await callLLMFree('안녕','한 단어로만 답해.'); if (badge) badge.innerHTML = (r&&r.trim()) ? '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 무료 AI 연결됨</span>' : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚡ 무료 AI(혼잡 시 로컬 폴백)</span>'; } catch(e) {}
+    return;
+  }
   state.cfg = Object.assign({}, state.cfg, { mode:'ONDEVICE' });
   save();
   const ms = el('cfg-mode'); if (ms) ms.value = 'ONDEVICE';
@@ -4719,7 +4764,7 @@ async function autoConnectFreeAI() {
   // 브라우저 내장 Prompt API(Gemini Nano) 가용성만 가볍게 확인 (모델 다운로드 X)
   let builtin = false;
   try { const LM = (self.LanguageModel) || (window.ai && window.ai.languageModel); if (LM) { let a='readily'; try { a = LM.availability ? await LM.availability() : 'readily'; } catch(e){} builtin = a && a !== 'no' && a !== 'unavailable'; } } catch(e) {}
-  if (builtin) _ondeviceAllowDL = true;
+  if (builtin && !(typeof isMobile==='function'&&isMobile())) _ondeviceAllowDL = true;
   if (badge) badge.innerHTML = builtin
     ? '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 온디바이스(브라우저 내장 AI) 연결됨</span>'
     : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 기본 · 미지원 시 로컬 규칙형 자동 폴백</span>';
@@ -4734,9 +4779,10 @@ autoConnectFreeAI();
 async function autoEnableOnDevice(){
   try {
     if (!state.cfg || state.cfg.mode !== 'ONDEVICE') return;
+    if (typeof isMobile==='function' && isMobile()) { window._ondeviceLazy=true; return; } // 모바일은 온디바이스 자동기동 안 함(무료 AI 사용)
     const hasChrome = !!((typeof self!=='undefined' && self.LanguageModel) || (typeof window!=='undefined' && window.ai && window.ai.languageModel));
     const hasGPU = !!(typeof navigator!=='undefined' && navigator.gpu);
-    window._ondeviceReady = false; window._ondeviceWarming = true; _ondeviceAllowDL = true;
+    window._ondeviceReady = false; window._ondeviceWarming = true; var _isMob=(typeof isMobile==='function'&&isMobile()); _ondeviceAllowDL = !_isMob;
     function badge(html){ try{ var b=document.getElementById('chat-aistatus'); if(b) b.innerHTML=html; }catch(_){} }
     function st(msg){ try{ var e=document.getElementById('cfg-status'); if(e) e.textContent=msg; }catch(_){} }
     badge('<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 연결 시도 중…</span>');
@@ -4751,7 +4797,7 @@ async function autoEnableOnDevice(){
         } catch(e) {}
       }
       // 2) WebGPU 있으면 모델 로드(백그라운드)
-      if (hasGPU) {
+      if (hasGPU && !_isMob) {
         badge('<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 모델 준비 중(최초 1회)…</span>');
         try {
           const r2 = await callOnDevice('안녕', '한 단어로만 답해.');
@@ -6644,11 +6690,65 @@ function blinkAutosave() {
   }, 600);
 }
 
+// ===== 결과 관리자 서버 전송 (Netlify API) =====
+const PIA_API_DEFAULT = 'https://brilliant-macaron-4b3ed2.netlify.app'; // 배포 시 실제 API 주소로 치환됨
+function piaApiBase(){
+  try{ const o=(localStorage.getItem('pia_api_base')||'').trim(); let b=o||PIA_API_DEFAULT;
+    if(!b || b.indexOf('__')===0) return ''; return b.replace(/\/+$/,''); }
+  catch(e){ return ''; }
+}
+function _piaDoneCount(){
+  let n=0; try{ const R=state.results;
+    ['big5','riasec','via','grit','cesd','phqa','gad','who5','rses','learn','mi'].forEach(k=>{ if(R[k]&&R[k].scores) n++; });
+    if(R.sjt&&R.sjt.answers&&R.sjt.answers.length>=10) n++;
+  }catch(e){} return n;
+}
+function buildAdminRecord(){
+  let type='', rel='';
+  try{ type=(inferIntegratedType()||{}).name||''; }catch(e){}
+  try{ rel=(calcReliability()||{}).grade||''; }catch(e){}
+  const p=state.profile||{};
+  const id=((state.studentId||'S')+'_'+(p.createdAt||'anon'));
+  return { id, name:p.name||'익명', grade:p.grade||'', klass:p.class||'', school:p.school||'',
+    type, reliability:rel, doneCount:_piaDoneCount(),
+    version:'v3.7', exportedAt:new Date().toISOString(),
+    results:state.results, meta:state.meta, profile:p };
+}
+let _adminSig='';
+function sendResultToAdmin(opts){
+  opts=opts||{}; const rec=buildAdminRecord();
+  if(!opts.force && rec.doneCount<1) return;
+  const sig=rec.id+'|'+rec.doneCount+'|'+rec.type+'|'+rec.reliability;
+  if(!opts.force && sig===_adminSig) return;
+  const base=piaApiBase();
+  _adminSig=sig;
+  fetch((base||'')+'/api/results',{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(rec)})
+    .then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
+    .then(()=>{ if(opts.toast){ try{ toast('결과가 관리자 서버에 저장되었습니다.'); }catch(e){} } })
+    .catch(()=>{ _adminSig=''; _piaOutboxPut(rec); });
+}
+function _piaOutboxPut(rec){
+  try{ const ob=JSON.parse(localStorage.getItem('pia_admin_outbox')||'[]');
+    const i=ob.findIndex(x=>x.id===rec.id); if(i>=0)ob[i]=rec; else ob.push(rec);
+    localStorage.setItem('pia_admin_outbox',JSON.stringify(ob.slice(-50))); }catch(e){}
+}
+function flushAdminOutbox(){
+  const base=piaApiBase();
+  let ob; try{ ob=JSON.parse(localStorage.getItem('pia_admin_outbox')||'[]'); }catch(e){ return; }
+  if(!ob.length) return;
+  Promise.all(ob.map(rec=>fetch((base||'')+'/api/results',{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(rec)}).then(r=>r.ok).catch(()=>false)))
+    .then(res=>{ if(res.length && res.every(Boolean)) localStorage.removeItem('pia_admin_outbox'); });
+}
+let _adminSyncTimer=null;
+function scheduleAdminSync(){ if(_adminSyncTimer) return; _adminSyncTimer=setTimeout(()=>{ _adminSyncTimer=null; try{ sendResultToAdmin(); }catch(e){} }, 1500); }
+try{ window.addEventListener('load',()=>setTimeout(flushAdminOutbox,2500)); }catch(e){}
+
 // ---- save 후킹 ----
 const _origSave2 = save;
 save = function() {
   _origSave2();
   blinkAutosave();
+  try{ scheduleAdminSync(); }catch(e){}
 };
 
 // ---- showView 후킹 ----
@@ -7324,6 +7424,7 @@ window.showMobileVoiceStarter = showMobileVoiceStarter;
 // 전역 recognition 인스턴스 관리 (중복 시작 방지)
 let _globalRecognition = null;
 let _globalRecording = false;
+let _micWant = false; // 마이크 핸즈프리(한 번 켜면 자동 재시작)
 let _globalRestartTimer = null;
 
 function getRecognition() {
@@ -7390,6 +7491,7 @@ async function safeStartRecognition() {
 }
 
 function safeStopRecognition() {
+  _micWant = false;
   if (!_globalRecognition) return;
   try { _globalRecognition.stop(); } catch(e) {}
   _globalRecording = false;
@@ -7442,7 +7544,15 @@ function rebindMicButton() {
     if (messageInput.value.trim()) {
       setTimeout(() => sendBtn?.click(), 200);
     } else if (micStatus) {
-      micStatus.textContent = '';
+      micStatus.textContent = _micWant ? '🎤 계속 듣는 중…' : '';
+    }
+    // 핸즈프리: 사용자가 켜둔 상태면 자동 재시작 (TTS 재생 중엔 대기)
+    if (_micWant) {
+      setTimeout(function(){
+        if (_micWant && !_globalRecording && !(('speechSynthesis' in window) && speechSynthesis.speaking)) {
+          safeStartRecognition();
+        }
+      }, messageInput.value.trim() ? 1800 : 700);
     }
   };
   rec.onerror = (e) => {
@@ -7454,13 +7564,20 @@ function rebindMicButton() {
       newBtn.innerHTML = '🎤 말하기';
     }
     if (e.error === 'no-speech') {
-      if (micStatus) micStatus.textContent = '음성이 감지되지 않았어요. 다시 시도해주세요.';
-    } else if (e.error === 'not-allowed') {
+      if (micStatus) micStatus.textContent = _micWant ? '🎤 계속 듣는 중…' : '음성이 감지되지 않았어요. 다시 시도해주세요.';
+    } else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      _micWant = false;
       if (micStatus) micStatus.textContent = '⚠ 마이크 권한 거부됨';
     } else if (e.error === 'aborted') {
       if (micStatus) micStatus.textContent = '';
     } else {
       if (micStatus) micStatus.textContent = '오류: ' + e.error;
+    }
+    // 핸즈프리: 침묵/중단으로 끊겨도 자동 재시작 (권한거부 제외)
+    if (_micWant && e.error !== 'not-allowed' && e.error !== 'service-not-allowed') {
+      setTimeout(function(){
+        if (_micWant && !_globalRecording && !(('speechSynthesis' in window) && speechSynthesis.speaking)) { safeStartRecognition(); }
+      }, 500);
     }
   };
   rec.onstart = () => {
@@ -7475,6 +7592,7 @@ function rebindMicButton() {
     e.preventDefault();
     e.stopPropagation();
     if (!_globalRecording) {
+      _micWant = true;
       messageInput.value = '';
       if (micStatus) micStatus.textContent = '시작 중...';
       const ok = await safeStartRecognition();
