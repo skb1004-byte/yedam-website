@@ -22,6 +22,7 @@ body{font-family:var(--font-ui);background:var(--paper-2);color:var(--ink);line-
 .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:16px}
 h1{font-family:var(--font-head);font-size:20px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px;margin-bottom:4px}
 h1 .dot{width:28px;height:28px;border-radius:8px;background:var(--rust);display:grid;place-items:center;color:#fff;font-size:15px}
+h2{font-family:var(--font-head);font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .sub{color:var(--ink-soft);font-size:13px;margin-bottom:6px}
 label{display:block;margin-bottom:12px}
 label .t{font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:4px;display:block}
@@ -34,6 +35,7 @@ button{cursor:pointer;border:0;border-radius:var(--r-sm);padding:10px 18px;font-
 button:hover{background:var(--rust-deep)}
 button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
 button.sky{background:var(--sky)}
+button.sm{padding:7px 13px;font-size:13px}
 .status{font-size:13px;color:var(--ink-soft);margin-left:4px}
 .help{background:var(--sky-tint);border:1px solid #cfe0ee;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#3c5a78;margin-top:6px;line-height:1.6}
 .help a{color:#2563eb;font-weight:800;text-decoration:none}
@@ -46,10 +48,14 @@ button.sky{background:var(--sky)}
 <body>
 <div class="wrap">
   <div class="card">
-    <h1><span class="dot">P</span>AI 엔진 설정 <span style="font-size:13px;color:var(--mid);font-weight:600">관리자 전용</span></h1>
-    <div class="sub">자유대화·AI 해석에 쓸 엔진을 여기서 설정합니다. <b>이 기기(브라우저)에 저장</b>되며, 같은 기기에서 연 <b>AI PIA 검사 화면에 자동 적용</b>됩니다. (학생 화면에는 이 설정이 보이지 않습니다.)</div>
+    <h1><span class="dot">P</span>AI PIA 설정 <span style="font-size:13px;color:var(--mid);font-weight:600">관리자 전용</span></h1>
+    <div class="sub">자유대화·AI 해석·음성·감정분석에 쓸 모든 엔진/연동을 여기서 설정합니다. <b>이 기기(브라우저)에 저장</b>되며, 같은 기기에서 연 <b>AI PIA 검사 화면에 자동 적용</b>됩니다. (학생 화면에는 이 설정이 보이지 않습니다.)</div>
     <div class="bignote">현재 적용 중: <span class="cur" id="curMode">—</span> <span id="curModel" class="note" style="color:#43543a"></span></div>
+  </div>
 
+  <!-- 1) AI 엔진 -->
+  <div class="card">
+    <h2>🤖 AI 엔진 (자유대화·해석)</h2>
     <label><span class="t">엔진 모드</span>
       <select id="mode">
         <option value="ONDEVICE">🖥 온디바이스 (오프라인·키 불필요·권장 기본)</option>
@@ -67,22 +73,55 @@ button.sky{background:var(--sky)}
         <option value="CUSTOM_OAI">커스텀 OpenAI 호환</option>
       </select>
     </label>
-
     <div class="grid2">
       <label><span class="t">Endpoint</span><input id="endpoint" placeholder="자동 설정"></label>
       <label><span class="t">Model</span><input id="model" placeholder="자동 설정"></label>
     </div>
     <label id="keyWrap"><span class="t">API Key</span><input id="key" type="password" placeholder="AIza... / sk-..." autocomplete="off"></label>
-
     <div class="help" id="help" style="display:none"></div>
-
     <div class="btns" style="margin-top:14px">
       <button id="testBtn" class="sky">🔌 연동 테스트</button>
-      <button id="saveBtn">저장 (이 기기에 적용)</button>
+      <button id="saveBtn">엔진 저장</button>
       <button id="freeBtn" class="ghost">⚡ 무료(키 없이)로</button>
       <span class="status" id="status"></span>
     </div>
     <div class="note">🔒 키는 이 브라우저에만 저장되고 소스코드·서버에는 올라가지 않습니다. 공개 키오스크라면 Google AI Studio에서 키를 <b>yedam.kr</b> 도메인으로 제한하세요.</div>
+  </div>
+
+  <!-- 2) 무료 AI 모델 · 백엔드 프록시 -->
+  <div class="card">
+    <h2>⚙️ 무료 AI 모델 · 백엔드 프록시</h2>
+    <div class="grid2">
+      <label><span class="t">무료 AI 모델 (자동 무료 사용 시)</span>
+        <select id="freeModel">
+          <option value="openai">openai (기본)</option>
+          <option value="openai-fast">openai-fast (빠름)</option>
+          <option value="mistral">mistral</option>
+        </select>
+      </label>
+      <label><span class="t">백엔드 프록시 URL (커리어넷·워크넷 등 CORS 우회, 선택)</span>
+        <input id="proxy" placeholder="비워두면 미사용 (예: http://localhost:8787)">
+      </label>
+    </div>
+    <div class="btns"><button id="saveExtra">저장</button><span class="status" id="statusExtra"></span></div>
+    <div class="note">프록시는 공공 API(커리어넷·워크넷)처럼 CORS가 막힌 곳을 호출할 때만 필요합니다. 모르면 비워두세요.</div>
+  </div>
+
+  <!-- 3) HuggingFace 연동 -->
+  <div class="card">
+    <h2>🤗 HuggingFace 연동 (감정분석 · 음성인식 · LLM)</h2>
+    <div class="sub">토큰 1개로 ① 한국어 감정·문장 분석 ② Whisper 음성→텍스트 ③ HF LLM 자유대화를 사용합니다. (huggingface.co → Settings → Access Tokens 에서 무료 발급) <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">토큰 발급 ↗</a></div>
+    <label><span class="t">HF Access Token</span><input id="hfToken" type="password" placeholder="hf_..." autocomplete="off"></label>
+    <div class="grid2">
+      <label><span class="t">감정분석 모델</span><input id="hfEmo" placeholder="matthewburke/korean_sentiment"></label>
+      <label><span class="t">STT(음성→텍스트) 모델</span><input id="hfStt" placeholder="openai/whisper-large-v3"></label>
+    </div>
+    <label><span class="t">LLM 모델</span><input id="hfLlm" placeholder="Qwen/Qwen2.5-7B-Instruct"></label>
+    <div class="btns">
+      <button id="saveHF">저장</button>
+      <button id="hfTest" class="sky sm">🔌 HF 토큰·LLM 테스트</button>
+      <span class="status" id="statusHF"></span>
+    </div>
   </div>
 </div>
 
@@ -105,14 +144,14 @@ var PROVIDERS={
   CUSTOM_OAI:{endpoint:'',model:''}
 };
 var HELP={
-  GEMINI_FLASH:'<b>Google Gemini 2.5 Flash</b> · <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">키 발급 페이지 열기 ↗</a><br>① 위 링크에서 <b>Create API key</b> → 키 복사 ② 아래 <b>API Key</b>에 붙여넣기 ③ <b>연동 테스트</b> → <b>저장</b>. 모델은 gemini-2.5-flash(무료한도 있음)로 자동 설정됩니다.',
+  GEMINI_FLASH:'<b>Google Gemini 2.5 Flash</b> · <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">키 발급 페이지 열기 ↗</a><br>① 위 링크에서 <b>Create API key</b> → 키 복사 ② 아래 <b>API Key</b>에 붙여넣기 ③ <b>연동 테스트</b> → <b>엔진 저장</b>. 모델은 gemini-2.5-flash(무료한도 있음)로 자동 설정됩니다.',
   SOLAR:'<b>Upstage SOLAR</b> · <a href="https://console.upstage.ai/" target="_blank" rel="noopener">키 발급 ↗</a> · OpenAI 호환.',
   CLAUDE_HAIKU:'<b>Claude Haiku</b>(유료) · <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">키 발급 ↗</a>',
   OPENROUTER_FREE:'<b>OpenRouter</b> · <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">키 발급 ↗</a> · 무료모델은 호출 제한 있을 수 있음.',
   CEREBRAS:'<b>Cerebras</b> · <a href="https://cloud.cerebras.ai/" target="_blank" rel="noopener">키 발급 ↗</a>',
   TOGETHER:'<b>Together AI</b> · <a href="https://api.together.xyz/settings/api-keys" target="_blank" rel="noopener">키 발급 ↗</a>',
   GITHUB_MODELS:'<b>GitHub Models</b> · <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">토큰 발급 ↗</a>',
-  HF_LLM:'<b>HuggingFace</b> · <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">토큰 발급 ↗</a>',
+  HF_LLM:'<b>HuggingFace</b> · 아래 "HuggingFace 연동"의 토큰을 사용합니다. <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">토큰 발급 ↗</a>',
   HYPERCLOVA:'<b>HyperCLOVA X</b> · <a href="https://www.ncloud.com/product/aiService/clovaStudio" target="_blank" rel="noopener">CLOVA Studio ↗</a> · Endpoint·Key 직접 입력.',
   CUSTOM_OAI:'<b>커스텀 OpenAI 호환</b> · Endpoint·Model·Key를 직접 입력하세요.',
   ONDEVICE:'<b>온디바이스</b> · 키 없이 브라우저에서 동작(지원 브라우저). 인터넷·키 불필요.',
@@ -120,7 +159,10 @@ var HELP={
   LOCAL:'<b>로컬 규칙형</b> · 오프라인 규칙 기반. 키 불필요.'
 };
 function loadCfg(){ try{ return JSON.parse(localStorage.getItem(CFG_KEY)||'{}'); }catch(e){ return {}; } }
+function writeCfg(patch){ var c=loadCfg(); for(var k in patch) c[k]=patch[k]; try{ localStorage.setItem(CFG_KEY, JSON.stringify(c)); return true; }catch(e){ return false; } }
 function renderCur(){ var c=loadCfg(); $('curMode').textContent=c.mode||'(미설정)'; $('curModel').textContent=c.model?('· '+c.model):''; }
+function esc(v){return (v==null?'':String(v)).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+
 function fillFromMode(keepKey){
   var m=$('mode').value, p=PROVIDERS[m]||{};
   $('endpoint').value=p.endpoint||''; $('model').value=p.model||'';
@@ -136,6 +178,12 @@ function init(){
   if(c.endpoint) $('endpoint').value=c.endpoint;
   if(c.model) $('model').value=c.model;
   if(c.key) $('key').value=c.key;
+  $('freeModel').value=c.freeModel||'openai';
+  $('proxy').value=c.proxy||'';
+  $('hfToken').value=c.hfToken||'';
+  $('hfEmo').value=c.hfEmotionModel||'matthewburke/korean_sentiment';
+  $('hfStt').value=c.hfSttModel||'openai/whisper-large-v3';
+  $('hfLlm').value=c.hfLlmModel||'Qwen/Qwen2.5-7B-Instruct';
   renderCur();
 }
 $('mode').addEventListener('change',function(){ fillFromMode(false); });
@@ -159,45 +207,57 @@ function buildReq(mode,endpoint,key,model,prompt){
       body:JSON.stringify({model:model||'openai',messages:[{role:'system',content:sys},{role:'user',content:prompt}],max_tokens:200,referrer:'ai-pia',private:true}),
       parse:function(d){return (d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||'';}};
   }
-  // OpenAI-compatible bearer
   return {url:endpoint,headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
     body:JSON.stringify({model:model,messages:[{role:'system',content:sys},{role:'user',content:prompt}],max_tokens:200,temperature:0.7}),
     parse:function(d){return (d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||'';}};
+}
+async function runTest(mode,ep,key,model,statusEl){
+  try{
+    var r=buildReq(mode,ep,key,model,'한 문장으로 짧게 자기소개 해줘.');
+    var res=await fetch(r.url,{method:'POST',headers:r.headers,body:r.body});
+    var txt=await res.text(); var data; try{data=JSON.parse(txt);}catch(e){data=null;}
+    if(!res.ok){ var msg=(data&&data.error&&(data.error.message||data.error.status))||txt.slice(0,180); statusEl.innerHTML='<span class="err">실패 '+res.status+': '+esc(msg)+'</span>'; return false; }
+    var out=data?r.parse(data):'';
+    statusEl.innerHTML= out? ('<span class="ok">✅ 연동 성공: '+esc(out.slice(0,60))+'</span>') : '<span class="err">응답 비어있음(모델/쿼터 확인).</span>';
+    return !!out;
+  }catch(e){ statusEl.innerHTML='<span class="err">연결 실패: '+esc(e.message)+'</span>'; return false; }
 }
 async function testEngine(){
   var m=$('mode').value, ep=$('endpoint').value.trim(), key=$('key').value.trim(), model=$('model').value.trim();
   if(m==='LOCAL'){ $('status').innerHTML='<span class="ok">로컬 규칙형은 오프라인이라 테스트 불필요.</span>'; return; }
   if(m==='ONDEVICE'){ $('status').innerHTML='<span class="ok">온디바이스는 PIA 화면 첫 대화에서 모델을 준비합니다.</span>'; return; }
+  if(m==='HF_LLM'){ key=key||($('hfToken').value.trim()); model=model||$('hfLlm').value.trim(); }
   var needKey=['GEMINI_FLASH','SOLAR','HYPERCLOVA','CLAUDE_HAIKU','OPENROUTER_FREE','CEREBRAS','TOGETHER','GITHUB_MODELS','HF_LLM','CUSTOM_OAI'].indexOf(m)>=0;
   if(needKey && !key){ $('status').innerHTML='<span class="err">API Key를 먼저 입력하세요.</span>'; return; }
   $('status').textContent='🔌 테스트 중…';
-  try{
-    var r=buildReq(m,ep,key,model,'한 문장으로 짧게 자기소개 해줘.');
-    var res=await fetch(r.url,{method:'POST',headers:r.headers,body:r.body});
-    var txt=await res.text(); var data; try{data=JSON.parse(txt);}catch(e){data=null;}
-    if(!res.ok){ var msg=(data&&data.error&&(data.error.message||data.error.status))||txt.slice(0,180); $('status').innerHTML='<span class="err">실패 '+res.status+': '+esc(msg)+'</span>'; return; }
-    var out=data?r.parse(data):'';
-    $('status').innerHTML= out? ('<span class="ok">✅ 연동 성공: '+esc(out.slice(0,60))+'</span>') : '<span class="err">응답 비어있음(모델/쿼터 확인).</span>';
-  }catch(e){ $('status').innerHTML='<span class="err">연결 실패: '+esc(e.message)+'</span>'; }
+  await runTest(m,ep,key,model,$('status'));
 }
-function saveCfg(){
-  var c=loadCfg();
-  c.mode=$('mode').value;
-  c.endpoint=$('endpoint').value.trim();
-  c.model=$('model').value.trim();
-  c.key=$('key').value.trim();
-  c._engineChosen=true;
-  try{ localStorage.setItem(CFG_KEY, JSON.stringify(c)); }catch(e){ $('status').innerHTML='<span class="err">저장 실패: '+esc(e.message)+'</span>'; return; }
+function saveEngine(){
+  $('status').innerHTML = writeCfg({ mode:$('mode').value, endpoint:$('endpoint').value.trim(), model:$('model').value.trim(), key:$('key').value.trim(), _engineChosen:true })
+    ? '<span class="ok">✅ 저장됨 — 같은 기기의 AI PIA 검사 화면에 자동 적용됩니다.</span>' : '<span class="err">저장 실패</span>';
   renderCur();
-  $('status').innerHTML='<span class="ok">✅ 저장됨 — 같은 기기의 AI PIA 검사 화면에 자동 적용됩니다.</span>';
 }
-function useFree(){
-  $('mode').value='AUTO_FREE'; fillFromMode(false); saveCfg();
+function useFree(){ $('mode').value='AUTO_FREE'; fillFromMode(false); saveEngine(); }
+function saveExtra(){
+  $('statusExtra').innerHTML = writeCfg({ freeModel:$('freeModel').value, proxy:$('proxy').value.trim() })
+    ? '<span class="ok">✅ 저장됨</span>' : '<span class="err">저장 실패</span>';
 }
-function esc(v){return (v==null?'':String(v)).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+function saveHF(){
+  $('statusHF').innerHTML = writeCfg({ hfToken:$('hfToken').value.trim(), hfEmotionModel:$('hfEmo').value.trim()||'matthewburke/korean_sentiment', hfSttModel:$('hfStt').value.trim()||'openai/whisper-large-v3', hfLlmModel:$('hfLlm').value.trim()||'Qwen/Qwen2.5-7B-Instruct' })
+    ? '<span class="ok">✅ HuggingFace 설정 저장됨 (이 브라우저)</span>' : '<span class="err">저장 실패</span>';
+}
+async function testHF(){
+  var tok=$('hfToken').value.trim(), model=$('hfLlm').value.trim()||'Qwen/Qwen2.5-7B-Instruct';
+  if(!tok){ $('statusHF').innerHTML='<span class="err">HF 토큰을 먼저 입력하세요.</span>'; return; }
+  $('statusHF').textContent='🔌 HF 테스트 중…';
+  await runTest('HF_LLM','https://router.huggingface.co/v1/chat/completions',tok,model,$('statusHF'));
+}
 $('testBtn').onclick=testEngine;
-$('saveBtn').onclick=saveCfg;
+$('saveBtn').onclick=saveEngine;
 $('freeBtn').onclick=useFree;
+$('saveExtra').onclick=saveExtra;
+$('saveHF').onclick=saveHF;
+$('hfTest').onclick=testHF;
 init();
 </script>
 </body>
