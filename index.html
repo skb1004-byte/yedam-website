@@ -123,7 +123,26 @@ h2.title .em{color:var(--rust)}
 }
 .nav a:hover{color:var(--ink)}
 .nav a:hover::after{transform:scaleX(1)}
+.hdr-right{display:flex;align-items:center;gap:18px}
 .hdr-cta{display:inline-flex}
+
+/* lang toggle */
+.lang-toggle{
+  display:inline-flex;align-items:center;gap:0;
+  font-family:var(--font-ui);font-size:.82rem;font-weight:700;
+  border:1px solid var(--line);border-radius:999px;overflow:hidden;
+  background:var(--paper);flex-shrink:0;
+}
+.lang-toggle button{
+  font-family:inherit;font-size:inherit;font-weight:700;
+  border:none;background:none;cursor:pointer;color:var(--ink-soft);
+  padding:6px 13px;min-height:34px;line-height:1;letter-spacing:.04em;
+  transition:background .2s,color .2s;
+}
+.lang-toggle button:hover{color:var(--ink)}
+.lang-toggle button.active{background:var(--rust);color:#fff}
+.lang-toggle .sep{color:var(--mid);font-weight:400;padding:0;user-select:none}
+
 .burger{
   display:none;width:44px;height:44px;border:none;background:none;cursor:pointer;
   flex-direction:column;justify-content:center;align-items:center;gap:5px;
@@ -151,6 +170,7 @@ h2.title .em{color:var(--rust)}
 @media(max-width:880px){
   .nav,.hdr-cta{display:none}
   .burger{display:flex}
+  .hdr-right{gap:10px}
 }
 
 /* ========== HERO ========== */
@@ -403,18 +423,25 @@ h2.title .em{color:var(--rust)}
 <!-- ══════════ HEADER ══════════ -->
 <header class="hdr">
   <div class="hdr-inner">
-    <a href="#top" class="hdr-logo" aria-label="㈜예담정보통신 홈">
+    <a href="#top" class="hdr-logo" aria-label="㈜예담정보통신 홈" data-en-aria="YEDAM I&C Home">
       <img src="images/logo_horizontal.png" alt="㈜예담정보통신 YEDAM">
     </a>
-    <nav class="nav" aria-label="주요 메뉴">
-      <a href="#about">회사소개</a>
-      <a href="#solutions">솔루션</a>
-      <a href="#record">실적</a>
-      <a href="#clients">파트너</a>
-      <a href="#contact">문의</a>
+    <nav class="nav" aria-label="주요 메뉴" data-en-aria="Main menu">
+      <a href="#about" data-en="About">회사소개</a>
+      <a href="#solutions" data-en="Solutions">솔루션</a>
+      <a href="#record" data-en="Track Record">실적</a>
+      <a href="#clients" data-en="Partners">파트너</a>
+      <a href="#contact" data-en="Contact">문의</a>
     </nav>
-    <a href="ai-pia.html" class="btn btn-primary hdr-cta">AI PIA 검사</a>
-    <button class="burger" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sheet">
+    <div class="hdr-right">
+      <div class="lang-toggle" role="group" aria-label="Language / 언어 선택">
+        <button type="button" id="lang-kr" data-lang="ko" class="active" aria-pressed="true">KR</button>
+        <span class="sep" aria-hidden="true">|</span>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <a href="ai-pia.html" class="btn btn-primary hdr-cta" data-en="AI PIA Test">AI PIA 검사</a>
+    </div>
+    <button class="burger" id="burger" aria-label="메뉴 열기" data-en-aria="Open menu" aria-expanded="false" aria-controls="sheet">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -422,12 +449,12 @@ h2.title .em{color:var(--rust)}
 
 <!-- mobile sheet -->
 <div class="sheet" id="sheet">
-  <a href="#about" class="sheet-link">회사소개</a>
-  <a href="#solutions" class="sheet-link">솔루션</a>
-  <a href="#record" class="sheet-link">실적</a>
-  <a href="#clients" class="sheet-link">파트너</a>
-  <a href="#contact" class="sheet-link">문의</a>
-  <a href="ai-pia.html" class="btn btn-primary">AI PIA 검사 →</a>
+  <a href="#about" class="sheet-link" data-en="About">회사소개</a>
+  <a href="#solutions" class="sheet-link" data-en="Solutions">솔루션</a>
+  <a href="#record" class="sheet-link" data-en="Track Record">실적</a>
+  <a href="#clients" class="sheet-link" data-en="Partners">파트너</a>
+  <a href="#contact" class="sheet-link" data-en="Contact">문의</a>
+  <a href="ai-pia.html" class="btn btn-primary" data-en="AI PIA Test &rarr;">AI PIA 검사 →</a>
 </div>
 
 <!-- ══════════ HERO ══════════ -->
@@ -435,18 +462,18 @@ h2.title .em{color:var(--rust)}
   <div class="wrap">
     <div class="hero-grid">
       <div>
-        <span class="chip rv">AI EduTech · 교육 IT 전문기업</span>
-        <h1 class="rv d1">교육의 다음을<br><span class="em">함께 설계</span>합니다.</h1>
-        <p class="hero-sub rv d1">㈜예담정보통신은 비상교육·현대NGV·국방부 등 국내 주요 교육·공공기관과 함께 11년간 핵심 IT 시스템을 구축해온 전문기업입니다. AI PIA, AI ClassBoard, AREX-Climbing, AI 디지털 간판으로 차세대 에듀테크 시장을 열어갑니다.</p>
+        <span class="chip rv" data-en="AI EduTech &middot; Education IT Specialist">AI EduTech · 교육 IT 전문기업</span>
+        <h1 class="rv d1" data-en="Designing the next era of<br><span class=&quot;em&quot;>education, together.</span>">교육의 다음을<br><span class="em">함께 설계</span>합니다.</h1>
+        <p class="hero-sub rv d1" data-en="YEDAM I&amp;C has built mission-critical IT systems for over 11 years alongside leading Korean education and public-sector institutions including Visang Education, Hyundai NGV, and the Ministry of National Defense. With AI PIA, AI ClassBoard, AREX-Climbing, and AI Digital Signage, we are opening the next-generation EduTech market.">㈜예담정보통신은 비상교육·현대NGV·국방부 등 국내 주요 교육·공공기관과 함께 11년간 핵심 IT 시스템을 구축해온 전문기업입니다. AI PIA, AI ClassBoard, AREX-Climbing, AI 디지털 간판으로 차세대 에듀테크 시장을 열어갑니다.</p>
         <p class="hero-en rv d2">Designing the Future of Education</p>
         <div class="hero-btns rv d2">
-          <a href="#solutions" class="btn btn-primary">솔루션 보기</a>
-          <a href="#contact" class="btn btn-ghost">프로젝트 문의</a>
+          <a href="#solutions" class="btn btn-primary" data-en="View Solutions">솔루션 보기</a>
+          <a href="#contact" class="btn btn-ghost" data-en="Start a Project">프로젝트 문의</a>
         </div>
       </div>
       <figure class="hero-figure rv d2">
         <img loading="lazy" src="images/hero_masterplan.jpg" alt="차세대 AI 스마트 학교 통합 마스터플랜 — Mind · Space · Body 통합 비전">
-        <figcaption class="hero-cap">차세대 AI 스마트 학교 통합 마스터플랜 — Mind · Space · Body</figcaption>
+        <figcaption class="hero-cap" data-en="Next-Generation AI Smart School Integrated Masterplan &mdash; Mind &middot; Space &middot; Body">차세대 AI 스마트 학교 통합 마스터플랜 — Mind · Space · Body</figcaption>
       </figure>
     </div>
   </div>
@@ -458,26 +485,26 @@ h2.title .em{color:var(--rust)}
     <div class="about-grid">
       <div class="rv">
         <span class="eyebrow">About Us</span>
-        <h2 class="title">신뢰의 11년,<br><span class="em">혁신의 다음.</span></h2>
-        <p class="lead-desc">교육과 공공의 디지털 전환을 가장 가까이에서 지원하는 IT 파트너.</p>
+        <h2 class="title" data-en="11 Years of Trust,<br><span class=&quot;em&quot;>the Next of Innovation.</span>">신뢰의 11년,<br><span class="em">혁신의 다음.</span></h2>
+        <p class="lead-desc" data-en="An IT partner supporting the digital transformation of education and the public sector at the closest range.">교육과 공공의 디지털 전환을 가장 가까이에서 지원하는 IT 파트너.</p>
         <div class="about-hi">
-          <div class="about-hi-item"><span class="about-hi-num">11</span><div class="about-hi-txt"><strong>년 사업 이력</strong><span>2014년 설립 · 정보시스템 전문기업</span></div></div>
-          <div class="about-hi-item"><span class="about-hi-num">9</span><div class="about-hi-txt"><strong>년 파트너십</strong><span>비상교육 핵심 서비스 연속 수행</span></div></div>
-          <div class="about-hi-item"><span class="about-hi-num">4</span><div class="about-hi-txt"><strong>대 신규 솔루션</strong><span>AI · IoT · 실감형 기술 융합</span></div></div>
+          <div class="about-hi-item"><span class="about-hi-num">11</span><div class="about-hi-txt"><strong data-en="Years in Business">년 사업 이력</strong><span data-en="Founded 2014 &middot; Information Systems Specialist">2014년 설립 · 정보시스템 전문기업</span></div></div>
+          <div class="about-hi-item"><span class="about-hi-num">9</span><div class="about-hi-txt"><strong data-en="Year Partnership">년 파트너십</strong><span data-en="Continuous delivery of Visang Education core services">비상교육 핵심 서비스 연속 수행</span></div></div>
+          <div class="about-hi-item"><span class="about-hi-num">4</span><div class="about-hi-txt"><strong data-en="New Solutions">대 신규 솔루션</strong><span data-en="Convergence of AI &middot; IoT &middot; Immersive technology">AI · IoT · 실감형 기술 융합</span></div></div>
         </div>
       </div>
       <div class="rv d1">
-        <p class="about-lead">비상교육 9년 파트너십 위에서 출발한 AI 에듀테크 전문기업</p>
-        <p class="about-p">2014년 설립 이래 비상교육 RMS 시스템개편(1.925억)을 시작으로 비바샘·유아Core·윙스·누리샘·티키토키 등 비상교육 핵심 서비스를 9년간 연속 수행하였습니다. 현대NGV·경기도청·국방부 사업에도 참여하며 교육·공공 전 분야의 SI 역량을 쌓았습니다.</p>
-        <p class="about-p">2026년 현재는 축적된 도메인 경험 위에 AI·IoT·실감형 기술을 결합한 4대 신규 솔루션으로 다음 단계의 에듀테크 시장을 개척하고 있습니다.</p>
+        <p class="about-lead" data-en="An AI EduTech specialist built on a 9-year partnership with Visang Education.">비상교육 9년 파트너십 위에서 출발한 AI 에듀테크 전문기업</p>
+        <p class="about-p" data-en="Since our founding in 2014, beginning with the Visang Education RMS system overhaul (KRW 192.5M), we have delivered Visang's core services &mdash; Bibasam, Yua Core, Wings, Nurisam, and Tiki-Toki &mdash; continuously for nine years. Through projects with Hyundai NGV, Gyeonggi Provincial Government, and the Ministry of National Defense, we have built deep SI capabilities across the education and public sectors.">2014년 설립 이래 비상교육 RMS 시스템개편(1.925억)을 시작으로 비바샘·유아Core·윙스·누리샘·티키토키 등 비상교육 핵심 서비스를 9년간 연속 수행하였습니다. 현대NGV·경기도청·국방부 사업에도 참여하며 교육·공공 전 분야의 SI 역량을 쌓았습니다.</p>
+        <p class="about-p" data-en="As of 2026, we are pioneering the next stage of the EduTech market with four new solutions that combine AI, IoT, and immersive technology on top of our accumulated domain expertise.">2026년 현재는 축적된 도메인 경험 위에 AI·IoT·실감형 기술을 결합한 4대 신규 솔루션으로 다음 단계의 에듀테크 시장을 개척하고 있습니다.</p>
         <table class="info-tbl">
           <tbody>
-            <tr><td class="lbl">법인명</td><td class="val">㈜예담정보통신<span class="tag">중소기업</span></td></tr>
-            <tr><td class="lbl">대표자</td><td class="val">송 규 봉 (Song Kyu Bong)</td></tr>
-            <tr><td class="lbl">설립일</td><td class="val">2014년 9월 1일<span class="tag">11년차</span></td></tr>
-            <tr><td class="lbl">업종</td><td class="val">정보시스템 유지관리 · SI · AI 에듀테크</td></tr>
-            <tr><td class="lbl">사업자번호</td><td class="val">127-86-57189</td></tr>
-            <tr><td class="lbl">소재지</td><td class="val">서울 금천구 가산디지털1로 212, 1405호 (코오롱디지털타워애스턴)</td></tr>
+            <tr><td class="lbl" data-en="Company">법인명</td><td class="val">㈜예담정보통신<span class="tag" data-en="SME">중소기업</span></td></tr>
+            <tr><td class="lbl" data-en="CEO">대표자</td><td class="val">송 규 봉 (Song Kyu Bong)</td></tr>
+            <tr><td class="lbl" data-en="Founded">설립일</td><td class="val" data-en="September 1, 2014<span class=&quot;tag&quot;>11th Year</span>">2014년 9월 1일<span class="tag">11년차</span></td></tr>
+            <tr><td class="lbl" data-en="Industry">업종</td><td class="val" data-en="Information Systems Maintenance &middot; SI &middot; AI EduTech">정보시스템 유지관리 · SI · AI 에듀테크</td></tr>
+            <tr><td class="lbl" data-en="Business No.">사업자번호</td><td class="val">127-86-57189</td></tr>
+            <tr><td class="lbl" data-en="Location">소재지</td><td class="val" data-en="1405 Kolon Digital Tower Aston, 212 Gasan Digital 1-ro, Geumcheon-gu, Seoul">서울 금천구 가산디지털1로 212, 1405호 (코오롱디지털타워애스턴)</td></tr>
           </tbody>
         </table>
       </div>
@@ -490,20 +517,20 @@ h2.title .em{color:var(--rust)}
   <div class="wrap">
     <div class="sec-head rv">
       <span class="eyebrow">Our Solutions</span>
-      <h2 class="title">차세대 교육을 설계하는<br><span class="em">4대 핵심 솔루션.</span></h2>
-      <p class="lead-desc">Mind · Space · Body · City — 학생을 둘러싼 네 가지 차원을 데이터와 AI로 연결합니다.</p>
+      <h2 class="title" data-en="Four Core Solutions<br><span class=&quot;em&quot;>Designing Next-Gen Education.</span>">차세대 교육을 설계하는<br><span class="em">4대 핵심 솔루션.</span></h2>
+      <p class="lead-desc" data-en="Mind &middot; Space &middot; Body &middot; City &mdash; connecting the four dimensions surrounding every student through data and AI.">Mind · Space · Body · City — 학생을 둘러싼 네 가지 차원을 데이터와 AI로 연결합니다.</p>
     </div>
     <div class="sol-grid">
       <article class="sol-card rv">
         <div class="sol-card-img"><img loading="lazy" src="images/sol1_pia_ecosystem.jpg" alt="AI PIA 5단계 반복형 성장관리 플랫폼 — Engage · Diagnose · Educate · Support · Manage"></div>
         <div class="sol-card-body">
           <div class="sol-no">01 · Mind · Growth Platform</div>
-          <h3>AI PIA 성장교육 플랫폼</h3>
-          <p>밀착형 성장 진단 및 반응형 상담 지원 — 학생의 성향과 진로를 AI 16유형 검사로 분석하고 맞춤형 교육·상담 키오스크로 연결하는 차세대 반복형 성장관리 플랫폼.</p>
+          <h3 data-en="AI PIA Growth Education Platform">AI PIA 성장교육 플랫폼</h3>
+          <p data-en="Close-range growth diagnosis and responsive counseling support &mdash; a next-generation iterative growth-management platform that analyzes each student's disposition and career path through a 16-type AI assessment and connects them to tailored education and counseling kiosks.">밀착형 성장 진단 및 반응형 상담 지원 — 학생의 성향과 진로를 AI 16유형 검사로 분석하고 맞춤형 교육·상담 키오스크로 연결하는 차세대 반복형 성장관리 플랫폼.</p>
           <ul class="sol-feats">
-            <li>AI 교육형 만화·숏폼으로 자발적 참여 유도</li>
-            <li>AI 16유형 검사 (3~5분 간편 / 정밀)</li>
-            <li>익명 상담 키오스크 · 위험 감지 시스템</li>
+            <li data-en="Drives voluntary engagement with AI educational comics &amp; short-form video">AI 교육형 만화·숏폼으로 자발적 참여 유도</li>
+            <li data-en="AI 16-type assessment (3&ndash;5 min quick / in-depth)">AI 16유형 검사 (3~5분 간편 / 정밀)</li>
+            <li data-en="Anonymous counseling kiosk &middot; risk-detection system">익명 상담 키오스크 · 위험 감지 시스템</li>
           </ul>
         </div>
       </article>
@@ -511,12 +538,12 @@ h2.title .em{color:var(--rust)}
         <div class="sol-card-img"><img loading="lazy" src="images/sol2_classboard_tworoom.jpg" alt="AI ClassBoard — 교실 후면칠판과 교무실 디지털 공문 게시판을 통합 관리하는 스마트 스쿨보드"></div>
         <div class="sol-card-body">
           <div class="sol-no">02 · Space · Classroom OS</div>
-          <h3>AI ClassBoard 스마트 스쿨보드</h3>
-          <p>아날로그 게시판의 디지털 창작·소통 공간화 — 교실 뒤 칠판과 교무실 게시판을 스마트 플랫폼으로 전환하는 B2G 에듀테크 솔루션. AI Platform Manager로 통합 관리합니다.</p>
+          <h3 data-en="AI ClassBoard Smart Schoolboard">AI ClassBoard 스마트 스쿨보드</h3>
+          <p data-en="Turning analog bulletin boards into digital spaces for creation and communication &mdash; a B2G EduTech solution that transforms rear classroom boards and staff-room boards into a smart platform, managed centrally through the AI Platform Manager.">아날로그 게시판의 디지털 창작·소통 공간화 — 교실 뒤 칠판과 교무실 게시판을 스마트 플랫폼으로 전환하는 B2G 에듀테크 솔루션. AI Platform Manager로 통합 관리합니다.</p>
           <ul class="sol-feats">
-            <li>교실 후면칠판 + 교무실 디지털 공문 통합</li>
-            <li>AI 부적절 표현 검수 · K-에듀파인 연동</li>
-            <li>기존 전자칠판과 충돌 없는 틈새 전략</li>
+            <li data-en="Integrates rear classroom boards + staff-room digital notices">교실 후면칠판 + 교무실 디지털 공문 통합</li>
+            <li data-en="AI inappropriate-content review &middot; K-EduFine integration">AI 부적절 표현 검수 · K-에듀파인 연동</li>
+            <li data-en="A niche strategy that avoids conflict with existing e-boards">기존 전자칠판과 충돌 없는 틈새 전략</li>
           </ul>
         </div>
       </article>
@@ -524,12 +551,12 @@ h2.title .em{color:var(--rust)}
         <div class="sol-card-img"><img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AREX-Climbing — AR/VR 실내 암벽등반과 PGMS 체육교육관리시스템 융합 솔루션"></div>
         <div class="sol-card-body">
           <div class="sol-no">03 · Body · Immersive PE</div>
-          <h3>AREX-Climbing 실감형 체육</h3>
-          <p>IT 기술이 접목된 안전한 미래형 체육 교육 — AR/VR 게임과 AI 기반 PGMS(체육교육관리시스템)이 융합된 실내 암벽등반 솔루션. 5m×3m 공암벽에 Blended Learning 콘텐츠를 결합합니다.</p>
+          <h3 data-en="AREX-Climbing Immersive PE">AREX-Climbing 실감형 체육</h3>
+          <p data-en="Safe, future-ready physical education powered by IT &mdash; an indoor climbing solution that fuses AR/VR games with an AI-based PGMS (PE management system), combining Blended Learning content on a 5m&times;3m climbing wall.">IT 기술이 접목된 안전한 미래형 체육 교육 — AR/VR 게임과 AI 기반 PGMS(체육교육관리시스템)이 융합된 실내 암벽등반 솔루션. 5m×3m 공암벽에 Blended Learning 콘텐츠를 결합합니다.</p>
           <ul class="sol-feats">
-            <li>AR/VR 게임 + PGMS 체육 관리 시스템</li>
-            <li>체육 활동 데이터화 · 참여도 향상</li>
-            <li>친환경 자작나무 시공 · 안전 매트</li>
+            <li data-en="AR/VR games + PGMS PE management system">AR/VR 게임 + PGMS 체육 관리 시스템</li>
+            <li data-en="Turns PE activity into data &middot; boosts participation">체육 활동 데이터화 · 참여도 향상</li>
+            <li data-en="Eco-friendly birch construction &middot; safety matting">친환경 자작나무 시공 · 안전 매트</li>
           </ul>
         </div>
       </article>
@@ -537,12 +564,12 @@ h2.title .em{color:var(--rust)}
         <div class="sol-card-img"><img loading="lazy" src="images/sol4_signage_new.jpg" alt="AI 디지털 간판 플랫폼 — 건물 공지·광고 디지털화 및 입주사 수익 창출"></div>
         <div class="sol-card-body">
           <div class="sol-no">04 · City · Smart Signage</div>
-          <h3>AI 디지털 간판 플랫폼</h3>
-          <p>종이 게시판을 대체하여 건물 공지·광고를 디지털화하고, AI 광고 제작·QR 상담·입주사 광고 수익 모델을 제공하는 스마트 시설 솔루션. 지식산업센터·공공시설관리공단 특화.</p>
+          <h3 data-en="AI Digital Signage Platform">AI 디지털 간판 플랫폼</h3>
+          <p data-en="A smart-facility solution that replaces paper boards to digitize building notices and advertising, offering AI ad creation, QR consultations, and an advertising-revenue model for tenants. Tailored for knowledge-industry centers and public-facility management agencies.">종이 게시판을 대체하여 건물 공지·광고를 디지털화하고, AI 광고 제작·QR 상담·입주사 광고 수익 모델을 제공하는 스마트 시설 솔루션. 지식산업센터·공공시설관리공단 특화.</p>
           <ul class="sol-feats">
-            <li>AI 광고 제작 · QR 상담 · 공지 송출</li>
-            <li>입주사 광고 수익화 · 시설관리 경감</li>
-            <li>B2B/B2G 스마트 시설 특화 모델</li>
+            <li data-en="AI ad creation &middot; QR consultation &middot; notice broadcasting">AI 광고 제작 · QR 상담 · 공지 송출</li>
+            <li data-en="Tenant ad monetization &middot; reduced facility-management load">입주사 광고 수익화 · 시설관리 경감</li>
+            <li data-en="B2B/B2G smart-facility specialized model">B2B/B2G 스마트 시설 특화 모델</li>
           </ul>
         </div>
       </article>
@@ -557,12 +584,12 @@ h2.title .em{color:var(--rust)}
       <div class="feat-media"><img loading="lazy" src="images/infra_3pillar.jpg" alt="미래 교육을 완성하는 3대 디지털 전환 인프라 — Mind · Space · Body"></div>
       <div>
         <span class="eyebrow">Integrated Vision</span>
-        <h2 class="title">미래 교육을 완성하는<br><span class="em">3대 디지털 전환 인프라.</span></h2>
-        <p class="lead-desc">학생의 마음(Mind)·공간(Space)·신체(Body)를 하나의 데이터 흐름으로 연결하는 통합 마스터플랜.</p>
+        <h2 class="title" data-en="Three Digital-Transformation<br><span class=&quot;em&quot;>Pillars Completing Future Education.</span>">미래 교육을 완성하는<br><span class="em">3대 디지털 전환 인프라.</span></h2>
+        <p class="lead-desc" data-en="An integrated masterplan connecting a student's Mind, Space, and Body into a single data flow.">학생의 마음(Mind)·공간(Space)·신체(Body)를 하나의 데이터 흐름으로 연결하는 통합 마스터플랜.</p>
         <ul class="feat-list">
-          <li><span class="d"></span><div><strong>Mind — AI PIA:</strong> 밀착형 성장 진단 및 반응형 상담 지원</div></li>
-          <li><span class="d"></span><div><strong>Space — Smart Schoolboard:</strong> 아날로그 게시판의 디지털 창작·소통 공간화</div></li>
-          <li><span class="d"></span><div><strong>Body — AREX CLIMB:</strong> IT 기술이 접목된 안전한 미래형 체육 교육</div></li>
+          <li><span class="d"></span><div data-en="<strong>Mind &mdash; AI PIA:</strong> Close-range growth diagnosis and responsive counseling support"><strong>Mind — AI PIA:</strong> 밀착형 성장 진단 및 반응형 상담 지원</div></li>
+          <li><span class="d"></span><div data-en="<strong>Space &mdash; Smart Schoolboard:</strong> Turning analog boards into digital spaces for creation and communication"><strong>Space — Smart Schoolboard:</strong> 아날로그 게시판의 디지털 창작·소통 공간화</div></li>
+          <li><span class="d"></span><div data-en="<strong>Body &mdash; AREX CLIMB:</strong> Safe, future-ready physical education powered by IT"><strong>Body — AREX CLIMB:</strong> IT 기술이 접목된 안전한 미래형 체육 교육</div></li>
         </ul>
       </div>
     </div>
@@ -576,13 +603,13 @@ h2.title .em{color:var(--rust)}
       <div class="feat-media"><img loading="lazy" src="images/biz_4solutions.jpg" alt="AI 기반 교육 통합 플랫폼 4대 핵심 비즈니스 솔루션 — 3년 매출 로드맵"></div>
       <div>
         <span class="eyebrow">Business Model</span>
-        <h2 class="title">3년 내 매출<br><span class="em">100억을 향한</span> 로드맵.</h2>
-        <p class="lead-desc">학교 발 4대 솔루션과 Edu Agent-Agency, AI 자동 광고 심사, 정부 예산 연계를 결합한 다층적 성장 구조.</p>
+        <h2 class="title" data-en="A Roadmap Toward<br><span class=&quot;em&quot;>KRW 10B in Revenue</span> Within Three Years.">3년 내 매출<br><span class="em">100억을 향한</span> 로드맵.</h2>
+        <p class="lead-desc" data-en="A multi-layered growth structure combining four school-driven solutions, an Edu Agent-Agency, AI automated ad review, and government-budget linkage.">학교 발 4대 솔루션과 Edu Agent-Agency, AI 자동 광고 심사, 정부 예산 연계를 결합한 다층적 성장 구조.</p>
         <ul class="feat-list">
-          <li><span class="d"></span><div><strong>1년차 4.95억 →</strong> 4대 핵심 사업 시범 관리 및 운영</div></li>
-          <li><span class="d"></span><div><strong>2년차 19.85억 →</strong> 학교 및 학급 단위 공급 확대</div></li>
-          <li><span class="d"></span><div><strong>3년차 77.5억 →</strong> 교육업·지자체 사업 수주 및 고도화</div></li>
-          <li><span class="d"></span><div><strong>정부 예산 연계 —</strong> AI 중점학교, 소상공인 스마트상점, 스마트그린산단, 문체부 체육 예산 활용</div></li>
+          <li><span class="d"></span><div data-en="<strong>Year 1 &middot; KRW 495M &rarr;</strong> Pilot management and operation of four core businesses"><strong>1년차 4.95억 →</strong> 4대 핵심 사업 시범 관리 및 운영</div></li>
+          <li><span class="d"></span><div data-en="<strong>Year 2 &middot; KRW 1.985B &rarr;</strong> Expansion to school- and classroom-level supply"><strong>2년차 19.85억 →</strong> 학교 및 학급 단위 공급 확대</div></li>
+          <li><span class="d"></span><div data-en="<strong>Year 3 &middot; KRW 7.75B &rarr;</strong> Winning education-industry and local-government projects, plus advancement"><strong>3년차 77.5억 →</strong> 교육업·지자체 사업 수주 및 고도화</div></li>
+          <li><span class="d"></span><div data-en="<strong>Government-budget linkage &mdash;</strong> Leveraging AI Lead Schools, small-business Smart Stores, Smart Green Industrial Complexes, and Ministry of Culture &amp; Sports PE budgets"><strong>정부 예산 연계 —</strong> AI 중점학교, 소상공인 스마트상점, 스마트그린산단, 문체부 체육 예산 활용</div></li>
         </ul>
       </div>
     </div>
@@ -596,29 +623,29 @@ h2.title .em{color:var(--rust)}
       <div class="feat-media"><img loading="lazy" src="images/sol_signage_arex.jpg" alt="AI 디지털 간판 & AREX-Climbing 통합 스마트 시설 솔루션"></div>
       <div>
         <span class="eyebrow">Solution 03 &amp; 04 · City · Body</span>
-        <h2 class="title">통합 스마트<br><span class="em">시설 솔루션.</span></h2>
-        <p class="lead-desc">건물의 공지·광고를 디지털화하는 AI 디지털 간판과 데이터 기반 AREX-Climbing 실감형 체육을 결합하여 운영 효율을 높이고 새로운 수익을 창출합니다.</p>
+        <h2 class="title" data-en="Integrated Smart<br><span class=&quot;em&quot;>Facility Solution.</span>">통합 스마트<br><span class="em">시설 솔루션.</span></h2>
+        <p class="lead-desc" data-en="Combining AI Digital Signage that digitizes a building's notices and advertising with data-driven AREX-Climbing immersive PE to raise operating efficiency and generate new revenue.">건물의 공지·광고를 디지털화하는 AI 디지털 간판과 데이터 기반 AREX-Climbing 실감형 체육을 결합하여 운영 효율을 높이고 새로운 수익을 창출합니다.</p>
         <ul class="feat-list">
-          <li><span class="d"></span><div><strong>AI 디지털 간판:</strong> 공지·광고 송출, AI 광고 제작, QR 상담으로 종이 게시판을 대체. 입주사 광고 수익·시설관리 경감 동시 달성.</div></li>
-          <li><span class="d"></span><div><strong>AREX-Climbing:</strong> AR/VR 게임 + PGMS 체육 관리 + 키오스크. 체육 활동 데이터화로 학생 체력 관리 및 참여도 향상.</div></li>
-          <li><span class="d"></span><div><strong>타깃별 도입 패키지:</strong> 지식산업센터 수익형 모델부터 시설관리공단·공공시설형까지 현장 최적화 구성 제안.</div></li>
-          <li><span class="d"></span><div><strong>정부 예산 연계:</strong> 스마트그린산단, 소상공인 스마트상점, 문체부 체육 예산 등 국비 지원 활용 가능.</div></li>
+          <li><span class="d"></span><div data-en="<strong>AI Digital Signage:</strong> Replaces paper boards with notice/ad broadcasting, AI ad creation, and QR consultations &mdash; achieving tenant ad revenue and reduced facility-management burden at once."><strong>AI 디지털 간판:</strong> 공지·광고 송출, AI 광고 제작, QR 상담으로 종이 게시판을 대체. 입주사 광고 수익·시설관리 경감 동시 달성.</div></li>
+          <li><span class="d"></span><div data-en="<strong>AREX-Climbing:</strong> AR/VR games + PGMS PE management + kiosk. Turning PE activity into data to manage student fitness and boost participation."><strong>AREX-Climbing:</strong> AR/VR 게임 + PGMS 체육 관리 + 키오스크. 체육 활동 데이터화로 학생 체력 관리 및 참여도 향상.</div></li>
+          <li><span class="d"></span><div data-en="<strong>Target-specific packages:</strong> From revenue models for knowledge-industry centers to public-facility configurations for facility-management agencies, optimized for each site."><strong>타깃별 도입 패키지:</strong> 지식산업센터 수익형 모델부터 시설관리공단·공공시설형까지 현장 최적화 구성 제안.</div></li>
+          <li><span class="d"></span><div data-en="<strong>Government-budget linkage:</strong> Eligible for national funding such as Smart Green Industrial Complexes, small-business Smart Stores, and Ministry of Culture &amp; Sports PE budgets."><strong>정부 예산 연계:</strong> 스마트그린산단, 소상공인 스마트상점, 문체부 체육 예산 등 국비 지원 활용 가능.</div></li>
         </ul>
       </div>
     </div>
     <div class="subcards rv">
       <div class="subcard">
-        <span class="lbl">AI 디지털 간판</span>
+        <span class="lbl" data-en="AI Digital Signage">AI 디지털 간판</span>
         <div class="sc-row">
-          <div class="sc-item"><img loading="lazy" src="images/sol_signage_arex.jpg" alt="공지·광고 송출"><div class="t"><strong>공지·광고 송출</strong><span>AI 광고 제작 · QR 상담</span></div></div>
-          <div class="sc-item"><img loading="lazy" src="images/biz_4solutions.jpg" alt="광고 수익 창출"><div class="t"><strong>광고 수익 창출</strong><span>시설관리 업무 경감</span></div></div>
+          <div class="sc-item"><img loading="lazy" src="images/sol_signage_arex.jpg" alt="공지·광고 송출"><div class="t"><strong data-en="Notice &amp; Ad Broadcasting">공지·광고 송출</strong><span data-en="AI ad creation &middot; QR consultation">AI 광고 제작 · QR 상담</span></div></div>
+          <div class="sc-item"><img loading="lazy" src="images/biz_4solutions.jpg" alt="광고 수익 창출"><div class="t"><strong data-en="Advertising Revenue">광고 수익 창출</strong><span data-en="Reduced facility-management workload">시설관리 업무 경감</span></div></div>
         </div>
       </div>
       <div class="subcard moss">
         <span class="lbl">AREX-Climbing</span>
         <div class="sc-row">
-          <div class="sc-item"><img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AR/VR 게임"><div class="t"><strong>AR/VR 게임</strong><span>PGMS 체육 관리</span></div></div>
-          <div class="sc-item"><img loading="lazy" src="images/infra_3pillar.jpg" alt="체육 데이터화"><div class="t"><strong>체육 데이터화</strong><span>참여도 향상</span></div></div>
+          <div class="sc-item"><img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AR/VR 게임"><div class="t"><strong data-en="AR/VR Games">AR/VR 게임</strong><span data-en="PGMS PE management">PGMS 체육 관리</span></div></div>
+          <div class="sc-item"><img loading="lazy" src="images/infra_3pillar.jpg" alt="체육 데이터화"><div class="t"><strong data-en="PE Data Tracking">체육 데이터화</strong><span data-en="Higher participation">참여도 향상</span></div></div>
         </div>
       </div>
     </div>
@@ -632,21 +659,21 @@ h2.title .em{color:var(--rust)}
       <div class="feat-media"><img loading="lazy" src="images/sol_classboard_strategy.jpg" alt="차세대 스마트 스쿨 통합 솔루션 — AI PIA · Smart Schoolboard · AREX CLIMB"></div>
       <div>
         <span class="eyebrow">Smart School · PIA &amp; Schoolboard &amp; AREX</span>
-        <h2 class="title">데이터와 AI로 완성하는<br><span class="em">미래형 학교.</span></h2>
-        <p class="lead-desc">학교의 성장 관리, 행정 효율화, 실감형 체육 교육을 아우르는 차세대 에듀테크 통합 생태계.</p>
+        <h2 class="title" data-en="A Future-Ready School<br><span class=&quot;em&quot;>Completed by Data and AI.</span>">데이터와 AI로 완성하는<br><span class="em">미래형 학교.</span></h2>
+        <p class="lead-desc" data-en="A next-generation integrated EduTech ecosystem spanning school growth management, administrative efficiency, and immersive physical education.">학교의 성장 관리, 행정 효율화, 실감형 체육 교육을 아우르는 차세대 에듀테크 통합 생태계.</p>
         <ul class="feat-list">
-          <li><span class="d"></span><div><strong>AI PIA — 5단계 성장 생태계:</strong> 흥미 유발 → 심층 진단 → 맞춤 교육 → 현장 지원 → 데이터 관리의 반복 선순환.</div></li>
-          <li><span class="d"></span><div><strong>Smart Schoolboard — 행정 누락 Zero화:</strong> AI가 공문 요약·마감일 자동 추출하여 교무실 업무 효율 극대화.</div></li>
-          <li><span class="d"></span><div><strong>맞춤형 교육 패키지 자동 매핑:</strong> 16가지 유형 진단 결과와 창의·논리·공감·실전 최적화 솔루션 자동 연결.</div></li>
-          <li><span class="d"></span><div><strong>AREX CLIMB — 친환경 실감형 체육:</strong> 100% 자작나무 친환경 시공, AR/VR 융합 게임으로 자발적 참여 유도.</div></li>
+          <li><span class="d"></span><div data-en="<strong>AI PIA &mdash; 5-stage growth ecosystem:</strong> A virtuous cycle of spark interest &rarr; in-depth diagnosis &rarr; tailored education &rarr; on-site support &rarr; data management."><strong>AI PIA — 5단계 성장 생태계:</strong> 흥미 유발 → 심층 진단 → 맞춤 교육 → 현장 지원 → 데이터 관리의 반복 선순환.</div></li>
+          <li><span class="d"></span><div data-en="<strong>Smart Schoolboard &mdash; zero administrative oversights:</strong> AI summarizes official documents and auto-extracts deadlines to maximize staff-room efficiency."><strong>Smart Schoolboard — 행정 누락 Zero화:</strong> AI가 공문 요약·마감일 자동 추출하여 교무실 업무 효율 극대화.</div></li>
+          <li><span class="d"></span><div data-en="<strong>Automatic mapping of tailored education packages:</strong> Auto-links 16-type diagnostic results with solutions optimized for creativity, logic, empathy, and practice."><strong>맞춤형 교육 패키지 자동 매핑:</strong> 16가지 유형 진단 결과와 창의·논리·공감·실전 최적화 솔루션 자동 연결.</div></li>
+          <li><span class="d"></span><div data-en="<strong>AREX CLIMB &mdash; eco-friendly immersive PE:</strong> 100% birch eco-construction with AR/VR fusion games to drive voluntary participation."><strong>AREX CLIMB — 친환경 실감형 체육:</strong> 100% 자작나무 친환경 시공, AR/VR 융합 게임으로 자발적 참여 유도.</div></li>
         </ul>
       </div>
     </div>
-    <div class="strat-head rv">핵심 솔루션 '블루오션' 전략 가치 제안</div>
+    <div class="strat-head rv" data-en="Core Solutions' 'Blue Ocean' Strategic Value Proposition">핵심 솔루션 '블루오션' 전략 가치 제안</div>
     <div class="strat-grid rv">
-      <div class="strat-card"><img loading="lazy" src="images/sol_pia_hero.jpg" alt="AI PIA"><div class="b"><strong>AI PIA</strong><span>밀착형 성장 진단 및 반응형 상담 지원</span></div></div>
-      <div class="strat-card"><img loading="lazy" src="images/sol_classboard_hero.jpg" alt="Smart Schoolboard"><div class="b"><strong>Smart Schoolboard</strong><span>아날로그 게시판의 디지털 창작·소통 공간화</span></div></div>
-      <div class="strat-card"><img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AREX CLIMB"><div class="b"><strong>AREX CLIMB</strong><span>IT 기술이 접목된 안전한 미래형 체육 교육</span></div></div>
+      <div class="strat-card"><img loading="lazy" src="images/sol_pia_hero.jpg" alt="AI PIA"><div class="b"><strong>AI PIA</strong><span data-en="Close-range growth diagnosis and responsive counseling support">밀착형 성장 진단 및 반응형 상담 지원</span></div></div>
+      <div class="strat-card"><img loading="lazy" src="images/sol_classboard_hero.jpg" alt="Smart Schoolboard"><div class="b"><strong>Smart Schoolboard</strong><span data-en="Turning analog boards into digital spaces for creation and communication">아날로그 게시판의 디지털 창작·소통 공간화</span></div></div>
+      <div class="strat-card"><img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AREX CLIMB"><div class="b"><strong>AREX CLIMB</strong><span data-en="Safe, future-ready physical education powered by IT">IT 기술이 접목된 안전한 미래형 체육 교육</span></div></div>
     </div>
   </div>
 </section>
@@ -658,19 +685,19 @@ h2.title .em{color:var(--rust)}
       <div class="feat-media"><img loading="lazy" src="images/sol_pia_hero.jpg" alt="AI 영유아 성장·놀이·소통 플랫폼 — 전국 3.5만 개소 대상"></div>
       <div>
         <span class="eyebrow">AI Kids Platform · 영유아 성장</span>
-        <h2 class="title">AI 영유아<br><span class="em">성장·놀이·소통</span> 플랫폼.</h2>
-        <p class="lead-desc">'학습' 중심에서 '놀이와 성장' 중심으로 — 전국 3.5만 개소 어린이집·유치원 대상 확산형 구독 플랫폼.</p>
+        <h2 class="title" data-en="AI Early-Childhood<br><span class=&quot;em&quot;>Growth &middot; Play &middot; Communication</span> Platform.">AI 영유아<br><span class="em">성장·놀이·소통</span> 플랫폼.</h2>
+        <p class="lead-desc" data-en="Shifting from 'learning'-centered to 'play and growth'-centered &mdash; a scalable subscription platform targeting 35,000 daycare centers and kindergartens nationwide.">'학습' 중심에서 '놀이와 성장' 중심으로 — 전국 3.5만 개소 어린이집·유치원 대상 확산형 구독 플랫폼.</p>
         <ul class="feat-list">
-          <li><span class="d"></span><div><strong>전국 3.5만 개소 시장:</strong> 어린이집 27,402개소 + 유치원 8,140개소 — 방대한 기관 수 기반 사업 확장에 최적.</div></li>
-          <li><span class="d"></span><div><strong>맞춤형 AI 그림책·놀이/감정 카드:</strong> 자연·친구·안전·감정 등 영유아 필수 주제를 AI 콘텐츠로 제공하여 생활습관 형성.</div></li>
-          <li><span class="d"></span><div><strong>AI Kids Growth Platform:</strong> 놀이 활동 기록 → 작품 공유 → 정서 표현 분석을 쉽고 안전하게 연동.</div></li>
-          <li><span class="d"></span><div><strong>AI 키오스크 소통 체계:</strong> 등·하원 정보, 사진 업로드, 가정 연계 놀이 신청 등 교사↔학부모 실시간 소통.</div></li>
+          <li><span class="d"></span><div data-en="<strong>A nationwide market of 35,000 sites:</strong> 27,402 daycare centers + 8,140 kindergartens &mdash; an enormous institutional base ideal for business expansion."><strong>전국 3.5만 개소 시장:</strong> 어린이집 27,402개소 + 유치원 8,140개소 — 방대한 기관 수 기반 사업 확장에 최적.</div></li>
+          <li><span class="d"></span><div data-en="<strong>Tailored AI picture books &middot; play/emotion cards:</strong> Delivering essential early-childhood themes such as nature, friends, safety, and emotions as AI content to build healthy habits."><strong>맞춤형 AI 그림책·놀이/감정 카드:</strong> 자연·친구·안전·감정 등 영유아 필수 주제를 AI 콘텐츠로 제공하여 생활습관 형성.</div></li>
+          <li><span class="d"></span><div data-en="<strong>AI Kids Growth Platform:</strong> Easily and safely links play-activity records &rarr; artwork sharing &rarr; emotional-expression analysis."><strong>AI Kids Growth Platform:</strong> 놀이 활동 기록 → 작품 공유 → 정서 표현 분석을 쉽고 안전하게 연동.</div></li>
+          <li><span class="d"></span><div data-en="<strong>AI kiosk communication system:</strong> Real-time teacher&harr;parent communication for drop-off/pick-up info, photo uploads, and home-linked play requests."><strong>AI 키오스크 소통 체계:</strong> 등·하원 정보, 사진 업로드, 가정 연계 놀이 신청 등 교사↔학부모 실시간 소통.</div></li>
         </ul>
       </div>
     </div>
     <div class="kid-stats rv">
-      <div class="kid-stat"><div class="lbl">전국 어린이집</div><div class="num">27,402<span>개소</span></div><div class="cap">아동 수 943,681명</div></div>
-      <div class="kid-stat sky"><div class="lbl">전국 유치원</div><div class="num">8,140<span>개소</span></div><div class="cap">아동 수 약 480,000명</div></div>
+      <div class="kid-stat"><div class="lbl" data-en="Daycare Centers Nationwide">전국 어린이집</div><div class="num">27,402<span data-en="sites">개소</span></div><div class="cap" data-en="943,681 children enrolled">아동 수 943,681명</div></div>
+      <div class="kid-stat sky"><div class="lbl" data-en="Kindergartens Nationwide">전국 유치원</div><div class="num">8,140<span data-en="sites">개소</span></div><div class="cap" data-en="Approx. 480,000 children enrolled">아동 수 약 480,000명</div></div>
     </div>
   </div>
 </section>
@@ -680,14 +707,14 @@ h2.title .em{color:var(--rust)}
   <div class="wrap">
     <div class="sec-head rv">
       <span class="eyebrow">By the Numbers</span>
-      <h2 class="title">숫자로 증명하는 <span class="em">신뢰.</span></h2>
-      <p class="lead-desc">11년의 업력과 검증된 재무 건전성 위에서 다음 단계를 준비합니다.</p>
+      <h2 class="title" data-en="Trust <span class=&quot;em&quot;>Proven by Numbers.</span>">숫자로 증명하는 <span class="em">신뢰.</span></h2>
+      <p class="lead-desc" data-en="We prepare the next stage on a foundation of 11 years of experience and proven financial soundness.">11년의 업력과 검증된 재무 건전성 위에서 다음 단계를 준비합니다.</p>
     </div>
     <div class="mt-grid">
-      <div class="mt-card rv"><div class="mt-lbl">Years in Business</div><div class="mt-num">11<span class="u">년</span></div><div class="mt-desc">2014년 설립 · 정보시스템 전문기업으로 쌓아온 업력</div></div>
-      <div class="mt-card rv d1"><div class="mt-lbl">Major Projects</div><div class="mt-num">15<span class="u">+</span></div><div class="mt-desc">교육·공공 분야 주요 수행 프로젝트</div></div>
-      <div class="mt-card rv d2"><div class="mt-lbl">Visang Partnership</div><div class="mt-num">9<span class="u">년</span></div><div class="mt-desc">비상교육 핵심 서비스 연속 수행</div></div>
-      <div class="mt-card rv d3"><div class="mt-lbl">Operating Margin (2020)</div><div class="mt-num">25<span class="u">%</span></div><div class="mt-desc">검증된 수익성과 재무 건전성</div></div>
+      <div class="mt-card rv"><div class="mt-lbl">Years in Business</div><div class="mt-num">11<span class="u" data-en="yrs">년</span></div><div class="mt-desc" data-en="Experience built as an information-systems specialist since 2014">2014년 설립 · 정보시스템 전문기업으로 쌓아온 업력</div></div>
+      <div class="mt-card rv d1"><div class="mt-lbl">Major Projects</div><div class="mt-num">15<span class="u">+</span></div><div class="mt-desc" data-en="Major projects delivered in the education and public sectors">교육·공공 분야 주요 수행 프로젝트</div></div>
+      <div class="mt-card rv d2"><div class="mt-lbl">Visang Partnership</div><div class="mt-num">9<span class="u" data-en="yrs">년</span></div><div class="mt-desc" data-en="Continuous delivery of Visang Education core services">비상교육 핵심 서비스 연속 수행</div></div>
+      <div class="mt-card rv d3"><div class="mt-lbl">Operating Margin (2020)</div><div class="mt-num">25<span class="u">%</span></div><div class="mt-desc" data-en="Proven profitability and financial soundness">검증된 수익성과 재무 건전성</div></div>
     </div>
   </div>
 </section>
@@ -697,51 +724,51 @@ h2.title .em{color:var(--rust)}
   <div class="wrap">
     <div class="sec-head rv">
       <span class="eyebrow">Track Record</span>
-      <h2 class="title">검증된 11년의<br><span class="em">수행 실적.</span></h2>
-      <p class="lead-desc">2016년 비상교육 RMS 시스템개편을 시작으로 핵심 서비스 9년 연속 수행. 공식 실적증명원 및 계약서로 확인된 대표 프로젝트입니다.</p>
+      <h2 class="title" data-en="A Proven 11-Year<br><span class=&quot;em&quot;>Delivery Record.</span>">검증된 11년의<br><span class="em">수행 실적.</span></h2>
+      <p class="lead-desc" data-en="Beginning with the 2016 Visang Education RMS system overhaul, we delivered core services continuously for nine years. These are representative projects verified by official performance certificates and contracts.">2016년 비상교육 RMS 시스템개편을 시작으로 핵심 서비스 9년 연속 수행. 공식 실적증명원 및 계약서로 확인된 대표 프로젝트입니다.</p>
     </div>
     <div class="tl rv">
       <div class="tl-item hot">
         <div class="tl-year">2022</div>
-        <div><span class="tl-client">예담정보통신</span>
-          <div class="tl-title">R-Learning 교육용 로봇 상품 개발 컨설팅</div>
-          <div class="tl-desc">교육시장 진입을 위한 교육로봇 상품 개발 전략 수립. 국내외 시장 조사, 전문가 6인 인터뷰(FGI), 수업 사례 분석. AI 기반 인터렉티브 휴머노이드 로봇 상품 기획안 및 R-Learning 비즈니스 모델 2~3종 제시.</div>
+        <div><span class="tl-client" data-en="YEDAM I&amp;C">예담정보통신</span>
+          <div class="tl-title" data-en="R-Learning Educational Robot Product Development Consulting">R-Learning 교육용 로봇 상품 개발 컨설팅</div>
+          <div class="tl-desc" data-en="Established a product-development strategy for educational robots entering the education market. Conducted domestic and overseas market research, expert interviews with six specialists (FGI), and lesson-case analysis. Proposed an AI-based interactive humanoid robot product plan and 2&ndash;3 R-Learning business models.">교육시장 진입을 위한 교육로봇 상품 개발 전략 수립. 국내외 시장 조사, 전문가 6인 인터뷰(FGI), 수업 사례 분석. AI 기반 인터렉티브 휴머노이드 로봇 상품 기획안 및 R-Learning 비즈니스 모델 2~3종 제시.</div>
         </div>
       </div>
       <div class="tl-item">
         <div class="tl-year">2022</div>
-        <div><span class="tl-client">비상교육</span>
-          <div class="tl-title">유아Core · 비바샘 · 윙스 · 누리샘 통합 유지보수</div>
-          <div class="tl-desc">유아Core 외주 용역 계약 변경, 비바샘 Mobile App 개발(엔페이지 협력), 윙스 하자보수, 누리샘·티키토키 산출물 인수인계까지 비상교육 전 플랫폼 SI 수행.</div>
+        <div><span class="tl-client" data-en="Visang Education">비상교육</span>
+          <div class="tl-title" data-en="Yua Core &middot; Bibasam &middot; Wings &middot; Nurisam Integrated Maintenance">유아Core · 비바샘 · 윙스 · 누리샘 통합 유지보수</div>
+          <div class="tl-desc" data-en="Delivered SI across all Visang platforms &mdash; Yua Core outsourced-service contract changes, Bibasam mobile app development (in cooperation with Npage), Wings defect maintenance, and handover of Nurisam and Tiki-Toki deliverables.">유아Core 외주 용역 계약 변경, 비바샘 Mobile App 개발(엔페이지 협력), 윙스 하자보수, 누리샘·티키토키 산출물 인수인계까지 비상교육 전 플랫폼 SI 수행.</div>
         </div>
       </div>
       <div class="tl-item">
         <div class="tl-year">2021</div>
-        <div><span class="tl-client">비상교육 · YBM · 스페이스케이</span>
-          <div class="tl-title">유아Core 서비스 개선 · 출판 웹서비스 디자인</div>
-          <div class="tl-desc">비상교육 유아Core 서비스 개선 개발용역 및 출판 웹서비스 디자인 업무. YBM·스페이스케이 등 협력 네트워크 본격 확장.</div>
+        <div><span class="tl-client" data-en="Visang Education &middot; YBM &middot; SpaceK">비상교육 · YBM · 스페이스케이</span>
+          <div class="tl-title" data-en="Yua Core Service Enhancement &middot; Publishing Web-Service Design">유아Core 서비스 개선 · 출판 웹서비스 디자인</div>
+          <div class="tl-desc" data-en="Development work to enhance Visang Education's Yua Core service and design of publishing web services. Significantly expanded our partner network with YBM, SpaceK, and others.">비상교육 유아Core 서비스 개선 개발용역 및 출판 웹서비스 디자인 업무. YBM·스페이스케이 등 협력 네트워크 본격 확장.</div>
         </div>
       </div>
       <div class="tl-item">
         <div class="tl-year">2019–20</div>
-        <div><span class="tl-client">비상교육</span>
-          <div class="tl-title">비바샘 신학기 대응 · 안드로이드 앱 · IT 외주용역</div>
-          <div class="tl-desc">비바샘 2020 신학기 대응, 안드로이드 일괄업데이트 외주, 똑똑해 모바일 앱 콘텐츠 개발, 세원 신규서비스 및 누리샘 관리자 개선 등.</div>
+        <div><span class="tl-client" data-en="Visang Education">비상교육</span>
+          <div class="tl-title" data-en="Bibasam New-Semester Support &middot; Android App &middot; IT Outsourcing">비바샘 신학기 대응 · 안드로이드 앱 · IT 외주용역</div>
+          <div class="tl-desc" data-en="Bibasam 2020 new-semester support, Android bulk-update outsourcing, Ttokttokhae mobile-app content development, and Sewon new services plus Nurisam admin enhancements.">비바샘 2020 신학기 대응, 안드로이드 일괄업데이트 외주, 똑똑해 모바일 앱 콘텐츠 개발, 세원 신규서비스 및 누리샘 관리자 개선 등.</div>
         </div>
       </div>
       <div class="tl-item">
         <div class="tl-year">2017–18</div>
-        <div><span class="tl-client">비상교육 · 현대NGV</span>
-          <div class="tl-title">대외서비스 개발지원 · 현대NGV 컨소시엄 제안</div>
-          <div class="tl-desc">비상교육 대외서비스 개발지원 및 안드로이드앱 일괄업데이트 외주. 현대NGV 제안서 컨소시엄(유비온) 참여. 비상입시 웹서비스 개발.</div>
+        <div><span class="tl-client" data-en="Visang Education &middot; Hyundai NGV">비상교육 · 현대NGV</span>
+          <div class="tl-title" data-en="External-Service Development Support &middot; Hyundai NGV Consortium Proposal">대외서비스 개발지원 · 현대NGV 컨소시엄 제안</div>
+          <div class="tl-desc" data-en="Visang Education external-service development support and Android-app bulk-update outsourcing. Participated in the Hyundai NGV proposal consortium (with Ubion). Developed the Visang Ipsi web service.">비상교육 대외서비스 개발지원 및 안드로이드앱 일괄업데이트 외주. 현대NGV 제안서 컨소시엄(유비온) 참여. 비상입시 웹서비스 개발.</div>
         </div>
       </div>
       <div class="tl-item hot">
         <div class="tl-year">2016</div>
-        <div><span class="tl-client">비상교육</span>
-          <div class="tl-title">비상교육 RMS 시스템개편 — 대표 프로젝트</div>
-          <div class="tl-desc">정보시스템 개발구축 부문 표준계약. 153일간 RMS(자원관리시스템) 전면 개편. 공급가액 175,000,000원 + VAT. 예담정보통신 최초 대형 단독 계약 수주.</div>
-          <div class="tl-amount">계약총액 ₩ 192,500,000 (일억구천이백오십만 원)</div>
+        <div><span class="tl-client" data-en="Visang Education">비상교육</span>
+          <div class="tl-title" data-en="Visang Education RMS System Overhaul &mdash; Flagship Project">비상교육 RMS 시스템개편 — 대표 프로젝트</div>
+          <div class="tl-desc" data-en="Standard contract in the information-systems development &amp; construction category. A full 153-day overhaul of the RMS (Resource Management System). Supply value KRW 175,000,000 + VAT. YEDAM I&amp;C's first large-scale sole contract.">정보시스템 개발구축 부문 표준계약. 153일간 RMS(자원관리시스템) 전면 개편. 공급가액 175,000,000원 + VAT. 예담정보통신 최초 대형 단독 계약 수주.</div>
+          <div class="tl-amount" data-en="Total contract value &#8361;192,500,000 (KRW 192.5 million)">계약총액 ₩ 192,500,000 (일억구천이백오십만 원)</div>
         </div>
       </div>
     </div>
@@ -753,20 +780,20 @@ h2.title .em{color:var(--rust)}
   <div class="wrap">
     <div class="sec-head rv">
       <span class="eyebrow">Clients &amp; Partners</span>
-      <h2 class="title">함께해 온 <span class="em">신뢰의 파트너.</span></h2>
-      <p class="lead-desc">단발성 거래가 아닌, 장기적 파트너십으로 이어진 교육·공공·민간 네트워크.</p>
+      <h2 class="title" data-en="The <span class=&quot;em&quot;>Trusted Partners</span> Who've Walked With Us.">함께해 온 <span class="em">신뢰의 파트너.</span></h2>
+      <p class="lead-desc" data-en="Not one-off transactions, but an education, public, and private network built on long-term partnerships.">단발성 거래가 아닌, 장기적 파트너십으로 이어진 교육·공공·민간 네트워크.</p>
     </div>
     <div class="cl-grid">
-      <a class="cl-card rv" href="https://www.visang.com" target="_blank" rel="noopener" title="㈜비상교육"><img class="cl-logo" src="images/logo_visang.png" alt="㈜비상교육" loading="lazy"><span class="cl-name">㈜비상교육</span></a>
-      <a class="cl-card rv d1" href="https://www.hyundai-ngv.com" target="_blank" rel="noopener" title="현대NGV"><img class="cl-logo" src="images/logo_hyundai.svg" alt="현대NGV" loading="lazy"><span class="cl-name">현대NGV</span></a>
-      <a class="cl-card rv d2" href="https://www.gg.go.kr" target="_blank" rel="noopener" title="경기도청"><img class="cl-logo" src="images/logo_gg.gif" alt="경기도청" loading="lazy"><span class="cl-name">경기도청</span></a>
-      <a class="cl-card rv d3" href="https://www.mnd.go.kr" target="_blank" rel="noopener" title="국방부"><img class="cl-logo" src="images/logo_mnd.svg" alt="국방부" loading="lazy"><span class="cl-name">국방부</span></a>
+      <a class="cl-card rv" href="https://www.visang.com" target="_blank" rel="noopener" title="㈜비상교육"><img class="cl-logo" src="images/logo_visang.png" alt="㈜비상교육" loading="lazy"><span class="cl-name" data-en="Visang Education">㈜비상교육</span></a>
+      <a class="cl-card rv d1" href="https://www.hyundai-ngv.com" target="_blank" rel="noopener" title="현대NGV"><img class="cl-logo" src="images/logo_hyundai.svg" alt="현대NGV" loading="lazy"><span class="cl-name" data-en="Hyundai NGV">현대NGV</span></a>
+      <a class="cl-card rv d2" href="https://www.gg.go.kr" target="_blank" rel="noopener" title="경기도청"><img class="cl-logo" src="images/logo_gg.gif" alt="경기도청" loading="lazy"><span class="cl-name" data-en="Gyeonggi Provincial Gov.">경기도청</span></a>
+      <a class="cl-card rv d3" href="https://www.mnd.go.kr" target="_blank" rel="noopener" title="국방부"><img class="cl-logo" src="images/logo_mnd.svg" alt="국방부" loading="lazy"><span class="cl-name" data-en="Ministry of National Defense">국방부</span></a>
       <a class="cl-card rv" href="https://www.ybm.co.kr" target="_blank" rel="noopener" title="YBM"><img class="cl-logo" src="images/logo_ybm.svg" alt="YBM" loading="lazy"><span class="cl-name">YBM</span></a>
-      <a class="cl-card rv d1" href="https://thespacek.com" target="_blank" rel="noopener" title="스페이스케이"><img class="cl-logo" src="images/logo_spacek_dark.svg" alt="스페이스케이" loading="lazy"><span class="cl-name">스페이스케이</span></a>
-      <a class="cl-card rv d2" href="https://www.ubion.co.kr" target="_blank" rel="noopener" title="유비온"><img class="cl-logo" src="images/logo_ubion.png" alt="유비온" loading="lazy"><span class="cl-name">유비온</span></a>
-      <a class="cl-card rv d3" href="https://www.npage.co.kr" target="_blank" rel="noopener" title="엔페이지"><img class="cl-logo" src="images/logo_npage.png" alt="엔페이지" loading="lazy"><span class="cl-name">엔페이지</span></a>
-      <a class="cl-card rv" href="https://www.tta.or.kr" target="_blank" rel="noopener" title="정보통신기술협회"><img class="cl-logo" src="images/logo_tta.svg" alt="정보통신기술협회" loading="lazy"><span class="cl-name">정보통신기술협회</span></a>
-      <a class="cl-card rv d1" href="https://rokaf.airforce.mil.kr/afa/index.do" target="_blank" rel="noopener" title="공군사관학교"><img class="cl-logo" src="images/logo_airforce_dark.svg" alt="공군사관학교" loading="lazy"><span class="cl-name">공군사관학교</span></a>
+      <a class="cl-card rv d1" href="https://thespacek.com" target="_blank" rel="noopener" title="스페이스케이"><img class="cl-logo" src="images/logo_spacek_dark.svg" alt="스페이스케이" loading="lazy"><span class="cl-name" data-en="SpaceK">스페이스케이</span></a>
+      <a class="cl-card rv d2" href="https://www.ubion.co.kr" target="_blank" rel="noopener" title="유비온"><img class="cl-logo" src="images/logo_ubion.png" alt="유비온" loading="lazy"><span class="cl-name" data-en="Ubion">유비온</span></a>
+      <a class="cl-card rv d3" href="https://www.npage.co.kr" target="_blank" rel="noopener" title="엔페이지"><img class="cl-logo" src="images/logo_npage.png" alt="엔페이지" loading="lazy"><span class="cl-name" data-en="Npage">엔페이지</span></a>
+      <a class="cl-card rv" href="https://www.tta.or.kr" target="_blank" rel="noopener" title="정보통신기술협회"><img class="cl-logo" src="images/logo_tta.svg" alt="정보통신기술협회" loading="lazy"><span class="cl-name" data-en="TTA">정보통신기술협회</span></a>
+      <a class="cl-card rv d1" href="https://rokaf.airforce.mil.kr/afa/index.do" target="_blank" rel="noopener" title="공군사관학교"><img class="cl-logo" src="images/logo_airforce_dark.svg" alt="공군사관학교" loading="lazy"><span class="cl-name" data-en="ROK Air Force Academy">공군사관학교</span></a>
     </div>
   </div>
 </section>
@@ -775,11 +802,11 @@ h2.title .em{color:var(--rust)}
 <section class="sec pia-cta">
   <div class="wrap">
     <div class="inner rv">
-      <span class="chip">AI PIA · 밀착형 성장 진단</span>
-      <h2>지금 바로 AI PIA를<br>체험해보세요.</h2>
-      <p>Big5 성격 · RIASEC 흥미 · 강점 · 그릿 · 사회적 판단력<br>7가지 학습 검증 검사를 무료로 체험할 수 있습니다.</p>
-      <a href="ai-pia.html" class="btn btn-primary" style="padding:1em 2.4em;font-size:1.05rem">AI PIA 체험 시작하기 →</a>
-      <p class="note">무료 · 회원가입 불필요 · 약 35분 소요</p>
+      <span class="chip" data-en="AI PIA &middot; Close-Range Growth Diagnosis">AI PIA · 밀착형 성장 진단</span>
+      <h2 data-en="Experience AI PIA<br>Right Now.">지금 바로 AI PIA를<br>체험해보세요.</h2>
+      <p data-en="Big5 Personality &middot; RIASEC Interests &middot; Strengths &middot; Grit &middot; Social Judgment<br>Try all seven research-validated learning assessments for free.">Big5 성격 · RIASEC 흥미 · 강점 · 그릿 · 사회적 판단력<br>7가지 학습 검증 검사를 무료로 체험할 수 있습니다.</p>
+      <a href="ai-pia.html" class="btn btn-primary" style="padding:1em 2.4em;font-size:1.05rem" data-en="Start the AI PIA Experience &rarr;">AI PIA 체험 시작하기 →</a>
+      <p class="note" data-en="Free &middot; No sign-up required &middot; Approx. 35 minutes">무료 · 회원가입 불필요 · 약 35분 소요</p>
     </div>
   </div>
 </section>
@@ -789,23 +816,23 @@ h2.title .em{color:var(--rust)}
   <div class="wrap">
     <div class="sec-head rv">
       <span class="eyebrow">Contact Us</span>
-      <h2 class="title">함께 만들 다음의<br><span class="em">교육을 이야기합시다.</span></h2>
+      <h2 class="title" data-en="Let's Talk About<br><span class=&quot;em&quot;>the Education We'll Build Together.</span>">함께 만들 다음의<br><span class="em">교육을 이야기합시다.</span></h2>
     </div>
     <div class="ct-grid">
       <div class="rv">
-        <div class="ct-row"><div class="l">대표</div><div class="v">송 규 봉 (Song Kyu Bong)</div></div>
-        <div class="ct-row"><div class="l">주소</div><div class="v">서울특별시 금천구 가산디지털1로 212<br>코오롱디지털타워애스턴 1405호</div></div>
-        <div class="ct-row"><div class="l">대표전화</div><div class="v"><a href="tel:0222614528">02-2261-4528</a></div></div>
-        <div class="ct-row"><div class="l">휴대전화</div><div class="v"><a href="tel:01033230310">010-3323-0310</a></div></div>
-        <div class="ct-row"><div class="l">이메일</div><div class="v"><a href="mailto:skb1004@gmail.com">skb1004@gmail.com</a></div></div>
-        <div class="ct-row"><div class="l">사업자번호</div><div class="v">127-86-57189</div></div>
+        <div class="ct-row"><div class="l" data-en="CEO">대표</div><div class="v">송 규 봉 (Song Kyu Bong)</div></div>
+        <div class="ct-row"><div class="l" data-en="Address">주소</div><div class="v" data-en="1405 Kolon Digital Tower Aston,<br>212 Gasan Digital 1-ro, Geumcheon-gu, Seoul">서울특별시 금천구 가산디지털1로 212<br>코오롱디지털타워애스턴 1405호</div></div>
+        <div class="ct-row"><div class="l" data-en="Main Tel">대표전화</div><div class="v"><a href="tel:0222614528">02-2261-4528</a></div></div>
+        <div class="ct-row"><div class="l" data-en="Mobile">휴대전화</div><div class="v"><a href="tel:01033230310">010-3323-0310</a></div></div>
+        <div class="ct-row"><div class="l" data-en="Email">이메일</div><div class="v"><a href="mailto:skb1004@gmail.com">skb1004@gmail.com</a></div></div>
+        <div class="ct-row"><div class="l" data-en="Business No.">사업자번호</div><div class="v">127-86-57189</div></div>
       </div>
       <div class="rv d1">
         <div class="ct-box">
-          <h3>프로젝트 문의</h3>
-          <p>교육·공공기관 정보시스템 구축, 유지보수, AI 솔루션 도입 문의를 환영합니다. 영업일 기준 24시간 내 회신드립니다.</p>
-          <a href="mailto:skb1004@gmail.com?subject=[프로젝트 문의] 예담정보통신&body=안녕하세요. 예담정보통신에 문의드립니다.%0A%0A▪ 회사/기관명:%0A▪ 담당자:%0A▪ 연락처:%0A▪ 문의 내용:%0A" class="btn btn-primary">이메일 문의하기</a>
-          <a href="tel:0222614528" class="btn btn-ghost">02-2261-4528 전화하기</a>
+          <h3 data-en="Start a Project">프로젝트 문의</h3>
+          <p data-en="We welcome inquiries about information-system development, maintenance, and AI solution adoption for education and public institutions. We respond within 24 business hours.">교육·공공기관 정보시스템 구축, 유지보수, AI 솔루션 도입 문의를 환영합니다. 영업일 기준 24시간 내 회신드립니다.</p>
+          <a href="mailto:skb1004@gmail.com?subject=[프로젝트 문의] 예담정보통신&body=안녕하세요. 예담정보통신에 문의드립니다.%0A%0A▪ 회사/기관명:%0A▪ 담당자:%0A▪ 연락처:%0A▪ 문의 내용:%0A" class="btn btn-primary" data-en="Email Us">이메일 문의하기</a>
+          <a href="tel:0222614528" class="btn btn-ghost" data-en="Call 02-2261-4528">02-2261-4528 전화하기</a>
         </div>
       </div>
     </div>
@@ -819,9 +846,9 @@ h2.title .em{color:var(--rust)}
       <div>
         <img src="images/logo_h_white.png" alt="㈜예담정보통신" class="ft-logo">
         <div class="ft-meta">
-          <span>대표 송규봉</span>
-          <span>사업자등록번호 127-86-57189</span>
-          <span>서울 금천구 가산디지털1로 212, 1405호</span>
+          <span data-en="CEO Song Kyu Bong">대표 송규봉</span>
+          <span data-en="Business Reg. No. 127-86-57189">사업자등록번호 127-86-57189</span>
+          <span data-en="1405, 212 Gasan Digital 1-ro, Geumcheon-gu, Seoul">서울 금천구 가산디지털1로 212, 1405호</span>
           <span>Tel 02-2261-4528</span>
         </div>
       </div>
@@ -868,14 +895,53 @@ h2.title .em{color:var(--rust)}
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
     Array.prototype.forEach.call(items, function(el){ io.observe(el); });
   }
+
+  /* ── KR/EN 언어 토글 (i18n) ── */
+  var btnKR = document.getElementById('lang-kr');
+  var btnEN = document.getElementById('lang-en');
+  var i18nEls = document.querySelectorAll('[data-en]');
+  Array.prototype.forEach.call(i18nEls, function(el){
+    el.setAttribute('data-ko', el.innerHTML);
+  });
+  var ariaEls = document.querySelectorAll('[data-en-aria]');
+  Array.prototype.forEach.call(ariaEls, function(el){
+    el.setAttribute('data-ko-aria', el.getAttribute('aria-label') || '');
+  });
+
+  function applyLang(lang){
+    var en = (lang === 'en');
+    document.documentElement.lang = en ? 'en' : 'ko';
+    Array.prototype.forEach.call(i18nEls, function(el){
+      var v = en ? el.getAttribute('data-en') : el.getAttribute('data-ko');
+      if(v != null) el.innerHTML = v;
+    });
+    Array.prototype.forEach.call(ariaEls, function(el){
+      var v = en ? el.getAttribute('data-en-aria') : el.getAttribute('data-ko-aria');
+      if(v != null) el.setAttribute('aria-label', v);
+    });
+    if(btnKR && btnEN){
+      btnKR.classList.toggle('active', !en);
+      btnEN.classList.toggle('active', en);
+      btnKR.setAttribute('aria-pressed', en ? 'false' : 'true');
+      btnEN.setAttribute('aria-pressed', en ? 'true' : 'false');
+    }
+    try{ localStorage.setItem('lang', en ? 'en' : 'ko'); }catch(e){}
+  }
+
+  if(btnKR) btnKR.addEventListener('click', function(){ applyLang('ko'); });
+  if(btnEN) btnEN.addEventListener('click', function(){ applyLang('en'); });
+
+  var saved;
+  try{ saved = localStorage.getItem('lang'); }catch(e){}
+  if(saved === 'en') applyLang('en'); else applyLang('ko');
 })();
 </script>
 
 <div id="lb" aria-hidden="true">
-  <button id="lb-close" class="lb-btn" aria-label="닫기">✕</button>
-  <button id="lb-prev" class="lb-btn" aria-label="이전 이미지">‹</button>
+  <button id="lb-close" class="lb-btn" aria-label="닫기" data-en-aria="Close">✕</button>
+  <button id="lb-prev" class="lb-btn" aria-label="이전 이미지" data-en-aria="Previous image">‹</button>
   <img id="lb-img" src="" alt="">
-  <button id="lb-next" class="lb-btn" aria-label="다음 이미지">›</button>
+  <button id="lb-next" class="lb-btn" aria-label="다음 이미지" data-en-aria="Next image">›</button>
   <div id="lb-counter"></div>
 </div>
 <script>

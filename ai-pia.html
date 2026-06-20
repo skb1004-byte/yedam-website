@@ -2551,7 +2551,29 @@ function buildSystemPrompt(stage, topic) {
     자유:'규칙보다 자유로운 걸 좋아하는지', 현실:'실제로 쓸모 있는 걸 중시하는지', 책임:'맡은 걸 끝까지 해내는지',
     외향:'사람들과 어울릴 때 힘이 나는지', 내향:'혼자만의 시간이 편한지'
   };
-  const _lvl = (state.cfg && state.cfg.grade) || 'mid';
+  // A: 응답자 실제 수준(프로필 학년/대상)으로 cfg.grade 보강 — 자유대화 난이도 자동 맞춤
+  function _levelFromProfile(){
+    try{
+      var g=(state.profile&&state.profile.grade)||'';
+      var s=String(g);
+      if(/초|elem|초등/.test(s)) return 'elem';
+      if(/중/.test(s)) return 'mid';
+      if(/고/.test(s)) return 'high';
+      if(/대학|univ|대학생/.test(s)) return 'univ';
+      if(/성인|일반|adult/.test(s)) return 'adult';
+      if(typeof currentAudience!=='undefined'){
+        if(currentAudience==='parent'||currentAudience==='teacher') return 'adult';
+      }
+      var m=s.match(/(\d+)/);
+      if(m){ var num=parseInt(m[1],10);
+        if(num>=1&&num<=6) return 'elem';
+        if(num>=7&&num<=9) return 'mid';
+        if(num>=10&&num<=12) return 'high';
+      }
+    }catch(e){}
+    return null;
+  }
+  const _lvl = _levelFromProfile() || (state.cfg && state.cfg.grade) || 'mid';
   const LVL = {
     elem:'상대는 초등학생입니다. 아주 쉬운 단어와 짧은 문장, 다정한 반말을 쓰세요. [대화법: 정서코칭 — 감정에 먼저 이름을 붙여 공감("속상했겠다")한 뒤 이야기를 끌어내기. 놀이·상상·좋아하는 캐릭터를 활용하고, 한 번에 하나만 묻기. 구체적으로 칭찬하기("끝까지 한 게 멋지다").]',
     mid:'상대는 중학생입니다. 쉬운 단어와 또래 같은 따뜻한 반말을 쓰세요. [대화법: 관점수용 — 평가하기 전에 그 입장을 먼저 이해하려 하기. 비판·설교 금지. 또래·관심사(게임·음악·친구) 중심으로 접근하고, 직접 캐묻기보다 보호적 은유나 "요즘 애들은 어때?" 같은 간접 질문으로 자기표현을 돕기.]',
@@ -2566,7 +2588,8 @@ function buildSystemPrompt(stage, topic) {
 4. 2~4문장으로 자연스럽고 충분하게(너무 길지 않게). 감정이 보이면 먼저 한 번 살짝 공감하고, 학생이 먼저 끝내자고 하기 전에는 네가 먼저 대화를 마무리하지 마.
 5. CBT 단계: ${stage} — ${stageGuide[stage] || stageGuide.RAPPORT}. 현재 주제: ${topic}.
 6. 의료 진단·약물·자해 방법은 언급하지 않음. 자해·자살·학대·폭력 신호가 보이면 즉시 공감 후 "청소년상담 1388, 정신건강위기 1577-0199, 가까운 믿을 어른"에게 도움을 요청하도록 안내.
-7. 이모지는 최대 1개. **사용자가 쓴 언어와 동일한 언어로 답하세요**(한국어·영어·일본어·중국어 등 자동 감지해 맞춤). 사용자가 질문하거나 문제 풀이를 요청하면 그 언어로 친절하고 정확하게 도와준 뒤 자연스럽게 대화를 이어가세요.`;
+7. 이모지는 최대 1개. **사용자가 쓴 언어와 동일한 언어로 답하세요**(한국어·영어·일본어·중국어 등 자동 감지해 맞춤). 사용자가 질문하거나 문제 풀이를 요청하면 그 언어로 친절하고 정확하게 도와준 뒤 자연스럽게 대화를 이어가세요.
+8. 응답자 수준 맞춤: 상대 수준(${_lvl})에 정확히 맞춰 쉬운 단어와 짧은 문장으로 질문하고 답하세요. 어려운 용어는 반드시 풀어서 설명하고, 이어지는 다음 질문도 같은 수준의 난이도를 끝까지 유지하세요.`;
 }
 
 // -----------------------------------------------------------------
@@ -3403,7 +3426,62 @@ function calcReliability() {
   else if (n >= 2) { grade='C'; label='낮음 — 추가 검사 권장'; }
   else { grade='D'; label='불충분 — 결과 해석 주의'; }
 
-  return { grade, label, n, completed, screening };
+  const validity = calcValidity();
+  return { grade, label, n, completed, screening, validity };
+}
+
+// C: 응답 성실도(validity) — 직선응답/저분산/역문항 모순을 종합
+function calcValidity() {
+  try {
+    var R = state.results;
+    var pools = [
+      { key:'big5', ds:(typeof IPIP_BIG5_50!=='undefined'?IPIP_BIG5_50:null), rev:true },
+      { key:'via',  ds:(typeof VIA_YOUTH!=='undefined'?VIA_YOUTH:null), rev:false },
+      { key:'grit', ds:(typeof GRIT_S!=='undefined'?GRIT_S:null), rev:true },
+      { key:'learn',ds:(typeof LEARN_ITEMS!=='undefined'?LEARN_ITEMS:null), rev:false },
+      { key:'mi',   ds:(typeof MI_ITEMS!=='undefined'?MI_ITEMS:null), rev:false }
+    ];
+    var all = [];
+    var flags = [];
+    var contradiction = 0, revPairs = 0;
+    pools.forEach(function(p){
+      var a = (R[p.key] && R[p.key].answers) || [];
+      var vals = a.filter(function(x){ return x!==undefined && x!==null; });
+      if (vals.length < 5) return;
+      // 직선응답: 최장 동일값 연속
+      var run=1, maxRun=1;
+      for (var i=1;i<vals.length;i++){ if(vals[i]===vals[i-1]){ run++; if(run>maxRun)maxRun=run; } else run=1; }
+      if (maxRun >= Math.max(8, Math.round(vals.length*0.5))) flags.push(p.key+' 연속동일');
+      // 저분산: 거의 한 값만
+      var mean=0; vals.forEach(function(v){mean+=v;}); mean/=vals.length;
+      var varc=0; vals.forEach(function(v){varc+=(v-mean)*(v-mean);}); varc/=vals.length;
+      if (varc < 0.3 && vals.length>=8) flags.push(p.key+' 분산낮음');
+      all = all.concat(vals);
+      // 역문항 일관성: 정/역 문항 응답 평균 비교(둘 다 높으면 모순)
+      if (p.rev && p.ds && a.length===p.ds.length){
+        var pos=[], neg=[];
+        for (var j=0;j<p.ds.length;j++){
+          var it=p.ds[j]; if(a[j]===undefined||a[j]===null) continue;
+          if (it && typeof it.s!=='undefined'){ (it.s>0?pos:neg).push(a[j]); }
+        }
+        if (pos.length>=3 && neg.length>=3){
+          revPairs++;
+          var pm=pos.reduce(function(x,y){return x+y;},0)/pos.length;
+          var nm=neg.reduce(function(x,y){return x+y;},0)/neg.length;
+          // 정문항·역문항을 같은 방향으로 높게/낮게 찍으면(원점수 기준) 모순 신호
+          if (Math.abs(pm-nm) < 0.6) contradiction++;
+        }
+      }
+    });
+    if (all.length < 10) return { grade:'-', reason:'성실도 판정에 필요한 응답이 부족합니다(검사 더 필요).' };
+    if (contradiction > 0) flags.push('역문항 모순');
+    var grade, reason;
+    var sev = flags.length + (contradiction>0?1:0);
+    if (sev >= 3) { grade='낮음'; reason='직선응답·낮은 분산 또는 역문항 모순 신호가 여러 건 감지되었습니다('+flags.join(', ')+'). 결과 해석에 주의가 필요합니다.'; }
+    else if (sev >= 1) { grade='주의'; reason='일부 성실도 신호가 감지되었습니다('+flags.join(', ')+'). 대체로 해석 가능하나 참고하세요.'; }
+    else { grade='양호'; reason='직선응답·저분산·역문항 모순 신호가 뚜렷하지 않아 성실한 응답으로 판단됩니다.'; }
+    return { grade:grade, reason:reason, flags:flags };
+  } catch(e) { return { grade:'-', reason:'성실도 계산 오류' }; }
 }
 
 // =================================================================
@@ -3674,11 +3752,33 @@ async function aiSimplify(viewId){
 }
 
 function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
+  // D: 비임상 검사만 문항 표시 순서를 셔플(채점 불변 — answers는 원래 인덱스 위치에 저장).
+  var SHUFFLE_ITEMS = { big5:1, via:1, grit:1, learn:1, mi:1 };
+  function _ensureOrder() {
+    var R = state.results[stateKey];
+    if (!SHUFFLE_ITEMS[stateKey]) return null;
+    if (!R.order || !R.order.length || R.order.length !== dataset.length) {
+      var ord = dataset.map(function(_, i){ return i; });
+      for (var z = ord.length - 1; z > 0; z--) { var r = Math.floor(Math.random()*(z+1)); var t = ord[z]; ord[z] = ord[r]; ord[r] = t; }
+      R.order = ord;
+      if (typeof R.seq !== 'number') R.seq = (R.answers ? R.answers.filter(function(a){return a!==undefined && a!==null;}).length : 0);
+      save();
+    }
+    if (typeof R.seq !== 'number') R.seq = 0;
+    return R.order;
+  }
+  function _answeredCount() {
+    var R = state.results[stateKey];
+    if (SHUFFLE_ITEMS[stateKey]) { _ensureOrder(); return R.seq || 0; }
+    return R.answers.length;
+  }
   return function render() {
     const container = el(viewId + '-content');
-    const answers = state.results[stateKey].answers;
+    const R = state.results[stateKey];
+    const answers = R.answers;
     const total = dataset.length;
-    const current = answers.length;
+    const order = _ensureOrder();
+    const current = _answeredCount();
 
     if (current >= total) {
       // 완료 화면
@@ -3691,12 +3791,14 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
           <div class="text-lg font-semibold mb-1">${total}문항 완료</div>
           <div class="text-sm text-slate-500 mb-4">결과는 통합 결과지에 반영됩니다.</div>
           <button onclick="showView('home')" class="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm">검사 메뉴로 돌아가기</button>
-          <button onclick="state.results['${stateKey}'].answers=[]; save(); renderHome(); showView('${viewId}')" class="bg-slate-100 px-5 py-2 rounded-lg text-sm ml-2">다시 검사</button>
+          <button onclick="state.results['${stateKey}'].answers=[]; state.results['${stateKey}'].order=null; state.results['${stateKey}'].seq=0; save(); renderHome(); showView('${viewId}')" class="bg-slate-100 px-5 py-2 rounded-lg text-sm ml-2">다시 검사</button>
         </div>`;
       return;
     }
 
-    const item = dataset[current];
+    // 표시 문항: 셔플 검사는 order[seq] 인덱스, 그 외는 순차
+    const dataIdx = order ? order[current] : current;
+    const item = dataset[dataIdx];
     const pct = Math.round((current/total)*100);
     container.innerHTML = `
       ${easyControls(viewId)}
@@ -3708,17 +3810,30 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
       <div class="text-base leading-relaxed mb-6 js-qtext" data-orig="">${applyEasy(item.t || item)}</div>
       <div class="grid gap-2" id="choices-${viewId}"></div>
       <div class="mt-4 flex justify-between text-xs text-slate-500">
-        <button onclick="state.results['${stateKey}'].answers.pop(); save(); render${viewId.charAt(0).toUpperCase()+viewId.slice(1)}()" ${current===0?'disabled style="opacity:.4"':''}>← 이전</button>
+        <button onclick="(function(){var _R=state.results['${stateKey}'];if(${order?1:0}){if((_R.seq||0)>0){_R.seq--;var _di=_R.order[_R.seq];_R.answers[_di]=undefined;}}else{_R.answers.pop();}save();render${viewId.charAt(0).toUpperCase()+viewId.slice(1)}();})()" ${current===0?'disabled style="opacity:.4"':''}>← 이전</button>
         <span>${pct}%</span>
       </div>
     `;
     const cc = el('choices-' + viewId);
-    scale.forEach((label, i) => {
+    // B: LIKERT5 보기 순서를 셔플하되 각 버튼은 원래 점수값(val)을 저장 → 채점 불변.
+    var _opts = scale.map(function(label, i){ return { label: label, val: (i + (scale === LIKERT4 ? 0 : 1)) }; });
+    if (scale === LIKERT5) {
+      for (var _z = _opts.length - 1; _z > 0; _z--) { var _r = Math.floor(Math.random()*(_z+1)); var _t = _opts[_z]; _opts[_z] = _opts[_r]; _opts[_r] = _t; }
+    }
+    _opts.forEach(function(o){
       const btn = document.createElement('button');
       btn.className = 'text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 text-sm transition';
-      btn.textContent = label;
-      btn.addEventListener('click', () => {
-        state.results[stateKey].answers.push(i + (scale === LIKERT4 ? 0 : 1));
+      btn.textContent = o.label;
+      btn.addEventListener('click', function(){
+        var _R = state.results[stateKey];
+        if (order) {
+          // D: 표시 순서 무관하게 원래 dataset 인덱스 위치에 저장
+          var di = _R.order[_R.seq];
+          _R.answers[di] = o.val;
+          _R.seq = (_R.seq || 0) + 1;
+        } else {
+          _R.answers.push(o.val);
+        }
         save();
         render();
       });
@@ -3881,6 +3996,10 @@ function renderSjt() {
 // =================================================================
 //  Home menu
 // =================================================================
+function _likertDoneCount(stateKey){
+  var a = (state.results[stateKey] && state.results[stateKey].answers) || [];
+  var n = 0; for (var i=0;i<a.length;i++){ if (a[i]!==undefined && a[i]!==null) n++; } return n;
+}
 function renderHome() {
   const container = el('home-content');
   // 권장 순서: 자유대화 → VIA(강점) → Big5 → Grit → RIASEC → SJT → 정서 스크리닝 3종
@@ -3933,7 +4052,7 @@ function renderHome() {
     if (c.key === 'conv') return state.results.conv.turns >= 8;
     if (c.key === 'sjt') return state.results.sjt.answers.length >= SJT_30.length;
     const expected = c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100;
-    return state.results[c.key]?.answers?.length >= expected;
+    return _likertDoneCount(c.key) >= expected;
   }).length;
   const progress = Math.round(done/total*100);
 
@@ -3978,12 +4097,12 @@ function renderHome() {
   ` + cards.map(c => {
     const isDone = c.key === 'conv' ? state.results.conv.turns >= 8 :
                    c.key === 'sjt' ? state.results.sjt.answers.length >= SJT_30.length :
-                   state.results[c.key]?.answers?.length >= (c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100);
+                   _likertDoneCount(c.key) >= (c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100);
 
     // 진행 중 표시
     const currentItems = c.key === 'conv' ? state.results.conv.turns :
                          c.key === 'sjt' ? state.results.sjt.answers.length :
-                         (state.results[c.key]?.answers?.length || 0);
+                         _likertDoneCount(c.key);
     const totalItems = c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: c.id==='sjt'?30: 10;
     const inProgress = currentItems > 0 && !isDone;
     const itemProgress = Math.round((currentItems/totalItems)*100);
@@ -4355,8 +4474,9 @@ function initChat() {
     state.results.conv.transcript.push({ msg:clean, reply, risk, topic, t:Date.now() });
     save();
 
-    appendMsg(reply, 'ai');
-    if (typeof window.speakReply === 'function') window.speakReply(reply);
+    var _rep = String(reply).replace(/\uC544\uC774\uACE0[\uC57C\uC544]?[\s!,.~]*/gi,'').replace(/^[\s,!.~]+/,'') || reply;
+    appendMsg(_rep, 'ai');
+    if (typeof window.speakReply === 'function') window.speakReply(_rep);
     turnCounter.textContent = `${state.results.conv.turns} / 16 턴`;
     if (sendBtn) sendBtn.disabled = false;
     try { messageInput.focus(); } catch(e) {}
@@ -4462,7 +4582,7 @@ function initChat() {
   function loadVoices() {
     if (!('speechSynthesis' in window)) return;
     const voices = speechSynthesis.getVoices();
-    var _ko = voices.filter(function(v){return ((v.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;});function _vscore(v){var n=(v.name||'');var sc=0;if(v.localService===false) sc+=12;if(/google/i.test(n)) sc+=7;if(/neural|natural|wavenet|premium/i.test(n)) sc+=6;if(/yuna|heami|sunhi|sora|injoon|seoyeon/i.test(n)) sc+=4;if(/ko[-_]?kr/i.test(v.lang||'')) sc+=2;if(/microsoft/i.test(n)) sc+=1; return sc;}_ko.sort(function(a,b){return _vscore(b)-_vscore(a);});ttsVoice = _ko[0] || null;
+    var _ko = voices.filter(function(v){return ((v.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;});function _vscore(v){var n=(v.name||'');var sc=0;if(v.localService===false) sc+=12;if(/google/i.test(n)) sc+=7;if(/neural|natural|wavenet|premium/i.test(n)) sc+=6;if(/yuna|heami|sunhi|sora|seoyeon|nari|jiyoon|jenny|aria|female|여성|여자/i.test(n)) sc+=9;if(/injoon|namjun|jihun|male|남성|남자/i.test(n)) sc-=6;if(/ko[-_]?kr/i.test(v.lang||'')) sc+=2;if(/microsoft/i.test(n)) sc+=1; return sc;}_ko.sort(function(a,b){return _vscore(b)-_vscore(a);});ttsVoice = _ko[0] || null;
   }
   if ('speechSynthesis' in window) {
     loadVoices();
@@ -5114,7 +5234,7 @@ function audienceGuide(audience, type, reliability) {
       <h3 class="font-semibold mb-2">너에게 전하는 한 마디</h3>
       <p class="text-sm text-slate-700 leading-relaxed mb-3">${type.desc} 하지만 이건 너의 '오늘'을 본 결과일 뿐, 너는 매일 자라고 있어. 결과를 너무 진지하게 받아들이지 말고, 도움 되는 한두 가지만 챙겨가도 충분해.</p>
       <h4 class="font-semibold text-sm mb-1">검사 신뢰도</h4>
-      <p class="text-xs text-slate-600">현재 신뢰도 <strong>${reliability.grade}</strong> (${reliability.label}). 더 많은 검사를 완료하면 분석이 더 정확해져.</p>
+      <p class="text-xs text-slate-600">현재 신뢰도 <strong>${reliability.grade}</strong> (${reliability.label})${reliability.validity && reliability.validity.grade && reliability.validity.grade!=='-' ? ' · 응답 성실도: <strong>'+reliability.validity.grade+'</strong>' : ''}. 더 많은 검사를 완료하면 분석이 더 정확해져.</p>
     `;
   }
   if (audience === 'parent') {
@@ -5129,7 +5249,7 @@ function audienceGuide(audience, type, reliability) {
         <li>· 결과가 맞지 않게 느껴지면 담임/상담교사에게 재상담을 요청하실 수 있습니다.</li>
       </ul>
       <h4 class="font-semibold text-sm mt-3 mb-1">검사 신뢰도</h4>
-      <p class="text-xs text-slate-600">신뢰도 등급 <strong>${reliability.grade}</strong> (${reliability.label}). 완료 검사: ${reliability.completed.join(', ') || '없음'}</p>
+      <p class="text-xs text-slate-600">신뢰도 등급 <strong>${reliability.grade}</strong> (${reliability.label})${reliability.validity && reliability.validity.grade && reliability.validity.grade!=='-' ? ' · 응답 성실도: <strong>'+reliability.validity.grade+'</strong>' : ''}. 완료 검사: ${reliability.completed.join(', ') || '없음'}</p>
     `;
   }
   return `
@@ -5141,7 +5261,7 @@ function audienceGuide(audience, type, reliability) {
       <li>· 자해 신호 감지 시 즉시 학교 위기관리 매뉴얼에 따라 조치하세요.</li>
     </ul>
     <h4 class="font-semibold text-sm mb-1">검사 신뢰도</h4>
-    <p class="text-xs text-slate-600">신뢰도 등급 <strong>${reliability.grade}</strong> (${reliability.label}). 완료: ${reliability.completed.join(', ') || '없음'} / 정서 스크리닝: ${reliability.screening.join(', ') || '미실시'}</p>
+    <p class="text-xs text-slate-600">신뢰도 등급 <strong>${reliability.grade}</strong> (${reliability.label})${reliability.validity && reliability.validity.grade && reliability.validity.grade!=='-' ? ' · 응답 성실도: <strong>'+reliability.validity.grade+'</strong>' : ''}. 완료: ${reliability.completed.join(', ') || '없음'} / 정서 스크리닝: ${reliability.screening.join(', ') || '미실시'}</p>
   `;
 }
 
@@ -5562,7 +5682,8 @@ function renderDetailedResult() {
     // 교사: 근거(신뢰도) → 차원 상세 → 진로 → 정서 상세 → 지도 액션
     detailedHTML += `<div class="rounded-2xl border border-slate-200 bg-white p-4">
         <h3 class="font-semibold text-sm mb-2">검사 신뢰도·근거</h3>
-        <p class="text-sm text-slate-700">신뢰도 등급 <strong>${reliability.grade}</strong> (${reliability.label}) · 완료 검사: ${(reliability.completed&&reliability.completed.join(', '))||'없음'}${reliability.screening&&reliability.screening.length?' · 스크리닝: '+reliability.screening.join(', '):''}</p>
+        <p class="text-sm text-slate-700">신뢰도 등급 <strong>${reliability.grade}</strong> (${reliability.label})${reliability.validity && reliability.validity.grade && reliability.validity.grade!=='-' ? ' · 응답 성실도: <strong>'+reliability.validity.grade+'</strong>' : ''} · 완료 검사: ${(reliability.completed&&reliability.completed.join(', '))||'없음'}${reliability.screening&&reliability.screening.length?' · 스크리닝: '+reliability.screening.join(', '):''}</p>
+        ${reliability.validity && reliability.validity.reason ? '<p class="text-xs text-slate-500 mt-1">응답 성실도 근거: '+reliability.validity.reason+'</p>' : ''}
         <p class="text-xs text-slate-500 mt-1">점수는 또래 규준 대비 상대적 위치이며, 학생 평가·서열화 도구가 아닙니다.</p>
       </div>` + big5C + riasecC + viaC + careerC + audienceScreeningNote('teacher') + '<div id="counsel-card" class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4"><div class="text-xs text-amber-900">🗣️ 결과 맞춤 학부모 상담 예시 생성 중…</div></div>' + actionsC;
   }
@@ -5585,7 +5706,7 @@ function renderDetailedResult() {
     <strong>고지사항:</strong> 본 검사는 의료·임상 진단이 아닌 교육·진로·자기이해를 위한 참고용 성장분석 도구입니다.
     위험 신호 감지 시 즉시 학교 상담교사, 청소년상담 1388, 정신건강위기 1577-0199, 자살예방상담 109 등을 이용해 주세요.
     <br><br>
-    <strong>발급일:</strong> ${new Date().toLocaleString('ko-KR')} · <strong>학생ID:</strong> ${sid} · <strong>대상:</strong> ${currentAudience==='student'?'학생 본인용':currentAudience==='parent'?'학부모용':'선생님용'} · <strong>신뢰도:</strong> ${reliability.grade} (${reliability.label})
+    <strong>발급일:</strong> ${new Date().toLocaleString('ko-KR')} · <strong>학생ID:</strong> ${sid} · <strong>대상:</strong> ${currentAudience==='student'?'학생 본인용':currentAudience==='parent'?'학부모용':'선생님용'} · <strong>신뢰도:</strong> ${reliability.grade} (${reliability.label})${reliability.validity && reliability.validity.grade && reliability.validity.grade!=='-' ? ' · <strong>응답 성실도:</strong> '+reliability.validity.grade : ''}
   </div>`;
 
   let container = el('detailed-result');
@@ -5624,6 +5745,7 @@ function buildResultText() {
   lines.push(`발급일: ${new Date().toLocaleString('ko-KR')}`);
   lines.push(`학생ID: ${sid}`);
   lines.push(`신뢰도: ${reliability.grade} (${reliability.label})`);
+  if (reliability.validity && reliability.validity.grade && reliability.validity.grade !== '-') lines.push(`응답 성실도: ${reliability.validity.grade}${reliability.validity.reason?' — '+reliability.validity.reason:''}`);
   lines.push(`완료 검사: ${reliability.completed.join(', ') || '없음'}`);
   lines.push(`정서 스크리닝: ${reliability.screening.join(', ') || '미실시'}`);
   lines.push('');
@@ -6743,13 +6865,13 @@ function _piaDoneCount(){
   }catch(e){} return n;
 }
 function buildAdminRecord(){
-  let type='', rel='';
+  let type='', rel='', _relObj=null, validity='';
   try{ type=(inferIntegratedType()||{}).name||''; }catch(e){}
-  try{ rel=(calcReliability()||{}).grade||''; }catch(e){}
+  try{ _relObj=calcReliability()||{}; rel=_relObj.grade||''; validity=(_relObj.validity&&_relObj.validity.grade)||''; }catch(e){}
   const p=state.profile||{};
   const id=((state.studentId||'S')+'_'+(p.createdAt||'anon'));
   return { id, name:p.name||'익명', grade:p.grade||'', klass:p.class||'', school:p.school||'',
-    type, reliability:rel, doneCount:_piaDoneCount(),
+    type, reliability:rel, validity:validity, validityDetail:(_relObj&&_relObj.validity)||null, doneCount:_piaDoneCount(),
     version:'v3.7', exportedAt:new Date().toISOString(),
     results:state.results, meta:state.meta, profile:p };
 }
@@ -8131,12 +8253,41 @@ function mapAiPiaToResultData() {
   };
 }
 
+// E: 전체 검사 완료 여부 — 13종 전부 끝나야 통합 결과지 권장.
+function missingAllTests(){
+  var R = state.results;
+  var dc = (typeof _likertDoneCount==='function') ? _likertDoneCount : function(k){ var a=(R[k]&&R[k].answers)||[]; var n=0; for(var i=0;i<a.length;i++){if(a[i]!==undefined&&a[i]!==null)n++;} return n; };
+  var defs = [
+    { id:'big5',   label:'IPIP Big5-50',     done:function(){ return dc('big5')>=50; } },
+    { id:'riasec', label:'RIASEC 진로흥미',  done:function(){ return dc('riasec')>=30; } },
+    { id:'via',    label:'VIA 성격강점',     done:function(){ return dc('via')>=24; } },
+    { id:'grit',   label:'Grit 끈기',        done:function(){ return dc('grit')>=8; } },
+    { id:'sjt',    label:'SJT 상황판단',     done:function(){ return (R.sjt&&R.sjt.answers&&R.sjt.answers.length>=15); } },
+    { id:'cesd',   label:'CES-D 우울',       done:function(){ return !!(R.cesd&&R.cesd.scores); } },
+    { id:'phqa',   label:'PHQ-A 우울',       done:function(){ return !!(R.phqa&&R.phqa.scores); } },
+    { id:'gad',    label:'GAD-7 불안',       done:function(){ return !!(R.gad&&R.gad.scores); } },
+    { id:'who5',   label:'WHO-5 웰빙',       done:function(){ return !!(R.who5&&R.who5.scores); } },
+    { id:'rses',   label:'RSES 자존감',      done:function(){ return !!(R.rses&&R.rses.scores); } },
+    { id:'learn',  label:'학습역량',         done:function(){ return dc('learn')>=14; } },
+    { id:'mi',     label:'다중지능(MI)',     done:function(){ return dc('mi')>=16; } },
+    { id:'conv',   label:'자유대화',         done:function(){ return (R.conv&&R.conv.turns>=8); } }
+  ];
+  return defs.filter(function(t){ var ok=false; try{ ok=t.done(); }catch(e){} return !ok; });
+}
+
 function openFullReport() {
   const _miss = (typeof missingRequired==='function') ? missingRequired() : [];
   if (_miss.length > 0) {
     alert('필수 검사(' + _miss.map(function(t){return t.label;}).join(', ') + ')를 모두 완료한 뒤 전체 결과지를 볼 수 있어요.');
     showView('result');
     return;
+  }
+  // E: 전체 검사 완료 게이트 — 미완료면 남은 목록 안내. 그래도 보길 원하면 진행(영구 차단 X).
+  var _missAll = (typeof missingAllTests==='function') ? missingAllTests() : [];
+  if (_missAll.length > 0) {
+    var _names = _missAll.map(function(t){ return t.label; }).join(', ');
+    alert('통합 결과지는 \uBAA8\uB4E0 \uAC80\uC0AC\uB97C \uB9C8\uCCD0\uC57C \uC5F4\uB824\uC694.\n\uB0A8\uC740 \uAC80\uC0AC '+_missAll.length+'\uAC1C: '+_names);
+    showView('home'); return;
   }
   const d = mapAiPiaToResultData();
   showView('fullreport');
@@ -8276,6 +8427,8 @@ window._ttsClean=function(s){
     s=s.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,' ').replace(/[☀-➿⬀-⯿️‍]/g,' ');
   }
   s=s.replace(/^\s*(?:AI\s*PIA|피아|PIA|에이아이)\s*[:\uFF1A]\s*/i,'');
+  s=s.replace(/[\(\uFF08][^\)\uFF09]*[\)\uFF09]/g,' ');
+  s=s.replace(/아이고[야아]?/g,' ');
   return s.replace(/\s{2,}/g,' ').trim();
 };
 </script>
