@@ -1820,7 +1820,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
     <strong class="block mb-1">상담 진행 안내</strong>
     · 본 AI PIA는 자기이해 보조 도구이며 의료·임상 진단을 대체하지 않습니다.<br>
     · 자해·자살·학대·폭력 신호가 있는 경우 즉시 위 채널 또는 가까운 어른께 도움을 요청해주세요.<br>
-    · 모든 상담은 비밀이 보장되며 익명으로 가능합니다.
+    · 모든 상담은 비밀이 보장되며 이름 입력이 필요합니다.
   </div>
 </section>
 
@@ -4462,7 +4462,7 @@ function initChat() {
   function loadVoices() {
     if (!('speechSynthesis' in window)) return;
     const voices = speechSynthesis.getVoices();
-    ttsVoice = voices.find(v => v.lang && v.lang.startsWith('ko')) || voices[0];
+    var _ko = voices.filter(function(v){return ((v.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;});var _pref=['Google 한국','Google Korean','Yuna','Microsoft Heami','Microsoft SunHi','Heami','SunHi','Sora','한국'];ttsVoice=null;for(var _i=0;_i<_pref.length && !ttsVoice;_i++){ttsVoice=_ko.find(function(v){return (v.name||'').indexOf(_pref[_i])>=0;});}if(!ttsVoice) ttsVoice=_ko.find(function(v){return /ko[-_]?kr/i.test(v.lang||'');}) || _ko[0] || null;
   }
   if ('speechSynthesis' in window) {
     loadVoices();
@@ -4475,7 +4475,7 @@ function initChat() {
     const u = new SpeechSynthesisUtterance(text);
     if (ttsVoice) u.voice = ttsVoice;
     u.lang = 'ko-KR';
-    u.rate = 1.0;
+    u.rate = 0.98; u.pitch = 1.0;
     u.onend = function(){ if (_micWant && !_globalRecording) setTimeout(function(){ if (_micWant && !_globalRecording) { try { window.safeStartRecognition && window.safeStartRecognition(); } catch(e){} } }, 350); };
     speechSynthesis.speak(u);
   };
@@ -6448,7 +6448,7 @@ function ensureStudentProfile() {
     modal.innerHTML = `
       <div class="bg-white rounded-2xl p-6 max-w-md w-full">
         <h2 class="text-lg font-bold mb-2">👋 안녕하세요!</h2>
-        <p class="text-sm text-slate-600 mb-4">검사를 시작하기 전 간단히 알려주세요. (선택사항이며 익명 가능)</p>
+        <p class="text-sm text-slate-600 mb-4">검사를 시작하기 전 간단히 알려주세요. (이름 입력 필수)</p>
         <div class="space-y-3">
           <label class="block">
             <span class="text-xs text-slate-600">이름 또는 별명</span>
@@ -8245,5 +8245,20 @@ body:not(.dark-mode){
   color:var(--ink)!important;
 }
 </style>
+
+<style id="no-anon-style">#pf-skip{display:none!important}</style>
+<script id="no-anon-guard">
+(function(){
+  document.addEventListener('click',function(e){
+    var t=e.target; var b=(t&&t.closest)?t.closest('#pf-save'):null;
+    if(b){ var n=document.getElementById('pf-name');
+      if(n && !n.value.trim()){ e.preventDefault(); e.stopImmediatePropagation();
+        try{alert('이름(또는 별명)을 입력해 주세요. 익명으로는 시작할 수 없습니다.');}catch(_){}
+        try{n.focus();}catch(_){}
+      }
+    }
+  },true);
+})();
+</script>
 </body>
 </html>
