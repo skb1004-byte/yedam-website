@@ -4462,7 +4462,7 @@ function initChat() {
   function loadVoices() {
     if (!('speechSynthesis' in window)) return;
     const voices = speechSynthesis.getVoices();
-    var _ko = voices.filter(function(v){return ((v.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;});var _pref=['Google 한국','Google Korean','Yuna','Microsoft Heami','Microsoft SunHi','Heami','SunHi','Sora','한국'];ttsVoice=null;for(var _i=0;_i<_pref.length && !ttsVoice;_i++){ttsVoice=_ko.find(function(v){return (v.name||'').indexOf(_pref[_i])>=0;});}if(!ttsVoice) ttsVoice=_ko.find(function(v){return /ko[-_]?kr/i.test(v.lang||'');}) || _ko[0] || null;
+    var _ko = voices.filter(function(v){return ((v.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;});function _vscore(v){var n=(v.name||'');var sc=0;if(v.localService===false) sc+=12;if(/google/i.test(n)) sc+=7;if(/neural|natural|wavenet|premium/i.test(n)) sc+=6;if(/yuna|heami|sunhi|sora|injoon|seoyeon/i.test(n)) sc+=4;if(/ko[-_]?kr/i.test(v.lang||'')) sc+=2;if(/microsoft/i.test(n)) sc+=1; return sc;}_ko.sort(function(a,b){return _vscore(b)-_vscore(a);});ttsVoice = _ko[0] || null;
   }
   if ('speechSynthesis' in window) {
     loadVoices();
@@ -4475,7 +4475,7 @@ function initChat() {
     const u = new SpeechSynthesisUtterance(text);
     if (ttsVoice) u.voice = ttsVoice;
     u.lang = 'ko-KR';
-    u.rate = 0.98; u.pitch = 1.0;
+    u.rate = 0.96; u.pitch = 1.02;
     u.onend = function(){ if (_micWant && !_globalRecording) setTimeout(function(){ if (_micWant && !_globalRecording) { try { window.safeStartRecognition && window.safeStartRecognition(); } catch(e){} } }, 350); };
     speechSynthesis.speak(u);
   };
