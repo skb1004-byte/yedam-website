@@ -2507,11 +2507,26 @@ async function callOnDevice(prompt, systemPrompt) {
   return null;
 }
 
+const PIA_CHAT_PROXY = 'https://lucky-sun-025e.songkb9.workers.dev';
 // 키 불필요 무료 게이트웨이 직접 호출 (cfg 무관 · 자유대화 자동 연결용)
 async function callLLMFree(prompt, systemPrompt) {
   const messages = [];
   if (systemPrompt) messages.push({ role:'system', content: systemPrompt });
   messages.push({ role:'user', content: prompt });
+  // 0차: 서버 프록시(키 불필요·전 기기 자동·6개 공급자 자동 폴백)
+  try {
+    const ctrl0 = new AbortController(); const t0 = setTimeout(function(){ ctrl0.abort(); }, 20000);
+    const res0 = await fetch(PIA_CHAT_PROXY, {
+      method:'POST', headers:{ 'Content-Type':'application/json' }, signal: ctrl0.signal,
+      body: JSON.stringify({ messages: messages, max_tokens:700, temperature:0.8 })
+    });
+    clearTimeout(t0);
+    if (res0.ok) {
+      const d0 = await res0.json();
+      const c0 = d0 && ((d0.choices && d0.choices[0] && d0.choices[0].message && d0.choices[0].message.content) || d0.content);
+      if (c0 && c0.trim()) return c0.trim();
+    }
+  } catch(e) {}
   // 1차: OpenAI 호환 POST (Pollinations · 키 불필요)
   try {
     const ctrl = new AbortController(); const t = setTimeout(function(){ ctrl.abort(); }, 15000);
@@ -3177,7 +3192,7 @@ function load() {
   // 사용자가 직접 엔진을 고른 적이 없으면 기본을 온디바이스로 강제(예전 저장값에 덮이지 않게)
   /* 함수 미사용: 프록시 비움 — 모바일은 무료 AI 직접 호출 */ try { state.cfg.proxy=''; } catch(e){}
   var _mobDef=(typeof isMobile==='function'&&isMobile());
-  if (!state.cfg || !state.cfg._engineChosen) { state.cfg = Object.assign({}, state.cfg, { mode: _mobDef ? 'AUTO_FREE' : 'ONDEVICE' }); }
+  if (!state.cfg || !state.cfg._engineChosen) { state.cfg = Object.assign({}, state.cfg, { mode: 'AUTO_FREE' }); }
 }
 function save() {
   sessionStorage.setItem(STORAGE.cfg, JSON.stringify(state.cfg));
