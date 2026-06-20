@@ -1310,7 +1310,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
     <div>
       <div class="section-title" data-en="■ Temperament Pentagon Analysis"><span class="section-icon">■</span> 기질 오각 분석</div>
       <div style="display:flex;justify-content:center;margin:10px 0;">
-        <svg width="260" height="260" viewBox="0 0 260 260" id="radar-svg">
+        <svg width="260" height="260" viewBox="0 0 260 260" id="radar-svg" role="img" aria-label="성격·흥미·강점 종합 레이더 차트">
           <!-- 축선 (5각형 3단계) -->
           <g id="grid-lines" stroke="#ccc" stroke-width="0.8" fill="none"></g>
           <!-- 데이터 폴리곤 -->
@@ -4644,14 +4644,19 @@ function initChat() {
   // 구글 번역 TTS(온라인 자연 음성). Audio 재생은 CORS 영향을 받지 않음.
   let _gAudio = null;
   function _gttsChunks(s){
-    s=String(s||'').replace(/\s+/g,' ').trim(); var out=[], max=180;
-    while(s.length>max){
-      var head=s.slice(0,max); var idx=Math.max(head.lastIndexOf('. '),head.lastIndexOf('! '),head.lastIndexOf('? '),head.lastIndexOf('。'),head.lastIndexOf('… '));
-      var cut=head.lastIndexOf(' ');
-      var at = idx>40 ? idx+1 : (cut>40 ? cut : max);
-      out.push(s.slice(0,at).trim()); s=s.slice(at).trim();
+    s=String(s||'').replace(/\s+/g,' ').trim(); if(!s) return [];
+    var max=140;
+    // 문장 종결(부호 + 한국어 종결어미) 뒤에 분리표시 → 문장 단위 우선 낭독(자연 억양)
+    var marked=s.replace(/([.!?。…])\s+/g,'$1\u0001').replace(/([다요죠까])\s+/g,'$1\u0001');
+    var sents=marked.split('\u0001').filter(Boolean); var out=[], buf='';
+    for(var i=0;i<sents.length;i++){ var p=sents[i].trim(); if(!p) continue;
+      if((buf?buf.length+1:0)+p.length<=max){ buf=buf?(buf+' '+p):p; }
+      else { if(buf){ out.push(buf); buf=''; }
+        if(p.length<=max){ buf=p; }
+        else { var t=p; while(t.length>max){ var h=t.slice(0,max); var c=h.lastIndexOf(' '); var at=c>40?c:max; out.push(t.slice(0,at).trim()); t=t.slice(at).trim(); } buf=t; }
+      }
     }
-    if(s) out.push(s); return out;
+    if(buf) out.push(buf); return out;
   }
   function googleTTS(text){
     return new Promise(function(resolve,reject){
@@ -4674,12 +4679,21 @@ function initChat() {
   function _speakBuiltin(text){
     if (!('speechSynthesis' in window)) { _afterSpeak(); return; }
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance((window._ttsClean?window._ttsClean(text):text));
-    if (ttsVoice) u.voice = ttsVoice;
-    u.lang = 'ko-KR';
-    u.rate = 0.96; u.pitch = 1.02;
-    u.onend = _afterSpeak;
-    speechSynthesis.speak(u);
+    var clean=(window._ttsClean?window._ttsClean(text):text);
+    var parts=_gttsChunks(clean); if(!parts.length){ _afterSpeak(); return; }
+    // 연령 맞춤 속도(초등 느리게) + 따뜻한 피치
+    var g=(state.profile&&state.profile.grade)||''; var rate=/초/.test(g)?0.9:0.95;
+    var i=0;
+    function speakNext(){
+      if(i>=parts.length){ _afterSpeak(); return; }
+      var u=new SpeechSynthesisUtterance(parts[i]);
+      if(ttsVoice) u.voice=ttsVoice;
+      u.lang='ko-KR'; u.rate=rate; u.pitch=1.05;
+      u.onend=function(){ i++; speakNext(); };
+      u.onerror=function(){ i++; speakNext(); };
+      try{ speechSynthesis.speak(u); }catch(e){ _afterSpeak(); }
+    }
+    speakNext();
   }
   window.speakReply = function(text) {
     if (!ttsToggle.checked) return;
@@ -7371,7 +7385,7 @@ function showShareModal() {
         <button onclick="this.closest('.fixed,[style*=fixed]').remove()" class="text-slate-400 text-xl">×</button>
       </div>
       <div class="bg-slate-50 rounded-lg p-4 mb-3 text-center">
-        <img src="${qrUrl}" alt="QR" class="mx-auto mb-2" style="width:200px;height:200px" />
+        <img src="${qrUrl}" alt="결과지 모바일 접속 QR 코드" class="mx-auto mb-2" style="width:200px;height:200px" />
         <p class="text-xs text-slate-600">학부모·선생님이 QR 코드를 스캔하여 결과를 공유받을 수 있습니다.</p>
       </div>
       <div class="space-y-2">
