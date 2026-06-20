@@ -2554,6 +2554,16 @@ async function callLLMFree(prompt, systemPrompt) {
 }
 
 // CBT-aware 시스템 프롬프트 생성
+function _isKoreanReply(t){
+  t=String(t||'');
+  var han=(t.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g)||[]).length;   // 한자(중국어)
+  var kana=(t.match(/[\u3040-\u30ff]/g)||[]).length;                 // 일본어 가나
+  var hangul=(t.match(/[\uac00-\ud7a3]/g)||[]).length;               // 한글
+  if(kana>0) return false;
+  if(han>2) return false;
+  if(hangul===0 && t.replace(/[^A-Za-z]/g,'').length>8) return false;
+  return true;
+}
 function buildSystemPrompt(stage, topic) {
   const stageGuide = {
     RAPPORT: '학생과 라포를 형성하세요. 짧고 따뜻한 공감 + 가벼운 질문 하나.',
@@ -4511,12 +4521,17 @@ function initChat() {
       // 견고한 AI 캐스케이드: (1)설정 엔진(키) → (2)무료 게이트웨이(2중 폴백) → (3)로컬 규칙형
       const typing = appendTyping();
       const stage = inferStage(state.results.conv.turns);
-      const sys = buildSystemPrompt(stage, topic);
+      const sys = buildSystemPrompt(stage, topic) + '\n\n[필수] 반드시 한국어(한글)로만 답한다. 영어·중국어·일본어 등 외국어나 한자(漢字)를 절대 섞지 않는다.';
       const ctx = buildConvContext(clean);
       const keyed = (mode !== 'LOCAL' && mode !== 'AUTO_FREE');
       let out = null;
       if (keyed) { try { out = await callLLM(ctx, sys); } catch (e) { out = null; } }
       if (!out || !out.trim()) { try { out = await callLLMFree(ctx, sys); } catch (e) { out = null; } }
+      // 출력 언어 가드: 한국어 이탈(중국어/일본어/한자 혼입) 시 1회 재시도 → 실패하면 로컬 한국어 응답
+      if (out && out.trim() && !_isKoreanReply(out)) {
+        try { var _kr = await callLLMFree(ctx, sys + '\n\n[경고] 직전 출력이 한국어가 아니었다. 오직 한국어(한글)로만 2~3문장으로 다시 답하라.'); out = (_kr && _isKoreanReply(_kr)) ? _kr : null; }
+        catch(e){ out = null; }
+      }
       removeTyping(typing);
       reply = (out && out.trim()) ? out.trim() : generateReply(clean).reply;
     }
