@@ -202,7 +202,7 @@ button,input,select,textarea,nav,.pill{font-family:var(--font-ui);}
 .bg-slate-200{background-color:#e7e4d9!important;}
 .bg-slate-400{background-color:#b0aea5!important;}
 .bg-slate-900{background-color:#141413!important;}
-.text-slate-400{color:#a8a69c!important;}
+.text-slate-400{color:#6f6d64!important;}
 .text-slate-500{color:#7a786f!important;}
 .text-slate-600{color:#5f5d54!important;}
 .text-slate-700{color:#46443d!important;}
@@ -617,7 +617,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   <div class="px-4 py-3 border-t border-slate-200 space-y-2">
     <div class="flex gap-2">
       <input id="chat-input" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="예: 친구들이 나랑 안 놀아줘 (Enter로 전송)" />
-      <button id="chat-mic" class="bg-rose-500 text-white px-3 py-2 rounded-lg text-sm font-semibold" title="음성 입력 시작/중지">🎤</button>
+      <button id="chat-mic" class="bg-rose-500 text-white px-3 py-2 rounded-lg text-sm font-semibold" title="음성 입력 시작/중지" aria-label="음성 입력 시작/중지">🎤</button>
       <button id="chat-send" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">전송</button>
     </div>
     <div class="flex justify-between items-center">
@@ -642,10 +642,10 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   <div class="bg-white rounded-2xl border border-slate-200 px-5 py-3 flex flex-wrap items-center justify-between gap-3 no-print">
     <div class="flex items-center gap-2">
       <span class="text-xs text-slate-500" data-en="Report view:">결과지 보기:</span>
-      <div class="inline-flex bg-slate-100 rounded-lg p-1 gap-1">
-        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" data-audience="student" aria-selected="true" data-en="For the student">학생 본인용</button>
-        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" data-audience="parent" aria-selected="false" data-en="For parents">학부모용</button>
-        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" data-audience="teacher" aria-selected="false" data-en="For teachers">선생님용</button>
+      <div class="inline-flex bg-slate-100 rounded-lg p-1 gap-1" role="tablist" aria-label="결과지 보기 대상">
+        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" role="tab" data-audience="student" aria-selected="true" data-en="For the student">학생 본인용</button>
+        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" role="tab" data-audience="parent" aria-selected="false" data-en="For parents">학부모용</button>
+        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" role="tab" data-audience="teacher" aria-selected="false" data-en="For teachers">선생님용</button>
       </div>
     </div>
     <div class="flex flex-wrap gap-2">
@@ -2508,6 +2508,7 @@ async function callOnDevice(prompt, systemPrompt) {
 }
 
 const PIA_CHAT_PROXY = 'https://lucky-sun-025e.songkb9.workers.dev';
+function _escHtml(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
 // 키 불필요 무료 게이트웨이 직접 호출 (cfg 무관 · 자유대화 자동 연결용)
 async function callLLMFree(prompt, systemPrompt) {
   const messages = [];
@@ -3259,9 +3260,12 @@ function scoreRiasec() {
   if (r.length < RIASEC_30.length) return null;
   const sums = { R:0, I:0, A:0, S:0, E:0, C:0 };
   RIASEC_30.forEach((item, i) => { sums[item.f] += r[i]; });
+  const cnt = { R:0, I:0, A:0, S:0, E:0, C:0 };
+  RIASEC_30.forEach((it) => { cnt[it.f]++; });
   const scores = {};
   for (const k of Object.keys(sums)) {
-    scores[k] = Math.round((sums[k]/25) * 100); // 5문항 * 5점 = 25
+    const denom = (cnt[k] || 1) * 5; // 문항수 * 5점 (문항 구성 변경에도 안전)
+    scores[k] = Math.round((sums[k]/denom) * 100);
   }
   return scores;
 }
@@ -3851,11 +3855,11 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
     container.innerHTML = `
       ${easyControls(viewId)}
       ${current===0 ? '<div class="text-xs bg-sky-50 border border-sky-200 rounded-lg p-2 mb-3 text-sky-900">🙂 정답은 없어요. 솔직하게 답할수록 결과가 정확해져요.</div>' : ''}
-      <div class="mb-2 text-xs text-slate-500">${current+1} / ${total}</div>
-      <div class="w-full bg-slate-100 rounded-full h-1.5 mb-5">
+      <div class="mb-2 text-xs text-slate-500" role="status" aria-live="polite">${current+1} / ${total}</div>
+      <div class="w-full bg-slate-100 rounded-full h-1.5 mb-5" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="검사 진행률">
         <div class="bg-emerald-500 h-1.5 rounded-full" style="width:${pct}%"></div>
       </div>
-      <div class="text-base leading-relaxed mb-6 js-qtext" data-orig="">${applyEasy(item.t || item)}</div>
+      <div class="text-base leading-relaxed mb-6 js-qtext" data-orig="" aria-live="polite">${applyEasy(item.t || item)}</div>
       <div class="grid gap-2" id="choices-${viewId}"></div>
       <div class="mt-4 flex justify-between text-xs text-slate-500">
         <button onclick="(function(){var _R=state.results['${stateKey}'];if(${order?1:0}){if((_R.seq||0)>0){_R.seq--;var _di=_R.order[_R.seq];_R.answers[_di]=undefined;}}else{_R.answers.pop();}save();render${viewId.charAt(0).toUpperCase()+viewId.slice(1)}();})()" ${current===0?'disabled style="opacity:.4"':''}>← 이전</button>
@@ -3887,6 +3891,7 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
       });
       cc.appendChild(btn);
     });
+    try{ if(current>0){ var _q=container.querySelector('.js-qtext'); if(_q){ _q.setAttribute('tabindex','-1'); _q.focus(); } } }catch(e){}
   };
 }
 
@@ -4414,7 +4419,7 @@ function renderResult() {
   // 추천 진로
   el('careers').innerHTML = type.careers.map((c,i) => `
     <div class="flex items-center gap-3 py-2 border-b border-slate-100 last:border-0">
-      <span class="text-amber-500 text-sm">${'★'.repeat(5-i).padEnd(5,'☆')}</span>
+      <span class="text-amber-500 text-sm">${'★'.repeat(Math.max(0,5-i)).padEnd(5,'☆')}</span>
       <span class="text-sm">${c}</span>
     </div>`).join('');
 
@@ -4951,7 +4956,7 @@ async function loadLiveCareers(type) {
             + '</div>';
         }).join('');
   } catch (e) {
-    box.innerHTML = '<div class="text-xs text-rose-700">라이브 진로정보 연동 실패: ' + e.message + ' (프록시 서버 실행 확인)</div>';
+    box.innerHTML = '<div class="text-xs text-rose-700">라이브 진로정보 연동 실패: ' + _escHtml(e.message) + ' (프록시 서버 실행 확인)</div>';
   }
 }
 
@@ -5454,7 +5459,7 @@ function renderCareerDetailed(type, audience) {
     const info = typeof getCareerInfo === 'function' ? getCareerInfo(c) : null;
     html += `<div class="border-b border-slate-100 last:border-0 py-3">
       <div class="flex items-center gap-2 mb-1">
-        <span class="text-amber-500 text-sm">${'★'.repeat(5-i).padEnd(5,'☆')}</span>
+        <span class="text-amber-500 text-sm">${'★'.repeat(Math.max(0,5-i)).padEnd(5,'☆')}</span>
         <strong class="text-sm">${c}</strong>
       </div>`;
     if (info) {
@@ -5485,6 +5490,7 @@ function renderCareerDetailed(type, audience) {
 
 // 청중별 액션 가이드
 function renderAudienceActions(audience, type) {
+  if (!type) type = (typeof inferIntegratedType === 'function' ? (inferIntegratedType() || {}) : {});
   if (audience === 'student') {
     return `
       <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4">
@@ -5688,9 +5694,10 @@ async function fillAiSummary(audience, d){
   function render(text, src){
     card.innerHTML = '<div class="flex items-center justify-between mb-1"><div class="font-bold text-violet-900">🤖 AI 종합 해석</div>'
       + '<span class="pill ' + (src==='ai'?'bg-emerald-100 text-emerald-800':'bg-slate-200 text-slate-700') + ' text-[10px] whitespace-nowrap">' + (src==='ai'?'AI 생성':'기본 요약') + '</span></div>'
-      + '<p class="text-sm text-slate-700 leading-relaxed">' + text + '</p>'
+      + '<p class="text-sm text-slate-700 leading-relaxed" id="ai-sum-body"></p>'
       + '<button id="ai-sum-regen" class="mt-2 text-xs text-violet-700 hover:underline">↻ 다시 생성</button>'
       + '<button id="ai-sum-translate" class="mt-2 ml-3 text-xs text-sky-700 hover:underline">🌐 영어로</button>';
+    var _asb=el('ai-sum-body'); if(_asb) _asb.textContent=text;
     const btn = el('ai-sum-regen');
     if(btn) btn.addEventListener('click', function(){ delete _aiSumCache[audience]; card.innerHTML='<div class="text-xs text-violet-900">🤖 다시 생성 중…</div>'; fillAiSummary(audience, d); });
     const tb = el('ai-sum-translate');
@@ -5754,8 +5761,9 @@ async function fillCounselScript(d) {
   function render(text, src) {
     card.innerHTML = '<div class="flex items-center justify-between mb-1"><div class="font-bold text-amber-900">🗣️ 결과 맞춤 학부모 상담 예시</div>'
       + '<span class="pill ' + (src==='ai'?'bg-emerald-100 text-emerald-800':'bg-slate-200 text-slate-700') + ' text-[10px]">' + (src==='ai'?'AI 생성':'기본 예시') + '</span></div>'
-      + '<pre class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap" style="font-family:inherit;margin:0">' + text + '</pre>'
+      + '<pre class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap" id="counsel-body" style="font-family:inherit;margin:0"></pre>'
       + '<button id="counsel-regen" class="mt-2 text-xs text-amber-800 hover:underline">↻ 다시 생성</button>';
+    var _cb=el('counsel-body'); if(_cb) _cb.textContent=text;
     const b = el('counsel-regen');
     if (b) b.addEventListener('click', function(){ card.innerHTML='<div class="text-xs text-amber-900">🗣️ 다시 생성 중…</div>'; fillCounselScript(d); });
   }
