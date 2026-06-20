@@ -1842,7 +1842,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
         <option value="HYPERCLOVA">HyperCLOVA X (네이버, 국내, 권장)</option>
         <option value="SOLAR">Upstage SOLAR (국내, Apache 2.0)</option>
         <option value="CLAUDE_HAIKU">Anthropic Claude Haiku 4.5</option>
-        <option value="GEMINI_FLASH">Google Gemini 2.0 Flash</option>
+        <option value="GEMINI_FLASH">Google Gemini 2.5 Flash (무료)</option>
         <option value="OPENROUTER_FREE">OpenRouter 무료</option>
         <option value="HF_LLM">HuggingFace (Inference)</option>
         <option value="GITHUB_MODELS">GitHub Models (무료·OpenAI호환)</option>
@@ -2375,12 +2375,12 @@ async function callLLM(prompt, systemPrompt = '') {
         messages, max_tokens: 250, temperature: 0.7
       });
     } else if (mode === 'GEMINI_FLASH') {
-      url = `https://generativelanguage.googleapis.com/v1beta/models/${cfg.model || 'gemini-2.0-flash'}:generateContent?key=${cfg.key}`;
+      url = `https://generativelanguage.googleapis.com/v1beta/models/${cfg.model || 'gemini-2.5-flash'}:generateContent?key=${cfg.key}`;
       headers = { 'Content-Type':'application/json' };
       const sysText = systemPrompt ? systemPrompt + '\n\n' : '';
       body = JSON.stringify({
         contents:[{ parts:[{ text: sysText + prompt }] }],
-        generationConfig:{ maxOutputTokens: 512, temperature: 0.8 }
+        generationConfig:{ maxOutputTokens: 700, temperature: 0.8, thinkingConfig:{ thinkingBudget: 0 } }
       });
     } else if (mode === 'CLAUDE_HAIKU') {
       url = 'https://api.anthropic.com/v1/messages';
@@ -3125,7 +3125,7 @@ const PROVIDERS = {
   HYPERCLOVA: { endpoint:'https://clovastudio.stream.ntruss.com/v1/chat-completions/HCX-005', model:'HCX-005', label:'HyperCLOVA X' },
   SOLAR: { endpoint:'https://api.upstage.ai/v1/solar/chat/completions', model:'solar-1-mini-chat', label:'Upstage SOLAR' },
   CLAUDE_HAIKU: { endpoint:'https://api.anthropic.com/v1/messages', model:'claude-haiku-4-5-20251001', label:'Claude Haiku 4.5' },
-  GEMINI_FLASH: { endpoint:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', model:'gemini-2.0-flash', label:'Gemini 2.0 Flash' },
+  GEMINI_FLASH: { endpoint:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', model:'gemini-2.5-flash', label:'Gemini 2.5 Flash' },
   OPENROUTER_FREE: { endpoint:'https://openrouter.ai/api/v1/chat/completions', model:'google/gemma-2-9b-it:free', label:'OpenRouter 무료' },
   HF_LLM: { endpoint:'https://router.huggingface.co/v1/chat/completions', model:'Qwen/Qwen2.5-7B-Instruct', label:'HuggingFace LLM' },
   GITHUB_MODELS: { endpoint:'https://models.github.ai/inference/chat/completions', model:'openai/gpt-4o-mini', label:'GitHub Models' },
@@ -4737,7 +4737,7 @@ function initHuggingFace(){
 function initSettings() {
   const modeSel = el('cfg-mode');
   const ENGINE_HELP = {
-    GEMINI_FLASH: '<b>Google Gemini 2.0 Flash</b> · <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>① 위 링크 접속(구글 로그인) → <b>Create API key</b> → 키 복사 ② 위 <b>API Key</b> 칸에 붙여넣기 ③ <b>저장</b> 클릭. 엔드포인트·모델(gemini-2.0-flash)은 자동 설정됩니다. 🔒 키는 <b>이 브라우저에만</b> 저장되고 소스코드에는 포함되지 않습니다. 보안을 위해 AI Studio에서 키를 <b>yedam.kr</b> 도메인(HTTP 리퍼러)으로 제한하는 것을 권장합니다.',
+    GEMINI_FLASH: '<b>Google Gemini 2.0 Flash</b> · <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>① 위 링크 접속(구글 로그인) → <b>Create API key</b> → 키 복사 ② 위 <b>API Key</b> 칸에 붙여넣기 ③ <b>저장</b> 클릭. 엔드포인트·모델(gemini-2.5-flash)은 자동 설정됩니다. (2.0-flash는 무료한도 0인 계정이 있어 2.5-flash 기본). 🔒 키는 <b>이 브라우저에만</b> 저장되고 소스코드에는 포함되지 않습니다. 보안을 위해 AI Studio에서 키를 <b>yedam.kr</b> 도메인(HTTP 리퍼러)으로 제한하는 것을 권장합니다.',
     SOLAR: '<b>Upstage SOLAR</b> · <a href="https://console.upstage.ai/" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>콘솔에서 API Key 발급 → 위 칸에 붙여넣고 저장. OpenAI 호환. 🔒 키는 이 브라우저에만 저장됩니다.',
     HYPERCLOVA: '<b>HyperCLOVA X</b> · <a href="https://www.ncloud.com/product/aiService/clovaStudio" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">CLOVA Studio 열기 ↗</a><br>CLOVA Studio에서 키/엔드포인트 발급 → 위 Endpoint·API Key 입력 후 저장. 🔒 키는 이 브라우저에만 저장됩니다.',
     CLAUDE_HAIKU: '<b>Anthropic Claude Haiku</b>(유료) · <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>콘솔에서 API Key 발급 → 위 칸에 붙여넣고 저장. 🔒 키는 이 브라우저에만 저장됩니다.',
