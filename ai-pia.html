@@ -183,13 +183,13 @@ html { scroll-behavior: smooth; }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style id="claude-theme">
 :root{
   --c-cream:#faf9f5;--c-paper:#fffdf8;--c-ink:#141413;--c-clay:#d97757;--c-clay-d:#c4623f;
   --c-blue:#6a9bcc;--c-green:#788c5d;--c-line:#e6e3d8;--c-line2:#d4d0c2;
-  --font-ui:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;
-  --font-read:'Lora','Iropke Batang',Georgia,'맑은 고딕',serif;
+  --font-ui:'Poppins','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;
+  --font-read:'Lora','Noto Sans KR','Iropke Batang',Georgia,'맑은 고딕',serif;
 }
 body{font-family:var(--font-ui);background:var(--c-cream);color:var(--c-ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 h1,h2,h3,h4,h5,h6{font-family:var(--font-ui);letter-spacing:-.01em;}
@@ -407,6 +407,45 @@ input,select,textarea{border-radius:11px!important;}
 ::-webkit-scrollbar{width:10px;height:10px;}
 ::-webkit-scrollbar-thumb{background:#d8d3c6;border-radius:8px;border:2px solid #faf9f5;}
 @media (prefers-reduced-motion: reduce){[id^="choices-"] button:hover,#sjt-choices button:hover{transform:none;}}
+</style>
+<style id="responsive-hardening">
+/* ===== 반응형 강화 (PC·모바일) — CSS only, JS/DOM 무관 ===== */
+:root{
+  --paper:#faf9f5; --paper-2:#f3f1ea; --paper-3:#efece2;
+  --ink:#141413; --ink-soft:#3d3d3a; --line:#e3e0d6; --mid:#b0aea5;
+  --rust:#d97757; --rust-deep:#c4623f; --sky:#6a9bcc; --moss:#788c5d;
+  --rust-tint:#f6e9e2; --sky-tint:#e6eef6; --moss-tint:#e9eee1;
+}
+html,body{max-width:100%;overflow-x:hidden;}
+img,canvas,svg,video{max-width:100%;height:auto;}
+.max-w-6xl{max-width:min(72rem,100%);}
+.overflow-x-auto{-webkit-overflow-scrolling:touch;}
+@media (max-width:1023px){
+  .max-w-6xl{padding-left:1rem;padding-right:1rem;}
+}
+@media (max-width:768px){
+  .max-w-6xl{padding-left:.85rem;padding-right:.85rem;}
+  header.bg-white{flex-direction:column;align-items:stretch;gap:.65rem;}
+  header.bg-white nav#topNav{width:100%;}
+  nav#topNav button{flex:1 1 calc(50% - .5rem);min-height:44px;justify-content:center;}
+  #pia-report .page{width:100%!important;min-width:0!important;padding:18px 14px!important;}
+  #home-content{grid-template-columns:1fr!important;}
+  .grid.sm\:grid-cols-2,.grid.lg\:grid-cols-3{grid-template-columns:1fr!important;}
+  canvas{max-height:320px;}
+  button,a[role="button"],.aud-btn,[onclick]{min-height:44px;}
+  input,select,textarea{min-height:44px;font-size:16px;}
+  h1,.text-2xl{font-size:1.4rem!important;}
+  h2,.text-xl{font-size:1.2rem!important;}
+}
+@media (max-width:400px){
+  nav#topNav button{flex:1 1 100%;}
+  .max-w-6xl{padding-left:.6rem;padding-right:.6rem;}
+}
+body,button,input,select,textarea,label,nav{font-family:'Poppins','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;}
+h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important;}
+}
 </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
