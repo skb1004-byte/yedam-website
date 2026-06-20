@@ -456,7 +456,6 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   <div>
     <div class="flex items-center gap-2">
       <span style="display:inline-flex;align-items:center;background:#141413;border-radius:8px;padding:5px 9px;box-shadow:0 6px 16px -8px rgba(20,20,19,.4);"><img src="https://yedam.kr/images/logo_h_white.png" alt="예담정보통신" style="height:16px;display:block;" onerror="this.parentNode.innerHTML='<span style=\'color:#fff;font-weight:600;font-size:12px\'>YEDAM</span>'"></span>
-      <span class="text-xs text-slate-500">v9.9e · 오프라인 항목 정확 큐레이션(21)</span>
     </div>
     <h1 class="text-xl font-bold mt-1">학술 검증된 7개 검사 통합</h1>
     <p class="text-xs text-slate-500 mt-0.5">IPIP Big5 · RIASEC · VIA · Grit · SJT · CES-D · PHQ-A · GAD-7 + 자유대화</p>
@@ -5052,12 +5051,36 @@ async function autoConnectFreeAI() {
     : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 기본 · 미지원 시 로컬 규칙형 자동 폴백</span>';
 }
 
+function piaSampleReport(){
+  try{
+    state.profile={name:'샘플 학생', grade:'중2', class:'1', school:'예시중학교', createdAt:Date.now()};
+    try{ var _a=new URLSearchParams(location.search).get('aud'); currentAudience=(['student','parent','teacher'].indexOf(_a)>=0)?_a:'student'; }catch(e){ currentAudience='student'; }
+    var rnd=function(lo,hi){return lo+Math.floor(Math.random()*(hi-lo+1));};
+    var fill=function(key,bank,lo,hi,fn){ try{ var len=(bank&&bank.length)||0; if(!len)return; var a=[]; for(var k=0;k<len;k++)a.push(rnd(lo,hi)); if(state.results[key]){ state.results[key].answers=a; if(typeof fn==='function')state.results[key].scores=fn(); } }catch(e){} };
+    fill('big5',IPIP_BIG5_50,1,5,scoreBig5);
+    fill('riasec',RIASEC_30,1,5,scoreRiasec);
+    fill('via',VIA_YOUTH,1,5,scoreVia);
+    fill('grit',GRIT_S,1,5,scoreGrit);
+    fill('who5',WHO5,0,5,scoreWho5);
+    fill('rses',RSES,1,4,scoreRses);
+    fill('learn',LEARN_ITEMS,1,5,scoreLearn);
+    fill('mi',MI_ITEMS,1,5,scoreMi);
+    try{ if(state.results.conv){ state.results.conv.turns=8; state.results.conv.answers=state.results.conv.answers||[]; } }catch(e){}
+    try{ save(); }catch(e){}
+    showView('result');
+    try{ if(typeof renderResult==='function')renderResult(); }catch(e){}
+    try{ if(typeof renderDetailedResult==='function')renderDetailedResult(); }catch(e){}
+    try{ if(typeof renderExtendedSections==='function')renderExtendedSections(); }catch(e){}
+    try{ var _v=document.querySelector('section[data-view="result"]'); if(_v){ var _n=document.createElement('div'); _n.setAttribute('role','status'); _n.style.cssText='background:#fff8e1;border:1px solid #f0d98a;color:#7a5b00;padding:8px 14px;border-radius:10px;font-size:12.5px;margin:10px 0;'; _n.textContent='\uD83E\uDDEA \uC0D8\uD50C \uBBF8\uB9AC\uBCF4\uAE30 \u2014 \uBB34\uC791\uC704 \uC751\uB2F5\uC73C\uB85C \uC0DD\uC131\uB41C \uC608\uC2DC \uACB0\uACFC\uC9C0\uC785\uB2C8\uB2E4(\uC2E4\uC81C \uAC80\uC0AC \uC544\uB2D8).'; _v.insertBefore(_n,_v.firstChild); } }catch(e){}
+  }catch(e){ console.warn('sample report fail', e); }
+}
 load();
 initChat();
 initSettings();
 renderHome();
 showView('home');
 autoConnectFreeAI();
+try{ var _qp=new URLSearchParams(location.search); if(_qp.get('sample')==='1' || location.hash==='#sample'){ piaSampleReport(); } }catch(e){}
 async function autoEnableOnDevice(){
   try {
     if (!state.cfg || state.cfg.mode !== 'ONDEVICE') return;
@@ -6613,6 +6636,7 @@ function renderResultUsageGuide(audience) {
 }
 
 function renderSourcesAppendix() {
+  return ''; /* 출처/저작권은 관리자(results-admin)로 이전 — 학생 화면 비표시 */
   return `
     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
       <h3 class="font-semibold text-sm mb-2 text-slate-800">검사 도구 출처 및 저작권</h3>
@@ -6672,7 +6696,6 @@ function renderExtendedSections() {
     ${currentAudience === 'teacher' ? renderTeacher12Wk() + renderCrisisSOP() : ''}
     ${renderResultUsageGuide(currentAudience)}
     ${renderReliabilityStats()}
-    ${renderSourcesAppendix()}
   `;
 }
 

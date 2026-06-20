@@ -124,6 +124,44 @@ a.link{color:var(--rust);text-decoration:none;font-weight:700}
     </div>
   </div>
 
+  <!-- 통합결과지 샘플 출력 + 검사 도구 출처/저작권 (학생 화면에서 이전) -->
+  <div class="card">
+    <div class="row" style="margin-bottom:10px">
+      <h2 class="sec">🧪 통합결과지 샘플 출력</h2>
+      <span class="muted">무작위 응답으로 생성된 예시 결과지를 새 탭에서 미리 봅니다(실제 검사 아님).</span>
+    </div>
+    <div class="row" style="margin-bottom:4px">
+      <button id="sampleBtn">📄 통합결과지 샘플 열기</button>
+      <button class="ghost" id="sampleStudent">학생용</button>
+      <button class="ghost" id="sampleParent">학부모용</button>
+      <button class="ghost" id="sampleTeacher">선생님용</button>
+    </div>
+    <p class="tiny" style="margin-top:8px">검사 화면(ai-pia.html)의 실제 결과지 렌더러를 그대로 사용합니다. 인쇄·HTML/TXT 저장·KR/EN 토글도 동일하게 동작합니다.</p>
+  </div>
+
+  <!-- 검사 도구 출처 및 저작권 -->
+  <div class="card">
+    <div class="row" style="margin-bottom:10px"><h2 class="sec">📚 검사 도구 출처 및 저작권</h2></div>
+    <ul class="muted" style="font-size:13px;line-height:1.9;margin:0 0 0 18px;padding:0;list-style:disc">
+      <li><b>IPIP Big5-50</b>: International Personality Item Pool (ipip.ori.org) — public domain, Goldberg 1992</li>
+      <li><b>RIASEC</b>: Holland's Self-Directed Search 이론 기반, openpsychometrics 변형</li>
+      <li><b>VIA Youth 24</b>: VIA Institute on Character (viacharacter.org) — open access</li>
+      <li><b>Grit-S</b>: Angela Duckworth (Penn) — 비영리 교육 사용 허용</li>
+      <li><b>SJT</b>: AI PIA 자체 개발 30 시나리오</li>
+      <li><b>CES-D-10</b>: Center for Epidemiologic Studies Depression Scale — public domain</li>
+      <li><b>PHQ-A</b>: Patient Health Questionnaire for Adolescents — free for use</li>
+      <li><b>GAD-7</b>: Generalized Anxiety Disorder 7-item Scale — free for use</li>
+      <li><b>인성 8대 덕목</b>: 「인성교육진흥법」 제2조 (예·효·정직·책임·존중·배려·소통·협동)</li>
+      <li><b>다중지능(MI)</b>: Howard Gardner의 Theory of Multiple Intelligences</li>
+      <li><b>VARK</b>: Neil Fleming Learning Styles Model</li>
+      <li><b>진로 정보</b>: 커리어넷 OpenAPI(교육부·한국직업능력연구원), 워크넷(고용노동부)</li>
+      <li><b>상담 자원</b>: 청소년상담 1388 (여성가족부), Wee 프로젝트 (교육부), 정신건강위기 1577-0199 (국립정신건강센터)</li>
+    </ul>
+    <p class="tiny" style="margin-top:12px;border-top:1px solid var(--paper-3);padding-top:10px;line-height:1.7">
+      본 결과지는 의료·임상 진단이 아닌 교육·진로·자기이해를 위한 참고용 도구이며, 결과 해석에 의문이 있으시면 학교 상담교사·Wee클래스·전문 상담사에게 문의하세요.
+    </p>
+  </div>
+
   <!-- 대시보드 -->
   <div id="dash" class="hidden">
 
@@ -550,6 +588,15 @@ $('#selAll').onchange=e=>{ $$('.selOne').forEach(c=>c.checked=e.target.checked);
 $$('th[data-k]').forEach(th=>th.addEventListener('click',()=>{ const k=th.dataset.k; if(sortKey===k)sortDir*=-1; else {sortKey=k;sortDir=(k==='savedAt')?-1:1;} paint(); }));
 $('#autoref').onchange=e=>{ if(e.target.checked){ autoTimer=setInterval(reload,60000); } else { clearInterval(autoTimer); autoTimer=null; } };
 window.addEventListener('DOMContentLoaded',()=>{ const b=localStorage.getItem(LS_BASE)||'https://brilliant-macaron-4b3ed2.netlify.app'; $('#apiBase').value=b; });
+
+  // 통합결과지 샘플 출력 (검사 화면 실제 렌더러 재사용)
+  (function(){
+    function openSample(aud){ var u='ai-pia.html?sample=1'+(aud?('&aud='+aud):''); window.open(u,'_blank','noopener'); }
+    var b=document.getElementById('sampleBtn'); if(b) b.onclick=function(){openSample('');};
+    var s1=document.getElementById('sampleStudent'); if(s1) s1.onclick=function(){openSample('student');};
+    var s2=document.getElementById('sampleParent'); if(s2) s2.onclick=function(){openSample('parent');};
+    var s3=document.getElementById('sampleTeacher'); if(s3) s3.onclick=function(){openSample('teacher');};
+  })();
 </script>
 </body>
 </html>
