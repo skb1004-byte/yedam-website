@@ -5080,7 +5080,7 @@ initSettings();
 renderHome();
 showView('home');
 autoConnectFreeAI();
-try{ var _qp=new URLSearchParams(location.search); if(_qp.get('sample')==='1' || location.hash==='#sample'){ piaSampleReport(); } }catch(e){}
+try{ var _qp=new URLSearchParams(location.search); if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } }catch(e){}
 async function autoEnableOnDevice(){
   try {
     if (!state.cfg || state.cfg.mode !== 'ONDEVICE') return;
