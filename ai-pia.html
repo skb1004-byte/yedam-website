@@ -6719,15 +6719,15 @@ function ensureStudentProfile() {
     modal.innerHTML = `
       <div class="bg-white rounded-2xl p-6 max-w-md w-full">
         <h2 class="text-lg font-bold mb-2">👋 안녕하세요!</h2>
-        <p class="text-sm text-slate-600 mb-4">검사를 시작하기 전 간단히 알려주세요. (이름 입력 필수)</p>
+        <p class="text-sm text-slate-600 mb-4">검사를 시작하기 전 알려주세요. <b>이름·학년·학교를 모두 입력</b>해야 시작할 수 있어요. (반/그룹은 선택)</p>
         <div class="space-y-3">
           <label class="block">
-            <span class="text-xs text-slate-600">이름 또는 별명</span>
+            <span class="text-xs text-slate-600">이름 또는 별명 <span style="color:#dc2626">*</span></span>
             <input id="pf-name" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="예: 서연 또는 S001" />
           </label>
           <div class="grid grid-cols-2 gap-3">
             <label class="block">
-              <span class="text-xs text-slate-600">학년</span>
+              <span class="text-xs text-slate-600">학년 <span style="color:#dc2626">*</span></span>
               <select id="pf-grade" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm">
                 <option value="">선택</option>
                 <option>초3</option><option>초4</option><option>초5</option><option>초6</option>
@@ -6742,7 +6742,7 @@ function ensureStudentProfile() {
             </label>
           </div>
           <label class="block">
-            <span class="text-xs text-slate-600">학교/기관 (선택)</span>
+            <span class="text-xs text-slate-600">학교/기관 <span style="color:#dc2626">*</span></span>
             <input id="pf-school" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="예: 샛별중학교" />
           </label>
         </div>
@@ -8551,10 +8551,14 @@ body:not(.dark-mode){
 (function(){
   document.addEventListener('click',function(e){
     var t=e.target; var b=(t&&t.closest)?t.closest('#pf-save'):null;
-    if(b){ var n=document.getElementById('pf-name');
-      if(n && !n.value.trim()){ e.preventDefault(); e.stopImmediatePropagation();
-        try{alert('이름(또는 별명)을 입력해 주세요. 익명으로는 시작할 수 없습니다.');}catch(_){}
-        try{n.focus();}catch(_){}
+    if(b){ var n=document.getElementById('pf-name'); var g=document.getElementById('pf-grade'); var sc=document.getElementById('pf-school');
+      var miss=null, foc=null;
+      if(n && !n.value.trim()){ miss='이름(또는 별명)'; foc=n; }
+      else if(g && !g.value){ miss='학년'; foc=g; }
+      else if(sc && !sc.value.trim()){ miss='학교/기관'; foc=sc; }
+      if(miss){ e.preventDefault(); e.stopImmediatePropagation();
+        try{alert(miss+'을(를) 입력해 주세요. 이름·학년·학교를 모두 입력해야 검사를 시작할 수 있습니다.');}catch(_){}
+        try{ if(foc) foc.focus(); }catch(_){}
       }
     }
   },true);
