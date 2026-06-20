@@ -74,19 +74,21 @@ button.sm{padding:7px 13px;font-size:13px}
   <!-- 1) AI 엔진 -->
   <div class="card">
     <h2>🤖 AI 엔진 (자유대화·해석)</h2>
+    <div class="help" style="margin-bottom:12px">🏆 <b>무료 추천 TOP5</b> (성능·무료한도순, 신용카드 불필요): ① Gemini 2.5 Flash · ② Groq(초고속) · ③ Cerebras(최고속) · ④ OpenRouter(모델30종) · ⑤ GitHub Models. 엔진을 고르면 엔드포인트·모델이 자동 입력되고, 키 발급 링크가 표시됩니다. <b>키 없이 모든 기기 자동</b>을 원하면 Cloudflare 프록시를 권장합니다.</div>
     <label><span class="t">엔진 모드</span>
       <select id="mode">
         <option value="ONDEVICE">🖥 온디바이스 (오프라인·키 불필요·권장 기본)</option>
         <option value="AUTO_FREE">⚡ 자동 무료 (키 불필요)</option>
         <option value="LOCAL">로컬 규칙형 (오프라인)</option>
-        <option value="GEMINI_FLASH">Google Gemini 2.5 Flash (무료·키 필요)</option>
+        <option value="GEMINI_FLASH">① Google Gemini 2.5 Flash (무료·1500회/일·추천)</option>
+        <option value="GROQ">② Groq (무료·초고속 Llama3.3-70B)</option>
+        <option value="CEREBRAS">③ Cerebras (무료·최고속 2000토큰/초)</option>
+        <option value="OPENROUTER_FREE">④ OpenRouter 무료 (모델 30종·키 1개)</option>
+        <option value="GITHUB_MODELS">⑤ GitHub Models (100+ 모델·GitHub 토큰)</option>
         <option value="SOLAR">Upstage SOLAR (국내·키 필요)</option>
         <option value="HYPERCLOVA">HyperCLOVA X (네이버·국내)</option>
         <option value="CLAUDE_HAIKU">Anthropic Claude Haiku (유료)</option>
-        <option value="OPENROUTER_FREE">OpenRouter 무료</option>
-        <option value="CEREBRAS">Cerebras (무료·초고속)</option>
         <option value="TOGETHER">Together AI</option>
-        <option value="GITHUB_MODELS">GitHub Models</option>
         <option value="HF_LLM">HuggingFace</option>
         <option value="CUSTOM_OAI">커스텀 OpenAI 호환</option>
       </select>
@@ -161,8 +163,9 @@ var PROVIDERS={
   SOLAR:{endpoint:'https://api.upstage.ai/v1/solar/chat/completions',model:'solar-1-mini-chat'},
   HYPERCLOVA:{endpoint:'',model:'HCX-003'},
   CLAUDE_HAIKU:{endpoint:'https://api.anthropic.com/v1/messages',model:'claude-haiku-4-5-20251001'},
-  OPENROUTER_FREE:{endpoint:'https://openrouter.ai/api/v1/chat/completions',model:'google/gemma-3-27b-it:free'},
-  CEREBRAS:{endpoint:'https://api.cerebras.ai/v1/chat/completions',model:'llama-3.3-70b'},
+  OPENROUTER_FREE:{endpoint:'https://openrouter.ai/api/v1/chat/completions',model:'meta-llama/llama-3.3-70b-instruct:free'},
+  GROQ:{endpoint:'https://api.groq.com/openai/v1/chat/completions',model:'llama-3.3-70b-versatile'},
+  CEREBRAS:{endpoint:'https://api.cerebras.ai/v1/chat/completions',model:'llama3.1-8b'},
   TOGETHER:{endpoint:'https://api.together.xyz/v1/chat/completions',model:'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free'},
   GITHUB_MODELS:{endpoint:'https://models.github.ai/inference/chat/completions',model:'openai/gpt-4o-mini'},
   HF_LLM:{endpoint:'https://router.huggingface.co/v1/chat/completions',model:'Qwen/Qwen2.5-7B-Instruct'},
@@ -173,7 +176,8 @@ var HELP={
   SOLAR:'<b>Upstage SOLAR</b> · <a href="https://console.upstage.ai/" target="_blank" rel="noopener">키 발급 ↗</a> · OpenAI 호환.',
   CLAUDE_HAIKU:'<b>Claude Haiku</b>(유료) · <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">키 발급 ↗</a>',
   OPENROUTER_FREE:'<b>OpenRouter</b> · <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">키 발급 ↗</a> · 무료모델은 호출 제한 있을 수 있음.',
-  CEREBRAS:'<b>Cerebras</b> · <a href="https://cloud.cerebras.ai/" target="_blank" rel="noopener">키 발급 ↗</a>',
+  GROQ:'<b>Groq</b>(②·초고속) · <a href="https://console.groq.com/keys" target="_blank" rel="noopener">키 발급 ↗</a><br>키 발급(신용카드 불필요) → 붙여넣고 저장. 모델 llama-3.3-70b-versatile 자동. ~30 RPM 무료.',
+  CEREBRAS:'<b>Cerebras</b>(③·최고속) · <a href="https://cloud.cerebras.ai/" target="_blank" rel="noopener">키 발급 ↗</a><br>모델 llama3.1-8b 자동(70B는 계정별 접근 필요). 100만 토큰/일 무료.',
   TOGETHER:'<b>Together AI</b> · <a href="https://api.together.xyz/settings/api-keys" target="_blank" rel="noopener">키 발급 ↗</a>',
   GITHUB_MODELS:'<b>GitHub Models</b> · <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">토큰 발급 ↗</a>',
   HF_LLM:'<b>HuggingFace</b> · 아래 "HuggingFace 연동"의 토큰을 사용합니다. <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">토큰 발급 ↗</a>',
@@ -191,7 +195,7 @@ function esc(v){return (v==null?'':String(v)).replace(/[&<>"]/g,function(c){retu
 function fillFromMode(keepKey){
   var m=$('mode').value, p=PROVIDERS[m]||{};
   $('endpoint').value=p.endpoint||''; $('model').value=p.model||'';
-  var needKey=['GEMINI_FLASH','SOLAR','HYPERCLOVA','CLAUDE_HAIKU','OPENROUTER_FREE','CEREBRAS','TOGETHER','GITHUB_MODELS','HF_LLM','CUSTOM_OAI'].indexOf(m)>=0;
+  var needKey=['GEMINI_FLASH','GROQ','SOLAR','HYPERCLOVA','CLAUDE_HAIKU','OPENROUTER_FREE','CEREBRAS','TOGETHER','GITHUB_MODELS','HF_LLM','CUSTOM_OAI'].indexOf(m)>=0;
   $('keyWrap').style.display=needKey?'':'none';
   var h=HELP[m]; if(h){ $('help').innerHTML=h; $('help').style.display=''; } else { $('help').style.display='none'; }
   if(!keepKey) $('key').value='';
@@ -252,7 +256,7 @@ async function testEngine(){
   if(m==='LOCAL'){ $('status').innerHTML='<span class="ok">로컬 규칙형은 오프라인이라 테스트 불필요.</span>'; return; }
   if(m==='ONDEVICE'){ $('status').innerHTML='<span class="ok">온디바이스는 PIA 화면 첫 대화에서 모델을 준비합니다.</span>'; return; }
   if(m==='HF_LLM'){ key=key||($('hfToken').value.trim()); model=model||$('hfLlm').value.trim(); }
-  var needKey=['GEMINI_FLASH','SOLAR','HYPERCLOVA','CLAUDE_HAIKU','OPENROUTER_FREE','CEREBRAS','TOGETHER','GITHUB_MODELS','HF_LLM','CUSTOM_OAI'].indexOf(m)>=0;
+  var needKey=['GEMINI_FLASH','GROQ','SOLAR','HYPERCLOVA','CLAUDE_HAIKU','OPENROUTER_FREE','CEREBRAS','TOGETHER','GITHUB_MODELS','HF_LLM','CUSTOM_OAI'].indexOf(m)>=0;
   if(needKey && !key){ $('status').innerHTML='<span class="err">API Key를 먼저 입력하세요.</span>'; return; }
   $('status').textContent='🔌 테스트 중…';
   await runTest(m,ep,key,model,$('status'));
