@@ -379,6 +379,23 @@ h2.title .em{color:var(--rust)}
   .hero-btns .btn{flex:1}
   .sc-row{grid-template-columns:1fr}
 }
+
+/* === partner logos === */
+.cl-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;min-height:96px;}
+.cl-logo{max-height:38px;max-width:128px;width:auto;height:auto;object-fit:contain;filter:grayscale(1);opacity:.62;transition:filter .25s,opacity .25s,transform .25s;}
+.cl-card:hover .cl-logo{filter:none;opacity:1;transform:scale(1.05);}
+.cl-card .cl-name{font-size:.78rem;color:var(--ink-soft,#3d3d3a);font-weight:600;}
+/* === lightbox === */
+#lb{position:fixed;inset:0;background:rgba(20,20,19,.88);display:none;align-items:center;justify-content:center;z-index:9999;padding:22px;}
+#lb.open{display:flex;}
+#lb #lb-img{max-width:92vw;max-height:86vh;border-radius:10px;box-shadow:0 20px 70px rgba(0,0,0,.55);}
+#lb .lb-btn{position:absolute;background:rgba(250,249,245,.14);color:#fff;border:0;width:46px;height:46px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center;}
+#lb .lb-btn:hover{background:rgba(250,249,245,.30);}
+#lb-close{top:18px;right:20px;}
+#lb-prev{left:16px;top:50%;transform:translateY(-50%);}
+#lb-next{right:16px;top:50%;transform:translateY(-50%);}
+#lb-counter{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);color:#faf9f5;font-size:13px;background:rgba(20,20,19,.5);padding:5px 12px;border-radius:999px;}
+@media(max-width:560px){#lb .lb-btn{width:40px;height:40px;font-size:20px;}}
 </style>
 </head>
 <body>
@@ -740,16 +757,16 @@ h2.title .em{color:var(--rust)}
       <p class="lead-desc">단발성 거래가 아닌, 장기적 파트너십으로 이어진 교육·공공·민간 네트워크.</p>
     </div>
     <div class="cl-grid">
-      <a class="cl-card rv" href="https://www.visang.com" target="_blank" rel="noopener"><div class="cl-name">㈜비상교육</div><div class="cl-role">9-Year Partner</div></a>
-      <a class="cl-card rv d1" href="https://www.hyundai-ngv.com" target="_blank" rel="noopener"><div class="cl-name">현대NGV</div><div class="cl-role">Consortium</div></a>
-      <a class="cl-card rv d2" href="https://www.gg.go.kr" target="_blank" rel="noopener"><div class="cl-name">경기도청</div><div class="cl-role">Government</div></a>
-      <a class="cl-card rv d3" href="https://www.mnd.go.kr" target="_blank" rel="noopener"><div class="cl-name">국방부</div><div class="cl-role">Defense</div></a>
-      <a class="cl-card rv" href="https://www.ybm.co.kr" target="_blank" rel="noopener"><div class="cl-name">YBM</div><div class="cl-role">Education</div></a>
-      <a class="cl-card rv d1" href="https://www.spacekai.com" target="_blank" rel="noopener"><div class="cl-name">스페이스케이</div><div class="cl-role">Aerospace</div></a>
-      <a class="cl-card rv d2" href="https://www.ubion.co.kr" target="_blank" rel="noopener"><div class="cl-name">유비온</div><div class="cl-role">Edu Platform</div></a>
-      <a class="cl-card rv d3" href="https://www.npage.co.kr" target="_blank" rel="noopener"><div class="cl-name">엔페이지</div><div class="cl-role">Mobile Dev</div></a>
-      <a class="cl-card rv" href="https://www.tta.or.kr" target="_blank" rel="noopener"><div class="cl-name">정보통신기술협회</div><div class="cl-role">TTA · Certification</div></a>
-      <a class="cl-card rv d1" href="https://www.afa.ac.kr" target="_blank" rel="noopener"><div class="cl-name">공군사관학교</div><div class="cl-role">Defense · Academy</div></a>
+      <a class="cl-card rv" href="https://www.visang.com" target="_blank" rel="noopener" title="㈜비상교육"><img class="cl-logo" src="images/logo_visang.png" alt="㈜비상교육" loading="lazy"><span class="cl-name">㈜비상교육</span></a>
+      <a class="cl-card rv d1" href="https://www.hyundai-ngv.com" target="_blank" rel="noopener" title="현대NGV"><img class="cl-logo" src="images/logo_hyundai.svg" alt="현대NGV" loading="lazy"><span class="cl-name">현대NGV</span></a>
+      <a class="cl-card rv d2" href="https://www.gg.go.kr" target="_blank" rel="noopener" title="경기도청"><img class="cl-logo" src="images/logo_gg.gif" alt="경기도청" loading="lazy"><span class="cl-name">경기도청</span></a>
+      <a class="cl-card rv d3" href="https://www.mnd.go.kr" target="_blank" rel="noopener" title="국방부"><img class="cl-logo" src="images/logo_mnd.svg" alt="국방부" loading="lazy"><span class="cl-name">국방부</span></a>
+      <a class="cl-card rv" href="https://www.ybm.co.kr" target="_blank" rel="noopener" title="YBM"><img class="cl-logo" src="images/logo_ybm.svg" alt="YBM" loading="lazy"><span class="cl-name">YBM</span></a>
+      <a class="cl-card rv d1" href="https://www.spacekai.com" target="_blank" rel="noopener" title="스페이스케이"><img class="cl-logo" src="images/logo_spacek_dark.svg" alt="스페이스케이" loading="lazy"><span class="cl-name">스페이스케이</span></a>
+      <a class="cl-card rv d2" href="https://www.ubion.co.kr" target="_blank" rel="noopener" title="유비온"><img class="cl-logo" src="images/logo_ubion.png" alt="유비온" loading="lazy"><span class="cl-name">유비온</span></a>
+      <a class="cl-card rv d3" href="https://www.npage.co.kr" target="_blank" rel="noopener" title="엔페이지"><img class="cl-logo" src="images/logo_npage.png" alt="엔페이지" loading="lazy"><span class="cl-name">엔페이지</span></a>
+      <a class="cl-card rv" href="https://www.tta.or.kr" target="_blank" rel="noopener" title="정보통신기술협회"><img class="cl-logo" src="images/logo_tta.svg" alt="정보통신기술협회" loading="lazy"><span class="cl-name">정보통신기술협회</span></a>
+      <a class="cl-card rv d1" href="https://www.afa.ac.kr" target="_blank" rel="noopener" title="공군사관학교"><img class="cl-logo" src="images/logo_airforce_dark.svg" alt="공군사관학교" loading="lazy"><span class="cl-name">공군사관학교</span></a>
     </div>
   </div>
 </section>
@@ -851,6 +868,39 @@ h2.title .em{color:var(--rust)}
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
     Array.prototype.forEach.call(items, function(el){ io.observe(el); });
   }
+})();
+</script>
+
+<div id="lb" aria-hidden="true">
+  <button id="lb-close" class="lb-btn" aria-label="닫기">✕</button>
+  <button id="lb-prev" class="lb-btn" aria-label="이전 이미지">‹</button>
+  <img id="lb-img" src="" alt="">
+  <button id="lb-next" class="lb-btn" aria-label="다음 이미지">›</button>
+  <div id="lb-counter"></div>
+</div>
+<script>
+(function(){
+  var lb=document.getElementById('lb'),lbImg=document.getElementById('lb-img'),
+      lbClose=document.getElementById('lb-close'),lbPrev=document.getElementById('lb-prev'),
+      lbNext=document.getElementById('lb-next'),lbCtr=document.getElementById('lb-counter');
+  if(!lb) return;
+  var imgs=Array.prototype.slice.call(document.querySelectorAll('img')).filter(function(im){
+    if(im.closest('header')||im.closest('footer')||im.closest('.cl-grid')) return false;
+    if(im.classList.contains('ft-logo')||im.classList.contains('cl-logo')) return false;
+    if(/logo_/.test(im.getAttribute('src')||'')) return false;
+    return true;
+  });
+  var cur=0;
+  function open(i){cur=i;lbImg.src=imgs[cur].currentSrc||imgs[cur].src;lbImg.alt=imgs[cur].alt||'';lbCtr.textContent=(cur+1)+' / '+imgs.length;lb.classList.add('open');document.body.style.overflow='hidden';}
+  function close(){lb.classList.remove('open');document.body.style.overflow='';}
+  function prev(){open((cur-1+imgs.length)%imgs.length);}
+  function next(){open((cur+1)%imgs.length);}
+  imgs.forEach(function(im,i){im.style.cursor='zoom-in';im.addEventListener('click',function(){open(i);});});
+  lbClose.addEventListener('click',close);
+  lb.addEventListener('click',function(e){if(e.target===lb)close();});
+  lbPrev.addEventListener('click',function(e){e.stopPropagation();prev();});
+  lbNext.addEventListener('click',function(e){e.stopPropagation();next();});
+  document.addEventListener('keydown',function(e){if(!lb.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')prev();if(e.key==='ArrowRight')next();});
 })();
 </script>
 </body>
