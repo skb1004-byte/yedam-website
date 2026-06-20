@@ -6,59 +6,103 @@
 <meta name="robots" content="noindex,nofollow">
 <title>AI PIA · 결과 관리자</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#0d1b3e;--navy2:#162447;--blue:#2563eb;--cyan:#06b6d4;--gold:#f59e0b;
---g100:#f1f3f8;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;--card:#fff;}
+:root{
+  --ink:#141413;--ink-soft:#3d3d3a;--paper:#faf9f5;--paper-2:#f3f1ea;--paper-3:#efece2;
+  --line:#e3e0d6;--mid:#b0aea5;--rust:#d97757;--rust-deep:#c4623f;--rust-tint:#f6e9e2;
+  --sky:#6a9bcc;--sky-tint:#e6eef6;--moss:#788c5d;--moss-tint:#e9eee1;--gold:#c98a2b;
+  --warn:#c0392b;--warn-tint:#f7e4e0;
+  --r:14px;--r-sm:9px;
+  --sh:0 2px 10px rgba(20,20,19,.05),0 12px 32px rgba(20,20,19,.06);
+  --font-head:'Poppins','Noto Sans KR',sans-serif;--font-ui:'Noto Sans KR',-apple-system,sans-serif;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Pretendard','Noto Sans KR',system-ui,sans-serif;background:#eef1f7;color:var(--g800)}
-header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:16px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-header h1{font-size:18px;font-weight:800;letter-spacing:-.3px}
+body{font-family:var(--font-ui);background:var(--paper-2);color:var(--ink);line-height:1.5}
+header{background:rgba(250,249,245,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+header h1{font-family:var(--font-head);font-size:18px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+header h1 .dot{width:26px;height:26px;border-radius:8px;background:var(--rust);display:grid;place-items:center;color:#fff;font-size:14px}
 header .sp{flex:1}
-.badge{font-size:12px;background:rgba(255,255,255,.14);padding:4px 10px;border-radius:999px}
-.wrap{max-width:1180px;margin:0 auto;padding:20px}
-.card{background:var(--card);border:1px solid var(--g200);border-radius:14px;box-shadow:0 4px 24px rgba(13,27,62,.06);padding:18px;margin-bottom:18px}
+.badge{font-size:12px;background:var(--paper-3);color:var(--ink-soft);padding:5px 11px;border-radius:999px;border:1px solid var(--line)}
+.badge.on{background:var(--moss-tint);color:#43543a;border-color:#cdd9bf}
+.wrap{max-width:1240px;margin:0 auto;padding:20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:18px;margin-bottom:18px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-input,button{font:inherit}
-input[type=text],input[type=password]{padding:10px 12px;border:1px solid var(--g200);border-radius:10px;min-width:200px;background:#fff}
-button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;font-weight:700;background:var(--blue);color:#fff}
-button.ghost{background:#fff;color:var(--g800);border:1px solid var(--g200)}
-button.warn{background:#dc2626}
-button.sm{padding:6px 10px;font-size:13px}
-.muted{color:var(--g600);font-size:13px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:10px 12px;border-bottom:1px solid var(--g100);text-align:left;white-space:nowrap}
-th{font-size:12px;color:var(--g600);background:#f8fafc;position:sticky;top:0}
+.sp{flex:1}
+input,button,select{font:inherit}
+input[type=text],input[type=password],input[type=date],select{padding:9px 12px;border:1px solid var(--line);border-radius:var(--r-sm);min-width:150px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:2px solid var(--rust);outline-offset:-1px;border-color:var(--rust)}
+button{cursor:pointer;border:0;border-radius:var(--r-sm);padding:9px 16px;font-weight:700;background:var(--rust);color:#fff;transition:.15s}
+button:hover{background:var(--rust-deep);transform:translateY(-1px)}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+button.ghost:hover{background:var(--paper-3);transform:none}
+button.warn{background:var(--warn)}
+button.sm{padding:6px 11px;font-size:13px}
+.muted{color:var(--ink-soft);font-size:13px}
+.tiny{font-size:12px;color:var(--mid)}
+h2.sec{font-family:var(--font-head);font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:9px 11px;border-bottom:1px solid var(--paper-3);text-align:left;white-space:nowrap}
+th{font-size:12px;color:var(--ink-soft);background:var(--paper);position:sticky;top:0;cursor:pointer;user-select:none}
+th.nos{cursor:default}
+th .ar{color:var(--rust);font-size:10px}
 tbody tr{cursor:pointer}
-tbody tr:hover{background:#f1f5ff}
-.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
-.stat .b{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border-radius:12px;padding:14px}
-.stat .b .n{font-size:26px;font-weight:800}
-.stat .b .l{font-size:12px;opacity:.85;margin-top:2px}
+tbody tr:hover{background:var(--rust-tint)}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:11px}
+.stat .b{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+.stat .b .n{font-family:var(--font-head);font-size:25px;font-weight:800;color:var(--ink)}
+.stat .b.accent .n{color:var(--rust)}
+.stat .b.warnb{background:var(--warn-tint);border-color:#e9c8c0}
+.stat .b.warnb .n{color:var(--warn)}
+.stat .b .l{font-size:12px;color:var(--ink-soft);margin-top:2px}
 .charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:760px){.charts{grid-template-columns:1fr}}
+.charts .cw{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px}
+.charts .cw .ct{font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px}
+@media(max-width:820px){.charts{grid-template-columns:1fr}}
 .hidden{display:none}
-.tableScroll{max-height:60vh;overflow:auto;border:1px solid var(--g100);border-radius:10px}
-dialog{border:0;border-radius:16px;padding:0;max-width:760px;width:92vw;box-shadow:0 20px 70px rgba(0,0,0,.35)}
-dialog header{border-radius:0}
-.dbody{padding:18px;max-height:72vh;overflow:auto}
-.kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:14px;margin-bottom:12px}
-.kv b{color:var(--g600);font-weight:600}
+.tableScroll{max-height:62vh;overflow:auto;border:1px solid var(--paper-3);border-radius:10px}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px}
+.pill.hi{background:var(--moss-tint);color:#43543a}
+.pill.mid{background:var(--sky-tint);color:#3c5a78}
+.pill.lo{background:var(--warn-tint);color:var(--warn)}
+.pill.na{background:var(--paper-3);color:var(--mid)}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--rust-tint);color:var(--rust-deep)}
+dialog{border:0;border-radius:16px;padding:0;max-width:840px;width:94vw;box-shadow:0 20px 70px rgba(20,20,19,.32);background:var(--paper)}
+dialog::backdrop{background:rgba(20,20,19,.4)}
+dialog header{position:static;border-radius:16px 16px 0 0;background:var(--ink);color:var(--paper)}
+dialog header h1{color:var(--paper);font-size:16px}
+.dbody{padding:18px;max-height:74vh;overflow:auto}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:14px;margin-bottom:12px}
+.kv b{color:var(--ink-soft);font-weight:600}
 .scoreGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:10px 0}
-.scoreGrid .s{background:#f8fafc;border:1px solid var(--g100);border-radius:10px;padding:8px 10px}
-.scoreGrid .s .t{font-size:11px;color:var(--g600)}
-.scoreGrid .s .v{font-weight:700}
-pre{background:#0f172a;color:#cbd5e1;padding:12px;border-radius:10px;overflow:auto;font-size:12px;max-height:240px}
-.err{color:#dc2626;font-size:13px}
-.ok{color:#059669;font-size:13px}
-a.link{color:var(--blue);text-decoration:none}
+.scoreGrid .s{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.scoreGrid .s .t{font-size:11px;color:var(--ink-soft)}
+.scoreGrid .s .v{font-weight:700;font-family:var(--font-head)}
+.bargrid{display:grid;gap:5px;margin:8px 0}
+.bargrid .br{display:grid;grid-template-columns:64px 1fr 42px;gap:8px;align-items:center;font-size:12.5px}
+.bargrid .br .track{height:9px;background:var(--paper-3);border-radius:999px;overflow:hidden}
+.bargrid .br .fill{height:100%;background:var(--rust);border-radius:999px}
+pre{background:var(--ink);color:#cbd5c8;padding:12px;border-radius:10px;overflow:auto;font-size:12px;max-height:240px}
+.err{color:var(--warn);font-size:13px}
+.ok{color:#43543a;font-size:13px}
+a.link{color:var(--rust);text-decoration:none;font-weight:700}
+.note{background:var(--sky-tint);border:1px solid #cfe0ee;border-radius:10px;padding:10px 13px;font-size:12.5px;color:#3c5a78;margin-bottom:12px}
+.riskcard{display:flex;gap:10px;align-items:center;padding:9px 12px;border:1px solid #e9c8c0;background:var(--warn-tint);border-radius:10px;margin-bottom:7px;font-size:13px;cursor:pointer}
+.riskcard .who{font-weight:700}
+.riskcard .why{margin-left:auto;color:var(--warn);font-size:12px;font-weight:700}
+.filterbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:12px}
+@media print{header,.noprint{display:none!important}.card{box-shadow:none;border:1px solid #ccc}}
 </style>
 </head>
 <body>
 <header>
-  <h1>🎓 AI PIA 결과 관리자</h1>
+  <h1><span class="dot">P</span>AI PIA 결과 관리자</h1>
   <span class="badge" id="envBadge">서버 미연결</span>
   <span class="sp"></span>
-  <a class="link" href="ai-pia.html" style="color:#bcd2ff">← PIA 검사로</a>
+  <a class="link" href="ai-pia.html">← PIA 검사로</a>
 </header>
 
 <div class="wrap">
@@ -66,7 +110,7 @@ a.link{color:var(--blue);text-decoration:none}
   <!-- 로그인/설정 -->
   <div class="card" id="loginCard">
     <div class="row" style="margin-bottom:10px">
-      <strong>접속 설정</strong>
+      <h2 class="sec">🔐 접속 설정</h2>
       <span class="muted">결과 API 주소와 관리자 비밀번호를 입력하세요.</span>
     </div>
     <div class="row" style="margin-bottom:10px">
@@ -82,34 +126,86 @@ a.link{color:var(--blue);text-decoration:none}
 
   <!-- 대시보드 -->
   <div id="dash" class="hidden">
+
+    <!-- 요약 통계 -->
     <div class="card">
       <div class="row" style="margin-bottom:14px">
-        <strong>통계 요약</strong>
+        <h2 class="sec">📊 요약 통계</h2>
         <span class="sp"></span>
-        <input type="text" id="search" placeholder="이름/학교/유형 검색" style="min-width:220px">
-        <button class="ghost sm" id="reloadBtn">새로고침</button>
-        <button class="ghost sm" id="csvBtn">CSV 내보내기</button>
+        <label class="tiny" style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="autoref" style="min-width:auto"> 자동 새로고침(60초)</label>
+        <button class="ghost sm" id="reloadBtn">↻ 새로고침</button>
         <button class="ghost sm" id="logoutBtn">로그아웃</button>
       </div>
       <div class="stat" id="stat"></div>
+      <div class="tiny" id="lastUpd" style="margin-top:8px"></div>
     </div>
 
+    <!-- 차트 -->
     <div class="card">
+      <h2 class="sec" style="margin-bottom:12px">📈 분포 차트</h2>
       <div class="charts">
-        <div><canvas id="chartGrade" height="200"></canvas></div>
-        <div><canvas id="chartType" height="200"></canvas></div>
+        <div class="cw"><div class="ct">학년별 인원</div><canvas id="chartGrade" height="190"></canvas></div>
+        <div class="cw"><div class="ct">통합유형별 인원</div><canvas id="chartType" height="190"></canvas></div>
+        <div class="cw"><div class="ct">신뢰도 분포</div><canvas id="chartRel" height="190"></canvas></div>
+        <div class="cw"><div class="ct">일자별 응시 추이(최근 14일)</div><canvas id="chartTrend" height="190"></canvas></div>
       </div>
     </div>
 
+    <!-- 심화 분석 (전체 상세 로드 필요) -->
+    <div class="card" id="deepCard">
+      <div class="row" style="margin-bottom:10px">
+        <h2 class="sec">🔬 심화 분석</h2>
+        <span class="sp"></span>
+        <button class="sm" id="deepBtn">전체 상세 불러오기</button>
+        <span class="muted" id="deepMsg"></span>
+      </div>
+      <div class="note">심화 분석은 학생별 상세 점수(Big5·정서지표 등)를 모두 불러와 계산합니다. 정서 주의 선별·MBTI 분포·Big5 평균·학교별 비교가 활성화됩니다. <b>정서 주의 선별은 통상 절단점 기준의 참고용</b>이며 진단이 아닙니다.</div>
+      <div id="deepBody" class="hidden">
+        <div class="charts" style="margin-bottom:14px">
+          <div class="cw"><div class="ct">Big5 기반 추정 유형(MBTI 스타일) 분포</div><canvas id="chartMbti" height="190"></canvas></div>
+          <div class="cw"><div class="ct">Big5 평균 프로필</div><canvas id="chartBig5" height="190"></canvas></div>
+        </div>
+        <h2 class="sec" style="margin:6px 0 8px">⚠️ 정서 주의 자동 선별 <span class="muted" id="riskCount"></span></h2>
+        <div id="riskList"></div>
+        <h2 class="sec" style="margin:16px 0 8px">🏫 학교별 비교</h2>
+        <div class="tableScroll" style="max-height:none">
+          <table><thead><tr class="nos">
+            <th class="nos">학교</th><th class="nos">인원</th><th class="nos">평균 완료검사</th><th class="nos">평균 대화턴</th>
+            <th class="nos">신뢰도 낮음</th><th class="nos">정서주의</th>
+          </tr></thead><tbody id="schoolRows"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 학생 목록 -->
     <div class="card">
       <div class="row" style="margin-bottom:10px">
-        <strong>학생 목록</strong>
+        <h2 class="sec">🧑‍🎓 학생 목록</h2>
         <span class="muted" id="listCount"></span>
+        <span class="sp"></span>
+        <button class="ghost sm" id="csvBtn">CSV 내보내기</button>
+        <button class="ghost sm" id="csvFullBtn">상세 CSV(점수포함)</button>
+        <button class="ghost sm" id="jsonBtn">JSON 백업</button>
+        <button class="warn sm hidden" id="bulkDelBtn">선택 삭제 <span id="bulkN"></span></button>
+      </div>
+      <div class="filterbar">
+        <input type="text" id="search" placeholder="🔍 이름/학교/유형 검색">
+        <select id="fGrade"><option value="">학년 전체</option></select>
+        <select id="fSchool"><option value="">학교 전체</option></select>
+        <select id="fType"><option value="">통합유형 전체</option></select>
+        <select id="fRel"><option value="">신뢰도 전체</option><option value="hi">높음</option><option value="mid">보통</option><option value="lo">낮음</option></select>
+        <input type="date" id="fFrom" title="시작일">
+        <input type="date" id="fTo" title="종료일">
       </div>
       <div class="tableScroll">
         <table>
           <thead><tr>
-            <th>이름</th><th>학년</th><th>반</th><th>학교</th><th>통합유형</th><th>신뢰도</th><th>완료검사</th><th>저장시각</th><th></th>
+            <th class="nos"><input type="checkbox" id="selAll" style="min-width:auto"></th>
+            <th data-k="name">이름</th><th data-k="grade">학년</th><th data-k="klass">반</th>
+            <th data-k="school">학교</th><th data-k="type">통합유형</th>
+            <th data-k="mbti" class="deepCol hidden">MBTI</th>
+            <th data-k="relRank">신뢰도</th><th data-k="doneCount">완료검사</th>
+            <th data-k="turns">대화턴</th><th data-k="savedAt">저장시각</th><th class="nos"></th>
           </tr></thead>
           <tbody id="rows"></tbody>
         </table>
@@ -121,14 +217,18 @@ a.link{color:var(--blue);text-decoration:none}
 <!-- 상세 -->
 <dialog id="detail">
   <header><h1 id="dTitle">학생 결과</h1><span class="sp"></span>
+    <button class="ghost sm noprint" id="printBtn">🖨 인쇄</button>
     <button class="ghost sm" onclick="document.getElementById('detail').close()">닫기</button></header>
   <div class="dbody" id="dBody"></div>
 </dialog>
 
 <script>
 const $=s=>document.querySelector(s);
+const $$=s=>Array.prototype.slice.call(document.querySelectorAll(s));
 const LS_BASE='pia_api_base';
-let PW='', BASE='', LIST=[], chartG=null, chartT=null;
+let PW='', BASE='', LIST=[], FULL={}, deepLoaded=false, autoTimer=null;
+let sortKey='savedAt', sortDir=-1;
+let chartG=null,chartT=null,chartR=null,chartTr=null,chartM=null,chartB=null;
 
 function apiUrl(params){
   let b=(BASE||location.origin).replace(/\/+$/,'');
@@ -136,14 +236,13 @@ function apiUrl(params){
   for(const k in params) if(params[k]!=null) u.searchParams.set(k,params[k]);
   return u.toString();
 }
-function setEnv(ok){ $('#envBadge').textContent= ok?('서버 연결됨'):'서버 미연결'; $('#envBadge').style.background= ok?'rgba(16,185,129,.30)':'rgba(255,255,255,.14)'; }
+function setEnv(ok){ $('#envBadge').textContent= ok?'서버 연결됨':'서버 미연결'; $('#envBadge').classList.toggle('on',!!ok); }
 
 async function ping(){
   BASE=$('#apiBase').value.trim();
   if(BASE) localStorage.setItem(LS_BASE,BASE);
   try{
-    const r=await fetch(apiUrl({ping:1}));
-    const j=await r.json();
+    const r=await fetch(apiUrl({ping:1})); const j=await r.json();
     $('#loginMsg').innerHTML='<span class="ok">서버 응답 OK'+(j.hasPassword?' · 비번 설정됨':' · ⚠️비번 미설정')+'</span>';
     setEnv(true); return j;
   }catch(e){ $('#loginMsg').innerHTML='<span class="err">연결 실패: '+e.message+'</span>'; setEnv(false); return null; }
@@ -161,102 +260,295 @@ async function login(){
     if(!j.ok){ $('#loginMsg').innerHTML='<span class="err">'+(j.error||'오류')+'</span>'; return; }
     setEnv(true);
     $('#loginCard').classList.add('hidden'); $('#dash').classList.remove('hidden');
-    render(j.results||[]);
+    ingest(j.results||[]);
   }catch(e){ $('#loginMsg').innerHTML='<span class="err">연결 실패: '+e.message+'</span>'; }
 }
+async function reload(){
+  if(!PW){return;}
+  try{
+    const r=await fetch(apiUrl({admin:PW,list:1})); const j=await r.json();
+    if(j.ok){ ingest(j.results||[]); if(deepLoaded) deepLoad(true); }
+  }catch(e){}
+}
 
-function render(list){
-  LIST=list;
+function relRank(rec){
+  let v=rec.reliability; if(v==null||v==='') return -1;
+  if(typeof v==='number'){ return v>=80?2:v>=55?1:0; }
+  v=String(v);
+  if(/낮|low|주의|의심/i.test(v)) return 0;
+  if(/보통|중간|mid|medium/i.test(v)) return 1;
+  if(/높|good|high|양호|우수/i.test(v)) return 2;
+  const n=parseFloat(v); if(!isNaN(n)) return n>=80?2:n>=55?1:0;
+  return 1;
+}
+function relPill(rec){ const r=relRank(rec); const cls=['lo','mid','hi'][r]||'na'; const lab=r<0?'—':['낮음','보통','높음'][r]; return '<span class="pill '+cls+'">'+lab+'</span>'; }
+function getBig5(rec){ try{ const s=(rec.results&&rec.results.big5&&rec.results.big5.scores); if(s&&typeof s==='object') return s; }catch(e){} return null; }
+function big5Mbti(s){ if(!s)return''; const p=(v,h,l)=>(Number(v)>=50?h:l); return p(s.E,'E','I')+p(s.O,'N','S')+p(s.A,'F','T')+p(s.C,'J','P'); }
+function getTurns(rec){ try{ const c=rec.results&&rec.results.conv; if(c){ if(c.turns!=null)return Number(c.turns)||0; if(Array.isArray(c.history))return c.history.length; } }catch(e){} return null; }
+function numScore(x){ if(x==null)return null; if(typeof x==='number')return x; if(typeof x==='object'){ if(x.total!=null)return Number(x.total); if(x.score!=null)return Number(x.score); if(x.sum!=null)return Number(x.sum);} const n=parseFloat(x); return isNaN(n)?null:n; }
+function getEmotion(rec){ const R=(rec.results)||{}; const o={};
+  ['cesd','phqa','phq','gad','who5','rses'].forEach(k=>{ if(R[k]&&R[k].scores!=null) o[k]=numScore(R[k].scores); });
+  return o; }
+function riskReasons(rec){ const e=getEmotion(rec); const out=[];
+  if(e.cesd!=null && e.cesd>=16) out.push('CES-D '+Math.round(e.cesd)+'(우울 의심)');
+  if(e.phqa!=null && e.phqa>=10) out.push('PHQ '+Math.round(e.phqa)+'(중등도+)');
+  if(e.phq!=null && e.phq>=10) out.push('PHQ '+Math.round(e.phq)+'(중등도+)');
+  if(e.gad!=null && e.gad>=10) out.push('GAD '+Math.round(e.gad)+'(중등도+)');
+  if(e.who5!=null && e.who5<=50) out.push('WHO-5 저웰빙');
+  if(relRank(rec)===0) out.push('응답 신뢰도 낮음');
+  return out; }
+
+function ingest(list){
+  LIST=list.map(s=>{ const f=FULL[s.id]; return f? Object.assign({},f,{id:s.id}) : s; });
+  fillSelect('#fGrade', uniq(list.map(s=>s.grade)));
+  fillSelect('#fSchool', uniq(list.map(s=>s.school)));
+  fillSelect('#fType', uniq(list.map(s=>s.type)));
+  paint();
+  $('#lastUpd').textContent='최근 갱신: '+new Date().toLocaleString('ko-KR');
+}
+function uniq(a){ return Array.from(new Set(a.filter(v=>v!=null&&v!==''))).sort(); }
+function fillSelect(sel,vals){ const el=$(sel); const cur=el.value; const first=el.options[0].outerHTML;
+  el.innerHTML=first+vals.map(v=>'<option>'+esc(v)+'</option>').join(''); el.value=cur; }
+
+function filtered(){
   const q=($('#search').value||'').trim().toLowerCase();
-  const f=q? list.filter(s=>((s.name||'')+(s.school||'')+(s.type||'')).toLowerCase().includes(q)) : list;
-  $('#listCount').textContent='('+f.length+'명'+(q?(' / 전체 '+list.length):'')+')';
-  // 통계
-  $('#stat').innerHTML='';
-  const stat=[['전체 학생',list.length],['오늘',list.filter(s=>(s.savedAt||'').slice(0,10)===new Date().toISOString().slice(0,10)).length],
-    ['고유 학교',new Set(list.map(s=>s.school).filter(Boolean)).size],['고유 유형',new Set(list.map(s=>s.type).filter(Boolean)).size]];
-  for(const [l,n] of stat){ const d=document.createElement('div'); d.className='b'; d.innerHTML='<div class="n">'+n+'</div><div class="l">'+l+'</div>'; $('#stat').appendChild(d); }
-  // 표
-  const rows=$('#rows'); rows.innerHTML='';
-  for(const s of f){
-    const tr=document.createElement('tr');
-    tr.innerHTML='<td><b>'+esc(s.name)+'</b></td><td>'+esc(s.grade)+'</td><td>'+esc(s.klass)+'</td><td>'+esc(s.school)+'</td><td>'+esc(s.type)+'</td><td>'+esc(s.reliability)+'</td><td>'+(s.doneCount||0)+'</td><td class="muted">'+fmt(s.savedAt)+'</td>'+
-      '<td><button class="warn sm" data-del="'+esc(s.id)+'">삭제</button></td>';
-    tr.addEventListener('click',ev=>{ if(ev.target.dataset.del) return; openDetail(s.id); });
-    rows.appendChild(tr);
-  }
-  rows.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();delRec(b.dataset.del,b.closest('tr'));}));
-  drawCharts(list);
+  const g=$('#fGrade').value, sc=$('#fSchool').value, ty=$('#fType').value, rl=$('#fRel').value;
+  const from=$('#fFrom').value, to=$('#fTo').value;
+  let f=LIST.filter(s=>{
+    if(q && !((s.name||'')+(s.school||'')+(s.type||'')).toLowerCase().includes(q)) return false;
+    if(g && String(s.grade)!==g) return false;
+    if(sc && s.school!==sc) return false;
+    if(ty && s.type!==ty) return false;
+    if(rl){ const r=relRank(s); if(rl==='lo'&&r!==0)return false; if(rl==='mid'&&r!==1)return false; if(rl==='hi'&&r!==2)return false; }
+    const day=(s.savedAt||'').slice(0,10);
+    if(from && day && day<from) return false;
+    if(to && day && day>to) return false;
+    return true;
+  });
+  const key=sortKey;
+  f.sort((a,b)=>{
+    let va,vb;
+    if(key==='relRank'){va=relRank(a);vb=relRank(b);}
+    else if(key==='mbti'){va=big5Mbti(getBig5(a));vb=big5Mbti(getBig5(b));}
+    else if(key==='turns'){va=getTurns(a)||-1;vb=getTurns(b)||-1;}
+    else if(key==='doneCount'){va=a.doneCount||0;vb=b.doneCount||0;}
+    else if(key==='savedAt'){va=a.savedAt||'';vb=b.savedAt||'';}
+    else {va=(a[key]==null?'':String(a[key]));vb=(b[key]==null?'':String(b[key]));}
+    if(va<vb)return -1*sortDir; if(va>vb)return 1*sortDir; return 0;
+  });
+  return f;
 }
 
-function drawCharts(list){
-  const byGrade=group(list,'grade'), byType=group(list,'type');
-  chartG=bar(chartG,'chartGrade','학년별 인원',byGrade,'#2563eb');
-  chartT=bar(chartT,'chartType','통합유형별 인원',byType,'#06b6d4');
+function paint(){
+  const f=filtered();
+  $('#listCount').textContent='('+f.length+'명'+(f.length!==LIST.length?(' / 전체 '+LIST.length):'')+')';
+  renderStats(f);
+  renderTable(f);
+  drawCharts(f);
+  if(deepLoaded) renderAdvanced(f);
 }
-function group(list,key){const m={};list.forEach(s=>{const k=s[key]||'(미입력)';m[k]=(m[k]||0)+1;});return m;}
-function bar(old,id,label,obj,color){
-  if(old) old.destroy();
-  const ctx=document.getElementById(id);
-  return new Chart(ctx,{type:'bar',data:{labels:Object.keys(obj),datasets:[{label,data:Object.values(obj),backgroundColor:color,borderRadius:6}]},
-    options:{plugins:{legend:{display:true}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+
+function renderStats(f){
+  const today=new Date().toISOString().slice(0,10);
+  const wk=new Date(Date.now()-6*864e5).toISOString().slice(0,10);
+  const avgDone=f.length? (f.reduce((a,s)=>a+(s.doneCount||0),0)/f.length):0;
+  const lowRel=f.filter(s=>relRank(s)===0).length;
+  let riskN='—', turnsAvg='—';
+  if(deepLoaded){ riskN=f.filter(s=>riskReasons(s).length).length;
+    const ts=f.map(getTurns).filter(v=>v!=null); turnsAvg=ts.length?Math.round(ts.reduce((a,b)=>a+b,0)/ts.length):0; }
+  const cards=[
+    ['전체 학생',f.length,''],
+    ['오늘',f.filter(s=>(s.savedAt||'').slice(0,10)===today).length,'accent'],
+    ['최근 7일',f.filter(s=>(s.savedAt||'').slice(0,10)>=wk).length,''],
+    ['평균 완료검사',avgDone.toFixed(1),''],
+    ['고유 학교',new Set(f.map(s=>s.school).filter(Boolean)).size,''],
+    ['신뢰도 낮음',lowRel,lowRel?'warnb':''],
+    ['정서 주의',riskN,(deepLoaded&&riskN)? 'warnb':''],
+    ['평균 대화턴',turnsAvg,''],
+  ];
+  $('#stat').innerHTML=cards.map(c=>'<div class="b '+c[2]+'"><div class="n">'+c[1]+'</div><div class="l">'+c[0]+'</div></div>').join('');
+}
+
+function renderTable(f){
+  $$('.deepCol').forEach(e=>e.classList.toggle('hidden',!deepLoaded));
+  $$('th[data-k]').forEach(th=>{ const k=th.dataset.k; th.innerHTML=th.textContent.replace(/[▲▼]\s*$/,'').trim()+(k===sortKey?(' <span class="ar">'+(sortDir>0?'▲':'▼')+'</span>'):''); });
+  const rows=$('#rows'); rows.innerHTML='';
+  f.forEach(s=>{
+    const mb=deepLoaded? ('<td>'+(big5Mbti(getBig5(s))||'<span class="tiny">—</span>')+'</td>'):'';
+    const tn=getTurns(s); const turns= tn==null?'<span class="tiny">—</span>':tn;
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td class="nos"><input type="checkbox" class="selOne" data-id="'+esc(s.id)+'" style="min-width:auto"></td>'+
+      '<td><b>'+esc(s.name||'익명')+'</b></td><td>'+esc(s.grade)+'</td><td>'+esc(s.klass||s.class)+'</td>'+
+      '<td>'+esc(s.school)+'</td><td>'+(s.type?('<span class="chip">'+esc(s.type)+'</span>'):'')+'</td>'+
+      mb+'<td>'+relPill(s)+'</td><td>'+(s.doneCount||0)+'</td><td>'+turns+'</td>'+
+      '<td class="muted">'+fmt(s.savedAt)+'</td>'+
+      '<td class="nos"><button class="warn sm" data-del="'+esc(s.id)+'">삭제</button></td>';
+    tr.addEventListener('click',ev=>{ if(ev.target.dataset.del||ev.target.classList.contains('selOne'))return; openDetail(s.id); });
+    rows.appendChild(tr);
+  });
+  rows.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();delRec(b.dataset.del);}));
+  rows.querySelectorAll('.selOne').forEach(cb=>cb.addEventListener('change',updateBulk));
+  $('#selAll').checked=false; updateBulk();
+}
+function selectedIds(){ return $$('.selOne:checked').map(c=>c.dataset.id); }
+function updateBulk(){ const n=selectedIds().length; const b=$('#bulkDelBtn'); b.classList.toggle('hidden',!n); $('#bulkN').textContent=n?('('+n+')'):''; }
+
+function group(list,fn){const m={};list.forEach(s=>{const k=fn(s)||'(미입력)';m[k]=(m[k]||0)+1;});return m;}
+function makeBar(old,id,obj,color){ if(old)old.destroy(); const ctx=document.getElementById(id); if(!ctx)return null;
+  return new Chart(ctx,{type:'bar',data:{labels:Object.keys(obj),datasets:[{data:Object.values(obj),backgroundColor:color,borderRadius:6}]},
+    options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); }
+function drawCharts(f){
+  chartG=makeBar(chartG,'chartGrade',group(f,s=>s.grade),'#d97757');
+  chartT=makeBar(chartT,'chartType',group(f,s=>s.type),'#6a9bcc');
+  const rel={'높음':0,'보통':0,'낮음':0,'미상':0}; f.forEach(s=>{const r=relRank(s); rel[r===2?'높음':r===1?'보통':r===0?'낮음':'미상']++;});
+  if(chartR)chartR.destroy(); chartR=new Chart(document.getElementById('chartRel'),{type:'doughnut',
+    data:{labels:Object.keys(rel),datasets:[{data:Object.values(rel),backgroundColor:['#788c5d','#6a9bcc','#c0392b','#b0aea5']}]},
+    options:{plugins:{legend:{position:'right'}}}});
+  const days=[]; for(let i=13;i>=0;i--){days.push(new Date(Date.now()-i*864e5).toISOString().slice(0,10));}
+  const cnt=days.map(d=>f.filter(s=>(s.savedAt||'').slice(0,10)===d).length);
+  if(chartTr)chartTr.destroy(); chartTr=new Chart(document.getElementById('chartTrend'),{type:'line',
+    data:{labels:days.map(d=>d.slice(5)),datasets:[{data:cnt,borderColor:'#d97757',backgroundColor:'rgba(217,119,87,.15)',fill:true,tension:.3,pointRadius:2}]},
+    options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+}
+
+async function deepLoad(silent){
+  if(!PW)return;
+  const ids=LIST.map(s=>s.id).filter(id=>!FULL[id]);
+  $('#deepBtn').disabled=true;
+  let done=0;
+  for(const id of ids){
+    try{ const r=await fetch(apiUrl({admin:PW,id})); const j=await r.json(); if(j.ok&&j.result) FULL[id]=j.result; }catch(e){}
+    done++; if(!silent) $('#deepMsg').textContent='불러오는 중… '+done+'/'+ids.length;
+  }
+  LIST=LIST.map(s=> FULL[s.id]? Object.assign({},FULL[s.id],{id:s.id}) : s);
+  deepLoaded=true; $('#deepBody').classList.remove('hidden'); $('#deepBtn').textContent='상세 갱신'; $('#deepBtn').disabled=false;
+  $('#deepMsg').textContent='완료 ('+Object.keys(FULL).length+'건)';
+  paint();
+}
+function renderAdvanced(f){
+  const mb=group(f.filter(s=>getBig5(s)),s=>big5Mbti(getBig5(s)));
+  chartM=makeBar(chartM,'chartMbti',mb,'#6a9bcc');
+  const dims=['O','C','E','A','N']; const labKR={O:'개방성',C:'성실성',E:'외향성',A:'우호성',N:'신경성'};
+  const acc={O:[],C:[],E:[],A:[],N:[]}; f.forEach(s=>{const b=getBig5(s); if(b)dims.forEach(d=>{ if(b[d]!=null)acc[d].push(Number(b[d])); });});
+  const avg=dims.map(d=>acc[d].length? Math.round(acc[d].reduce((a,b)=>a+b,0)/acc[d].length):0);
+  if(chartB)chartB.destroy(); chartB=new Chart(document.getElementById('chartBig5'),{type:'radar',
+    data:{labels:dims.map(d=>labKR[d]),datasets:[{data:avg,backgroundColor:'rgba(217,119,87,.2)',borderColor:'#d97757',pointBackgroundColor:'#d97757'}]},
+    options:{scales:{r:{beginAtZero:true,max:100,ticks:{stepSize:25}}},plugins:{legend:{display:false}}}});
+  const risk=f.map(s=>({s,why:riskReasons(s)})).filter(x=>x.why.length).sort((a,b)=>b.why.length-a.why.length);
+  $('#riskCount').textContent='('+risk.length+'명 · 참고용)';
+  $('#riskList').innerHTML= risk.length? risk.map(x=>'<div class="riskcard" data-id="'+esc(x.s.id)+'"><span class="who">'+esc(x.s.name||'익명')+'</span><span class="tiny">'+esc(x.s.school||'')+' '+esc(x.s.grade||'')+'</span><span class="why">'+x.why.map(esc).join(' · ')+'</span></div>').join('')
+    : '<div class="muted">절단점 초과로 선별된 학생이 없습니다.</div>';
+  $('#riskList').querySelectorAll('.riskcard').forEach(c=>c.addEventListener('click',()=>openDetail(c.dataset.id)));
+  const bySchool={}; f.forEach(s=>{const k=s.school||'(미입력)'; (bySchool[k]=bySchool[k]||[]).push(s);});
+  const sr=Object.keys(bySchool).sort().map(k=>{ const arr=bySchool[k];
+    const ad=(arr.reduce((a,s)=>a+(s.doneCount||0),0)/arr.length).toFixed(1);
+    const ts=arr.map(getTurns).filter(v=>v!=null); const at=ts.length?Math.round(ts.reduce((a,b)=>a+b,0)/ts.length):'—';
+    const lr=arr.filter(s=>relRank(s)===0).length; const rk=arr.filter(s=>riskReasons(s).length).length;
+    return '<tr><td><b>'+esc(k)+'</b></td><td>'+arr.length+'</td><td>'+ad+'</td><td>'+at+'</td><td>'+(lr?('<span class="pill lo">'+lr+'</span>'):'0')+'</td><td>'+(rk?('<span class="pill lo">'+rk+'</span>'):'0')+'</td></tr>';
+  }).join('');
+  $('#schoolRows').innerHTML=sr;
 }
 
 async function openDetail(id){
   const d=$('#detail'); $('#dBody').innerHTML='<p class="muted">불러오는 중…</p>'; d.showModal();
   try{
-    const r=await fetch(apiUrl({admin:PW,id})); const j=await r.json();
-    if(!j.ok){ $('#dBody').innerHTML='<p class="err">'+(j.error||'오류')+'</p>'; return; }
-    const rec=j.result; $('#dTitle').textContent=(rec.name||'익명')+' 결과';
+    let rec=FULL[id];
+    if(!rec){ const r=await fetch(apiUrl({admin:PW,id})); const j=await r.json(); if(!j.ok){ $('#dBody').innerHTML='<p class="err">'+(j.error||'오류')+'</p>'; return;} rec=j.result; FULL[id]=rec; }
+    $('#dTitle').textContent=(rec.name||'익명')+' 결과';
+    const b5=getBig5(rec); const mbti=big5Mbti(b5);
     let h='<div class="kv">'+
       kv('이름',rec.name)+kv('학년',rec.grade)+kv('반',rec.klass||rec.class)+kv('학교',rec.school)+
-      kv('통합유형',rec.type)+kv('신뢰도',rec.reliability)+kv('완료검사',rec.doneCount)+kv('저장시각',fmt(rec.savedAt))+'</div>';
-    // 점수 요약
+      kv('통합유형',rec.type)+kv('신뢰도',(rec.reliability!=null?rec.reliability:'')+'')+kv('완료검사',rec.doneCount)+kv('저장시각',fmt(rec.savedAt))+'</div>';
+    if(mbti) h+='<div style="margin:0 0 12px"><span class="chip" style="font-size:13px;padding:4px 12px">Big5 기반 추정 유형 '+mbti+'</span> <span class="tiny">(참고용)</span></div>';
+    const why=riskReasons(rec);
+    if(why.length) h+='<div class="riskcard" style="cursor:default"><span class="who">⚠️ 정서/응답 주의</span><span class="why">'+why.map(esc).join(' · ')+'</span></div>';
+    if(b5){ const dd=[['O','개방성'],['C','성실성'],['E','외향성'],['A','우호성'],['N','신경성']];
+      h+='<div style="font-weight:700;margin:12px 0 4px">Big5 프로필</div><div class="bargrid">';
+      dd.forEach(d=>{ const v=Math.round(Number(b5[d[0]])||0); h+='<div class="br"><span>'+d[1]+'</span><span class="track"><span class="fill" style="width:'+Math.max(0,Math.min(100,v))+'%"></span></span><span>'+v+'</span></div>'; });
+      h+='</div>'; }
+    const ri=(rec.results&&rec.results.riasec&&rec.results.riasec.scores);
+    if(ri){ h+='<div style="font-weight:700;margin:12px 0 4px">RIASEC 흥미</div><div class="bargrid">';
+      const mx=Math.max.apply(null,Object.values(ri).map(Number).concat([1]));
+      Object.keys(ri).forEach(k=>{ const v=Number(ri[k])||0; h+='<div class="br"><span>'+esc(k)+'</span><span class="track"><span class="fill" style="width:'+Math.round(v/mx*100)+'%;background:#6a9bcc"></span></span><span>'+Math.round(v)+'</span></div>'; });
+      h+='</div>'; }
     const sc=scoreSummary(rec.results||{});
-    if(sc.length){ h+='<div style="font-weight:700;margin:6px 0">검사 점수 요약</div><div class="scoreGrid">';
+    if(sc.length){ h+='<div style="font-weight:700;margin:12px 0 4px">검사 점수 요약</div><div class="scoreGrid">';
       sc.forEach(x=>{h+='<div class="s"><div class="t">'+esc(x.t)+'</div><div class="v">'+esc(x.v)+'</div></div>';}); h+='</div>'; }
     h+='<details style="margin-top:10px"><summary class="muted">원본 데이터(JSON)</summary><pre>'+esc(JSON.stringify(rec,null,2))+'</pre></details>';
     $('#dBody').innerHTML=h;
   }catch(e){ $('#dBody').innerHTML='<p class="err">'+e.message+'</p>'; }
 }
-
-// 각 검사 결과에서 대표 점수만 추출(있으면)
 function scoreSummary(R){
-  const out=[]; const push=(t,v)=>{ if(v!=null&&v!=='') out.push({t,v}); };
+  const out=[]; const push=(t,v)=>{ if(v!=null&&v!=='')out.push({t,v}); };
   try{
     if(R.big5&&R.big5.scores){for(const k in R.big5.scores)push('Big5·'+k,Math.round(R.big5.scores[k]));}
     if(R.riasec&&R.riasec.scores){const s=R.riasec.scores;const top=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join('');push('RIASEC Top3',top);}
-    if(R.grit&&R.grit.scores)push('Grit',JSON.stringify(R.grit.scores).slice(0,40));
-    ['cesd','phqa','gad','who5','rses'].forEach(k=>{ if(R[k]&&R[k].scores!=null){const v=R[k].scores; push(k.toUpperCase(), typeof v==='object'?(v.total??JSON.stringify(v).slice(0,30)):v);} });
-    if(R.conv&&R.conv.turns!=null)push('대화 턴수',R.conv.turns);
+    if(R.grit&&R.grit.scores)push('Grit',typeof R.grit.scores==='object'?JSON.stringify(R.grit.scores).slice(0,40):R.grit.scores);
+    if(R.mi&&R.mi.scores){const s=R.mi.scores;const top=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join(', ');push('다중지능 Top3',top);}
+    if(R.via&&R.via.scores){const s=R.via.scores;const top=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join(', ');push('강점(VIA) Top3',top);}
+    if(R.learn&&R.learn.scores)push('학습역량',typeof R.learn.scores==='object'?JSON.stringify(R.learn.scores).slice(0,40):R.learn.scores);
+    ['cesd','phqa','phq','gad','who5','rses'].forEach(k=>{ if(R[k]&&R[k].scores!=null){const v=numScore(R[k].scores); push(k.toUpperCase(), v!=null?Math.round(v):JSON.stringify(R[k].scores).slice(0,30));} });
+    const t=getTurns({results:R}); if(t!=null)push('대화 턴수',t);
   }catch(e){}
   return out;
 }
 
-async function delRec(id,tr){
+async function delRec(id){
   if(!confirm('이 결과를 삭제할까요? 되돌릴 수 없습니다.')) return;
   try{ const r=await fetch(apiUrl({admin:PW,del:id})); const j=await r.json();
-    if(j.ok){ if(tr)tr.remove(); LIST=LIST.filter(s=>s.id!==id); render(LIST); } else alert(j.error||'삭제 실패'); }
+    if(j.ok){ delete FULL[id]; LIST=LIST.filter(s=>s.id!==id); paint(); } else alert(j.error||'삭제 실패'); }
   catch(e){ alert(e.message); }
 }
-
-function csv(){
-  const head=['이름','학년','반','학교','통합유형','신뢰도','완료검사','저장시각'];
-  const lines=[head.join(',')];
-  LIST.forEach(s=>lines.push([s.name,s.grade,s.klass,s.school,s.type,s.reliability,s.doneCount,s.savedAt].map(csvCell).join(',')));
-  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='AI_PIA_결과목록_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+async function bulkDel(){
+  const ids=selectedIds(); if(!ids.length)return;
+  if(!confirm(ids.length+'명의 결과를 삭제할까요? 되돌릴 수 없습니다.')) return;
+  for(const id of ids){ try{ await fetch(apiUrl({admin:PW,del:id})); delete FULL[id]; }catch(e){} }
+  LIST=LIST.filter(s=>ids.indexOf(s.id)<0); paint();
 }
+
+function dl(name,content,type){ const blob=new Blob(['﻿'+content],{type:type||'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); }
+function csvBasic(){
+  const f=filtered(); const head=['이름','학년','반','학교','통합유형','신뢰도','완료검사','대화턴','저장시각'];
+  const lines=[head.join(',')];
+  f.forEach(s=>lines.push([s.name,s.grade,s.klass||s.class,s.school,s.type,s.reliability,s.doneCount,getTurns(s),s.savedAt].map(csvCell).join(',')));
+  dl('AI_PIA_결과목록_'+new Date().toISOString().slice(0,10)+'.csv',lines.join('\n'));
+}
+function csvFull(){
+  if(!deepLoaded){ if(!confirm('상세 점수 CSV는 전체 상세 데이터가 필요합니다. 지금 불러올까요?')) return; deepLoad().then(csvFull); return; }
+  const f=filtered();
+  const head=['이름','학년','반','학교','통합유형','MBTI추정','신뢰도','완료검사','대화턴',
+    'Big5_O','Big5_C','Big5_E','Big5_A','Big5_N','CESD','PHQ','GAD','WHO5','정서주의','저장시각'];
+  const lines=[head.join(',')];
+  f.forEach(s=>{ const b=getBig5(s)||{}; const e=getEmotion(s);
+    lines.push([s.name,s.grade,s.klass||s.class,s.school,s.type,big5Mbti(getBig5(s)),s.reliability,s.doneCount,getTurns(s),
+      b.O,b.C,b.E,b.A,b.N,e.cesd,(e.phqa!=null?e.phqa:e.phq),e.gad,e.who5,riskReasons(s).join(' / '),s.savedAt].map(csvCell).join(',')); });
+  dl('AI_PIA_상세점수_'+new Date().toISOString().slice(0,10)+'.csv',lines.join('\n'));
+}
+function jsonBackup(){
+  const data= deepLoaded? filtered().map(s=>FULL[s.id]||s) : filtered();
+  dl('AI_PIA_백업_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(data,null,2),'application/json');
+}
+
 const csvCell=v=>{v=(v==null?'':String(v));return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
 const esc=v=>(v==null?'':String(v)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const kv=(k,v)=>'<b>'+k+'</b><span>'+esc(v??'')+'</span>';
+const kv=(k,v)=>'<b>'+k+'</b><span>'+esc(v==null?'':v)+'</span>';
 const fmt=s=>{ if(!s)return''; try{const d=new Date(s);return d.toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return s;} };
 
 $('#loginBtn').onclick=login;
 $('#pingBtn').onclick=ping;
-$('#reloadBtn').onclick=login;
-$('#logoutBtn').onclick=()=>{PW='';$('#dash').classList.add('hidden');$('#loginCard').classList.remove('hidden');$('#pw').value='';};
-$('#csvBtn').onclick=csv;
-$('#search').addEventListener('input',()=>render(LIST));
+$('#reloadBtn').onclick=reload;
+$('#logoutBtn').onclick=()=>{PW='';deepLoaded=false;FULL={};$('#dash').classList.add('hidden');$('#loginCard').classList.remove('hidden');$('#pw').value='';$('#deepBody').classList.add('hidden');};
+$('#deepBtn').onclick=()=>deepLoad(false);
+$('#csvBtn').onclick=csvBasic;
+$('#csvFullBtn').onclick=csvFull;
+$('#jsonBtn').onclick=jsonBackup;
+$('#bulkDelBtn').onclick=bulkDel;
+$('#printBtn').onclick=()=>window.print();
+$('#selAll').onchange=e=>{ $$('.selOne').forEach(c=>c.checked=e.target.checked); updateBulk(); };
+['#search','#fGrade','#fSchool','#fType','#fRel','#fFrom','#fTo'].forEach(s=>{ const el=$(s); el.addEventListener(el.tagName==='INPUT'&&el.type==='text'?'input':'change',paint); });
+$$('th[data-k]').forEach(th=>th.addEventListener('click',()=>{ const k=th.dataset.k; if(sortKey===k)sortDir*=-1; else {sortKey=k;sortDir=(k==='savedAt')?-1:1;} paint(); }));
+$('#autoref').onchange=e=>{ if(e.target.checked){ autoTimer=setInterval(reload,60000); } else { clearInterval(autoTimer); autoTimer=null; } };
 window.addEventListener('DOMContentLoaded',()=>{ const b=localStorage.getItem(LS_BASE)||'https://brilliant-macaron-4b3ed2.netlify.app'; $('#apiBase').value=b; });
 </script>
 </body>

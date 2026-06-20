@@ -641,18 +641,19 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   <!-- 청중 전환 + 인쇄·다운로드 (인쇄 시 숨김) -->
   <div class="bg-white rounded-2xl border border-slate-200 px-5 py-3 flex flex-wrap items-center justify-between gap-3 no-print">
     <div class="flex items-center gap-2">
-      <span class="text-xs text-slate-500">결과지 보기:</span>
+      <span class="text-xs text-slate-500" data-en="Report view:">결과지 보기:</span>
       <div class="inline-flex bg-slate-100 rounded-lg p-1 gap-1">
-        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" data-audience="student" aria-selected="true">학생 본인용</button>
-        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" data-audience="parent" aria-selected="false">학부모용</button>
-        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" data-audience="teacher" aria-selected="false">선생님용</button>
+        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" data-audience="student" aria-selected="true" data-en="For the student">학생 본인용</button>
+        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" data-audience="parent" aria-selected="false" data-en="For parents">학부모용</button>
+        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" data-audience="teacher" aria-selected="false" data-en="For teachers">선생님용</button>
       </div>
     </div>
     <div class="flex flex-wrap gap-2">
-      <button id="result-print" class="bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-semibold">🖨 인쇄</button>
-      <button id="result-download-html" class="bg-slate-100 text-slate-900 px-3 py-2 rounded-lg text-xs font-semibold">💾 HTML 저장</button>
-      <button id="result-download-txt" class="bg-slate-100 text-slate-900 px-3 py-2 rounded-lg text-xs font-semibold">📄 TXT 저장</button>
-      <button id="result-copy" class="bg-slate-100 text-slate-900 px-3 py-2 rounded-lg text-xs font-semibold">📋 복사</button>
+      <div class="pia-lang-toggle" data-pia-lang-toggle style="display:inline-flex;align-items:center;gap:4px;background:#f3efe7;border:1px solid #e3d9c6;border-radius:9px;padding:2px;"><button type="button" class="pia-lang-btn" data-lang="ko" onclick="piaSetReportLang('ko')" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;border:0;cursor:pointer;">KR</button><button type="button" class="pia-lang-btn" data-lang="en" onclick="piaSetReportLang('en')" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;border:0;cursor:pointer;">EN</button></div>
+      <button id="result-print" class="bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-semibold" data-en="🖨 Print">🖨 인쇄</button>
+      <button id="result-download-html" class="bg-slate-100 text-slate-900 px-3 py-2 rounded-lg text-xs font-semibold" data-en="💾 Save HTML">💾 HTML 저장</button>
+      <button id="result-download-txt" class="bg-slate-100 text-slate-900 px-3 py-2 rounded-lg text-xs font-semibold" data-en="📄 Save TXT">📄 TXT 저장</button>
+      <button id="result-copy" class="bg-slate-100 text-slate-900 px-3 py-2 rounded-lg text-xs font-semibold" data-en="📋 Copy">📋 복사</button>
     </div>
   </div>
 
@@ -671,24 +672,24 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
     <div class="flex items-center gap-4 flex-wrap">
       <div class="w-14 h-14 rounded-xl bg-rose-50 text-rose-700 grid place-items-center text-3xl" id="hero-icon">?</div>
       <div class="flex-1 min-w-[200px]">
-        <div class="text-xs text-slate-500">통합 16유형 (7개 검사 가중 평균)</div>
+        <div class="text-xs text-slate-500" data-en="Integrated 16 Types (weighted average of 7 assessments)">통합 16유형 (7개 검사 가중 평균)</div>
         <div class="text-2xl font-bold" id="hero-type">검사 진행 필요</div>
         <div class="text-xs text-slate-500 mt-0.5" id="hero-desc"></div>
         <div class="mt-1.5" id="hero-mbti"></div>
       </div>
       <div class="text-center px-4 border-l border-slate-200">
-        <div class="text-xs text-slate-500">신뢰도 등급</div>
+        <div class="text-xs text-slate-500" data-en="Reliability grade">신뢰도 등급</div>
         <div class="text-3xl font-bold text-emerald-700" id="hero-grade">—</div>
         <div class="text-xs text-slate-500" id="hero-grade-label">검사 데이터 없음</div>
       </div>
     </div>
     <div class="mt-4 grid sm:grid-cols-2 gap-3">
       <div>
-        <div class="text-xs text-slate-500 mb-1">완료된 정량 검사</div>
+        <div class="text-xs text-slate-500 mb-1" data-en="Completed quantitative tests">완료된 정량 검사</div>
         <div id="hero-completed" class="flex flex-wrap"></div>
       </div>
       <div>
-        <div class="text-xs text-slate-500 mb-1">정서 스크리닝</div>
+        <div class="text-xs text-slate-500 mb-1" data-en="Emotional screening">정서 스크리닝</div>
         <div id="hero-screening" class="flex flex-wrap"></div>
       </div>
     </div>
@@ -696,56 +697,56 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 
   <div class="grid md:grid-cols-2 gap-5">
     <div id="chart-big5-wrap" class="bg-white rounded-2xl border border-slate-200 p-4 hidden">
-      <h3 class="font-semibold text-sm mb-3">Big5 성격 5요인 (IPIP-50)</h3>
+      <h3 class="font-semibold text-sm mb-3" data-en="Big Five Personality (IPIP-50)">Big5 성격 5요인 (IPIP-50)</h3>
       <div class="h-[260px] relative"><canvas id="chart-big5" role="img" aria-label="Big5 레이더"></canvas></div>
     </div>
     <div id="chart-riasec-wrap" class="bg-white rounded-2xl border border-slate-200 p-4 hidden">
-      <h3 class="font-semibold text-sm mb-3">RIASEC 진로 흥미 (Holland)</h3>
+      <h3 class="font-semibold text-sm mb-3" data-en="RIASEC Career Interests (Holland)">RIASEC 진로 흥미 (Holland)</h3>
       <div class="h-[260px] relative"><canvas id="chart-riasec" role="img" aria-label="RIASEC 막대"></canvas></div>
     </div>
   </div>
 
   <div id="dimcharts-wrap" class="bg-white rounded-2xl border border-slate-200 p-4 hidden">
-    <h3 class="font-semibold text-sm mb-1">차원별 시각화</h3>
-    <p class="text-xs text-slate-500 mb-3">검사 데이터를 원형·레이더·막대로 한눈에 비교합니다.</p>
+    <h3 class="font-semibold text-sm mb-1" data-en="Dimensional Visualization">차원별 시각화</h3>
+    <p class="text-xs text-slate-500 mb-3" data-en="Compare your results at a glance using doughnut, radar, and bar charts.">검사 데이터를 원형·레이더·막대로 한눈에 비교합니다.</p>
     <div class="grid md:grid-cols-2 gap-5">
       <div id="dc-riasec-doughnut-wrap" class="hidden">
-        <div class="text-xs font-semibold text-slate-600 mb-2">RIASEC 흥미 비중 (원형)</div>
+        <div class="text-xs font-semibold text-slate-600 mb-2" data-en="RIASEC Interest Share (Doughnut)">RIASEC 흥미 비중 (원형)</div>
         <div class="h-[260px] relative"><canvas id="dc-riasec-doughnut" role="img" aria-label="RIASEC 흥미 비중 원형 차트"></canvas></div>
       </div>
       <div id="dc-riasec-radar-wrap" class="hidden">
-        <div class="text-xs font-semibold text-slate-600 mb-2">RIASEC 육각형 (레이더)</div>
+        <div class="text-xs font-semibold text-slate-600 mb-2" data-en="RIASEC Hexagon (Radar)">RIASEC 육각형 (레이더)</div>
         <div class="h-[260px] relative"><canvas id="dc-riasec-radar" role="img" aria-label="RIASEC 육각형 레이더 차트"></canvas></div>
       </div>
     </div>
     <div id="dc-via-bar-wrap" class="mt-5 hidden">
-      <div class="text-xs font-semibold text-slate-600 mb-2">VIA 강점 상위 8 (막대)</div>
+      <div class="text-xs font-semibold text-slate-600 mb-2" data-en="Top 8 VIA Strengths (Bar)">VIA 강점 상위 8 (막대)</div>
       <div class="h-[300px] relative"><canvas id="dc-via-bar" role="img" aria-label="VIA 강점 상위 8 막대 차트"></canvas></div>
     </div>
     <div id="dc-big5-bar-wrap" class="mt-5 hidden">
-      <div class="text-xs font-semibold text-slate-600 mb-2">Big5 — 나 vs 또래 규준 (막대)</div>
+      <div class="text-xs font-semibold text-slate-600 mb-2" data-en="Big Five — You vs. Peer Norms (Bar)">Big5 — 나 vs 또래 규준 (막대)</div>
       <div class="h-[280px] relative"><canvas id="dc-big5-bar" role="img" aria-label="Big5 또래 규준 비교 막대 차트"></canvas></div>
     </div>
   </div>
 
   <div id="via-wrap" class="bg-white rounded-2xl border border-slate-200 p-4 hidden">
-    <h3 class="font-semibold text-sm mb-3">VIA 24 강점 — 상위 5개</h3>
+    <h3 class="font-semibold text-sm mb-3" data-en="VIA 24 Strengths — Top 5">VIA 24 강점 — 상위 5개</h3>
     <div id="via-top5"></div>
   </div>
 
   <div id="grit-wrap" class="bg-white rounded-2xl border border-slate-200 p-4 hidden">
-    <h3 class="font-semibold text-sm mb-3">Grit-S 끈기 척도</h3>
+    <h3 class="font-semibold text-sm mb-3" data-en="Grit-S Perseverance Scale">Grit-S 끈기 척도</h3>
     <div class="grid grid-cols-3 gap-3">
       <div class="bg-emerald-50 rounded-lg p-3 text-center">
-        <div class="text-xs text-emerald-900">전체</div>
+        <div class="text-xs text-emerald-900" data-en="Overall">전체</div>
         <div class="text-2xl font-bold text-emerald-800"><span id="grit-overall">—</span><span class="text-xs">/100</span></div>
       </div>
       <div class="bg-slate-50 rounded-lg p-3 text-center">
-        <div class="text-xs text-slate-600">끈기</div>
+        <div class="text-xs text-slate-600" data-en="Perseverance">끈기</div>
         <div class="text-2xl font-bold"><span id="grit-perseverance">—</span></div>
       </div>
       <div class="bg-slate-50 rounded-lg p-3 text-center">
-        <div class="text-xs text-slate-600">열정 일관성</div>
+        <div class="text-xs text-slate-600" data-en="Consistency of passion">열정 일관성</div>
         <div class="text-2xl font-bold"><span id="grit-passion">—</span></div>
       </div>
     </div>
@@ -753,35 +754,35 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   </div>
 
   <div id="risk-wrap" class="bg-white rounded-2xl border border-slate-200 p-4 hidden">
-    <h3 class="font-semibold text-sm mb-3">정서 스크리닝 결과 (참고용)</h3>
-    <div class="text-xs text-amber-700 mb-3">⚠ 의료·임상 진단이 아닙니다. HIGH 시 전문가 상담을 권장합니다.</div>
+    <h3 class="font-semibold text-sm mb-3" data-en="Emotional Screening Results (for reference)">정서 스크리닝 결과 (참고용)</h3>
+    <div class="text-xs text-amber-700 mb-3" data-en="⚠ This is not a medical or clinical diagnosis. If HIGH, professional consultation is recommended.">⚠ 의료·임상 진단이 아닙니다. HIGH 시 전문가 상담을 권장합니다.</div>
     <div id="risk-list"></div>
   </div>
 
   <div class="bg-white rounded-2xl border border-slate-200 p-4">
-    <h3 class="font-semibold text-sm mb-3">통합 16유형 추천 진로군</h3>
+    <h3 class="font-semibold text-sm mb-3" data-en="Recommended Career Clusters for Your Integrated Type">통합 16유형 추천 진로군</h3>
     <div id="careers"></div>
     <div id="careers-auto" class="mt-3"></div>
     <div id="careers-live" class="mt-3"></div>
   </div>
 
   <div id="result-qa" class="bg-white rounded-2xl border border-slate-200 p-4">
-    <h3 class="font-semibold text-sm mb-1">🤖 내 결과 물어보기</h3>
-    <p class="text-xs text-slate-500 mb-3">결과에 대해 궁금한 점을 물어보면, AI가 <strong>내 검사 결과를 근거로</strong> 답해줘요.</p>
+    <h3 class="font-semibold text-sm mb-1" data-en="🤖 Ask About My Results">🤖 내 결과 물어보기</h3>
+    <p class="text-xs text-slate-500 mb-3" data-en="Ask anything about your results, and the AI will answer based on your own assessment data.">결과에 대해 궁금한 점을 물어보면, AI가 <strong>내 검사 결과를 근거로</strong> 답해줘요.</p>
     <div class="flex gap-2">
       <input id="qa-input" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="예: 나한테 맞는 직업은? / 공부는 어떻게?" />
-      <button id="qa-send" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">질문</button>
+      <button id="qa-send" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold" data-en="Ask">질문</button>
     </div>
     <div class="flex flex-wrap gap-1 mt-2">
-      <button class="qa-quick bg-slate-100 px-2 py-1 rounded text-xs">나한테 맞는 직업은?</button>
-      <button class="qa-quick bg-slate-100 px-2 py-1 rounded text-xs">내 강점은?</button>
-      <button class="qa-quick bg-slate-100 px-2 py-1 rounded text-xs">공부 어떻게 하면 좋아?</button>
+      <button class="qa-quick bg-slate-100 px-2 py-1 rounded text-xs" data-en="What jobs suit me?">나한테 맞는 직업은?</button>
+      <button class="qa-quick bg-slate-100 px-2 py-1 rounded text-xs" data-en="What are my strengths?">내 강점은?</button>
+      <button class="qa-quick bg-slate-100 px-2 py-1 rounded text-xs" data-en="How should I study?">공부 어떻게 하면 좋아?</button>
     </div>
     <div id="qa-answer" class="mt-3 text-sm text-slate-700 leading-relaxed"></div>
   </div>
 
   <div class="bg-slate-50 rounded-2xl p-4 text-xs text-slate-600">
-    <strong>사용된 검사 도구 (모두 공유저작 또는 비영리 학술 사용 허용)</strong>
+    <strong data-en="Assessment tools used (all public-domain or permitted for non-profit academic use)">사용된 검사 도구 (모두 공유저작 또는 비영리 학술 사용 허용)</strong>
     <ul class="mt-2 space-y-1">
       <li>· IPIP Big-Five-50 (Goldberg, public domain — ipip.ori.org)</li>
       <li>· Holland RIASEC 30 (이론 공개)</li>
@@ -797,8 +798,8 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 <!-- 도움 요청 — 상담 자원 안내 -->
 
 <div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
-  <p class="text-sm text-slate-500 mb-3">AI PIA 9페이지 공식 결과지를 확인하세요</p>
-  <button onclick="openFullReport()" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700">
+  <p class="text-sm text-slate-500 mb-3" data-en="View the official 9-page AI PIA report">AI PIA 9페이지 공식 결과지를 확인하세요</p>
+  <button onclick="openFullReport()" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700" data-en="📋 View Full Report">
     📋 전체 결과지 보기
   </button>
 </div>
@@ -807,20 +808,20 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 
 <section data-view="fullreport" class="hidden">
   <div class="bg-white rounded-2xl border border-slate-200 p-3 mb-3 flex items-center gap-3 sticky top-0 z-10">
-    <button onclick="showView('result')" class="px-4 py-2 bg-slate-200 rounded-lg text-sm font-semibold">← 통합 결과</button>
-    <span class="font-bold text-slate-700 flex-1">📋 AI PIA 전체 결과지</span>
-    <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">🖨️ 인쇄/PDF</button>
+    <button onclick="showView('result')" class="px-4 py-2 bg-slate-200 rounded-lg text-sm font-semibold" data-en="← Summary Results">← 통합 결과</button>
+    <span class="font-bold text-slate-700 flex-1" data-en="📋 AI PIA Full Report">📋 AI PIA 전체 결과지</span>
+    <div class="pia-lang-toggle" data-pia-lang-toggle style="display:inline-flex;align-items:center;gap:4px;background:#f3efe7;border:1px solid #e3d9c6;border-radius:9px;padding:2px;"><button type="button" class="pia-lang-btn" data-lang="ko" onclick="piaSetReportLang('ko')" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;border:0;cursor:pointer;">KR</button><button type="button" class="pia-lang-btn" data-lang="en" onclick="piaSetReportLang('en')" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;border:0;cursor:pointer;">EN</button></div><button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold" data-en="🖨️ Print/PDF">🖨️ 인쇄/PDF</button>
   </div>
   <div id="fullreport-wrap">
     <div id="pia-report">
 <!-- 도구 바 -->
 <div class="toolbar no-print">
-  <span>📋 AI PIA 검사 결과지</span>
-  <button id="btn-back-student" style="display:none;" onclick="window.close()">← 학생 페이지로</button>
-  <button onclick="window.open('AI_PIA_관리자.html','_blank')">🏫 관리자 페이지</button>
-  <button onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
-  <button onclick="document.querySelectorAll('.page').forEach((p,i)=>p.style.display=i==0?'':'none')">표지만</button>
-  <button onclick="document.querySelectorAll('.page').forEach(p=>p.style.display='')">전체 보기</button>
+  <span data-en="📋 AI PIA Assessment Report">📋 AI PIA 검사 결과지</span>
+  <button id="btn-back-student" style="display:none;" onclick="window.close()" data-en="← Back to student page">← 학생 페이지로</button>
+  <button onclick="window.open('AI_PIA_관리자.html','_blank')" data-en="🏫 Admin page">🏫 관리자 페이지</button>
+  <button onclick="window.print()" data-en="🖨️ Print / Save PDF">🖨️ 인쇄 / PDF 저장</button>
+  <button onclick="document.querySelectorAll('.page').forEach((p,i)=>p.style.display=i==0?'':'none')" data-en="Cover only">표지만</button>
+  <button onclick="document.querySelectorAll('.page').forEach(p=>p.style.display='')" data-en="View all">전체 보기</button>
 </div>
 <div style="height:46px" class="no-print"></div>
 
@@ -831,17 +832,17 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   <div class="cover-wrap">
     <div style="display:flex;justify-content:center;margin-bottom:12px;"><span style="display:inline-flex;align-items:center;background:#141413;border-radius:10px;padding:8px 16px;"><img src="https://yedam.kr/images/logo_h_white.png" alt="예담정보통신" style="height:24px;display:block;"></span></div>
     <div style="font-size:11px;color:#888;margin-bottom:6px;">교육부 인가 제262호 · 사)한국인간과학연구소</div>
-    <div class="cover-title-main">표준화 인·적성 검사</div>
-    <div class="cover-title-sub">AI PIA 검사 결과지</div>
-    <div class="cover-badge">중학교 기관제출용</div>
+    <div class="cover-title-main" data-en="Standardized Personality &amp; Aptitude Assessment">표준화 인·적성 검사</div>
+    <div class="cover-title-sub" data-en="AI PIA Assessment Report">AI PIA 검사 결과지</div>
+    <div class="cover-badge" data-en="Middle School — Institutional Copy">중학교 기관제출용</div>
     <div class="cover-info-box">
       <table>
-        <tr><td class="lbl">성  명</td><td class="val" id="cover-name">홍 길 동</td></tr>
-        <tr><td class="lbl">학  교</td><td class="val" id="cover-school">한국중학교</td></tr>
-        <tr><td class="lbl">학년/반</td><td class="val" id="cover-grade">2학년 3반 15번</td></tr>
-        <tr><td class="lbl">검사일</td><td class="val" id="cover-date">2026년 06월 13일</td></tr>
-        <tr><td class="lbl">발급일</td><td class="val" id="cover-issue">2026년 06월 14일</td></tr>
-        <tr><td class="lbl">담당기관</td><td class="val">AI PIA 교육연구원</td></tr>
+        <tr><td class="lbl" data-en="Name">성  명</td><td class="val" id="cover-name">홍 길 동</td></tr>
+        <tr><td class="lbl" data-en="School">학  교</td><td class="val" id="cover-school">한국중학교</td></tr>
+        <tr><td class="lbl" data-en="Grade / Class">학년/반</td><td class="val" id="cover-grade">2학년 3반 15번</td></tr>
+        <tr><td class="lbl" data-en="Test date">검사일</td><td class="val" id="cover-date">2026년 06월 13일</td></tr>
+        <tr><td class="lbl" data-en="Issue date">발급일</td><td class="val" id="cover-issue">2026년 06월 14일</td></tr>
+        <tr><td class="lbl" data-en="Issuing body">담당기관</td><td class="val">AI PIA 교육연구원</td></tr>
       </table>
     </div>
     <div style="margin-top:14px;font-size:11px;color:#888;line-height:2;">
@@ -856,27 +857,27 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 ================================= -->
 <div class="page" id="p-personality-summary">
   <div class="page-header">
-    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
-    <div class="page-title">■■ 인성검사 종합판정</div>
+    <div class="logo-area" data-en="AI PIA · Standardized Personality &amp; Aptitude Assessment">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title" data-en="■■ Personality Assessment — Overall Evaluation">■■ 인성검사 종합판정</div>
     <div class="page-num">2 / 10</div>
   </div>
 
   <!-- 기본 정보 -->
   <table class="info-table">
     <tr>
-      <td class="lbl">이름</td><td class="val" data-pia="name">홍길동</td>
-      <td class="lbl">학교</td><td class="val" data-pia="school">한국중학교</td>
-      <td class="lbl">학년/반</td><td class="val" data-pia="grade">2학년 3반</td>
+      <td class="lbl" data-en="Name">이름</td><td class="val" data-pia="name">홍길동</td>
+      <td class="lbl" data-en="School">학교</td><td class="val" data-pia="school">한국중학교</td>
+      <td class="lbl" data-en="Grade / Class">학년/반</td><td class="val" data-pia="grade">2학년 3반</td>
     </tr>
     <tr>
-      <td class="lbl">검사일</td><td class="val" data-pia="testDate">2026.06.13</td>
-      <td class="lbl">성별</td><td class="val" data-pia="gender">남</td>
-      <td class="lbl">연령</td><td class="val" data-pia="age">14세</td>
+      <td class="lbl" data-en="Test date">검사일</td><td class="val" data-pia="testDate">2026.06.13</td>
+      <td class="lbl" data-en="Gender">성별</td><td class="val" data-pia="gender">남</td>
+      <td class="lbl" data-en="Age">연령</td><td class="val" data-pia="age">14세</td>
     </tr>
   </table>
 
   <!-- 인성 종합 점수 레인보우 바 -->
-  <div class="section-title"><span class="section-icon">■</span> 인성 종합 점수</div>
+  <div class="section-title" data-en="■ Overall Personality Score"><span class="section-icon">■</span> 인성 종합 점수</div>
   <div style="padding:0 10px;">
     <!-- 점수 표시 -->
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px;">
@@ -903,15 +904,15 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   </div>
 
   <!-- 응답신뢰도 -->
-  <div class="section-title"><span class="section-icon">■</span> 응답 신뢰도 및 인성 종합 점수</div>
+  <div class="section-title" data-en="■ Response Reliability &amp; Overall Personality Score"><span class="section-icon">■</span> 응답 신뢰도 및 인성 종합 점수</div>
   <table class="data-table">
     <tr>
-      <th style="width:120px;">항목</th>
-      <th>내 점수</th>
-      <th>소속 평균</th>
-      <th>전체 평균</th>
-      <th style="width:200px;">점수 그래프</th>
-      <th>등급</th>
+      <th style="width:120px;" data-en="Item">항목</th>
+      <th data-en="My score">내 점수</th>
+      <th data-en="Group avg">소속 평균</th>
+      <th data-en="Overall avg">전체 평균</th>
+      <th style="width:200px;" data-en="Score graph">점수 그래프</th>
+      <th data-en="Grade">등급</th>
     </tr>
     <tr>
       <td class="row-head">응답 신뢰도</td>
@@ -928,25 +929,25 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   </table>
 
   <!-- 장점 / 권장사항 -->
-  <div class="section-title"><span class="section-icon">■</span> 종합 의견</div>
+  <div class="section-title" data-en="■ Overall Comments"><span class="section-icon">■</span> 종합 의견</div>
   <table class="data-table">
-    <tr><th style="width:80px;">구분</th><th>내용</th></tr>
+    <tr><th style="width:80px;" data-en="Category">구분</th><th data-en="Details">내용</th></tr>
     <tr>
-      <td class="row-head">장점</td>
+      <td class="row-head" data-en="Strengths">장점</td>
       <td style="text-align:left;">타인에 대한 공감 능력이 뛰어나고, 감정 조절 능력이 안정적입니다. 사회적 규범 준수 의지가 강하며 리더십 자질이 보입니다.</td>
     </tr>
     <tr>
-      <td class="row-head">권장사항</td>
+      <td class="row-head" data-en="Recommendations">권장사항</td>
       <td style="text-align:left;">충동적 판단을 억제하는 연습이 필요하며, 또래 갈등 상황에서 적절한 자기표현 방법을 학습하도록 지도가 필요합니다.</td>
     </tr>
   </table>
 
   <!-- P1~P9 요약 -->
-  <div class="section-title"><span class="section-icon">■</span> 인성 평가 항목별 점수 요약</div>
+  <div class="section-title" data-en="■ Personality Item Score Summary"><span class="section-icon">■</span> 인성 평가 항목별 점수 요약</div>
   <table class="data-table" id="p-summary-table">
     <tr>
-      <th>코드</th><th>항목</th><th>점수</th><th>소속평균</th>
-      <th style="width:160px;">점수 그래프</th><th>등급</th><th>부족 시 현상</th>
+      <th data-en="Code">코드</th><th data-en="Item">항목</th><th data-en="Score">점수</th><th data-en="Group avg">소속평균</th>
+      <th style="width:160px;" data-en="Score graph">점수 그래프</th><th data-en="Grade">등급</th><th data-en="If deficient">부족 시 현상</th>
     </tr>
     <tr>
       <td>P1</td><td class="row-head">공감 능력</td><td>85</td><td>70</td>
@@ -1010,8 +1011,8 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 ================================= -->
 <div class="page" id="p-personality-detail-1">
   <div class="page-header">
-    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
-    <div class="page-title">■■ 인성 항목 상세 분석</div>
+    <div class="logo-area" data-en="AI PIA · Standardized Personality &amp; Aptitude Assessment">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title" data-en="■■ Personality Items — Detailed Analysis">■■ 인성 항목 상세 분석</div>
     <div class="page-num">3 / 10</div>
   </div>
 
@@ -1042,7 +1043,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
         </div>
       </div>
       <table class="data-table" style="margin-top:8px;">
-        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr><th data-en="Category">구분</th><th data-en="Temperament">기질</th><th data-en="Maturity factor">성숙 요인</th><th data-en="Status">상태 판독</th><th data-en="Guidance">교육 방향</th></tr>
         <tr>
           <td class="row-head">P1</td>
           <td>감수형</td><td>사회적 인식</td><td>매우 양호</td>
@@ -1078,7 +1079,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
         </div>
       </div>
       <table class="data-table" style="margin-top:8px;">
-        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr><th data-en="Category">구분</th><th data-en="Temperament">기질</th><th data-en="Maturity factor">성숙 요인</th><th data-en="Status">상태 판독</th><th data-en="Guidance">교육 방향</th></tr>
         <tr>
           <td class="row-head">P2</td>
           <td>충동형</td><td>행동 억제</td><td>보통</td>
@@ -1111,7 +1112,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
         </div>
       </div>
       <table class="data-table" style="margin-top:8px;">
-        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr><th data-en="Category">구분</th><th data-en="Temperament">기질</th><th data-en="Maturity factor">성숙 요인</th><th data-en="Status">상태 판독</th><th data-en="Guidance">교육 방향</th></tr>
         <tr>
           <td class="row-head">P3</td>
           <td>원칙형</td><td>가치 내면화</td><td>양호</td>
@@ -1127,8 +1128,8 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 ================================= -->
 <div class="page" id="p-personality-detail-2">
   <div class="page-header">
-    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
-    <div class="page-title">■■ 인성 항목 상세 분석</div>
+    <div class="logo-area" data-en="AI PIA · Standardized Personality &amp; Aptitude Assessment">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title" data-en="■■ Personality Items — Detailed Analysis">■■ 인성 항목 상세 분석</div>
     <div class="page-num">4 / 10</div>
   </div>
 
@@ -1158,7 +1159,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
         </div>
       </div>
       <table class="data-table" style="margin-top:8px;">
-        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr><th data-en="Category">구분</th><th data-en="Temperament">기질</th><th data-en="Maturity factor">성숙 요인</th><th data-en="Status">상태 판독</th><th data-en="Guidance">교육 방향</th></tr>
         <tr><td class="row-head">P4</td><td>외향형</td><td>관계 유지</td><td>매우 양호</td><td style="text-align:left;">리더십 교육, 팀 프로젝트 주도 역할 부여</td></tr>
       </table>
     </div>
@@ -1187,7 +1188,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
         </div>
       </div>
       <table class="data-table" style="margin-top:8px;">
-        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr><th data-en="Category">구분</th><th data-en="Temperament">기질</th><th data-en="Maturity factor">성숙 요인</th><th data-en="Status">상태 판독</th><th data-en="Guidance">교육 방향</th></tr>
         <tr><td class="row-head">P5</td><td>성실형</td><td>목표 지향</td><td>보통</td><td style="text-align:left;">일정 관리 도구 활용, 단기 목표 설정 훈련</td></tr>
       </table>
     </div>
@@ -1219,7 +1220,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
         </div>
       </div>
       <table class="data-table" style="margin-top:8px;">
-        <tr><th>구분</th><th>기질</th><th>성숙 요인</th><th>상태 판독</th><th>교육 방향</th></tr>
+        <tr><th data-en="Category">구분</th><th data-en="Temperament">기질</th><th data-en="Maturity factor">성숙 요인</th><th data-en="Status">상태 판독</th><th data-en="Guidance">교육 방향</th></tr>
         <tr><td class="row-head">P6</td><td>불안형</td><td>정서 조절</td><td>주의 필요</td><td style="text-align:left;">명상·호흡법 훈련, 상담 교사 연계 필요</td></tr>
       </table>
     </div>
@@ -1231,8 +1232,8 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 ================================= -->
 <div class="page" id="p-personality-detail-3">
   <div class="page-header">
-    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
-    <div class="page-title">■■ 인성 항목 상세 분석 + 기질 레이더</div>
+    <div class="logo-area" data-en="AI PIA · Standardized Personality &amp; Aptitude Assessment">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title" data-en="■■ Personality Detail + Temperament Radar">■■ 인성 항목 상세 분석 + 기질 레이더</div>
     <div class="page-num">5 / 10</div>
   </div>
 
@@ -1255,7 +1256,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
             </svg>
           </div>
           <table class="data-table" style="margin-top:6px;">
-            <tr><th>기질</th><th>성숙요인</th><th>상태</th></tr>
+            <tr><th data-en="Temperament">기질</th><th data-en="Maturity factor">성숙요인</th><th data-en="Status">상태</th></tr>
             <tr><td>주도형</td><td>목표설정</td><td>양호</td></tr>
           </table>
         </div>
@@ -1277,7 +1278,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
             </svg>
           </div>
           <table class="data-table" style="margin-top:6px;">
-            <tr><th>기질</th><th>성숙요인</th><th>상태</th></tr>
+            <tr><th data-en="Temperament">기질</th><th data-en="Maturity factor">성숙요인</th><th data-en="Status">상태</th></tr>
             <tr><td>탐구형</td><td>발산적 사고</td><td>양호</td></tr>
           </table>
         </div>
@@ -1299,7 +1300,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
             </svg>
           </div>
           <table class="data-table" style="margin-top:6px;">
-            <tr><th>기질</th><th>성숙요인</th><th>상태</th></tr>
+            <tr><th data-en="Temperament">기질</th><th data-en="Maturity factor">성숙요인</th><th data-en="Status">상태</th></tr>
             <tr><td>탐색형</td><td>진로 인식</td><td>보통</td></tr>
           </table>
         </div>
@@ -1308,7 +1309,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 
     <!-- 오각형 레이더 -->
     <div>
-      <div class="section-title"><span class="section-icon">■</span> 기질 오각 분석</div>
+      <div class="section-title" data-en="■ Temperament Pentagon Analysis"><span class="section-icon">■</span> 기질 오각 분석</div>
       <div style="display:flex;justify-content:center;margin:10px 0;">
         <svg width="260" height="260" viewBox="0 0 260 260" id="radar-svg">
           <!-- 축선 (5각형 3단계) -->
@@ -1330,7 +1331,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
         </svg>
       </div>
       <table class="data-table" style="margin-top:8px;">
-        <tr><th>축</th><th>항목</th><th>점수</th><th>등급</th></tr>
+        <tr><th data-en="Axis">축</th><th data-en="Item">항목</th><th data-en="Score">점수</th><th data-en="Grade">등급</th></tr>
         <tr><td>감정</td><td>리더십·창의</td><td>82</td><td><span class="grade-box grade-A">A</span></td></tr>
         <tr><td>정서</td><td>정서안정·공감</td><td>78</td><td><span class="grade-box grade-B-plus">B+</span></td></tr>
         <tr><td>본능</td><td>자기통제</td><td>65</td><td><span class="grade-box grade-B">B</span></td></tr>
@@ -1346,15 +1347,15 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 ================================= -->
 <div class="page" id="p-intelligence">
   <div class="page-header">
-    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
-    <div class="page-title">◆ 지능·진로·적성 평가 종합</div>
+    <div class="logo-area" data-en="AI PIA · Standardized Personality &amp; Aptitude Assessment">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title" data-en="◆ Intelligence · Career · Aptitude — Overall">◆ 지능·진로·적성 평가 종합</div>
     <div class="page-num">6 / 10</div>
   </div>
 
   <div class="section-title-diamond">◆ 지능 평가 종합 분석표</div>
   <table class="data-table" style="margin-bottom:12px;">
     <tr>
-      <th>구분</th><th>종합 지능 지수</th><th>가장 높은 영역</th><th>가장 낮은 영역</th><th>종합 등급</th>
+      <th data-en="Category">구분</th><th data-en="Composite IQ index">종합 지능 지수</th><th data-en="Highest domain">가장 높은 영역</th><th data-en="Lowest domain">가장 낮은 영역</th><th data-en="Overall grade">종합 등급</th>
     </tr>
     <tr>
       <td class="row-head" data-pia="name">홍길동</td>
@@ -1365,11 +1366,11 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
     </tr>
   </table>
 
-  <div class="section-title"><span class="section-icon">■</span> 다중 지능 영역별 분석</div>
+  <div class="section-title" data-en="■ Multiple Intelligences — Analysis by Domain"><span class="section-icon">■</span> 다중 지능 영역별 분석</div>
   <table class="data-table">
     <tr>
-      <th>능력 영역</th><th>점수</th><th>소속평균</th>
-      <th style="width:180px;">그래프</th><th>등급</th><th>특성</th>
+      <th data-en="Ability domain">능력 영역</th><th data-en="Score">점수</th><th data-en="Group avg">소속평균</th>
+      <th style="width:180px;" data-en="Graph">그래프</th><th data-en="Grade">등급</th><th data-en="Traits">특성</th>
     </tr>
     <tr data-intel="verbal">
       <td class="row-head">언어적 지능</td><td>92</td><td>71</td>
@@ -1451,8 +1452,8 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 ================================= -->
 <div class="page" id="p-career">
   <div class="page-header">
-    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
-    <div class="page-title">◆ 진로·적성 계열별 분석</div>
+    <div class="logo-area" data-en="AI PIA · Standardized Personality &amp; Aptitude Assessment">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title" data-en="◆ Career &amp; Aptitude — Analysis by Track">◆ 진로·적성 계열별 분석</div>
     <div class="page-num">7 / 10</div>
   </div>
 
@@ -1461,12 +1462,12 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 
   <table class="data-table" style="margin-bottom:12px;">
     <tr>
-      <th style="width:80px;">계열</th>
-      <th>항목</th>
-      <th>기준점수</th>
-      <th>받은점수</th>
-      <th style="width:200px;">비교 그래프</th>
-      <th>적합도</th>
+      <th style="width:80px;" data-en="Track">계열</th>
+      <th data-en="Item">항목</th>
+      <th data-en="Benchmark">기준점수</th>
+      <th data-en="Your score">받은점수</th>
+      <th style="width:200px;" data-en="Comparison graph">비교 그래프</th>
+      <th data-en="Fit">적합도</th>
     </tr>
     <!-- 인문계 -->
     <tr><td class="row-head" rowspan="3" style="vertical-align:middle;background:#f3ebe1;color:#7a3a20;font-weight:700;">인문계</td>
@@ -1550,9 +1551,9 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   </table>
 
   <!-- 계열 종합 의견 -->
-  <div class="section-title"><span class="section-icon">■</span> 계열 적합도 종합 의견</div>
+  <div class="section-title" data-en="■ Track Fit — Overall Comments"><span class="section-icon">■</span> 계열 적합도 종합 의견</div>
   <table class="data-table">
-    <tr><th style="width:70px;">계열</th><th>종합 점수</th><th>적합 등급</th><th>비고</th></tr>
+    <tr><th style="width:70px;" data-en="Track">계열</th><th data-en="Total score">종합 점수</th><th data-en="Fit grade">적합 등급</th><th data-en="Notes">비고</th></tr>
     <tr><td class="row-head">인문계</td><td id="apt-hum-sc">82</td><td><span class="grade-box grade-A" id="apt-hum-g">A · 매우 적합</span></td><td style="text-align:left;">언어·사회 계열 진학 강력 추천</td></tr>
     <tr><td class="row-head">자연계</td><td id="apt-nat-sc">64</td><td><span class="grade-box grade-B" id="apt-nat-g">B · 보통</span></td><td style="text-align:left;">수리 보완 후 재검토 권장</td></tr>
     <tr><td class="row-head">예능계</td><td id="apt-art-sc">75</td><td><span class="grade-box grade-B-plus" id="apt-art-g">B+ · 적합</span></td><td style="text-align:left;">음악·미디어 계열 고려 가능</td></tr>
@@ -1570,16 +1571,16 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 ================================= -->
 <div class="page" id="p-learning">
   <div class="page-header">
-    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
-    <div class="page-title">◆ 학습역량성취도</div>
+    <div class="logo-area" data-en="AI PIA · Standardized Personality &amp; Aptitude Assessment">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title" data-en="◆ Learning Competency &amp; Achievement">◆ 학습역량성취도</div>
     <div class="page-num">8 / 10</div>
   </div>
 
   <div class="section-title-diamond">◆ 과목별 학습 역량 분석</div>
   <table class="data-table" style="margin-bottom:14px;">
     <tr>
-      <th>과목</th><th>역량점수</th><th>전국평균</th>
-      <th style="width:220px;">레인보우 위치</th><th>등급</th>
+      <th data-en="Subject">과목</th><th data-en="Competency score">역량점수</th><th data-en="National avg">전국평균</th>
+      <th style="width:220px;" data-en="Rainbow position">레인보우 위치</th><th data-en="Grade">등급</th>
     </tr>
     <tr data-subject="korean">
       <td class="row-head">국 어</td><td data-sc>88</td><td>72</td>
@@ -1647,9 +1648,9 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   </table>
 
   <!-- 학습 역량 세부 -->
-  <div class="section-title"><span class="section-icon">■</span> 학습 역량 세부 분석</div>
+  <div class="section-title" data-en="■ Learning Competency — Detailed Analysis"><span class="section-icon">■</span> 학습 역량 세부 분석</div>
   <table class="data-table">
-    <tr><th>역량</th><th>점수</th><th>평균</th><th style="width:180px;">그래프</th><th>등급</th><th>코멘트</th></tr>
+    <tr><th data-en="Competency">역량</th><th data-en="Score">점수</th><th data-en="Average">평균</th><th style="width:180px;" data-en="Graph">그래프</th><th data-en="Grade">등급</th><th data-en="Comment">코멘트</th></tr>
     <tr data-lskill="focus">
       <td class="row-head">집중력</td><td>78</td><td>65</td>
       <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:78%"></div></div><span class="prog-bar-val">78</span></div></td>
@@ -1683,7 +1684,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   </table>
   <p style="font-size:9px;color:#999;margin-top:4px;">※ 세부 역량 점수는 성격(Big5)·끈기(Grit)·다중지능 검사를 바탕으로 추정한 값이며, '평균' 칼럼은 참고용 표준 기준치입니다.</p>
 
-  <div class="section-title"><span class="section-icon">■</span> 학습역량 종합 의견</div>
+  <div class="section-title" data-en="■ Learning Competency — Overall Comments"><span class="section-icon">■</span> 학습역량 종합 의견</div>
   <p class="desc-para" data-desc="concl">결과를 바탕으로 학습·진로 방향을 정리합니다.</p>
 </div>
 
@@ -1692,23 +1693,23 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 ================================= -->
 <div class="page" id="p-wellbeing">
   <div class="page-header">
-    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
-    <div class="page-title">◆ 정서·마음 건강 스크리닝</div>
+    <div class="logo-area" data-en="AI PIA · Standardized Personality &amp; Aptitude Assessment">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title" data-en="◆ Emotional &amp; Mental Health Screening">◆ 정서·마음 건강 스크리닝</div>
     <div class="page-num">9 / 10</div>
   </div>
 
-  <div class="section-title"><span class="section-icon">■</span> 정서 스크리닝 종합 (참고용)</div>
+  <div class="section-title" data-en="■ Emotional Screening Summary (for reference)"><span class="section-icon">■</span> 정서 스크리닝 종합 (참고용)</div>
   <p style="font-size:10.5px;color:#666;margin-bottom:8px;">※ 본 결과는 의료·임상 진단이 아닌 선별(스크리닝) 참고 자료입니다. HIGH 판정 시 전문가 상담을 권장합니다.</p>
   <table class="data-table" style="margin-bottom:14px;">
-    <tr><th>척도</th><th>측정 영역</th><th>점수</th><th>판정</th><th style="text-align:left;">해석</th></tr>
+    <tr><th data-en="Scale">척도</th><th data-en="Measured area">측정 영역</th><th data-en="Score">점수</th><th data-en="Result">판정</th><th style="text-align:left;" data-en="Interpretation">해석</th></tr>
     <tr><td class="row-head">CES-D-10</td><td>우울 (지난 1주)</td><td id="sc-cesd">7 / 30</td><td><span class="grade-box grade-A" id="sc-cesd-g">정상</span></td><td style="text-align:left;">경미한 정상 변동 범위로 양호합니다.</td></tr>
     <tr><td class="row-head">PHQ-A</td><td>청소년 우울 (2주)</td><td id="sc-phqa">5 / 27</td><td><span class="grade-box grade-B-plus" id="sc-phqa-g">경도</span></td><td style="text-align:left;">생활 리듬·수면을 가볍게 관찰해 주세요.</td></tr>
     <tr><td class="row-head">GAD-7</td><td>불안 (2주)</td><td id="sc-gad">4 / 21</td><td><span class="grade-box grade-A" id="sc-gad-g">정상</span></td><td style="text-align:left;">유의 수준 이하로 안정적입니다.</td></tr>
   </table>
 
-  <div class="section-title"><span class="section-icon">■</span> 마음 건강 셀프케어 5가지</div>
+  <div class="section-title" data-en="■ 5 Self-Care Tips for Mental Health"><span class="section-icon">■</span> 마음 건강 셀프케어 5가지</div>
   <table class="data-table" style="margin-bottom:14px;">
-    <tr><th style="width:90px;">영역</th><th style="text-align:left;">오늘 해볼 수 있는 작은 실천</th></tr>
+    <tr><th style="width:90px;" data-en="Area">영역</th><th style="text-align:left;" data-en="A small action you can try today">오늘 해볼 수 있는 작은 실천</th></tr>
     <tr><td class="row-head">수면</td><td style="text-align:left;">매일 같은 시간에 자고 일어나기 — 잠들기 1시간 전 화면 끄기</td></tr>
     <tr><td class="row-head">움직임</td><td style="text-align:left;">하루 15분 산책·스트레칭으로 기분을 환기하기</td></tr>
     <tr><td class="row-head">감정표현</td><td style="text-align:left;">하루 한 줄 감정 일기 또는 믿을 수 있는 사람에게 말하기</td></tr>
@@ -1718,7 +1719,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 
   <div class="section-title-diamond">◆ 도움이 필요할 때 — 24시간 무료</div>
   <table class="data-table" style="margin-bottom:14px;">
-    <tr><th>채널</th><th>번호</th><th style="text-align:left;">이용 안내</th></tr>
+    <tr><th data-en="Channel">채널</th><th data-en="Number">번호</th><th style="text-align:left;" data-en="How to use">이용 안내</th></tr>
     <tr><td class="row-head">청소년상담</td><td><strong>1388</strong></td><td style="text-align:left;">전화·문자·카톡, 청소년 누구나</td></tr>
     <tr><td class="row-head">자살예방상담</td><td><strong>109</strong></td><td style="text-align:left;">24시간 위기 상담</td></tr>
     <tr><td class="row-head">정신건강위기</td><td><strong>1577-0199</strong></td><td style="text-align:left;">정신건강 위기 시 즉시 연결</td></tr>
@@ -1733,14 +1734,14 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
 
 <div class="page" id="p-conclusion">
   <div class="page-header">
-    <div class="logo-area">AI PIA · 표준화 인·적성 검사</div>
-    <div class="page-title">◆ 종합 결론 및 진로 추천</div>
+    <div class="logo-area" data-en="AI PIA · Standardized Personality &amp; Aptitude Assessment">AI PIA · 표준화 인·적성 검사</div>
+    <div class="page-title" data-en="◆ Overall Conclusion &amp; Career Recommendations">◆ 종합 결론 및 진로 추천</div>
     <div class="page-num">10 / 10</div>
   </div>
 
   <div class="section-title-diamond">◆ AI PIA 종합 평가 요약</div>
   <table class="data-table" style="margin-bottom:12px;">
-    <tr><th>평가 영역</th><th>종합 점수</th><th>등급</th><th>비고</th></tr>
+    <tr><th data-en="Assessment area">평가 영역</th><th data-en="Total score">종합 점수</th><th data-en="Grade">등급</th><th data-en="Notes">비고</th></tr>
     <tr><td class="row-head">인성 검사</td><td id="cc-pers-sc">72</td><td><span class="grade-box grade-B-plus" id="cc-pers-gr">B+</span></td><td style="text-align:left;">사회성·공감 강점, 정서안정 보완 필요</td></tr>
     <tr><td class="row-head">지능 지수</td><td id="cc-iq-sc">IQ 112</td><td><span class="grade-box grade-A" id="cc-iq-gr">A</span></td><td style="text-align:left;">언어·대인지능 탁월</td></tr>
     <tr><td class="row-head">진로 적성</td><td id="cc-apt-sc">82</td><td><span class="grade-box grade-A" id="cc-apt-gr">A</span></td><td style="text-align:left;">인문계열 최적합</td></tr>
@@ -1748,9 +1749,9 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
     <tr style="background:#f3ebe1;"><td class="row-head bold">종 합</td><td><strong id="cc-all-sc">78</strong></td><td><span class="grade-box grade-B-plus" id="cc-all-gr">B+</span></td><td style="text-align:left;font-weight:700;">인문·사회·미디어 계열 강력 추천</td></tr>
   </table>
 
-  <div class="section-title"><span class="section-icon">■</span> AI 진로 추천 직업군 (Top 5)</div>
+  <div class="section-title" data-en="■ AI Career Recommendations (Top 5)"><span class="section-icon">■</span> AI 진로 추천 직업군 (Top 5)</div>
   <table class="data-table" style="margin-bottom:12px;">
-    <tr><th>순위</th><th>직업군</th><th>관련 계열</th><th>적합 근거</th></tr>
+    <tr><th data-en="Rank">순위</th><th data-en="Career cluster">직업군</th><th data-en="Related track">관련 계열</th><th data-en="Basis for fit">적합 근거</th></tr>
     <tr><td>1위</td><td class="row-head" id="top5-1">언론인 / 방송 PD</td><td>인문·미디어</td><td style="text-align:left;">언어지능 A+, 사회성 A+, 리더십 A</td></tr>
     <tr><td>2위</td><td class="row-head" id="top5-2">사회복지사 / 상담사</td><td>사회·복지</td><td style="text-align:left;">공감능력 A, 도덕성 B+, 대인지능 A</td></tr>
     <tr><td>3위</td><td class="row-head" id="top5-3">교사 / 교육 전문가</td><td>사범·교육</td><td style="text-align:left;">리더십 A, 사회성 A+, 언어지능 A+</td></tr>
@@ -1758,28 +1759,28 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
     <tr><td>5위</td><td class="row-head" id="top5-5">음악 치료사</td><td>예능·복지</td><td style="text-align:left;">음악지능 B+, 공감능력 A, 정서 관심</td></tr>
   </table>
 
-  <div class="section-title"><span class="section-icon">■</span> 담당교사·부모님께 드리는 종합 코멘트</div>
+  <div class="section-title" data-en="■ Overall Comments for Teachers &amp; Parents"><span class="section-icon">■</span> 담당교사·부모님께 드리는 종합 코멘트</div>
   <table class="data-table">
-    <tr><th>구분</th><th>내용</th></tr>
+    <tr><th data-en="Category">구분</th><th data-en="Details">내용</th></tr>
     <tr>
-      <td class="row-head">강점 지원</td>
+      <td class="row-head" data-en="Strength support">강점 지원</td>
       <td style="text-align:left;">사회성과 언어 능력이 뛰어난 학생입니다. 토론, 독서, 발표 기회를 늘려 강점을 극대화해주세요.</td>
     </tr>
     <tr>
-      <td class="row-head">보완 사항</td>
+      <td class="row-head" data-en="Areas to improve">보완 사항</td>
       <td style="text-align:left;">정서 안정(P6 C등급)이 또래 평균 이하입니다. 규칙적 수면과 운동, 학교 상담 교사와의 정기 면담을 권장합니다.</td>
     </tr>
     <tr>
-      <td class="row-head">주의 사항</td>
+      <td class="row-head" data-en="Cautions">주의 사항</td>
       <td style="text-align:left;">자기통제 능력이 평균 수준이므로 과도한 스마트폰·게임 사용을 제한하고 자기 조절 루틴을 형성할 수 있도록 도와주세요.</td>
     </tr>
   </table>
 
   <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:30px;padding-top:20px;border-top:1px solid #ddd;">
     <div style="font-size:11px;color:#555;">
-      <strong>발급 기관 :</strong> AI PIA 교육연구원<br>
-      <strong>검사 도구 :</strong> 표준화 인·적성 검사 v4.2 (교육부 인가 제262호)<br>
-      <strong>발급일 :</strong> 2026년 06월 14일
+      <strong data-en="Issuing body:">발급 기관 :</strong> AI PIA 교육연구원<br>
+      <strong data-en="Assessment tool:">검사 도구 :</strong> 표준화 인·적성 검사 v4.2 (교육부 인가 제262호)<br>
+      <strong data-en="Issue date:">발급일 :</strong> 2026년 06월 14일
     </div>
   </div>
 </div>
@@ -3340,7 +3341,26 @@ function big5ToMbti(){
   function pk(v,hi,lo){ return (Number(v)>=50)?hi:lo; }
   var t=pk(sc.E,'E','I')+pk(sc.O,'N','S')+pk(sc.A,'F','T')+pk(sc.C,'J','P');
   var NM={INTJ:'전략가',INTP:'논리술사',ENTJ:'통솔자',ENTP:'변론가',INFJ:'옹호자',INFP:'중재자',ENFJ:'선도자',ENFP:'활동가',ISTJ:'현실주의자',ISFJ:'수호자',ESTJ:'경영자',ESFJ:'집정관',ISTP:'장인',ISFP:'모험가',ESTP:'사업가',ESFP:'연예인'};
-  return { type:t, name:(NM[t]||'') };
+  var DS={
+   INTJ:{d:'멀리 내다보고 큰 그림으로 계획하는 전략가. 독립적이고 분석적.',s:'전략적 사고·장기계획·통찰',c:'연구·기획·엔지니어·전략컨설팅'},
+   INTP:{d:'원리와 아이디어 탐구를 즐기는 논리술사. 호기심과 분석력이 강점.',s:'논리·창의·문제해결',c:'개발·연구·데이터·발명'},
+   ENTJ:{d:'목표를 향해 사람과 자원을 이끄는 통솔자. 결단력과 추진력.',s:'리더십·실행·조직화',c:'경영·창업·법조·프로젝트리더'},
+   ENTP:{d:'새로운 가능성을 즐기는 변론가. 재치와 발상이 빠름.',s:'창의·설득·기획',c:'기획·마케팅·창업·기자'},
+   INFJ:{d:'의미와 사람을 깊이 생각하는 옹호자. 통찰과 공감.',s:'통찰·공감·가치지향',c:'상담·교육·작가·사회혁신'},
+   INFP:{d:'자기 가치와 진정성을 중시하는 중재자. 상상력과 따뜻함.',s:'창의·공감·진정성',c:'예술·글쓰기·상담·디자인'},
+   ENFJ:{d:'사람의 성장을 돕고 이끄는 선도자. 따뜻한 리더십.',s:'대인·동기부여·소통',c:'교육·HR·코칭·기획'},
+   ENFP:{d:'열정과 호기심으로 사람과 아이디어를 잇는 활동가.',s:'창의·열정·대인',c:'마케팅·기획·방송·교육'},
+   ISTJ:{d:'성실하고 책임감 있게 일하는 현실주의자. 꼼꼼함과 신뢰.',s:'성실·체계·책임',c:'행정·회계·법무·공학'},
+   ISFJ:{d:'주변을 세심히 돌보는 수호자. 헌신과 배려.',s:'배려·꼼꼼·헌신',c:'간호·교육·복지·행정'},
+   ESTJ:{d:'질서와 효율로 일을 완수하는 경영자. 실행력과 책임.',s:'관리·실행·조직화',c:'경영·행정·군·금융'},
+   ESFJ:{d:'사람을 챙기고 협력을 끌어내는 집정관. 친화력.',s:'협력·배려·소통',c:'교육·서비스·HR·간호'},
+   ISTP:{d:'직접 다루고 해결하는 장인. 손재주와 침착함.',s:'분석·실용·문제해결',c:'엔지니어·정비·디자인·체육'},
+   ISFP:{d:'감각과 자유를 사랑하는 모험가. 예술적 감수성.',s:'감성·예술·유연',c:'예술·디자인·체육·요리'},
+   ESTP:{d:'현장에서 빠르게 움직이는 사업가. 추진력과 순발력.',s:'실행·도전·순발력',c:'영업·창업·스포츠·현장직'},
+   ESFP:{d:'분위기를 살리는 연예인형. 활기와 표현력.',s:'표현·사교·활력',c:'공연·방송·서비스·이벤트'}
+  };
+  var info=DS[t]||{d:'',s:'',c:''};
+  return { type:t, name:(NM[t]||''), desc:info.d, strength:info.s, career:info.c };
 }
 function inferIntegratedType() {
   const big5 = state.results.big5.scores;
@@ -4291,7 +4311,7 @@ function renderResult() {
   el('hero-icon').textContent = type.icon;
   el('hero-type').textContent = type.name;
   el('hero-desc').textContent = type.desc;
-  try{ var _mb=big5ToMbti(); var _me=el('hero-mbti'); if(_me){ _me.innerHTML = _mb ? '<span style="display:inline-flex;align-items:center;gap:5px;background:var(--rust-tint,#f6e9e2);color:var(--rust-deep,#c4623f);font-weight:800;font-size:12.5px;padding:3px 11px;border-radius:999px;letter-spacing:.02em;">\uD83E\uDDE9 '+_mb.type+(_mb.name?(' \u00B7 '+_mb.name):'')+'</span> <span style="font-size:11px;color:#94a3b8;margin-left:6px;">Big5 \uAE30\uBC18 \uCD94\uC815 \uC720\uD615(\uCC38\uACE0\uC6A9)</span>' : ''; } }catch(e){}
+  try{ var _mb=big5ToMbti(); var _me=el('hero-mbti'); if(_me){ _me.innerHTML = _mb ? '<span style="display:inline-flex;align-items:center;gap:5px;background:var(--rust-tint,#f6e9e2);color:var(--rust-deep,#c4623f);font-weight:800;font-size:12.5px;padding:3px 11px;border-radius:999px;letter-spacing:.02em;">\uD83E\uDDE9 '+_mb.type+(_mb.name?(' \u00B7 '+_mb.name):'')+'</span> <span style="font-size:11px;color:#94a3b8;margin-left:6px;">Big5 \uAE30\uBC18 \uCD94\uC815 \uC720\uD615(\uCC38\uACE0\uC6A9)</span>'+(_mb.desc?('<div style="font-size:12px;color:#475569;margin-top:5px;line-height:1.5;">'+_mb.desc+(_mb.strength?(' <b style=\'color:#c4623f\'>\uAC15\uC810</b> '+_mb.strength):'')+(_mb.career?(' \u00B7 <b style=\'color:#6a9bcc\'>\uC5B4\uC6B8\uB9AC\uB294 \uC9C4\uB85C</b> '+_mb.career):'')+'</div>'):'') : ''; } }catch(e){}
   el('hero-grade').textContent = reliability.grade;
   el('hero-grade-label').textContent = reliability.label;
   el('hero-completed').innerHTML = reliability.completed.length ? reliability.completed.map(c => `<span class="pill bg-slate-100 text-slate-700 mr-1 mb-1">${c}</span>`).join('') : '<span class="text-xs text-slate-400">완료된 검사 없음</span>';
@@ -8441,5 +8461,60 @@ window._ttsClean=function(s){
   return s.replace(/\s{2,}/g,' ').trim();
 };
 </script>
+
+<script id="pia-report-i18n">
+(function(){
+  var KEY = 'pia_report_lang';
+  // scope: only elements inside the result + fullreport views
+  function scopes(){
+    return [
+      document.querySelector('section[data-view="result"]'),
+      document.querySelector('section[data-view="fullreport"]')
+    ].filter(Boolean);
+  }
+  function applyLang(lang){
+    scopes().forEach(function(root){
+      root.querySelectorAll('[data-en]').forEach(function(el){
+        // cache original Korean once
+        if(el.getAttribute('data-ko')===null){
+          el.setAttribute('data-ko', el.innerHTML);
+        }
+        if(lang==='en'){
+          el.innerHTML = el.getAttribute('data-en');
+        }else{
+          el.innerHTML = el.getAttribute('data-ko');
+        }
+      });
+      // toggle button active styling
+      root.querySelectorAll('[data-pia-lang-toggle] .pia-lang-btn').forEach(function(b){
+        var on = (b.getAttribute('data-lang')===lang);
+        b.style.background = on ? '#d97757' : 'transparent';
+        b.style.color = on ? '#fff' : '#6b6457';
+      });
+    });
+  }
+  window.piaSetReportLang = function(lang){
+    if(lang!=='en') lang='ko';
+    try{ localStorage.setItem(KEY, lang); }catch(e){}
+    applyLang(lang);
+  };
+  function init(){
+    var saved='ko';
+    try{ saved = localStorage.getItem(KEY) || 'ko'; }catch(e){}
+    window.piaSetReportLang(saved);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  }else{ init(); }
+  // re-apply whenever report becomes visible (openFullReport/showView re-render some nodes)
+  document.addEventListener('click', function(){
+    setTimeout(function(){
+      var saved='ko'; try{ saved=localStorage.getItem(KEY)||'ko'; }catch(e){}
+      if(saved==='en') applyLang('en');
+    }, 120);
+  }, true);
+})();
+</script>
+
 </body>
 </html>
