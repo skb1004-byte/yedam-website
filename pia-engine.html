@@ -8,7 +8,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="pia-catalog.js?v=1"></script>
 <style>
+.catcard details{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper);margin-bottom:8px}
+.catcard summary{font-weight:700;font-size:13px;cursor:pointer;color:var(--ink)}
+.catitem{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px;margin-top:8px}
+.catitem a{color:var(--rust);font-weight:700;text-decoration:none;font-size:13.5px}
+.catitem .m{font-size:12px;color:var(--ink-soft);margin-top:2px}
+.catitem .n{font-size:11.5px;color:var(--mid);margin-top:2px}
+.cbadge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--paper-3);color:var(--ink-soft);white-space:nowrap}
+.cbadge.ok{background:var(--moss-tint);color:#43543a}
+.cbadge.warn{background:#f6e9c2;color:#7a5a12}
+.cbadge.err{background:var(--warn-tint);color:var(--warn)}
+.cbadge.data{background:#e9e1f3;color:#5a3a86}
+.cbadge.off{background:var(--moss-tint);color:#43543a}
+.catctrl{margin-top:8px;border-top:1px solid var(--paper-3);padding-top:8px;display:flex;flex-direction:column;gap:5px}
+.catctrl input{font-size:12px;padding:6px 8px}
+.catrow{display:flex;gap:5px}.catrow input{flex:1}.catrow button{padding:6px 10px;font-size:12px}
+.catst{font-size:11.5px;color:var(--ink-soft)}
+.csum{font-size:12px;background:var(--moss-tint);color:#43543a;border:1px solid #cdd9bf;border-radius:9px;padding:8px 11px;margin-bottom:8px}
 :root{
   --ink:#141413;--ink-soft:#3d3d3a;--paper:#faf9f5;--paper-2:#f3f1ea;--paper-3:#efece2;
   --line:#e3e0d6;--mid:#b0aea5;--rust:#d97757;--rust-deep:#c4623f;--rust-tint:#f6e9e2;
@@ -122,6 +140,13 @@ button.sm{padding:7px 13px;font-size:13px}
       <button id="hfTest" class="sky sm">🔌 HF 토큰·LLM 테스트</button>
       <span class="status" id="statusHF"></span>
     </div>
+  </div>
+
+  <!-- 4) 무료 오픈 API 카탈로그 -->
+  <div class="card catcard">
+    <h2>🌐 무료 오픈 API 카탈로그</h2>
+    <div class="sub">키 불필요·CORS 항목은 자동으로 연결을 확인하고, 키가 필요한 항목은 키·엔드포인트를 입력·저장할 수 있습니다. (오프라인 가능 항목은 망분리 환경용)</div>
+    <div id="api-catalog"></div>
   </div>
 </div>
 
@@ -258,7 +283,62 @@ $('freeBtn').onclick=useFree;
 $('saveExtra').onclick=saveExtra;
 $('saveHF').onclick=saveHF;
 $('hfTest').onclick=testHF;
+function isOfflineItem(item){ if(!item||item.auto)return false; return (typeof OFFLINE_ITEMS!=='undefined') && OFFLINE_ITEMS.indexOf(item.name)>=0; }
+function catBadge(item){
+  if(item.auto) return '<span class="cbadge warn api-status" data-ping="'+item.ping+'">⏳ 확인중</span>';
+  var t=(item.limit||'')+' '+(item.notes||'');
+  if(/인증키|키|유료|토큰|트라이얼|체험|승인/.test(t)) return '<span class="cbadge">🔑 키 필요</span>';
+  if(/내장|퍼블릭|공개|오픈소스|자체호스팅|다운로드/.test(t)) return '<span class="cbadge data">📦 자료·오프라인</span>';
+  return '<span class="cbadge">🔗 수동</span>';
+}
+function renderApiCatalog(){
+  var wrap=document.getElementById('api-catalog'); if(!wrap||typeof FREE_API_CATALOG==='undefined')return;
+  var cfg=loadCfg(); var keys=cfg.apiKeys||{};
+  var autoCnt=FREE_API_CATALOG.reduce(function(s,c){return s+c.items.filter(function(i){return i.auto;}).length;},0);
+  var offCnt=FREE_API_CATALOG.reduce(function(s,c){return s+c.items.filter(function(i){return isOfflineItem(i);}).length;},0);
+  wrap.innerHTML='<div class="csum" id="api-auto-summary">⚡ 자동 연동(키 불필요·CORS) '+autoCnt+'개 확인 중…</div>'+
+    '<div class="csum" style="background:var(--sky-tint);color:#3c5a78;border-color:#cfe0ee">💾 오프라인 가능 <b>'+offCnt+'</b>개 — 망분리 환경에서 내려받아 자체호스팅/내장</div>'+
+    FREE_API_CATALOG.map(function(cat){
+      var hasAuto=cat.items.some(function(i){return i.auto;});
+      return '<details'+(hasAuto?' open':'')+'><summary>'+esc(cat.category)+' ('+cat.items.length+')</summary>'+
+      cat.items.map(function(item){
+        var saved=keys[item.name]||{}; var ctrl='';
+        if(!item.auto){
+          var ep=(saved.endpoint!=null?saved.endpoint:(item.ping||item.url||''));
+          ctrl='<div class="catctrl" data-cat-name="'+encodeURIComponent(item.name)+'">'+
+            '<input class="cat-key" type="password" placeholder="API Key (필요시)" value="'+esc(saved.key||'')+'">'+
+            '<div class="catrow"><input class="cat-ep" placeholder="테스트 엔드포인트(URL)" value="'+esc(ep)+'">'+
+            '<button class="sky" onclick="catTestItem(this)">테스트</button>'+
+            '<button onclick="catSaveItem(this)">저장</button></div>'+
+            '<div class="cat-st catst"></div></div>';
+        }
+        return '<div class="catitem"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">'+
+          '<a href="'+esc(item.url)+'" target="_blank" rel="noopener">'+esc(item.name)+'</a>'+
+          '<span style="display:flex;gap:4px;flex-wrap:wrap">'+catBadge(item)+(isOfflineItem(item)?'<span class="cbadge off">💾 오프라인</span>':'')+'</span></div>'+
+          '<div class="m">'+esc(item.models||'')+'</div><div class="n">'+esc(item.notes||'')+'</div>'+ctrl+'</div>';
+      }).join('')+'</details>';
+    }).join('');
+  autoConnectCatalog();
+}
+async function autoConnectCatalog(){
+  window._catStatus=window._catStatus||{};
+  var nodes=document.querySelectorAll('#api-catalog .api-status[data-ping]');
+  function paint(n,st){ n.className='cbadge '+(st==='ok'?'ok':st==='warn'?'warn':'err'); n.textContent=st==='ok'?'✅ 연결됨':st==='warn'?'⚠ 지연':'⚠ 미응답'; }
+  var ok=0,done=0;
+  await Promise.all(Array.prototype.map.call(nodes,async function(node){
+    var url=node.getAttribute('data-ping');
+    if(window._catStatus[url]){paint(node,window._catStatus[url]); if(window._catStatus[url]==='ok')ok++; done++; return;}
+    async function tryPing(){ var c=new AbortController(); var t=setTimeout(function(){c.abort();},8000); try{var r=await fetch(url,{signal:c.signal,mode:'cors'}); return r.ok?'ok':'warn';}catch(e){return 'err';}finally{clearTimeout(t);} }
+    var st=await tryPing(); if(st==='err'){ await new Promise(function(r){setTimeout(r,600);}); st=await tryPing(); }
+    window._catStatus[url]=st; paint(node,st); if(st==='ok')ok++; done++;
+  }));
+  var sum=document.getElementById('api-auto-summary'); if(sum) sum.innerHTML='⚡ 자동 연동 결과: <b>'+ok+' / '+done+'</b> 연결됨 (키 불필요·CORS)';
+}
+function _catWrapOf(btn){ return btn.closest('[data-cat-name]'); }
+function catSaveItem(btn){ var box=_catWrapOf(btn); if(!box)return; var name=decodeURIComponent(box.getAttribute('data-cat-name')); var key=((box.querySelector('.cat-key')||{}).value||'').trim(); var ep=((box.querySelector('.cat-ep')||{}).value||'').trim(); var cfg=loadCfg(); cfg.apiKeys=cfg.apiKeys||{}; cfg.apiKeys[name]={key:key,endpoint:ep}; try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg));}catch(e){} var st=box.querySelector('.cat-st'); if(st)st.textContent='✅ 저장됨 (이 브라우저)'; }
+async function catTestItem(btn){ var box=_catWrapOf(btn); if(!box)return; var name=decodeURIComponent(box.getAttribute('data-cat-name')); var key=((box.querySelector('.cat-key')||{}).value||'').trim(); var ep=((box.querySelector('.cat-ep')||{}).value||'').trim(); var st=box.querySelector('.cat-st'); if(!ep){if(st)st.textContent='⚠ 엔드포인트(URL)를 입력하세요.';return;} if(st)st.textContent='🔌 '+name+' 테스트 중…'; var headers={'Accept':'application/json'}; if(key)headers['Authorization']='Bearer '+key; var c=new AbortController(); var t=setTimeout(function(){c.abort();},8000); try{ var r=await fetch(ep,{signal:c.signal,headers:headers}); if(st)st.textContent=r.ok?('✅ 연결 성공 ('+r.status+') — "저장" 누르면 키 보관'):('⚠ 응답 '+r.status+' — 키/권한/URL 확인'); }catch(e){ if(st)st.textContent='⚠ 연결 실패(CORS·네트워크·키). 브라우저 직접 호출이 막힌 API는 프록시 필요.'; }finally{clearTimeout(t);} }
 init();
+renderApiCatalog();
 </script>
 </body>
 </html>
