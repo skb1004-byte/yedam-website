@@ -2344,6 +2344,7 @@ async function callLLM(prompt, systemPrompt = '') {
     return await callOnDevice(prompt, systemPrompt);
   }
 
+  try { window.__piaLLMErr = ''; } catch(_){}
   const messages = [];
   if (systemPrompt) messages.push({ role:'system', content: systemPrompt });
   messages.push({ role:'user', content: prompt });
@@ -2453,7 +2454,9 @@ async function callLLM(prompt, systemPrompt = '') {
     const data = await res.json();
 
     if (mode === 'GEMINI_FLASH') {
-      return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const _t = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!_t) { try { window.__piaLLMErr = 'Gemini 응답 텍스트 없음 · finishReason=' + (data?.candidates?.[0]?.finishReason || '?') + (data?.promptFeedback?.blockReason ? (' · block=' + data.promptFeedback.blockReason) : ''); } catch(_){} }
+      return _t;
     }
     if (mode === 'CLAUDE_HAIKU') {
       return data?.content?.[0]?.text || '';
@@ -2462,6 +2465,7 @@ async function callLLM(prompt, systemPrompt = '') {
     return data?.choices?.[0]?.message?.content || '';
   } catch(e) {
     console.warn('LLM 호출 실패:', e.message);
+    try { window.__piaLLMErr = e.message; } catch(_){}
     return null; // 폴백 신호
   }
 }
@@ -4782,7 +4786,7 @@ function initSettings() {
       const r = await callLLM('한 문장으로 짧게 자기소개 해줘.', '너는 친절한 한국어 비서야. 한국어로만 답해.');
       el('cfg-status').textContent = (r && r.trim())
         ? '✅ ' + label + ' 연결 성공 — 키가 반영되어 자유대화에 적용됩니다. (영구 저장)'
-        : '⚠ ' + label + ' 저장됨 — 응답이 비어있어요(키/모델/쿼터 확인). 실패 시 무료 AI→로컬로 자동 폴백됩니다.';
+        : '⚠ ' + label + ' — ' + (window.__piaLLMErr ? ('사유: ' + String(window.__piaLLMErr).slice(0,200)) : '응답이 비어있어요(키/모델/쿼터 확인)') + ' · 실패 시 무료 AI→로컬 폴백.';
     } catch (e) {
       el('cfg-status').textContent = '⚠ ' + label + ' 저장됨 — 연결 실패(키·엔드포인트·CORS 확인). 자유대화는 무료 AI→로컬로 자동 폴백됩니다.';
     }
@@ -4799,7 +4803,7 @@ function initSettings() {
     const saved = state.cfg; state.cfg = tmp;
     try {
       const r = (m==='AUTO_FREE') ? await callLLMFree('안녕','한 단어로만 답해.') : await callLLM('한 문장으로 짧게 자기소개 해줘.', '너는 친절한 한국어 비서야. 한국어로만 답해.');
-      el('cfg-status').textContent = (r && r.trim()) ? '✅ ' + label + ' 연동 성공 — "저장"을 누르면 영구 적용됩니다.' : '⚠ ' + label + ' 응답 비어있음(키/모델/쿼터 확인).';
+      el('cfg-status').textContent = (r && r.trim()) ? '✅ ' + label + ' 연동 성공 — "저장"을 누르면 영구 적용됩니다.' : ('⚠ ' + label + ' — ' + (window.__piaLLMErr ? ('사유: ' + String(window.__piaLLMErr).slice(0,200)) : '응답 비어있음(키/모델/쿼터 확인)'));
     } catch(e) { el('cfg-status').textContent = '⚠ ' + label + ' 연동 실패(키·엔드포인트·CORS 확인).'; }
     finally { state.cfg = saved; }
   });
