@@ -1872,6 +1872,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
     <span id="cfg-status" class="self-center text-xs text-slate-500"></span>
   </div>
   <p class="text-xs text-slate-500 -mt-2">키가 없어도 <strong>무료 AI 자동 연결</strong> 한 번이면 자유대화에 바로 적용됩니다. (무료 공용 게이트웨이라 호출 간격 제한이 있을 수 있어요)</p>
+  <p id="cfg-engine-help" class="text-xs text-slate-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed" style="display:none"></p>
   <label class="block text-xs text-slate-600">무료 AI 모델
     <select id="cfg-free-model" class="ml-1 border border-slate-300 rounded px-2 py-1 text-xs">
       <option value="openai">openai (기본)</option>
@@ -2378,7 +2379,7 @@ async function callLLM(prompt, systemPrompt = '') {
       const sysText = systemPrompt ? systemPrompt + '\n\n' : '';
       body = JSON.stringify({
         contents:[{ parts:[{ text: sysText + prompt }] }],
-        generationConfig:{ maxOutputTokens: 250, temperature: 0.7 }
+        generationConfig:{ maxOutputTokens: 512, temperature: 0.8 }
       });
     } else if (mode === 'CLAUDE_HAIKU') {
       url = 'https://api.anthropic.com/v1/messages';
@@ -4731,11 +4732,28 @@ function initHuggingFace(){
 
 function initSettings() {
   const modeSel = el('cfg-mode');
+  const ENGINE_HELP = {
+    GEMINI_FLASH: '<b>Google Gemini 2.0 Flash</b> · <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>① 위 링크 접속(구글 로그인) → <b>Create API key</b> → 키 복사 ② 위 <b>API Key</b> 칸에 붙여넣기 ③ <b>저장</b> 클릭. 엔드포인트·모델(gemini-2.0-flash)은 자동 설정됩니다. 🔒 키는 <b>이 브라우저에만</b> 저장되고 소스코드에는 포함되지 않습니다. 보안을 위해 AI Studio에서 키를 <b>yedam.kr</b> 도메인(HTTP 리퍼러)으로 제한하는 것을 권장합니다.',
+    SOLAR: '<b>Upstage SOLAR</b> · <a href="https://console.upstage.ai/" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>콘솔에서 API Key 발급 → 위 칸에 붙여넣고 저장. OpenAI 호환. 🔒 키는 이 브라우저에만 저장됩니다.',
+    HYPERCLOVA: '<b>HyperCLOVA X</b> · <a href="https://www.ncloud.com/product/aiService/clovaStudio" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">CLOVA Studio 열기 ↗</a><br>CLOVA Studio에서 키/엔드포인트 발급 → 위 Endpoint·API Key 입력 후 저장. 🔒 키는 이 브라우저에만 저장됩니다.',
+    CLAUDE_HAIKU: '<b>Anthropic Claude Haiku</b>(유료) · <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>콘솔에서 API Key 발급 → 위 칸에 붙여넣고 저장. 🔒 키는 이 브라우저에만 저장됩니다.',
+    OPENROUTER_FREE: '<b>OpenRouter</b> · <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>키 발급 → 위 칸에 붙여넣고 저장. 무료 모델은 호출 제한이 있을 수 있습니다. 🔒 키는 이 브라우저에만 저장됩니다.',
+    CEREBRAS: '<b>Cerebras</b> · <a href="https://cloud.cerebras.ai/" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>키 발급 → 위 칸에 붙여넣고 저장. 🔒 키는 이 브라우저에만 저장됩니다.',
+    TOGETHER: '<b>Together AI</b> · <a href="https://api.together.xyz/settings/api-keys" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">키 발급 페이지 열기 ↗</a><br>키 발급 → 위 칸에 붙여넣고 저장. 🔒 키는 이 브라우저에만 저장됩니다.',
+    GITHUB_MODELS: '<b>GitHub Models</b> · <a href="https://github.com/settings/tokens" target="_blank" rel="noopener" style="color:#2563eb;font-weight:800">토큰 발급 페이지 열기 ↗</a><br>Fine-grained PAT(모델 권한) 발급 → 위 칸에 붙여넣고 저장. 프록시(pia-proxy) 설정 시 서버 키로 사용. 🔒 키는 이 브라우저에만 저장됩니다.'
+  };
+  function renderEngineHelp(){
+    var h = el('cfg-engine-help'); if(!h) return;
+    var txt = ENGINE_HELP[modeSel.value];
+    if(txt){ h.innerHTML = txt; h.style.display=''; } else { h.innerHTML=''; h.style.display='none'; }
+  }
   modeSel.addEventListener('change', () => {
     const p = PROVIDERS[modeSel.value] || PROVIDERS.LOCAL;
     el('cfg-endpoint').value = p.endpoint;
     el('cfg-model').value = p.model;
+    renderEngineHelp();
   });
+  setTimeout(renderEngineHelp, 0);
   el('cfg-save').addEventListener('click', async () => {
     const m = modeSel.value;
     state.cfg = Object.assign({}, state.cfg, { mode:m, endpoint:el('cfg-endpoint').value.trim(), key:el('cfg-key').value.trim(), model:el('cfg-model').value.trim(), _engineChosen:true });
