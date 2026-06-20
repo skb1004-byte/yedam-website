@@ -4472,7 +4472,7 @@ function initChat() {
     if (!ttsToggle.checked) return;
     if (!('speechSynthesis' in window)) return;
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance((window._ttsClean?window._ttsClean(text):text));
     if (ttsVoice) u.voice = ttsVoice;
     u.lang = 'ko-KR';
     u.rate = 0.96; u.pitch = 1.02;
@@ -8259,6 +8259,25 @@ body:not(.dark-mode){
     }
   },true);
 })();
+</script>
+
+<script id="tts-emoji-clean">
+window._ttsClean=function(s){
+  if(s==null) return s; s=String(s);
+  try{
+    s=s.replace(/[\u{1F000}-\u{1FAFF}]/gu,' ')
+       .replace(/[\u{2600}-\u{27BF}]/gu,' ')
+       .replace(/[\u{2B00}-\u{2BFF}]/gu,' ')
+       .replace(/[\u{1F1E6}-\u{1F1FF}]/gu,' ')
+       .replace(/[\u{1F3FB}-\u{1F3FF}]/gu,'')
+       .replace(/[\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{2640}\u{2642}\u{2695}\u{2696}\u{2708}]/gu,'')
+       .replace(/[←-⇿✀-➿]/g,' ');
+  }catch(e){
+    s=s.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,' ').replace(/[☀-➿⬀-⯿️‍]/g,' ');
+  }
+  s=s.replace(/^\s*(?:AI\s*PIA|피아|PIA|에이아이)\s*[:\uFF1A]\s*/i,'');
+  return s.replace(/\s{2,}/g,' ').trim();
+};
 </script>
 </body>
 </html>
