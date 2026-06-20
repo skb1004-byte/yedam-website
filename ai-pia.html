@@ -8152,5 +8152,98 @@ function openFullReport() {
 }
 
 </script>
+
+<style id="paper-unify">
+/* ============================================================
+   PAPER UNIFY — 어두운 표면을 홈페이지와 동일한 밝은 페이퍼/흰 카드 톤으로 깊게 통일.
+   기능(JS/DOM) 변경 없음. CSS만. 컨테이너 단위로 안전하게 override.
+   강조색(러스트/스카이/모스)·로고 배지·모달 스크림은 유지.
+   ============================================================ */
+
+/* --- 1) 다크(#141413) 액션 버튼 → 홈페이지 primary(러스트)로 통일.
+       (.bg-slate-900 은 모두 흰글자 버튼이라 러스트+흰글자로 대비 보장) --- */
+button.bg-slate-900,
+a.bg-slate-900,
+.bg-slate-900[onclick],
+[class*="bg-slate-900"]:is(button,a){
+  background-color:var(--rust)!important;
+  color:#fff!important;
+  border:1px solid transparent!important;
+}
+button.bg-slate-900:hover,
+a.bg-slate-900:hover,
+[class*="bg-slate-900"]:is(button,a):hover{
+  background-color:var(--rust-deep)!important;
+}
+/* 비활성(disabled) 다크 버튼은 음소거 톤으로 (밝은 회색+어두운 글자, 대비 OK) */
+button.bg-slate-900[disabled],
+button.bg-slate-900.cursor-not-allowed,
+.bg-slate-400.cursor-not-allowed{
+  background-color:var(--paper-3)!important;
+  color:var(--mid)!important;
+}
+
+/* --- 2) 활성 내비/탭 (다크 #141413) → 러스트로. 흰글자 유지(대비 OK) --- */
+[aria-pressed="true"]{
+  background:var(--rust)!important;
+  color:#fff!important;
+  border-color:var(--rust)!important;
+}
+.aud-btn[aria-selected="true"]{
+  background:var(--rust)!important;
+  color:#fff!important;
+  border-color:var(--rust)!important;
+}
+
+/* --- 3) 채팅 버블: 사용자(다크) → 러스트 표면 + 흰글자, AI/상대는 흰카드 --- */
+.bg-slate-900.rounded-2xl,
+.rounded-2xl.bg-slate-900{
+  background-color:var(--rust)!important;
+  color:#fff!important;
+}
+
+/* --- 4) 입력/셀렉트/textarea: 흰 배경 + --line 보더 + 어두운 글자(대비 보장) --- */
+input:not([type=checkbox]):not([type=radio]):not([type=range]),
+select,
+textarea{
+  background-color:#fff!important;
+  color:var(--ink)!important;
+  border:1px solid var(--line)!important;
+}
+input::placeholder,
+textarea::placeholder{ color:var(--mid)!important; }
+select option{ background-color:#fff!important; color:var(--ink)!important; }
+
+/* --- 5) 카드/섹션 표면 확인: 흰 카드 + 은은한 hover 그림자(기존 톤 유지 보강) --- */
+header.bg-white,
+section.bg-white,
+.bg-white.rounded-2xl,
+.bg-white.rounded-xl{
+  background-color:#fffdf8!important;
+  border:1px solid var(--line)!important;
+}
+
+/* --- 6) 결과지/차트 영역: 흰 배경 보장 (차트 캔버스 위 텍스트 대비 확보) --- */
+#pia-report .page{ background:#fff!important; }
+#pia-report,
+#pia-report .page{ color:var(--ink)!important; }
+.chart-wrap,
+canvas{ background:transparent!important; }
+
+/* --- 7) 다크 표면 위에 의도된 흰글자가 '밝은 배경'으로 바뀐 경우의 안전망:
+       러스트 표면(버튼/탭/사용자버블/섹션타이틀)은 위에서 흰글자 유지했으므로
+       나머지 .text-white 가 페이퍼 카드 위에 고립되지 않도록 카드 컨텍스트에서 보정.
+       (러스트/다크 배지 자식은 제외) --- */
+.bg-white .text-white:not([class*="bg-"]):not(.section-title):not(.grade-box){
+  /* 흰 카드 직속의 무배경 흰글자만 어둡게 — 색배경 칩/배지는 건드리지 않음 */
+  color:inherit;
+}
+
+/* --- 8) 다크 토글이 있더라도 기본은 밝은 페이퍼 유지: body 기본 강제 --- */
+body:not(.dark-mode){
+  background-color:var(--paper)!important;
+  color:var(--ink)!important;
+}
+</style>
 </body>
 </html>

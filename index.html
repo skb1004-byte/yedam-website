@@ -1,1389 +1,857 @@
 <!DOCTYPE html>
-<html lang="ko" data-lang="ko">
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>㈜예담정보통신 | AI 에듀테크 · 교육 IT 전문기업</title>
-<meta name="description" content="㈜예담정보통신 - 11년간 비상교육·현대NGV·국방부와 함께한 교육 IT 전문기업. AI PIA, AI ClassBoard, AREX-Climbing, AI 디지털 간판 솔루션.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://yedam.kr/">
+<meta name="description" content="㈜예담정보통신 - 11년간 비상교육·현대NGV·국방부와 함께한 교육 IT 전문기업. AI PIA, AI ClassBoard, AREX-Climbing, AI 디지털 간판으로 교육의 다음을 함께 설계합니다.">
+<meta name="theme-color" content="#faf9f5">
 <meta property="og:title" content="㈜예담정보통신 | AI 에듀테크 · 교육 IT 전문기업">
-<meta property="og:description" content="11년간 비상교육·현대NGV·국방부와 함께한 교육 IT 전문기업. AI PIA, AI ClassBoard, AREX, AI 디지털 간판.">
-<meta property="og:image" content="https://yedam.kr/images/hero_masterplan.jpg">
-<meta property="og:locale" content="ko_KR">
-<meta property="og:site_name" content="예담정보통신">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="㈜예담정보통신 | AI 에듀테크">
-<meta name="twitter:description" content="11년간 비상교육·현대NGV·국방부와 함께한 교육 IT 전문기업.">
-<meta name="twitter:image" content="https://yedam.kr/images/hero_masterplan.jpg">
-<link rel="canonical" href="https://yedam.kr/">
+<meta property="og:description" content="교육의 다음을 함께 설계합니다 — 비상교육·현대NGV·국방부와 함께한 11년의 신뢰.">
+<meta property="og:type" content="website">
+<link rel="icon" href="images/favicon_256.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="icon" href="favicon.ico">
-<link rel="icon" type="image/png" sizes="256x256" href="images/favicon_256.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-/* ═══════════ DESIGN TOKENS ═══════════ */
+/* ========== DESIGN TOKENS (YEDAM × Claude) ========== */
 :root{
-  /* ── 2026 Bright Trend Theme ── */
-  --bg:#ffffff; --bg2:#f8fafc; --bg3:#f1f5f9;
-  --navy:#0f172a; --navy2:#1e293b; --navy3:#334155;
-  --indigo:#4f46e5; --indigo2:#6366f1; --violet:#7c3aed;
-  --cyan:#06b6d4; --pink:#ec4899;
-  --gold:#f59e0b; --gold2:#fbbf24; --gold3:#fcd34d;
-  --text:#0f172a; --text2:#475569; --text3:#94a3b8;
-  --white:#ffffff;
-  --glass:rgba(255,255,255,.72); --glass2:rgba(255,255,255,.92);
-  --glass-b:rgba(148,163,184,.18); --glass-b2:rgba(79,70,229,.15);
-  --f:'Pretendard','Noto Sans KR',-apple-system,sans-serif;
-  --r:12px; --rl:20px;
-  --sh:0 4px 24px rgba(15,23,42,.08);
-  --shg:0 24px 80px rgba(15,23,42,.12);
+  /* 중립(따뜻한 페이퍼) */
+  --ink:#141413;
+  --ink-soft:#3d3d3a;
+  --paper:#faf9f5;
+  --paper-2:#f3f1ea;
+  --paper-3:#efece2;
+  --line:#e3e0d6;
+  --mid:#b0aea5;
+  /* 강조(앤트로픽 액센트) */
+  --rust:#d97757;
+  --rust-deep:#c4623f;
+  --sky:#6a9bcc;
+  --moss:#788c5d;
+  --rust-tint:#f6e9e2; --sky-tint:#e6eef6; --moss-tint:#e9eee1;
+  /* 형태 */
+  --r:14px; --r-lg:22px; --r-sm:9px;
+  --sh:0 2px 10px rgba(20,20,19,.05), 0 12px 32px rgba(20,20,19,.06);
+  --sh-lg:0 8px 24px rgba(20,20,19,.08), 0 28px 60px rgba(20,20,19,.10);
+  --maxw:1180px;
+  --font-head:'Poppins','Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-body:'Lora','Noto Sans KR',Georgia,serif;
+  --font-ui:'Noto Sans KR',-apple-system,sans-serif;
+  /* 다크 토큰 */
+  --d-line:rgba(250,249,245,.14);
 }
+
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:var(--f);background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
-::selection{background:var(--indigo);color:#fff}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-body);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  overflow-x:hidden;
+  font-size:1.0625rem;
+  -webkit-font-smoothing:antialiased;
+}
 img{max-width:100%;height:auto;display:block}
 a{text-decoration:none;color:inherit}
+ul{list-style:none}
+::selection{background:var(--rust);color:#fff}
+h1,h2,h3,h4{font-family:var(--font-head);letter-spacing:-.02em;line-height:1.15;font-weight:700}
+:focus-visible{outline:3px solid var(--rust);outline-offset:3px;border-radius:4px}
 
-/* ═══════════ PROGRESS BAR ═══════════ */
-#progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--indigo),var(--violet),var(--cyan));width:0%;z-index:9999;transition:width .1s linear;box-shadow:0 0 12px rgba(79,70,229,.5)}
-
-/* ═══════════ CUSTOM SCROLLBAR ═══════════ */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--bg3)}
-::-webkit-scrollbar-thumb{background:var(--indigo);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:var(--violet)}
-
-/* ═══════════ SCROLL REVEAL ═══════════ */
-.rv{opacity:0;transform:translateY(36px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
-.rv.d1{transition-delay:.1s} .rv.d2{transition-delay:.2s} .rv.d3{transition-delay:.3s}
-.rv.d4{transition-delay:.4s} .rv.d5{transition-delay:.5s} .rv.d6{transition-delay:.6s}
-.rv.visible{opacity:1;transform:none}
-.rv-left{opacity:0;transform:translateX(-40px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
-.rv-left.visible{opacity:1;transform:none}
-.rv-right{opacity:0;transform:translateX(40px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
-.rv-right.visible{opacity:1;transform:none}
-.rv-scale{opacity:0;transform:scale(.92);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
-.rv-scale.visible{opacity:1;transform:none}
-
-/* ═══════════ GLOBAL NOISE ═══════════ */
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");opacity:.25;pointer-events:none;z-index:0}
-
-/* ═══════════ CURSOR GLOW ═══════════ */
-#cursor-glow{position:fixed;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(79,70,229,.06) 0%,transparent 70%);pointer-events:none;z-index:1;transform:translate(-50%,-50%);transition:transform .15s ease;will-change:transform}
-
-/* ═══════════ GNB ═══════════ */
-.gnb{position:fixed;top:0;left:0;right:0;z-index:500;transition:all .4s cubic-bezier(.16,1,.3,1);padding-top:8px;background:rgba(255,255,255,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(148,163,184,.12)}
-.gnb.scrolled{background:rgba(255,255,255,.95);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-bottom:1px solid rgba(148,163,184,.15);padding-top:0;box-shadow:0 8px 32px rgba(15,23,42,.08)}
-.gnb-inner{max-width:1440px;margin:0 auto;padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:72px}
-.gnb-logo img{height:34px;width:auto}
-.gnb-nav{display:flex;gap:36px;list-style:none;align-items:center}
-.gnb-nav a{font-size:12.5px;font-weight:600;color:var(--text2);letter-spacing:.04em;transition:color .25s;text-transform:uppercase}
-.gnb-nav a:hover{color:var(--indigo)}
-.gnb-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;font-size:12px;font-weight:700;padding:10px 22px;border-radius:50px;letter-spacing:.04em;transition:all .25s;text-transform:uppercase}
-.gnb-cta:hover{background:linear-gradient(135deg,var(--violet),var(--indigo));transform:translateY(-1px);box-shadow:0 8px 24px rgba(79,70,229,.35)}
-.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;border:none;background:none}
-.hamburger span{display:block;width:24px;height:2px;background:var(--text);border-radius:2px;transition:all .3s}
-.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
-.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
-.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
-
-/* ═══════════ MOBILE MENU ═══════════ */
-.mob-menu{display:none;position:fixed;inset:0;background:rgba(248,250,252,.97);backdrop-filter:blur(24px);z-index:490;flex-direction:column;align-items:center;justify-content:center;gap:36px;opacity:0;transition:opacity .3s}
-.mob-menu.open{opacity:1}
-.mob-link{font-size:24px;font-weight:700;color:var(--navy2);letter-spacing:-.01em;transition:color .2s}
-.mob-link:hover{color:var(--indigo)}
-.mob-close{position:absolute;top:28px;right:28px;font-size:28px;color:var(--text2);cursor:pointer;background:none;border:none}
-
-/* ═══════════ HERO ═══════════ */
-.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding:0;background:linear-gradient(145deg,#f0f4ff 0%,#fef9ff 40%,#f0fdff 100%)}
-#hero-canvas{position:absolute;inset:0;z-index:1}
-.hero-orb{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:2}
-.hero-orb-1{width:800px;height:800px;background:radial-gradient(circle,rgba(139,92,246,.22),transparent 70%);top:-20%;right:-10%;animation:orbFloat1 18s ease-in-out infinite}
-.hero-orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(6,182,212,.18),transparent 70%);bottom:0%;left:-8%;animation:orbFloat2 22s ease-in-out infinite}
-.hero-orb-3{width:500px;height:500px;background:radial-gradient(circle,rgba(236,72,153,.16),transparent 70%);top:30%;left:15%;animation:orbFloat3 16s ease-in-out infinite}
-@keyframes orbFloat1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,60px) scale(1.1)}}
-@keyframes orbFloat2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,-40px) scale(1.08)}}
-@keyframes orbFloat3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,50px) scale(1.06)}}
-.hero-grid-line{position:absolute;inset:0;background-image:linear-gradient(rgba(79,70,229,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,70,229,.04) 1px,transparent 1px);background-size:60px 60px;z-index:2}
-.hero-inner{position:relative;z-index:3;width:100%;max-width:1440px;margin:0 auto;padding:120px 40px 80px}
-.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
-.hero-kicker{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);margin-bottom:28px;padding:8px 18px;border:1px solid rgba(79,70,229,.25);border-radius:50px;background:rgba(79,70,229,.06);backdrop-filter:blur(8px)}
-.kicker-dot{width:6px;height:6px;border-radius:50%;background:var(--indigo);animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.6}}
-.hero-h1{font-size:clamp(44px,5.5vw,80px);font-weight:900;line-height:1.08;letter-spacing:-.03em;margin-bottom:28px;color:var(--navy)}
-.hl{background:linear-gradient(135deg,var(--indigo),var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-desc{font-size:16px;color:var(--text2);line-height:1.8;margin-bottom:40px;max-width:560px;font-weight:400}
-.hero-btns{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:56px}
-.btn-p{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;font-size:14px;font-weight:800;padding:16px 36px;border-radius:50px;letter-spacing:.02em;transition:all .3s;box-shadow:0 8px 32px rgba(79,70,229,.3)}
-.btn-p:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(79,70,229,.45)}
-.btn-s{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.8);color:var(--navy);font-size:14px;font-weight:600;padding:16px 36px;border-radius:50px;border:1.5px solid rgba(148,163,184,.25);transition:all .3s;backdrop-filter:blur(8px)}
-.btn-s:hover{background:#fff;border-color:var(--indigo2);color:var(--indigo);transform:translateY(-2px)}
-.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid rgba(148,163,184,.18);border-radius:16px;overflow:hidden;background:rgba(255,255,255,.75);backdrop-filter:blur(20px);box-shadow:0 4px 24px rgba(15,23,42,.08)}
-.stat-item{padding:24px 20px;text-align:center;border-right:1px solid rgba(148,163,184,.15);position:relative}
-.stat-item:last-child{border-right:none}
-.stat-num{font-size:36px;font-weight:900;background:linear-gradient(135deg,var(--indigo),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-.03em}
-.stat-num span{font-size:18px;font-weight:700}
-.stat-lbl{font-size:11px;color:var(--text3);margin-top:6px;letter-spacing:.04em;font-weight:500}
-.hero-img{position:relative}
-.hero-img img{width:100%;border-radius:20px;box-shadow:0 32px 80px rgba(15,23,42,.15);border:1px solid rgba(148,163,184,.15)}
-.hero-img-glow{position:absolute;inset:-20px;background:radial-gradient(circle at 50% 50%,rgba(79,70,229,.12),transparent 70%);z-index:-1;border-radius:40px}
-.hero-img-cap{font-size:12px;color:var(--text3);text-align:center;margin-top:16px;letter-spacing:.04em}
-.hero-badge{position:absolute;top:-16px;right:-16px;background:rgba(79,70,229,.1);border:1px solid rgba(79,70,229,.25);backdrop-filter:blur(16px);border-radius:12px;padding:14px 18px;font-size:11px;font-weight:700;color:var(--indigo);letter-spacing:.04em;text-align:center}
-.hero-badge strong{display:block;font-size:22px;color:var(--navy);font-weight:900;letter-spacing:-.02em;margin-bottom:2px}
-
-/* ═══════════ TICKER / MARQUEE ═══════════ */
-.ticker-wrap{background:linear-gradient(90deg,var(--indigo),var(--violet),var(--indigo));overflow:hidden;padding:14px 0;position:relative;z-index:10}
-.ticker-inner{display:flex;white-space:nowrap;animation:tickerScroll 30s linear infinite}
-.ticker-inner:hover{animation-play-state:running}
-.ticker-item{display:inline-flex;align-items:center;gap:0;padding:0 32px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9)}
-.ticker-sep{color:rgba(255,255,255,.35);margin:0 8px}
-
-/* ═══════════ PARTNER LOGO MARQUEE ═══════════ */
-.logo-marquee-wrap{background:var(--bg2);overflow:hidden;padding:48px 0;border-top:1px solid rgba(148,163,184,.12);border-bottom:1px solid rgba(148,163,184,.12)}
-.logo-marquee-label{text-align:center;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:36px}
-.logo-track{display:flex;white-space:nowrap;animation:marqueeScroll 35s linear infinite}
-.logo-track:hover{animation-play-state:running}
-.logo-track-reverse{animation-direction:reverse}
-.logo-item{display:inline-flex;align-items:center;justify-content:center;padding:0 48px;opacity:.65;transition:opacity .3s,filter .3s;filter:grayscale(0.3)}
-.logo-item:hover{opacity:1;filter:grayscale(0)}
-.logo-item img{height:36px;width:auto;max-width:120px;object-fit:contain}
-.logo-item-text{display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:800;color:var(--navy2);letter-spacing:-.01em;white-space:nowrap}
-.logo-item-text .logo-dot{width:6px;height:6px;border-radius:50%;background:var(--indigo);opacity:.5}
-@keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-
-/* ═══════════ SECTION BASE ═══════════ */
-.sec{padding:120px 0}
-.sec-in{max-width:1440px;margin:0 auto;padding:0 40px}
-.sec-in-full{width:100%;padding:0 40px}
-.sec-hd{margin-bottom:80px}
-.sec-hd-center{text-align:center;max-width:700px;margin:0 auto 80px}
-.kicker{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--indigo);margin-bottom:20px;padding:6px 16px;border:1px solid rgba(79,70,229,.2);border-radius:50px;background:rgba(79,70,229,.06)}
-.sec-num{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--text3);margin-bottom:12px;font-variant-numeric:tabular-nums}
-.title{font-size:clamp(32px,3.8vw,54px);font-weight:900;letter-spacing:-.03em;line-height:1.1;margin-bottom:20px;color:var(--navy)}
-.em{background:linear-gradient(135deg,var(--indigo),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.desc{font-size:16px;color:var(--text2);line-height:1.85;font-weight:400;max-width:600px}
-
-/* ═══════════ ABOUT ═══════════ */
-.about{background:var(--bg2);position:relative;overflow:hidden}
-.about::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(79,70,229,.06),transparent 70%);pointer-events:none}
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
-.about-kpi{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px}
-.kpi-card{background:var(--white);border:1px solid var(--glass-b);border-radius:16px;padding:28px 24px;transition:all .4s;box-shadow:0 2px 16px rgba(15,23,42,.06)}
-.kpi-card:hover{background:var(--white);border-color:rgba(79,70,229,.25);transform:translateY(-4px);box-shadow:0 8px 32px rgba(79,70,229,.12)}
-.kpi-n{font-size:42px;font-weight:900;background:linear-gradient(135deg,var(--indigo),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-.04em}
-.kpi-u{font-size:18px;font-weight:700}
-.kpi-l{font-size:12px;color:var(--text3);margin-top:6px;font-weight:500;letter-spacing:.04em}
-.lead{font-size:20px;font-weight:700;color:var(--navy);line-height:1.5;margin-bottom:24px;letter-spacing:-.01em}
-.about-p{font-size:15px;color:var(--text2);line-height:1.9;margin-bottom:18px;font-weight:400}
-.info-tbl{width:100%;border-collapse:collapse;margin-top:32px;font-size:13.5px}
-.info-tbl tr{border-bottom:1px solid rgba(148,163,184,.12)}
-.info-tbl tr:last-child{border-bottom:none}
-.info-tbl .lbl{padding:14px 0;color:var(--text3);font-weight:600;width:110px;letter-spacing:.03em;font-size:12px;text-transform:uppercase}
-.info-tbl .val{padding:14px 0;color:var(--navy2);font-weight:500}
-.badge{display:inline-block;font-size:10px;font-weight:700;color:var(--indigo);border:1px solid rgba(79,70,229,.3);border-radius:4px;padding:2px 8px;margin-left:10px;letter-spacing:.06em;text-transform:uppercase;vertical-align:middle}
-
-/* ═══════════ SOLUTIONS ═══════════ */
-.sol-sec{background:var(--bg);position:relative;overflow:hidden}
-.sol-sec::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(79,70,229,.25),transparent)}
-.sol-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;background:transparent;border-radius:24px;overflow:visible;margin-top:16px}
-.sol-card{background:var(--white);border:1px solid rgba(148,163,184,.15);border-radius:20px;padding:48px 40px;display:flex;flex-direction:column;gap:20px;transition:all .4s;position:relative;overflow:hidden;box-shadow:0 2px 20px rgba(15,23,42,.06)}
-.sol-card::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--indigo),var(--violet));transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.16,1,.3,1)}
-.sol-card:hover::after{transform:scaleX(1)}
-.sol-card:hover{background:var(--bg2);box-shadow:0 12px 48px rgba(79,70,229,.12);transform:translateY(-4px)}
-.sol-num{font-size:12px;font-weight:700;letter-spacing:.1em;color:rgba(79,70,229,.5);text-transform:uppercase;font-variant-numeric:tabular-nums}
-.sol-icon{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,rgba(79,70,229,.1),rgba(124,58,237,.1));border:1px solid rgba(79,70,229,.2);display:flex;align-items:center;justify-content:center;font-size:26px}
-.sol-h{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.02em;line-height:1.25}
-.sol-h span{background:linear-gradient(135deg,var(--indigo),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.sol-p{font-size:14px;color:var(--text2);line-height:1.8;font-weight:400}
-.sol-tags{display:flex;flex-wrap:wrap;gap:8px}
-.sol-tag{font-size:10.5px;font-weight:600;padding:4px 12px;border-radius:50px;background:rgba(79,70,229,.07);color:var(--indigo2);letter-spacing:.05em;border:1px solid rgba(79,70,229,.15);text-transform:uppercase}
-.sol-img{border-radius:14px;overflow:hidden;margin-top:8px}
-.sol-img img{width:100%;height:200px;object-fit:cover;transition:transform .5s}
-.sol-card:hover .sol-img img{transform:scale(1.04)}
-.sol-link{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--indigo);letter-spacing:.04em;text-transform:uppercase;margin-top:auto;transition:gap .3s}
-.sol-link:hover{gap:14px}
-
-/* ═══════════ FEATURE (ALTERNATING) ═══════════ */
-.feat-sec{padding:100px 0;background:var(--bg)}
-.feat-sec:nth-child(even){background:var(--bg2)}
-.feat-sec:nth-child(odd){background:var(--bg)}
-.feat-inner{max-width:1440px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.feat-inner.rev{direction:rtl}
-.feat-inner.rev > *{direction:ltr}
-.feat-body{}
-.feat-sec-kicker{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--indigo);margin-bottom:16px;padding:5px 14px;border:1px solid rgba(79,70,229,.2);border-radius:50px;background:rgba(79,70,229,.06)}
-.feat-h{font-size:clamp(28px,3.2vw,46px);font-weight:900;letter-spacing:-.03em;line-height:1.12;color:var(--navy);margin-bottom:20px}
-.feat-h span{background:linear-gradient(135deg,var(--indigo),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.feat-p{font-size:15px;color:var(--text2);line-height:1.9;margin-bottom:28px;font-weight:400}
-.feat-list{list-style:none;display:flex;flex-direction:column;gap:14px}
-.feat-list li{display:flex;align-items:flex-start;gap:14px;font-size:14px;color:var(--text2)}
-.feat-list .d{width:6px;height:6px;border-radius:50%;background:var(--indigo);margin-top:9px;flex-shrink:0}
-.feat-vis{}
-.feat-vis img{width:100%;border-radius:20px;box-shadow:0 24px 72px rgba(15,23,42,.12);border:1px solid rgba(148,163,184,.15)}
-.feat-vis-wrap{position:relative}
-.feat-vis-wrap::before{content:'';position:absolute;inset:-30px;background:radial-gradient(circle at 50% 50%,rgba(79,70,229,.08),transparent 70%);z-index:-1;border-radius:50px}
-.feat-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
-.feat-stat{background:var(--white);border:1px solid rgba(148,163,184,.15);border-radius:14px;padding:20px;text-align:center;box-shadow:0 2px 12px rgba(15,23,42,.06)}
-.feat-stat-n{font-size:28px;font-weight:900;color:var(--indigo);letter-spacing:-.03em}
-.feat-stat-l{font-size:11px;color:var(--text3);margin-top:4px;letter-spacing:.04em}
-
-/* ═══════════ TRACK RECORD ═══════════ */
-.record{background:linear-gradient(135deg,var(--navy),#1a1040);position:relative;overflow:hidden}
-.record::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(139,92,246,.18),transparent);pointer-events:none}
-.record-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;background:rgba(255,255,255,.05);backdrop-filter:blur(12px)}
-.rec-item{padding:48px 32px;text-align:center;border-right:1px solid rgba(255,255,255,.08);position:relative;transition:background .3s}
-.rec-item:last-child{border-right:none}
-.rec-item:hover{background:rgba(255,255,255,.04)}
-.rec-n{font-size:clamp(40px,4vw,64px);font-weight:900;background:linear-gradient(135deg,#fff,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-.04em;margin-bottom:10px}
-.rec-lbl{font-size:13px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.04em}
-.rec-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:4px}
-.proj-list{margin-top:72px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.proj-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:28px 24px;transition:all .35s}
-.proj-card:hover{background:rgba(255,255,255,.1);border-color:rgba(139,92,246,.3);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
-.proj-yr{font-size:10.5px;font-weight:700;color:var(--gold2);letter-spacing:.1em;margin-bottom:10px;text-transform:uppercase}
-.proj-ttl{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:-.01em;line-height:1.4}
-.proj-cl{font-size:12px;color:rgba(255,255,255,.55);font-weight:500}
-.proj-amt{font-size:13px;color:var(--gold2);font-weight:700;margin-top:12px}
-
-/* ═══════════ CLIENTS GRID ═══════════ */
-.clients{background:var(--bg)}
-.cl-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:16px}
-.cl-card{background:var(--white);border:1px solid rgba(148,163,184,.15);border-radius:16px;padding:28px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:all .35s;text-align:center;min-height:100px;box-shadow:0 2px 12px rgba(15,23,42,.05)}
-.cl-card:hover{background:var(--bg2);border-color:rgba(79,70,229,.3);transform:translateY(-5px);box-shadow:0 12px 40px rgba(79,70,229,.12)}
-.cl-name{font-size:14px;font-weight:700;color:var(--navy2);letter-spacing:-.01em}
-.cl-role{font-size:10px;font-weight:600;color:var(--indigo2);letter-spacing:.08em;text-transform:uppercase;opacity:.8}
-
-/* ═══════════ CONTACT ═══════════ */
-.contact-sec{background:var(--bg2)}
-.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
-.contact-info-item{display:flex;align-items:flex-start;gap:18px;padding:24px 0;border-bottom:1px solid rgba(148,163,184,.12)}
-.contact-info-item:last-child{border-bottom:none}
-.contact-icon{width:44px;height:44px;border-radius:12px;background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
-.contact-lbl{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
-.contact-val{font-size:15px;font-weight:600;color:var(--navy2)}
-.contact-form{background:var(--white);border:1px solid rgba(148,163,184,.15);border-radius:24px;padding:48px;box-shadow:0 4px 32px rgba(15,23,42,.08)}
-.form-row{margin-bottom:20px}
-.form-lbl{display:block;font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
-.form-inp{width:100%;background:var(--bg2);border:1px solid rgba(148,163,184,.2);border-radius:12px;padding:14px 18px;font-family:var(--f);font-size:14px;color:var(--navy);outline:none;transition:all .3s;-webkit-appearance:none}
-.form-inp:focus{border-color:var(--indigo2);background:var(--white);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
-.form-inp::placeholder{color:var(--text3)}
-.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(71,85,105,.6)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:16px;cursor:pointer;appearance:none;-webkit-appearance:none}
-.form-select option{background:var(--white);color:var(--navy)}
-textarea.form-inp{resize:vertical;min-height:120px;font-family:var(--f)}
-.form-btn{width:100%;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;font-family:var(--f);font-size:14px;font-weight:800;padding:18px;border-radius:12px;border:none;cursor:pointer;letter-spacing:.04em;transition:all .3s;margin-top:8px}
-.form-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(79,70,229,.4)}
-
-/* ═══════════ PIA CTA ═══════════ */
-.pia-cta{background:linear-gradient(135deg,var(--indigo),var(--violet),#0f172a);padding:100px 0;position:relative;overflow:hidden;text-align:center}
-.pia-cta::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(255,255,255,.1),transparent 70%);pointer-events:none}
-.pia-cta-h{font-size:clamp(32px,4vw,56px);font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:20px;line-height:1.1}
-.pia-cta-h span{background:linear-gradient(135deg,var(--gold2),var(--gold3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.pia-cta-p{font-size:16px;color:rgba(255,255,255,.65);margin-bottom:40px;font-weight:400}
-
-/* ═══════════ FOOTER ═══════════ */
-.footer{background:var(--navy);padding:72px 0 36px;border-top:1px solid rgba(255,255,255,.06)}
-.footer-inner{max-width:1440px;margin:0 auto;padding:0 40px}
-.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:48px;margin-bottom:56px}
-.footer-brand{}
-.footer-logo{margin-bottom:20px}
-.footer-logo img{height:30px;width:auto;opacity:.9}
-.footer-tagline{font-size:13px;color:rgba(255,255,255,.5);line-height:1.8;max-width:260px;font-weight:400}
-.footer-h{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:20px}
-.footer-links{list-style:none;display:flex;flex-direction:column;gap:12px}
-.footer-links a{font-size:13.5px;color:rgba(255,255,255,.55);transition:color .2s;font-weight:400}
-.footer-links a:hover{color:var(--indigo2)}
-.footer-bot{display:flex;align-items:center;justify-content:space-between;padding-top:28px;border-top:1px solid rgba(255,255,255,.07)}
-.footer-copy{font-size:12px;color:rgba(255,255,255,.4);font-weight:400}
-.footer-badges{display:flex;gap:12px}
-.footer-badge{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:4px 10px;letter-spacing:.06em;text-transform:uppercase}
-
-/* ═══════════ LIGHTBOX ═══════════ */
-.lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(12px)}
-.lb.open{display:flex}
-.lb-img{max-width:88vw;max-height:82vh;border-radius:12px;object-fit:contain;box-shadow:0 40px 120px rgba(0,0,0,.7)}
-.lb-close{position:absolute;top:24px;right:28px;font-size:32px;color:rgba(255,255,255,.6);cursor:pointer;background:none;border:none;transition:color .2s}
-.lb-close:hover{color:#fff}
-.lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:22px;width:52px;height:52px;border-radius:50%;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
-.lb-prev{left:20px}
-.lb-next{right:20px}
-.lb-prev:hover,.lb-next:hover{background:rgba(255,255,255,.18)}
-.lb-counter{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:12px;color:rgba(255,255,255,.5);letter-spacing:.08em;font-weight:600}
-
-/* ═══════════ DETAIL SECTIONS ═══════════ */
-.detail-hdr-sec{background:linear-gradient(135deg,var(--bg2),var(--bg3));padding:80px 0;text-align:center}
-.detail-hdr-sec .title{font-size:clamp(28px,3.2vw,48px)}
-
-/* ═══════════ BENTO GRID (Smart School) ═══════════ */
-.bento{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:auto auto;gap:16px}
-.bento-main{grid-row:span 2;background:var(--white);border:1px solid rgba(148,163,184,.15);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(15,23,42,.06)}
-.bento-main img{width:100%;height:280px;object-fit:cover}
-.bento-main-body{padding:28px}
-.bento-sm{background:var(--white);border:1px solid rgba(148,163,184,.15);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:8px;box-shadow:0 2px 12px rgba(15,23,42,.05)}
-.bento-sm-h{font-size:14px;font-weight:700;color:var(--navy2)}
-.bento-sm-p{font-size:12.5px;color:var(--text2);line-height:1.7}
-
-/* ═══════════ STRAT GRID ═══════════ */
-.strat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}
-.strat-card{background:var(--white);border:1px solid rgba(148,163,184,.12);border-radius:18px;overflow:hidden;transition:all .35s;box-shadow:0 2px 12px rgba(15,23,42,.05)}
-.strat-card:hover{transform:translateY(-6px);border-color:rgba(79,70,229,.25);box-shadow:0 16px 48px rgba(79,70,229,.1)}
-.strat-card img{width:100%;height:160px;object-fit:cover}
-.strat-card-body{padding:22px}
-.strat-card-h{font-size:15px;font-weight:700;color:var(--navy2);margin-bottom:8px}
-.strat-card-p{font-size:13px;color:var(--text2);line-height:1.7}
-
-/* ═══════════ INFRA SECTION ═══════════ */
-.infra-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.infra-card{border-radius:20px;overflow:hidden;position:relative;background:var(--bg3)}
-.infra-card img{width:100%;height:220px;object-fit:cover;transition:transform .5s}
-.infra-card:hover img{transform:scale(1.06)}
-.infra-card-overlay{position:absolute;bottom:0;left:0;right:0;padding:24px;background:linear-gradient(to top,rgba(5,9,15,.9),transparent)}
-.infra-card-h{font-size:16px;font-weight:800;color:#fff;margin-bottom:4px}
-.infra-card-p{font-size:12.5px;color:rgba(255,255,255,.6)}
-
-/* ═══════════ RESPONSIVE ═══════════ */
-@media(max-width:1200px){.sol-grid{grid-template-columns:1fr}}
-@media(max-width:1024px){
-  .hero-grid{grid-template-columns:1fr;gap:48px}
-  .feat-inner{grid-template-columns:1fr;gap:48px}
-  .feat-inner.rev{direction:ltr}
-  .about-grid{grid-template-columns:1fr;gap:48px}
-  .contact-grid{grid-template-columns:1fr;gap:48px}
-  .footer-top{grid-template-columns:1fr 1fr;gap:40px}
-  .record-grid{grid-template-columns:repeat(2,1fr)}
-  .proj-list{grid-template-columns:1fr 1fr}
-  .cl-grid{grid-template-columns:repeat(3,1fr)}
-  .bento{grid-template-columns:1fr}
-  .strat-grid{grid-template-columns:1fr 1fr}
-  .infra-grid{grid-template-columns:1fr 1fr}
+/* ========== LAYOUT ========== */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;width:100%}
+.sec{padding:clamp(64px,10vw,128px) 0}
+.sec.alt{background:var(--paper-2)}
+.eyebrow{
+  font-family:var(--font-ui);font-size:.78rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--rust);
+  margin-bottom:18px;display:inline-block;
 }
-@media(max-width:768px){
-  .gnb-nav,.gnb-cta{display:none}
-  .hamburger{display:flex}
-  .mob-menu{display:flex}
-  .gnb-inner{padding:0 20px}
-  .hero-inner{padding:100px 20px 60px}
-  .sec{padding:80px 0}
-  .sec-in{padding:0 20px}
-  .hero-stats{grid-template-columns:repeat(2,1fr)}
-  .stat-item:nth-child(2){border-right:none}
-  .stat-item:nth-child(3){border-top:1px solid rgba(255,255,255,.08)}
-  .record-grid{grid-template-columns:1fr 1fr}
-  .proj-list{grid-template-columns:1fr}
-  .cl-grid{grid-template-columns:repeat(2,1fr)}
-  .strat-grid{grid-template-columns:1fr}
-  .infra-grid{grid-template-columns:1fr}
-  .footer-top{grid-template-columns:1fr}
-  .footer-bot{flex-direction:column;gap:16px;text-align:center}
-  .gnb-inner{height:60px}
-  .hero-h1{font-size:clamp(36px,9vw,56px)}
-  .about-kpi{grid-template-columns:1fr 1fr}
-  .feat-inner{padding:0 20px}
+.sec-head{max-width:680px;margin-bottom:clamp(40px,6vw,64px)}
+h2.title{font-size:clamp(1.6rem,3.4vw,2.6rem);font-weight:800;color:var(--ink)}
+h2.title .em{color:var(--rust)}
+.lead-desc{font-size:1.125rem;color:var(--ink-soft);margin-top:18px;line-height:1.7}
+
+/* chip */
+.chip{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 14px;border-radius:999px;
+  background:var(--rust-tint);color:var(--rust-deep);
 }
-@media(max-width:480px){
-  .hero-btns{flex-direction:column}
-  .btn-p,.btn-s{width:100%;justify-content:center}
-  .hero-stats{grid-template-columns:1fr 1fr}
-  .cl-grid{grid-template-columns:1fr 1fr}
+.chip.sky{background:var(--sky-tint);color:#3a6491}
+.chip.moss{background:var(--moss-tint);color:#4f6138}
+
+/* buttons */
+.btn{
+  font-family:var(--font-ui);font-weight:700;font-size:.97rem;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:.85em 1.5em;border-radius:var(--r-sm);
+  min-height:44px;cursor:pointer;border:1px solid transparent;
+  transition:background .2s,transform .2s,box-shadow .2s,border-color .2s;
+}
+.btn-primary{background:var(--rust);color:#fff}
+.btn-primary:hover{background:var(--rust-deep);transform:translateY(-1px);box-shadow:var(--sh)}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--paper-3)}
+
+/* ========== HEADER / NAV ========== */
+.hdr{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(250,249,245,.82);
+  backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  border-bottom:1px solid var(--line);
+}
+.hdr-inner{
+  max-width:var(--maxw);margin:0 auto;padding:0 32px;
+  height:68px;display:flex;align-items:center;justify-content:space-between;gap:24px;
+}
+.hdr-logo{display:flex;align-items:center;height:100%}
+.hdr-logo img{height:30px;width:auto}
+.nav{display:flex;align-items:center;gap:30px}
+.nav a{
+  font-family:var(--font-ui);font-size:.94rem;font-weight:500;color:var(--ink-soft);
+  position:relative;padding:4px 0;transition:color .2s;
+}
+.nav a::after{
+  content:'';position:absolute;left:0;bottom:-3px;height:2px;width:100%;
+  background:var(--rust);transform:scaleX(0);transform-origin:left;transition:transform .25s;
+}
+.nav a:hover{color:var(--ink)}
+.nav a:hover::after{transform:scaleX(1)}
+.hdr-cta{display:inline-flex}
+.burger{
+  display:none;width:44px;height:44px;border:none;background:none;cursor:pointer;
+  flex-direction:column;justify-content:center;align-items:center;gap:5px;
+}
+.burger span{display:block;width:24px;height:2px;background:var(--ink);border-radius:2px;transition:transform .3s,opacity .3s}
+.burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger.open span:nth-child(2){opacity:0}
+.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* mobile sheet */
+.sheet{
+  position:fixed;inset:68px 0 0 0;z-index:99;
+  background:var(--paper);
+  display:flex;flex-direction:column;padding:28px 28px 40px;
+  transform:translateX(100%);transition:transform .3s ease;
+  overflow-y:auto;visibility:hidden;
+}
+.sheet.open{transform:translateX(0);visibility:visible}
+.sheet a{
+  font-family:var(--font-ui);font-size:1.15rem;font-weight:600;color:var(--ink);
+  padding:18px 4px;border-bottom:1px solid var(--line);display:block;min-height:44px;
+}
+.sheet .btn{margin-top:26px;width:100%}
+
+@media(max-width:880px){
+  .nav,.hdr-cta{display:none}
+  .burger{display:flex}
 }
 
-/* ═══════════ THEME TOGGLE BUTTON ═══════════ */
-.theme-toggle{background:none;border:1px solid rgba(148,163,184,.25);border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .3s;margin-left:8px;color:var(--text2);line-height:1}
-.theme-toggle:hover{background:rgba(79,70,229,.08);border-color:rgba(99,102,241,.4)}
-
-/* ═══════════ DARK THEME VARIABLES ═══════════ */
-[data-theme="dark"]{
-  --bg:#05090f; --bg2:#0b1421; --bg3:#0d1b3e;
-  --navy:#e2e8f0; --navy2:#cbd5e1; --navy3:#94a3b8;
-  --text:#e2e8f0; --text2:#94a3b8; --text3:#64748b;
-  --white:#0b1421;
-  --glass:rgba(15,23,42,.72); --glass2:rgba(15,23,42,.92);
-  --glass-b:rgba(255,255,255,.08); --glass-b2:rgba(79,70,229,.2);
-  --sh:0 4px 24px rgba(0,0,0,.4);
+/* ========== HERO ========== */
+.hero{
+  padding:140px 0 clamp(64px,10vw,110px);
+  background:
+    radial-gradient(ellipse 70% 55% at 85% 12%,var(--rust-tint) 0%,transparent 60%),
+    var(--paper);
 }
-[data-theme="dark"] body{background:var(--bg);color:var(--text)}
-[data-theme="dark"] .gnb{background:rgba(5,9,15,.85);border-bottom-color:rgba(255,255,255,.06)}
-[data-theme="dark"] .gnb.scrolled{background:rgba(5,9,15,.97)}
-[data-theme="dark"] .hero{background:linear-gradient(145deg,#05090f 0%,#0d1040 40%,#0a0d20 100%) !important}
-[data-theme="dark"] .hero-grid-line{background-image:linear-gradient(rgba(79,70,229,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(79,70,229,.08) 1px,transparent 1px)}
-[data-theme="dark"] .hero-stats{background:rgba(15,23,42,.75);border-color:rgba(255,255,255,.08)}
-[data-theme="dark"] .stat-item{border-right-color:rgba(255,255,255,.08) !important}
-[data-theme="dark"] .btn-s{background:rgba(255,255,255,.06);color:#e2e8f0;border-color:rgba(255,255,255,.12)}
-[data-theme="dark"] .btn-s:hover{background:rgba(79,70,229,.15);border-color:rgba(99,102,241,.5);color:rgba(99,102,241,1)}
-[data-theme="dark"] .about{background:var(--bg2)}
-[data-theme="dark"] .kpi-card{background:rgba(15,23,42,.8) !important;border-color:rgba(255,255,255,.08) !important}
-[data-theme="dark"] .kpi-card:hover{background:rgba(79,70,229,.12) !important;border-color:rgba(79,70,229,.3) !important}
-[data-theme="dark"] .info-tbl tr{border-bottom-color:rgba(255,255,255,.07)}
-[data-theme="dark"] .logo-marquee-wrap{background:var(--bg2);border-color:rgba(255,255,255,.06)}
-[data-theme="dark"] .logo-item img{filter:brightness(.8) saturate(.7)}
-[data-theme="dark"] .logo-item:hover img{filter:brightness(1) saturate(1)}
-[data-theme="dark"] .sol-sec{background:var(--bg)}
-[data-theme="dark"] .sol-card{background:rgba(15,23,42,.9) !important;border-color:rgba(255,255,255,.07) !important}
-[data-theme="dark"] .sol-card:hover{background:rgba(79,70,229,.1) !important;border-color:rgba(79,70,229,.3) !important}
-[data-theme="dark"] .feat-sec,.feat-sec:nth-child(odd){background:var(--bg) !important}
-[data-theme="dark"] .feat-sec:nth-child(even){background:var(--bg2) !important}
-[data-theme="dark"] .feat-stat{background:rgba(15,23,42,.85) !important;border-color:rgba(255,255,255,.07) !important}
-[data-theme="dark"] .clients{background:var(--bg)}
-[data-theme="dark"] .cl-card{background:rgba(15,23,42,.85) !important;border-color:rgba(255,255,255,.07) !important}
-[data-theme="dark"] .cl-card:hover{background:rgba(79,70,229,.1) !important;border-color:rgba(79,70,229,.3) !important}
-[data-theme="dark"] .cl-name{color:#e2e8f0}
-[data-theme="dark"] .contact-sec{background:var(--bg2)}
-[data-theme="dark"] .contact-form{background:rgba(15,23,42,.9) !important;border-color:rgba(255,255,255,.08) !important}
-[data-theme="dark"] .form-inp{background:rgba(5,9,15,.8) !important;border-color:rgba(255,255,255,.1) !important;color:#e2e8f0}
-[data-theme="dark"] .form-inp:focus{background:rgba(15,23,42,.95) !important;border-color:rgba(99,102,241,.6) !important}
-[data-theme="dark"] .bento-main,.bento-sm,.strat-card{background:rgba(15,23,42,.9) !important;border-color:rgba(255,255,255,.07) !important}
-[data-theme="dark"] .mob-menu{background:rgba(5,9,15,.97)}
-[data-theme="dark"] .hamburger span{background:#e2e8f0}
-[data-theme="dark"] .gnb-logo img{filter:none !important}
-[data-theme="dark"] .gnb-nav a{color:rgba(255,255,255,.6)}
-[data-theme="dark"] .gnb-nav a:hover{color:rgba(99,102,241,1)}
-[data-theme="dark"] .lang-toggle{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
-[data-theme="dark"] .lang-btn{color:rgba(255,255,255,.55)}
-[data-theme="dark"] .lang-btn:hover:not(.active){color:#fff}
-[data-theme="dark"] ::-webkit-scrollbar-track{background:#0b1421}
-[data-theme="dark"] .hero-kicker{background:rgba(79,70,229,.12);border-color:rgba(79,70,229,.3)}
-[data-theme="dark"] .hero-badge{background:rgba(79,70,229,.15);border-color:rgba(79,70,229,.3)}
-[data-theme="dark"] .kicker{background:rgba(79,70,229,.1);border-color:rgba(79,70,229,.2)}
-[data-theme="dark"] .sol-tag{background:rgba(79,70,229,.12);border-color:rgba(79,70,229,.25)}
-[data-theme="dark"] .feat-sec-kicker{background:rgba(79,70,229,.1);border-color:rgba(79,70,229,.2)}
-[data-theme="dark"] .contact-icon{background:rgba(79,70,229,.1);border-color:rgba(79,70,229,.2)}
-[data-theme="dark"] .hero-desc{color:var(--text2) !important}
-[data-theme="dark"] .about-p,.lead,.desc{color:var(--text2)}
+.hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(40px,6vw,72px);align-items:center}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);font-weight:800;color:var(--ink);
+  letter-spacing:-.03em;margin:24px 0;line-height:1.08;
+}
+.hero h1 .em{color:var(--rust)}
+.hero-sub{
+  font-size:1.18rem;color:var(--ink-soft);max-width:520px;line-height:1.7;margin-bottom:18px;
+}
+.hero-en{
+  font-family:var(--font-head);font-style:italic;font-weight:500;
+  font-size:1.05rem;color:var(--mid);margin-bottom:34px;letter-spacing:.01em;
+}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.hero-figure{
+  border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);
+  box-shadow:var(--sh-lg);position:relative;background:var(--paper-3);aspect-ratio:16/11;
+}
+.hero-figure img{width:100%;height:100%;object-fit:cover}
+.hero-cap{
+  position:absolute;left:0;right:0;bottom:0;padding:14px 18px;
+  font-family:var(--font-ui);font-size:.78rem;font-weight:500;color:#fff;
+  background:linear-gradient(transparent,rgba(20,20,19,.62));
+}
+@media(max-width:880px){
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+}
 
-/* ═══════════ LANG TOGGLE ═══════════ */
-.lang-toggle{display:flex;align-items:center;gap:2px;background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.2);border-radius:50px;padding:3px;margin-left:8px}
-.lang-btn{padding:5px 14px;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:.06em;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:all .2s;font-family:var(--f)}
-.lang-btn.active{background:var(--indigo);color:#fff}
-.lang-btn:hover:not(.active){color:var(--navy)}
-[data-lang="en"] .ko-text{display:none}
-[data-lang="en"] .en-text{display:inline}
-[data-lang="ko"] .ko-text{display:inline}
-[data-lang="ko"] .en-text{display:none}
+/* ========== ABOUT ========== */
+.about-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:clamp(40px,6vw,72px);align-items:start}
+.about-hi{display:flex;flex-direction:column;gap:14px;margin-top:32px}
+.about-hi-item{
+  display:flex;align-items:center;gap:18px;padding:18px 22px;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);
+}
+.about-hi-num{font-family:var(--font-head);font-size:2rem;font-weight:800;color:var(--rust);min-width:54px;line-height:1;letter-spacing:-.03em}
+.about-hi-txt strong{display:block;font-family:var(--font-ui);font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:2px}
+.about-hi-txt span{font-family:var(--font-ui);font-size:.82rem;color:var(--ink-soft)}
+.about-lead{font-size:1.22rem;font-weight:500;color:var(--ink);line-height:1.6;margin-bottom:20px;letter-spacing:-.01em}
+.about-p{color:var(--ink-soft);margin-bottom:16px;line-height:1.8}
+.info-tbl{
+  width:100%;border-collapse:collapse;margin-top:32px;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);
+}
+.info-tbl td{padding:15px 18px;font-family:var(--font-ui);font-size:.9rem;vertical-align:top;border-bottom:1px solid var(--line)}
+.info-tbl tr:last-child td{border-bottom:none}
+.info-tbl .lbl{width:108px;color:var(--mid);font-weight:600;padding-right:12px}
+.info-tbl .val{color:var(--ink);font-weight:500}
+.tag{display:inline-block;font-family:var(--font-ui);font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--rust-tint);color:var(--rust-deep);margin-left:8px}
+@media(max-width:860px){.about-grid{grid-template-columns:1fr;gap:40px}}
+
+/* ========== SOLUTIONS (4 cards) ========== */
+.sol-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-top:8px}
+.sol-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);
+  overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column;
+  transition:transform .25s,box-shadow .25s;
+}
+.sol-card:hover{transform:translateY(-3px);box-shadow:var(--sh-lg)}
+.sol-card-img{aspect-ratio:16/10;overflow:hidden;background:var(--paper-3)}
+.sol-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.sol-card:hover .sol-card-img img{transform:scale(1.04)}
+.sol-card-body{padding:26px 26px 28px;display:flex;flex-direction:column;flex:1}
+.sol-no{font-family:var(--font-ui);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--rust);margin-bottom:10px}
+.sol-card h3{font-size:1.25rem;font-weight:700;color:var(--ink);margin-bottom:12px;line-height:1.3}
+.sol-card p{font-family:var(--font-body);font-size:.95rem;color:var(--ink-soft);line-height:1.7;margin-bottom:18px;flex:1}
+.sol-feats{display:flex;flex-direction:column;gap:9px;margin-top:auto}
+.sol-feats li{display:flex;gap:10px;font-family:var(--font-ui);font-size:.82rem;color:var(--ink-soft);line-height:1.5}
+.sol-feats li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--rust);flex-shrink:0;margin-top:7px}
+
+/* ========== FEATURE (image + text) ========== */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,72px);align-items:center}
+.feat-grid.rev .feat-media{order:2}
+.feat-media{border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);box-shadow:var(--sh-lg);aspect-ratio:4/3;background:var(--paper-3)}
+.feat-media img{width:100%;height:100%;object-fit:cover}
+.feat-list{margin-top:24px;display:flex;flex-direction:column}
+.feat-list li{
+  display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--line);
+  font-family:var(--font-ui);font-size:.92rem;color:var(--ink-soft);line-height:1.6;
+}
+.feat-list li:last-child{border-bottom:none}
+.feat-list li .d{width:8px;height:8px;border-radius:50%;background:var(--rust);flex-shrink:0;margin-top:7px}
+.feat-list strong{color:var(--ink);font-weight:700}
+@media(max-width:860px){
+  .feat-grid,.feat-grid.rev{grid-template-columns:1fr;gap:36px}
+  .feat-grid.rev .feat-media{order:0}
+  .feat-media{aspect-ratio:16/9}
+}
+
+/* sub-cards under feature */
+.subcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:48px}
+.subcard{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--sh)}
+.subcard .lbl{font-family:var(--font-ui);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--rust);margin-bottom:16px;display:block}
+.subcard.sky .lbl{color:#3a6491}
+.subcard.moss .lbl{color:#4f6138}
+.sc-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sc-item{background:var(--paper-3);border-radius:var(--r-sm);overflow:hidden}
+.sc-item img{width:100%;height:96px;object-fit:cover}
+.sc-item .t{padding:11px 13px}
+.sc-item .t strong{display:block;font-family:var(--font-ui);font-size:.84rem;font-weight:700;color:var(--ink);margin-bottom:2px}
+.sc-item .t span{font-family:var(--font-ui);font-size:.74rem;color:var(--ink-soft)}
+
+/* strategy trio (dark cards) */
+.strat-head{text-align:center;font-family:var(--font-ui);font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--rust);margin:52px 0 24px}
+.strat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.strat-card{background:var(--ink);color:var(--paper);border-radius:var(--r);overflow:hidden}
+.strat-card img{width:100%;height:140px;object-fit:cover}
+.strat-card .b{padding:20px 22px}
+.strat-card .b strong{display:block;font-family:var(--font-head);font-size:1.05rem;font-weight:700;margin-bottom:8px}
+.strat-card .b span{font-family:var(--font-ui);font-size:.84rem;color:rgba(250,249,245,.62);line-height:1.6}
+
+/* infant stat cards */
+.kid-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-top:48px}
+.kid-stat{background:var(--ink);color:var(--paper);border-radius:var(--r-lg);padding:34px}
+.kid-stat .lbl{font-family:var(--font-ui);font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--rust);margin-bottom:16px}
+.kid-stat.sky .lbl{color:var(--sky)}
+.kid-stat .num{font-family:var(--font-head);font-size:clamp(2.2rem,5vw,3rem);font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:8px}
+.kid-stat .num span{font-size:.4em;color:var(--rust);font-weight:700}
+.kid-stat.sky .num span{color:var(--sky)}
+.kid-stat .cap{font-family:var(--font-ui);font-size:.88rem;color:rgba(250,249,245,.6)}
+
+/* ========== RECORD (timeline, dark) ========== */
+.dark{background:var(--ink);color:var(--paper)}
+.dark .eyebrow{color:var(--rust)}
+.dark h2.title{color:var(--paper)}
+.dark .lead-desc{color:rgba(250,249,245,.72)}
+.tl{position:relative;padding-left:30px;margin-top:8px}
+.tl::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--d-line)}
+.tl-item{position:relative;padding-bottom:42px;display:grid;grid-template-columns:104px 1fr;gap:32px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{
+  content:'';position:absolute;left:-30px;top:5px;width:14px;height:14px;border-radius:50%;
+  background:var(--ink);border:2px solid var(--d-line);
+}
+.tl-item.hot::before{background:var(--rust);border-color:var(--rust);box-shadow:0 0 0 4px var(--rust-tint)}
+.tl-year{font-family:var(--font-head);font-size:1.1rem;font-weight:700;color:rgba(250,249,245,.4);letter-spacing:-.02em;padding-top:2px}
+.tl-item.hot .tl-year{color:var(--rust)}
+.tl-client{display:inline-block;font-family:var(--font-ui);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 11px;border-radius:999px;background:rgba(217,119,87,.18);color:#e6a285;margin-bottom:10px}
+.tl-title{font-family:var(--font-head);font-size:1.1rem;font-weight:700;margin-bottom:8px;line-height:1.3}
+.tl-desc{font-family:var(--font-body);font-size:.92rem;color:rgba(250,249,245,.6);line-height:1.7}
+.tl-amount{font-family:var(--font-ui);font-size:.86rem;font-weight:700;color:var(--sky);margin-top:10px}
+@media(max-width:560px){.tl-item{grid-template-columns:1fr;gap:6px}}
+
+/* ========== METRICS ========== */
+.mt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-top:8px}
+.mt-card{
+  border-radius:var(--r-lg);padding:38px 34px;background:var(--ink);color:var(--paper);
+  position:relative;overflow:hidden;
+}
+.mt-card::before{content:'';position:absolute;top:-44px;right:-44px;width:160px;height:160px;border-radius:50%;background:rgba(217,119,87,.16)}
+.mt-lbl{font-family:var(--font-ui);font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(250,249,245,.5);margin-bottom:20px;position:relative}
+.mt-num{font-family:var(--font-head);font-size:clamp(2.6rem,6vw,3.6rem);font-weight:800;letter-spacing:-.04em;line-height:1;margin-bottom:12px;position:relative}
+.mt-num .u{font-size:.42em;color:var(--rust);font-weight:700}
+.mt-desc{font-family:var(--font-body);font-size:.9rem;color:rgba(250,249,245,.55);line-height:1.65;position:relative}
+
+/* ========== CLIENTS ========== */
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:8px}
+.cl-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);
+  padding:30px 22px;text-align:center;box-shadow:var(--sh);display:block;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+}
+.cl-card:hover{transform:translateY(-3px);box-shadow:var(--sh-lg);border-color:var(--rust)}
+.cl-name{font-family:var(--font-head);font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.02em}
+.cl-role{font-family:var(--font-ui);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--rust)}
+
+/* ========== PIA CTA ========== */
+.pia-cta{
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 0%,rgba(217,119,87,.20) 0%,transparent 60%),
+    var(--ink);
+  color:var(--paper);text-align:center;
+}
+.pia-cta .inner{max-width:680px;margin:0 auto}
+.pia-cta h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;color:#fff;line-height:1.15;margin:22px 0 16px}
+.pia-cta p{font-family:var(--font-body);font-size:1.05rem;color:rgba(250,249,245,.7);line-height:1.7;margin-bottom:34px}
+.pia-cta .note{font-family:var(--font-ui);font-size:.84rem;color:rgba(250,249,245,.45);margin-top:18px}
+.pia-cta .chip{background:rgba(217,119,87,.18);color:#e6a285}
+
+/* ========== CONTACT ========== */
+.ct-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(40px,6vw,64px);align-items:start}
+.ct-row{display:grid;grid-template-columns:96px 1fr;gap:16px;padding:17px 0;border-bottom:1px solid var(--line);font-family:var(--font-ui);align-items:baseline}
+.ct-row .l{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mid)}
+.ct-row .v{font-size:.98rem;color:var(--ink);line-height:1.6}
+.ct-row .v a{color:var(--rust);border-bottom:1px solid var(--rust-tint);transition:color .2s}
+.ct-row .v a:hover{color:var(--rust-deep)}
+.ct-box{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:36px;box-shadow:var(--sh)}
+.ct-box h3{font-size:1.35rem;font-weight:700;color:var(--ink);margin-bottom:12px}
+.ct-box p{font-family:var(--font-body);font-size:.96rem;color:var(--ink-soft);line-height:1.7;margin-bottom:26px}
+.ct-box .btn{width:100%;margin-bottom:12px}
+.ct-box .btn:last-child{margin-bottom:0}
+@media(max-width:860px){.ct-grid{grid-template-columns:1fr;gap:36px}}
+
+/* ========== FOOTER ========== */
+.ft{background:var(--ink);color:rgba(250,249,245,.55);padding:48px 0}
+.ft-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.ft-logo{height:28px;width:auto;margin-bottom:14px}
+.ft-meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-family:var(--font-ui);font-size:.82rem;color:rgba(250,249,245,.5)}
+.ft-cr{font-family:var(--font-ui);font-size:.8rem;color:rgba(250,249,245,.35);white-space:nowrap}
+
+/* ========== REVEAL ========== */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.rv.on{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .rv{opacity:1;transform:none}
+}
+
+/* ========== SMALL SCREENS ========== */
+@media(max-width:560px){
+  .wrap{padding:0 20px}
+  .hdr-inner{padding:0 20px}
+  .hero{padding-top:118px}
+  .btn{width:100%}
+  .hero-btns .btn{flex:1}
+  .sc-row{grid-template-columns:1fr}
+}
 </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "㈜예담정보통신",
-  "url": "https://yedam.kr",
-  "logo": "https://yedam.kr/images/logo_h_white.png",
-  "description": "11년간 비상교육·현대NGV·국방부와 함께한 AI 에듀테크 전문기업",
-  "foundingDate": "2014-09-01",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "가산디지털1로 212, 1405호",
-    "addressLocality": "금천구",
-    "addressRegion": "서울특별시",
-    "postalCode": "08506",
-    "addressCountry": "KR"
-  },
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "telephone": "+82-2-851-7714",
-    "contactType": "customer service",
-    "availableLanguage": "Korean"
-  },
-  "sameAs": ["https://yedam.kr"]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "예담정보통신",
-  "url": "https://yedam.kr"
-}
-</script>
 </head>
 <body>
-<div id="progress"></div>
-<div id="cursor-glow"></div>
 
-<!-- ══ GNB ══ -->
-<nav class="gnb" id="gnb">
-  <div class="gnb-inner">
-    <a class="gnb-logo" href="/">
-      <img src="images/logo_h_white.png" alt="예담정보통신 로고" style="filter:brightness(0) saturate(100%)">
+<!-- ══════════ HEADER ══════════ -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <a href="#top" class="hdr-logo" aria-label="㈜예담정보통신 홈">
+      <img src="images/logo_horizontal.png" alt="㈜예담정보통신 YEDAM">
     </a>
-    <ul class="gnb-nav">
-      <li><a href="#about"><span class="ko-text">회사소개</span><span class="en-text">About</span></a></li>
-      <li><a href="#solutions"><span class="ko-text">솔루션</span><span class="en-text">Solutions</span></a></li>
-      <li><a href="#record"><span class="ko-text">실적</span><span class="en-text">Record</span></a></li>
-      <li><a href="#clients"><span class="ko-text">파트너</span><span class="en-text">Partners</span></a></li>
-      <li><a href="#contact"><span class="ko-text">문의</span><span class="en-text">Contact</span></a></li>
-    </ul>
-    <a href="ai-pia.html" class="gnb-cta" target="_blank"><span class="ko-text">AI PIA 체험 →</span><span class="en-text">Try AI PIA →</span></a>
-    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="테마 변경" aria-label="테마 변경">🌙</button>
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KR</button>
-      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
-    </div>
-    <button class="hamburger" id="hamburger" aria-label="메뉴">
+    <nav class="nav" aria-label="주요 메뉴">
+      <a href="#about">회사소개</a>
+      <a href="#solutions">솔루션</a>
+      <a href="#record">실적</a>
+      <a href="#clients">파트너</a>
+      <a href="#contact">문의</a>
+    </nav>
+    <a href="ai-pia.html" class="btn btn-primary hdr-cta">AI PIA 검사</a>
+    <button class="burger" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sheet">
       <span></span><span></span><span></span>
     </button>
   </div>
-</nav>
+</header>
 
-<!-- 모바일 메뉴 -->
-<div class="mob-menu" id="mobMenu">
-  <button class="mob-close" id="mobClose">✕</button>
-  <a class="mob-link" href="#about">About</a>
-  <a class="mob-link" href="#solutions">Solutions</a>
-  <a class="mob-link" href="#record">실적</a>
-  <a class="mob-link" href="#clients">파트너</a>
-  <a class="mob-link" href="#contact">Contact</a>
-  <a class="mob-link" href="ai-pia.html" style="color:var(--indigo)" target="_blank">AI PIA 체험 →</a>
+<!-- mobile sheet -->
+<div class="sheet" id="sheet">
+  <a href="#about" class="sheet-link">회사소개</a>
+  <a href="#solutions" class="sheet-link">솔루션</a>
+  <a href="#record" class="sheet-link">실적</a>
+  <a href="#clients" class="sheet-link">파트너</a>
+  <a href="#contact" class="sheet-link">문의</a>
+  <a href="ai-pia.html" class="btn btn-primary">AI PIA 검사 →</a>
 </div>
 
-<!-- ══ HERO ══ -->
+<!-- ══════════ HERO ══════════ -->
 <section class="hero" id="top">
-  <canvas id="hero-canvas"></canvas>
-  <div class="hero-orb hero-orb-1"></div>
-  <div class="hero-orb hero-orb-2"></div>
-  <div class="hero-orb hero-orb-3"></div>
-  <div class="hero-grid-line"></div>
-  <div class="hero-inner">
+  <div class="wrap">
     <div class="hero-grid">
       <div>
-        <div class="hero-kicker rv">
-          <span class="kicker-dot"></span><span class="ko-text">AI EduTech · 교육 IT 전문기업</span><span class="en-text">AI EduTech · Education IT Specialist</span>
-        </div>
-        <h1 class="hero-h1 rv d1">
-          <span class="ko-text">교육의 다음을<br><span class="hl">함께 설계</span>합니다.</span><span class="en-text">Designing the<br><span class="hl">Future of Education.</span></span>
-        </h1>
-        <p class="hero-desc rv d2">
-          <span class="ko-text">㈜예담정보통신은 비상교육·현대NGV·국방부 등 국내 주요 교육·공공기관과 함께
-          11년간 핵심 IT 시스템을 구축해온 전문기업입니다. AI PIA, AI ClassBoard,
-          AREX-Climbing, AI 디지털 간판으로 차세대 에듀테크 시장을 열어갑니다.</span><span class="en-text">Yedam IT has partnered with leading Korean education and public institutions including Visang, Hyundai NGV, and MND for 11 years. We are pioneering the next EdTech market with AI PIA, AI ClassBoard, AREX-Climbing, and AI Digital Signage.</span>
-        </p>
-        <div class="hero-btns rv d3">
-          <a href="#solutions" class="btn-p"><span class="ko-text">솔루션 살펴보기 →</span><span class="en-text">View Solutions →</span></a>
-          <a href="#contact" class="btn-s"><span class="ko-text">프로젝트 문의</span><span class="en-text">Contact Us</span></a>
-        </div>
-        <div class="hero-stats rv d4">
-          <div class="stat-item">
-            <div class="stat-num"><span class="counter" data-target="11">0</span><span>년</span></div>
-            <div class="stat-lbl"><span class="ko-text">업력 · 2014년 설립</span><span class="en-text">Years · Est. 2014</span></div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-num"><span class="counter" data-target="15">0</span><span>+</span></div>
-            <div class="stat-lbl"><span class="ko-text">주요 수행 프로젝트</span><span class="en-text">Key Projects</span></div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-num"><span class="counter" data-target="9">0</span><span>년</span></div>
-            <div class="stat-lbl"><span class="ko-text">비상교육 파트너십</span><span class="en-text">Visang Partnership</span></div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-num"><span class="counter" data-target="25">0</span><span>%</span></div>
-            <div class="stat-lbl"><span class="ko-text">영업이익률 (2020)</span><span class="en-text">Operating Margin (2020)</span></div>
-          </div>
+        <span class="chip rv">AI EduTech · 교육 IT 전문기업</span>
+        <h1 class="rv d1">교육의 다음을<br><span class="em">함께 설계</span>합니다.</h1>
+        <p class="hero-sub rv d1">㈜예담정보통신은 비상교육·현대NGV·국방부 등 국내 주요 교육·공공기관과 함께 11년간 핵심 IT 시스템을 구축해온 전문기업입니다. AI PIA, AI ClassBoard, AREX-Climbing, AI 디지털 간판으로 차세대 에듀테크 시장을 열어갑니다.</p>
+        <p class="hero-en rv d2">Designing the Future of Education</p>
+        <div class="hero-btns rv d2">
+          <a href="#solutions" class="btn btn-primary">솔루션 보기</a>
+          <a href="#contact" class="btn btn-ghost">프로젝트 문의</a>
         </div>
       </div>
-      <div class="hero-img rv d2">
-        <div class="hero-vis-wrap" style="position:relative">
-          <div class="hero-img-glow"></div>
-          <div class="hero-badge rv d3">
-            <strong>AI · IoT</strong>
-            에듀테크 4대 솔루션
-          </div>
-          <img loading="eager" src="images/hero_masterplan.jpg" alt="예담정보통신 차세대 AI 스마트 학교 통합 마스터플랜">
-          <div class="hero-img-cap">차세대 AI 스마트 학교 통합 마스터플랜 — Mind · Space · Body</div>
-        </div>
-      </div>
+      <figure class="hero-figure rv d2">
+        <img loading="lazy" src="images/hero_masterplan.jpg" alt="차세대 AI 스마트 학교 통합 마스터플랜 — Mind · Space · Body 통합 비전">
+        <figcaption class="hero-cap">차세대 AI 스마트 학교 통합 마스터플랜 — Mind · Space · Body</figcaption>
+      </figure>
     </div>
   </div>
 </section>
 
-<!-- ══ 클라이언트 티커 ══ -->
-<div class="ticker-wrap" aria-hidden="true">
-  <div class="ticker-inner">
-    <span class="ticker-item">㈜비상교육 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">현대NGV <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">경기도청 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">국방부 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">공군사관학교 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">스페이스케이 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">YBM <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">유비온 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">정보통신기술협회 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">엔페이지 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">11년 신뢰의 파트너십 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">㈜비상교육 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">현대NGV <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">경기도청 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">국방부 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">공군사관학교 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">스페이스케이 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">YBM <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">유비온 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">정보통신기술협회 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">엔페이지 <span class="ticker-sep">·</span></span>
-    <span class="ticker-item">11년 신뢰의 파트너십 <span class="ticker-sep">·</span></span>
-  </div>
-</div>
-
-<!-- ══ ABOUT ══ -->
-<section class="sec about" id="about">
-  <div class="sec-in">
+<!-- ══════════ ABOUT ══════════ -->
+<section class="sec alt" id="about">
+  <div class="wrap">
     <div class="about-grid">
-      <div>
-        <div class="sec-num rv">01 — About</div>
-        <div class="kicker rv">예담정보통신</div>
-        <h2 class="title rv d1"><span class="ko-text">신뢰의 11년,<br><span class="em">혁신의 다음.</span></span><span class="en-text">11 Years of Trust,<br><span class="em">The Next Innovation.</span></span></h2>
-        <p class="desc rv d2">교육과 공공의 디지털 전환을 가장 가까이에서 지원하는 IT 파트너.</p>
-        <div class="about-kpi rv d3">
-          <div class="kpi-card">
-            <div class="kpi-n"><span class="counter" data-target="11">0</span><span class="kpi-u">년</span></div>
-            <div class="kpi-l">사업 이력 · 2014 설립</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-n"><span class="counter" data-target="9">0</span><span class="kpi-u">년</span></div>
-            <div class="kpi-l">비상교육 파트너십</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-n"><span class="counter" data-target="4">0</span><span class="kpi-u">개</span></div>
-            <div class="kpi-l">신규 AI 솔루션</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-n"><span class="counter" data-target="25">0</span><span class="kpi-u">%</span></div>
-            <div class="kpi-l">영업이익률 (2020)</div>
-          </div>
+      <div class="rv">
+        <span class="eyebrow">About Us</span>
+        <h2 class="title">신뢰의 11년,<br><span class="em">혁신의 다음.</span></h2>
+        <p class="lead-desc">교육과 공공의 디지털 전환을 가장 가까이에서 지원하는 IT 파트너.</p>
+        <div class="about-hi">
+          <div class="about-hi-item"><span class="about-hi-num">11</span><div class="about-hi-txt"><strong>년 사업 이력</strong><span>2014년 설립 · 정보시스템 전문기업</span></div></div>
+          <div class="about-hi-item"><span class="about-hi-num">9</span><div class="about-hi-txt"><strong>년 파트너십</strong><span>비상교육 핵심 서비스 연속 수행</span></div></div>
+          <div class="about-hi-item"><span class="about-hi-num">4</span><div class="about-hi-txt"><strong>대 신규 솔루션</strong><span>AI · IoT · 실감형 기술 융합</span></div></div>
         </div>
       </div>
-      <div>
-        <p class="lead rv">비상교육 9년 파트너십 위에서 출발한 AI 에듀테크 전문기업</p>
-        <p class="about-p rv d1">2014년 설립 이래 비상교육 RMS 시스템개편(1.925억)을 시작으로 비바샘·유아Core·윙스·누리샘·티키토키 등 비상교육 핵심 서비스를 9년간 연속 수행하였습니다. 현대NGV·경기도청·국방부 사업에도 참여하며 교육·공공 전 분야의 SI 역량을 쌓았습니다.</p>
-        <p class="about-p rv d2">2026년 현재는 축적된 도메인 경험 위에 AI·IoT·실감형 기술을 결합한 4대 신규 솔루션으로 다음 단계의 에듀테크 시장을 개척하고 있습니다.</p>
-        <table class="info-tbl rv d3">
-          <tr><td class="lbl">법인명</td><td class="val">㈜예담정보통신<span class="badge">중소기업</span></td></tr>
-          <tr><td class="lbl">대표자</td><td class="val">송 규 봉 (Song Kyu Bong)</td></tr>
-          <tr><td class="lbl">설립일</td><td class="val">2014년 9월 1일<span class="badge">11년차</span></td></tr>
-          <tr><td class="lbl">업종</td><td class="val">정보시스템 유지관리 · SI · AI 에듀테크</td></tr>
-          <tr><td class="lbl">사업자번호</td><td class="val">127-86-57189</td></tr>
-          <tr><td class="lbl">소재지</td><td class="val">서울 금천구 가산디지털1로 212, 1405호</td></tr>
+      <div class="rv d1">
+        <p class="about-lead">비상교육 9년 파트너십 위에서 출발한 AI 에듀테크 전문기업</p>
+        <p class="about-p">2014년 설립 이래 비상교육 RMS 시스템개편(1.925억)을 시작으로 비바샘·유아Core·윙스·누리샘·티키토키 등 비상교육 핵심 서비스를 9년간 연속 수행하였습니다. 현대NGV·경기도청·국방부 사업에도 참여하며 교육·공공 전 분야의 SI 역량을 쌓았습니다.</p>
+        <p class="about-p">2026년 현재는 축적된 도메인 경험 위에 AI·IoT·실감형 기술을 결합한 4대 신규 솔루션으로 다음 단계의 에듀테크 시장을 개척하고 있습니다.</p>
+        <table class="info-tbl">
+          <tbody>
+            <tr><td class="lbl">법인명</td><td class="val">㈜예담정보통신<span class="tag">중소기업</span></td></tr>
+            <tr><td class="lbl">대표자</td><td class="val">송 규 봉 (Song Kyu Bong)</td></tr>
+            <tr><td class="lbl">설립일</td><td class="val">2014년 9월 1일<span class="tag">11년차</span></td></tr>
+            <tr><td class="lbl">업종</td><td class="val">정보시스템 유지관리 · SI · AI 에듀테크</td></tr>
+            <tr><td class="lbl">사업자번호</td><td class="val">127-86-57189</td></tr>
+            <tr><td class="lbl">소재지</td><td class="val">서울 금천구 가산디지털1로 212, 1405호 (코오롱디지털타워애스턴)</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ PARTNER LOGO MARQUEE ══ -->
-<div class="logo-marquee-wrap">
-  <p class="logo-marquee-label">신뢰의 파트너사</p>
-  <div style="overflow:hidden">
-    <div class="logo-track">
-      <span class="logo-item"><img src="images/logo_visang.png" alt="비상교육 로고"></span>
-      <span class="logo-item"><img src="images/logo_hyundai.svg" alt="현대NGV 로고"></span>
-      <span class="logo-item"><img src="images/logo_gg.gif" alt="경기도청 로고"></span>
-      <span class="logo-item"><img src="images/logo_mnd.svg" alt="국방부 로고"></span>
-      <span class="logo-item"><img src="images/logo_ybm.svg" alt="YBM 로고"></span>
-      <span class="logo-item"><img src="images/logo_spacek_dark.svg" alt="스페이스케이 로고"></span>
-      <span class="logo-item"><img src="images/logo_ubion.png" alt="유비온 로고"></span>
-      <span class="logo-item"><img src="images/logo_npage.png" alt="엔페이지 로고"></span>
-      <span class="logo-item"><img src="images/logo_tta.svg" alt="TTA 정보통신기술협회 로고"></span>
-      <span class="logo-item"><img src="images/logo_airforce_dark.svg" alt="공군사관학교 로고"></span>
-      <!-- 루프 복제 -->
-      <span class="logo-item"><img src="images/logo_visang.png" alt="비상교육 로고"></span>
-      <span class="logo-item"><img src="images/logo_hyundai.svg" alt="현대NGV 로고"></span>
-      <span class="logo-item"><img src="images/logo_gg.gif" alt="경기도청 로고"></span>
-      <span class="logo-item"><img src="images/logo_mnd.svg" alt="국방부 로고"></span>
-      <span class="logo-item"><img src="images/logo_ybm.svg" alt="YBM 로고"></span>
-      <span class="logo-item"><img src="images/logo_spacek_dark.svg" alt="스페이스케이 로고"></span>
-      <span class="logo-item"><img src="images/logo_ubion.png" alt="유비온 로고"></span>
-      <span class="logo-item"><img src="images/logo_npage.png" alt="엔페이지 로고"></span>
-      <span class="logo-item"><img src="images/logo_tta.svg" alt="TTA 정보통신기술협회 로고"></span>
-      <span class="logo-item"><img src="images/logo_airforce_dark.svg" alt="공군사관학교 로고"></span>
-    </div>
-  </div>
-</div>
-
-<!-- ══ SOLUTIONS ══ -->
-<section class="sec sol-sec" id="solutions">
-  <div class="sec-in">
-    <div class="sec-hd">
-      <div class="sec-num rv">02 — Solutions</div>
-      <div class="kicker rv">4대 핵심 솔루션</div>
-      <h2 class="title rv d1">AI와 IoT로 설계한<br><span class="em">미래 교육 시스템.</span></h2>
-      <p class="desc rv d2">학교·공공·영유아·광고 인프라를 아우르는 예담의 통합 에듀테크 솔루션 포트폴리오.</p>
+<!-- ══════════ SOLUTIONS (4 cards) ══════════ -->
+<section class="sec" id="solutions">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Our Solutions</span>
+      <h2 class="title">차세대 교육을 설계하는<br><span class="em">4대 핵심 솔루션.</span></h2>
+      <p class="lead-desc">Mind · Space · Body · City — 학생을 둘러싼 네 가지 차원을 데이터와 AI로 연결합니다.</p>
     </div>
     <div class="sol-grid">
-      <!-- Sol 01 -->
-      <div class="sol-card rv">
-        <div class="sol-num">Solution 01</div>
-        <div class="sol-icon">🧠</div>
-        <div class="sol-h"><span>AI PIA</span> — 영유아 발달 플랫폼</div>
-        <p class="sol-p">영유아 관찰 데이터를 AI로 분석해 맞춤형 발달 리포트와 학부모 소통 도구를 제공하는 SaaS 플랫폼. 교사의 행정 부담을 혁신적으로 줄이고, 발달 격차 조기 발견을 가능하게 합니다.</p>
-        <div class="sol-tags">
-          <span class="sol-tag">AI 발달 분석</span>
-          <span class="sol-tag">SaaS</span>
-          <span class="sol-tag">학부모 소통</span>
-          <span class="sol-tag">데이터 시각화</span>
+      <article class="sol-card rv">
+        <div class="sol-card-img"><img loading="lazy" src="images/sol1_pia_ecosystem.jpg" alt="AI PIA 5단계 반복형 성장관리 플랫폼 — Engage · Diagnose · Educate · Support · Manage"></div>
+        <div class="sol-card-body">
+          <div class="sol-no">01 · Mind · Growth Platform</div>
+          <h3>AI PIA 성장교육 플랫폼</h3>
+          <p>밀착형 성장 진단 및 반응형 상담 지원 — 학생의 성향과 진로를 AI 16유형 검사로 분석하고 맞춤형 교육·상담 키오스크로 연결하는 차세대 반복형 성장관리 플랫폼.</p>
+          <ul class="sol-feats">
+            <li>AI 교육형 만화·숏폼으로 자발적 참여 유도</li>
+            <li>AI 16유형 검사 (3~5분 간편 / 정밀)</li>
+            <li>익명 상담 키오스크 · 위험 감지 시스템</li>
+          </ul>
         </div>
-        <div class="sol-img"><img loading="lazy" src="images/sol1_pia_ecosystem.jpg" alt="AI PIA 영유아 발달 플랫폼 생태계"></div>
-        <a href="ai-pia.html" class="sol-link" target="_blank">AI PIA 체험하기 →</a>
-      </div>
-      <!-- Sol 02 -->
-      <div class="sol-card rv d1">
-        <div class="sol-num">Solution 02</div>
-        <div class="sol-icon">📋</div>
-        <div class="sol-h"><span>AI ClassBoard</span> — 스마트 학급 솔루션</div>
-        <p class="sol-p">AI 기반 생활기록부 자동 초안, 학급 운영 대시보드, 맞춤형 학습 관리 기능을 통합한 교사용 올인원 플랫폼. 행정 업무를 80% 줄이고 수업에 집중할 수 있는 환경을 제공합니다.</p>
-        <div class="sol-tags">
-          <span class="sol-tag">생활기록부 AI</span>
-          <span class="sol-tag">학급 관리</span>
-          <span class="sol-tag">EdTech SaaS</span>
+      </article>
+      <article class="sol-card rv d1">
+        <div class="sol-card-img"><img loading="lazy" src="images/sol2_classboard_tworoom.jpg" alt="AI ClassBoard — 교실 후면칠판과 교무실 디지털 공문 게시판을 통합 관리하는 스마트 스쿨보드"></div>
+        <div class="sol-card-body">
+          <div class="sol-no">02 · Space · Classroom OS</div>
+          <h3>AI ClassBoard 스마트 스쿨보드</h3>
+          <p>아날로그 게시판의 디지털 창작·소통 공간화 — 교실 뒤 칠판과 교무실 게시판을 스마트 플랫폼으로 전환하는 B2G 에듀테크 솔루션. AI Platform Manager로 통합 관리합니다.</p>
+          <ul class="sol-feats">
+            <li>교실 후면칠판 + 교무실 디지털 공문 통합</li>
+            <li>AI 부적절 표현 검수 · K-에듀파인 연동</li>
+            <li>기존 전자칠판과 충돌 없는 틈새 전략</li>
+          </ul>
         </div>
-        <div class="sol-img"><img loading="lazy" src="images/sol2_classboard_tworoom.jpg" alt="AI ClassBoard 스마트 학급 솔루션 화면"></div>
-        <a href="#contact" class="sol-link">도입 문의 →</a>
-      </div>
-      <!-- Sol 03 -->
-      <div class="sol-card rv d2">
-        <div class="sol-num">Solution 03</div>
-        <div class="sol-icon">🏃</div>
-        <div class="sol-h"><span>AREX-Climbing</span> — 실감형 체육 솔루션</div>
-        <p class="sol-p">AR·센서 기술을 결합한 실내 클라이밍 체육 플랫폼. 학생 신체 활동 데이터를 실시간 분석하고 체력 성장 기록을 시각화하여 체육 교육의 새로운 패러다임을 제시합니다.</p>
-        <div class="sol-tags">
-          <span class="sol-tag">AR 체육</span>
-          <span class="sol-tag">IoT 센서</span>
-          <span class="sol-tag">실시간 분석</span>
+      </article>
+      <article class="sol-card rv d2">
+        <div class="sol-card-img"><img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AREX-Climbing — AR/VR 실내 암벽등반과 PGMS 체육교육관리시스템 융합 솔루션"></div>
+        <div class="sol-card-body">
+          <div class="sol-no">03 · Body · Immersive PE</div>
+          <h3>AREX-Climbing 실감형 체육</h3>
+          <p>IT 기술이 접목된 안전한 미래형 체육 교육 — AR/VR 게임과 AI 기반 PGMS(체육교육관리시스템)이 융합된 실내 암벽등반 솔루션. 5m×3m 공암벽에 Blended Learning 콘텐츠를 결합합니다.</p>
+          <ul class="sol-feats">
+            <li>AR/VR 게임 + PGMS 체육 관리 시스템</li>
+            <li>체육 활동 데이터화 · 참여도 향상</li>
+            <li>친환경 자작나무 시공 · 안전 매트</li>
+          </ul>
         </div>
-        <div class="sol-img"><img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AREX-Climbing 실감형 체육 솔루션 설명"></div>
-        <a href="#contact" class="sol-link">상담 신청 →</a>
-      </div>
-      <!-- Sol 04 -->
-      <div class="sol-card rv d3">
-        <div class="sol-num">Solution 04</div>
-        <div class="sol-icon">📺</div>
-        <div class="sol-h"><span>AI 디지털 간판</span> — 스마트 광고 시스템</div>
-        <p class="sol-p">AI 자동 광고 심사, 실시간 콘텐츠 배포, AREX·지하철역 연동 디지털 사이니지 플랫폼. 소상공인 스마트상점 예산과 연계하여 광고주와 미디어 인프라를 직접 연결합니다.</p>
-        <div class="sol-tags">
-          <span class="sol-tag">AI 광고 심사</span>
-          <span class="sol-tag">AREX 연동</span>
-          <span class="sol-tag">스마트상점</span>
+      </article>
+      <article class="sol-card rv d3">
+        <div class="sol-card-img"><img loading="lazy" src="images/sol4_signage_new.jpg" alt="AI 디지털 간판 플랫폼 — 건물 공지·광고 디지털화 및 입주사 수익 창출"></div>
+        <div class="sol-card-body">
+          <div class="sol-no">04 · City · Smart Signage</div>
+          <h3>AI 디지털 간판 플랫폼</h3>
+          <p>종이 게시판을 대체하여 건물 공지·광고를 디지털화하고, AI 광고 제작·QR 상담·입주사 광고 수익 모델을 제공하는 스마트 시설 솔루션. 지식산업센터·공공시설관리공단 특화.</p>
+          <ul class="sol-feats">
+            <li>AI 광고 제작 · QR 상담 · 공지 송출</li>
+            <li>입주사 광고 수익화 · 시설관리 경감</li>
+            <li>B2B/B2G 스마트 시설 특화 모델</li>
+          </ul>
         </div>
-        <div class="sol-img"><img loading="lazy" src="images/sol4_signage_new.jpg" alt="AI 디지털 간판 스마트 광고 시스템"></div>
-        <a href="#contact" class="sol-link">파트너십 문의 →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FEATURE 1: 3대 인프라 ══════════ -->
+<section class="sec alt">
+  <div class="wrap">
+    <div class="feat-grid rv">
+      <div class="feat-media"><img loading="lazy" src="images/infra_3pillar.jpg" alt="미래 교육을 완성하는 3대 디지털 전환 인프라 — Mind · Space · Body"></div>
+      <div>
+        <span class="eyebrow">Integrated Vision</span>
+        <h2 class="title">미래 교육을 완성하는<br><span class="em">3대 디지털 전환 인프라.</span></h2>
+        <p class="lead-desc">학생의 마음(Mind)·공간(Space)·신체(Body)를 하나의 데이터 흐름으로 연결하는 통합 마스터플랜.</p>
+        <ul class="feat-list">
+          <li><span class="d"></span><div><strong>Mind — AI PIA:</strong> 밀착형 성장 진단 및 반응형 상담 지원</div></li>
+          <li><span class="d"></span><div><strong>Space — Smart Schoolboard:</strong> 아날로그 게시판의 디지털 창작·소통 공간화</div></li>
+          <li><span class="d"></span><div><strong>Body — AREX CLIMB:</strong> IT 기술이 접목된 안전한 미래형 체육 교육</div></li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ FEATURE 1: 마스터플랜 ══ -->
-<section class="feat-sec">
-  <div class="feat-inner">
-    <div class="feat-body">
-      <div class="sec-num rv">03 — Masterplan</div>
-      <div class="feat-sec-kicker rv">통합 마스터플랜</div>
-      <h2 class="feat-h rv d1">학교를 넘어<br><span>도시 인프라까지.</span></h2>
-      <p class="feat-p rv d2">Mind(교육·AI), Space(공간·시설), Body(체육·건강) 세 축으로 구성된 차세대 스마트 학교 통합 마스터플랜. 예담의 4대 솔루션이 하나의 생태계로 연결됩니다.</p>
-      <ul class="feat-list rv d3">
-        <li><span class="d"></span><div><strong>Mind 영역 —</strong> AI PIA + ClassBoard로 학습·발달 전 주기 데이터 분석</div></li>
-        <li><span class="d"></span><div><strong>Space 영역 —</strong> AI 디지털 간판 + 스마트 시설로 공간 인프라 디지털화</div></li>
-        <li><span class="d"></span><div><strong>Body 영역 —</strong> AREX-Climbing + IoT 센서로 체육·건강 데이터 수집</div></li>
-      </ul>
-      <div class="feat-stat-row rv d4">
-        <div class="feat-stat"><div class="feat-stat-n">3개</div><div class="feat-stat-l">통합 축</div></div>
-        <div class="feat-stat"><div class="feat-stat-n">4개</div><div class="feat-stat-l">솔루션</div></div>
-        <div class="feat-stat"><div class="feat-stat-n">1개</div><div class="feat-stat-l">생태계</div></div>
-      </div>
-    </div>
-    <div class="feat-vis rv-right">
-      <div class="feat-vis-wrap">
-        <img loading="lazy" src="images/hero_masterplan.jpg" alt="예담정보통신 AI 스마트 학교 통합 마스터플랜 Mind Space Body">
+<!-- ══════════ FEATURE 2: 비즈니스 로드맵 ══════════ -->
+<section class="sec">
+  <div class="wrap">
+    <div class="feat-grid rev rv">
+      <div class="feat-media"><img loading="lazy" src="images/biz_4solutions.jpg" alt="AI 기반 교육 통합 플랫폼 4대 핵심 비즈니스 솔루션 — 3년 매출 로드맵"></div>
+      <div>
+        <span class="eyebrow">Business Model</span>
+        <h2 class="title">3년 내 매출<br><span class="em">100억을 향한</span> 로드맵.</h2>
+        <p class="lead-desc">학교 발 4대 솔루션과 Edu Agent-Agency, AI 자동 광고 심사, 정부 예산 연계를 결합한 다층적 성장 구조.</p>
+        <ul class="feat-list">
+          <li><span class="d"></span><div><strong>1년차 4.95억 →</strong> 4대 핵심 사업 시범 관리 및 운영</div></li>
+          <li><span class="d"></span><div><strong>2년차 19.85억 →</strong> 학교 및 학급 단위 공급 확대</div></li>
+          <li><span class="d"></span><div><strong>3년차 77.5억 →</strong> 교육업·지자체 사업 수주 및 고도화</div></li>
+          <li><span class="d"></span><div><strong>정부 예산 연계 —</strong> AI 중점학교, 소상공인 스마트상점, 스마트그린산단, 문체부 체육 예산 활용</div></li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ FEATURE 2: 비즈니스 모델 ══ -->
-<section class="feat-sec" style="background:var(--bg2)">
-  <div class="feat-inner rev">
-    <div class="feat-body">
-      <div class="sec-num rv">04 — Business Model</div>
-      <div class="feat-sec-kicker rv">다층 수익 구조</div>
-      <h2 class="feat-h rv d1">지속 성장하는<br><span>비즈니스 모델.</span></h2>
-      <p class="feat-p rv d2">SI 수주 기반에 SaaS 구독 + 정부 예산 연계 + Edu Agent-Agency를 더해 다층적 성장 구조를 구축합니다.</p>
-      <ul class="feat-list rv d3">
-        <li><span class="d"></span><div><strong>1년차 8.9억 →</strong> SI 수주 + AI PIA MVP · ClassBoard 출시</div></li>
-        <li><span class="d"></span><div><strong>2년차 19.85억 →</strong> 학교·학급 단위 공급 확대</div></li>
-        <li><span class="d"></span><div><strong>3년차 45.8억 →</strong> 지자체·공공 광역 확장</div></li>
-        <li><span class="d"></span><div><strong>정부 예산 연계 —</strong> AI 중점학교, 소상공인 스마트상점, 둔체부 체육 예산 활용</div></li>
-      </ul>
-    </div>
-    <div class="feat-vis rv-left">
-      <div class="feat-vis-wrap">
-        <img loading="lazy" src="images/biz_4solutions.jpg" alt="예담정보통신 4대 솔루션 비즈니스 모델 수익 구조">
+<!-- ══════════ DETAIL A: 통합 스마트 시설 ══════════ -->
+<section class="sec alt" id="signage-arex">
+  <div class="wrap">
+    <div class="feat-grid rv">
+      <div class="feat-media"><img loading="lazy" src="images/sol_signage_arex.jpg" alt="AI 디지털 간판 & AREX-Climbing 통합 스마트 시설 솔루션"></div>
+      <div>
+        <span class="eyebrow">Solution 03 &amp; 04 · City · Body</span>
+        <h2 class="title">통합 스마트<br><span class="em">시설 솔루션.</span></h2>
+        <p class="lead-desc">건물의 공지·광고를 디지털화하는 AI 디지털 간판과 데이터 기반 AREX-Climbing 실감형 체육을 결합하여 운영 효율을 높이고 새로운 수익을 창출합니다.</p>
+        <ul class="feat-list">
+          <li><span class="d"></span><div><strong>AI 디지털 간판:</strong> 공지·광고 송출, AI 광고 제작, QR 상담으로 종이 게시판을 대체. 입주사 광고 수익·시설관리 경감 동시 달성.</div></li>
+          <li><span class="d"></span><div><strong>AREX-Climbing:</strong> AR/VR 게임 + PGMS 체육 관리 + 키오스크. 체육 활동 데이터화로 학생 체력 관리 및 참여도 향상.</div></li>
+          <li><span class="d"></span><div><strong>타깃별 도입 패키지:</strong> 지식산업센터 수익형 모델부터 시설관리공단·공공시설형까지 현장 최적화 구성 제안.</div></li>
+          <li><span class="d"></span><div><strong>정부 예산 연계:</strong> 스마트그린산단, 소상공인 스마트상점, 문체부 체육 예산 등 국비 지원 활용 가능.</div></li>
+        </ul>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ══ DETAIL SECTIONS HEADER ══ -->
-<section class="detail-hdr-sec" id="detail-solutions">
-  <div class="sec-in" style="text-align:center">
-    <div class="sec-num rv">05 — Detail</div>
-    <div class="kicker rv">솔루션 상세</div>
-    <h2 class="title rv d1">기술로 완성하는<br><span class="em">스마트 인프라.</span></h2>
-    <p class="desc rv d2" style="margin:0 auto">학교를 넘어 도시 인프라까지 — 예담의 3대 통합 시설 솔루션을 자세히 살펴보세요.</p>
-  </div>
-</section>
-
-<!-- ══ DETAIL A: 스마트 시설 ══ -->
-<section class="feat-sec" id="signage-arex">
-  <div class="feat-inner">
-    <div class="feat-body">
-      <div class="feat-sec-kicker rv">Smart Facility</div>
-      <h2 class="feat-h rv d1">통합 스마트<br><span>시설 솔루션.</span></h2>
-      <p class="feat-p rv d2">AREX 공항철도 역사와 학교·공공시설을 하나의 광고·콘텐츠 네트워크로 연결하는 AI 기반 디지털 인프라 플랫폼입니다.</p>
-      <ul class="feat-list rv d3">
-        <li><span class="d"></span><div>AI 자동 광고 심사 · 실시간 콘텐츠 배포</div></li>
-        <li><span class="d"></span><div>소상공인 스마트상점 정부 예산 연계</div></li>
-        <li><span class="d"></span><div>스마트그린산단 · 지방소멸대응기금 활용</div></li>
-        <li><span class="d"></span><div>AREX 공항철도 역사 디지털 사이니지 연동</div></li>
-      </ul>
-    </div>
-    <div class="feat-vis rv-right">
-      <div class="feat-vis-wrap">
-        <img loading="lazy" src="images/sol_signage_arex.jpg" alt="AREX 공항철도 AI 디지털 간판 스마트 시설 솔루션">
+    <div class="subcards rv">
+      <div class="subcard">
+        <span class="lbl">AI 디지털 간판</span>
+        <div class="sc-row">
+          <div class="sc-item"><img loading="lazy" src="images/sol_signage_arex.jpg" alt="공지·광고 송출"><div class="t"><strong>공지·광고 송출</strong><span>AI 광고 제작 · QR 상담</span></div></div>
+          <div class="sc-item"><img loading="lazy" src="images/biz_4solutions.jpg" alt="광고 수익 창출"><div class="t"><strong>광고 수익 창출</strong><span>시설관리 업무 경감</span></div></div>
+        </div>
+      </div>
+      <div class="subcard moss">
+        <span class="lbl">AREX-Climbing</span>
+        <div class="sc-row">
+          <div class="sc-item"><img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AR/VR 게임"><div class="t"><strong>AR/VR 게임</strong><span>PGMS 체육 관리</span></div></div>
+          <div class="sc-item"><img loading="lazy" src="images/infra_3pillar.jpg" alt="체육 데이터화"><div class="t"><strong>체육 데이터화</strong><span>참여도 향상</span></div></div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ DETAIL B: 스마트 스쿨 ══ -->
-<section class="feat-sec" style="background:var(--bg2)" id="smart-school">
-  <div class="feat-inner rev">
-    <div class="feat-body">
-      <div class="feat-sec-kicker rv">Smart School</div>
-      <h2 class="feat-h rv d1">차세대<br><span>스마트 스쿨.</span></h2>
-      <p class="feat-p rv d2">학교의 성장 관리, 행정 효율화, 실감형 체육 교육을 아우르는 차세대 에듀테크 통합 생태계입니다.</p>
-      <ul class="feat-list rv d3">
-        <li><span class="d"></span><div>AI ClassBoard — 생활기록부 자동 초안, 학급 대시보드</div></li>
-        <li><span class="d"></span><div>AREX-Climbing — AR 실내 클라이밍 체육 시스템</div></li>
-        <li><span class="d"></span><div>IoT 기반 교실 환경 모니터링 (공기질·조도·소음)</div></li>
-        <li><span class="d"></span><div>AI 중점학교 정부 예산 직접 연계</div></li>
-      </ul>
+<!-- ══════════ DETAIL B: 차세대 스마트 스쿨 ══════════ -->
+<section class="sec" id="smart-school">
+  <div class="wrap">
+    <div class="feat-grid rev rv">
+      <div class="feat-media"><img loading="lazy" src="images/sol_classboard_strategy.jpg" alt="차세대 스마트 스쿨 통합 솔루션 — AI PIA · Smart Schoolboard · AREX CLIMB"></div>
+      <div>
+        <span class="eyebrow">Smart School · PIA &amp; Schoolboard &amp; AREX</span>
+        <h2 class="title">데이터와 AI로 완성하는<br><span class="em">미래형 학교.</span></h2>
+        <p class="lead-desc">학교의 성장 관리, 행정 효율화, 실감형 체육 교육을 아우르는 차세대 에듀테크 통합 생태계.</p>
+        <ul class="feat-list">
+          <li><span class="d"></span><div><strong>AI PIA — 5단계 성장 생태계:</strong> 흥미 유발 → 심층 진단 → 맞춤 교육 → 현장 지원 → 데이터 관리의 반복 선순환.</div></li>
+          <li><span class="d"></span><div><strong>Smart Schoolboard — 행정 누락 Zero화:</strong> AI가 공문 요약·마감일 자동 추출하여 교무실 업무 효율 극대화.</div></li>
+          <li><span class="d"></span><div><strong>맞춤형 교육 패키지 자동 매핑:</strong> 16가지 유형 진단 결과와 창의·논리·공감·실전 최적화 솔루션 자동 연결.</div></li>
+          <li><span class="d"></span><div><strong>AREX CLIMB — 친환경 실감형 체육:</strong> 100% 자작나무 친환경 시공, AR/VR 융합 게임으로 자발적 참여 유도.</div></li>
+        </ul>
+      </div>
     </div>
-    <div class="feat-vis rv-left">
-      <div class="feat-vis-wrap">
-        <img loading="lazy" src="images/sol_classboard_hero.jpg" alt="AI ClassBoard 차세대 스마트 스쿨 에듀테크 솔루션">
+    <div class="strat-head rv">핵심 솔루션 '블루오션' 전략 가치 제안</div>
+    <div class="strat-grid rv">
+      <div class="strat-card"><img loading="lazy" src="images/sol_pia_hero.jpg" alt="AI PIA"><div class="b"><strong>AI PIA</strong><span>밀착형 성장 진단 및 반응형 상담 지원</span></div></div>
+      <div class="strat-card"><img loading="lazy" src="images/sol_classboard_hero.jpg" alt="Smart Schoolboard"><div class="b"><strong>Smart Schoolboard</strong><span>아날로그 게시판의 디지털 창작·소통 공간화</span></div></div>
+      <div class="strat-card"><img loading="lazy" src="images/sol3_arex_detail.jpg" alt="AREX CLIMB"><div class="b"><strong>AREX CLIMB</strong><span>IT 기술이 접목된 안전한 미래형 체육 교육</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ DETAIL C: AI 영유아 플랫폼 ══════════ -->
+<section class="sec alt" id="infant-platform">
+  <div class="wrap">
+    <div class="feat-grid rv">
+      <div class="feat-media"><img loading="lazy" src="images/sol_pia_hero.jpg" alt="AI 영유아 성장·놀이·소통 플랫폼 — 전국 3.5만 개소 대상"></div>
+      <div>
+        <span class="eyebrow">AI Kids Platform · 영유아 성장</span>
+        <h2 class="title">AI 영유아<br><span class="em">성장·놀이·소통</span> 플랫폼.</h2>
+        <p class="lead-desc">'학습' 중심에서 '놀이와 성장' 중심으로 — 전국 3.5만 개소 어린이집·유치원 대상 확산형 구독 플랫폼.</p>
+        <ul class="feat-list">
+          <li><span class="d"></span><div><strong>전국 3.5만 개소 시장:</strong> 어린이집 27,402개소 + 유치원 8,140개소 — 방대한 기관 수 기반 사업 확장에 최적.</div></li>
+          <li><span class="d"></span><div><strong>맞춤형 AI 그림책·놀이/감정 카드:</strong> 자연·친구·안전·감정 등 영유아 필수 주제를 AI 콘텐츠로 제공하여 생활습관 형성.</div></li>
+          <li><span class="d"></span><div><strong>AI Kids Growth Platform:</strong> 놀이 활동 기록 → 작품 공유 → 정서 표현 분석을 쉽고 안전하게 연동.</div></li>
+          <li><span class="d"></span><div><strong>AI 키오스크 소통 체계:</strong> 등·하원 정보, 사진 업로드, 가정 연계 놀이 신청 등 교사↔학부모 실시간 소통.</div></li>
+        </ul>
+      </div>
+    </div>
+    <div class="kid-stats rv">
+      <div class="kid-stat"><div class="lbl">전국 어린이집</div><div class="num">27,402<span>개소</span></div><div class="cap">아동 수 943,681명</div></div>
+      <div class="kid-stat sky"><div class="lbl">전국 유치원</div><div class="num">8,140<span>개소</span></div><div class="cap">아동 수 약 480,000명</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ METRICS ══════════ -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">By the Numbers</span>
+      <h2 class="title">숫자로 증명하는 <span class="em">신뢰.</span></h2>
+      <p class="lead-desc">11년의 업력과 검증된 재무 건전성 위에서 다음 단계를 준비합니다.</p>
+    </div>
+    <div class="mt-grid">
+      <div class="mt-card rv"><div class="mt-lbl">Years in Business</div><div class="mt-num">11<span class="u">년</span></div><div class="mt-desc">2014년 설립 · 정보시스템 전문기업으로 쌓아온 업력</div></div>
+      <div class="mt-card rv d1"><div class="mt-lbl">Major Projects</div><div class="mt-num">15<span class="u">+</span></div><div class="mt-desc">교육·공공 분야 주요 수행 프로젝트</div></div>
+      <div class="mt-card rv d2"><div class="mt-lbl">Visang Partnership</div><div class="mt-num">9<span class="u">년</span></div><div class="mt-desc">비상교육 핵심 서비스 연속 수행</div></div>
+      <div class="mt-card rv d3"><div class="mt-lbl">Operating Margin (2020)</div><div class="mt-num">25<span class="u">%</span></div><div class="mt-desc">검증된 수익성과 재무 건전성</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ RECORD (timeline) ══════════ -->
+<section class="sec dark" id="record">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Track Record</span>
+      <h2 class="title">검증된 11년의<br><span class="em">수행 실적.</span></h2>
+      <p class="lead-desc">2016년 비상교육 RMS 시스템개편을 시작으로 핵심 서비스 9년 연속 수행. 공식 실적증명원 및 계약서로 확인된 대표 프로젝트입니다.</p>
+    </div>
+    <div class="tl rv">
+      <div class="tl-item hot">
+        <div class="tl-year">2022</div>
+        <div><span class="tl-client">예담정보통신</span>
+          <div class="tl-title">R-Learning 교육용 로봇 상품 개발 컨설팅</div>
+          <div class="tl-desc">교육시장 진입을 위한 교육로봇 상품 개발 전략 수립. 국내외 시장 조사, 전문가 6인 인터뷰(FGI), 수업 사례 분석. AI 기반 인터렉티브 휴머노이드 로봇 상품 기획안 및 R-Learning 비즈니스 모델 2~3종 제시.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2022</div>
+        <div><span class="tl-client">비상교육</span>
+          <div class="tl-title">유아Core · 비바샘 · 윙스 · 누리샘 통합 유지보수</div>
+          <div class="tl-desc">유아Core 외주 용역 계약 변경, 비바샘 Mobile App 개발(엔페이지 협력), 윙스 하자보수, 누리샘·티키토키 산출물 인수인계까지 비상교육 전 플랫폼 SI 수행.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2021</div>
+        <div><span class="tl-client">비상교육 · YBM · 스페이스케이</span>
+          <div class="tl-title">유아Core 서비스 개선 · 출판 웹서비스 디자인</div>
+          <div class="tl-desc">비상교육 유아Core 서비스 개선 개발용역 및 출판 웹서비스 디자인 업무. YBM·스페이스케이 등 협력 네트워크 본격 확장.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2019–20</div>
+        <div><span class="tl-client">비상교육</span>
+          <div class="tl-title">비바샘 신학기 대응 · 안드로이드 앱 · IT 외주용역</div>
+          <div class="tl-desc">비바샘 2020 신학기 대응, 안드로이드 일괄업데이트 외주, 똑똑해 모바일 앱 콘텐츠 개발, 세원 신규서비스 및 누리샘 관리자 개선 등.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2017–18</div>
+        <div><span class="tl-client">비상교육 · 현대NGV</span>
+          <div class="tl-title">대외서비스 개발지원 · 현대NGV 컨소시엄 제안</div>
+          <div class="tl-desc">비상교육 대외서비스 개발지원 및 안드로이드앱 일괄업데이트 외주. 현대NGV 제안서 컨소시엄(유비온) 참여. 비상입시 웹서비스 개발.</div>
+        </div>
+      </div>
+      <div class="tl-item hot">
+        <div class="tl-year">2016</div>
+        <div><span class="tl-client">비상교육</span>
+          <div class="tl-title">비상교육 RMS 시스템개편 — 대표 프로젝트</div>
+          <div class="tl-desc">정보시스템 개발구축 부문 표준계약. 153일간 RMS(자원관리시스템) 전면 개편. 공급가액 175,000,000원 + VAT. 예담정보통신 최초 대형 단독 계약 수주.</div>
+          <div class="tl-amount">계약총액 ₩ 192,500,000 (일억구천이백오십만 원)</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ DETAIL C: AI 영유아 플랫폼 ══ -->
-<section class="feat-sec" id="infant-platform">
-  <div class="feat-inner">
-    <div class="feat-body">
-      <div class="feat-sec-kicker rv">Infant Platform</div>
-      <h2 class="feat-h rv d1">AI 영유아<br><span>발달 플랫폼.</span></h2>
-      <p class="feat-p rv d2">AI 관찰 기록 · 발달 분석 · 학부모 소통 기능을 하나로 통합한 영유아 전문 SaaS 플랫폼입니다.</p>
-      <ul class="feat-list rv d3">
-        <li><span class="d"></span><div>AI 자동 발달 관찰 기록 생성</div></li>
-        <li><span class="d"></span><div>개인화 발달 리포트 · 성장 시각화 대시보드</div></li>
-        <li><span class="d"></span><div>학부모 앱 — 실시간 알림 · 소통 채널</div></li>
-        <li><span class="d"></span><div>누리과정 완전 연동 · 교사 행정 80% 자동화</div></li>
-      </ul>
-      <div style="margin-top:28px" class="rv d4">
-        <a href="ai-pia.html" class="btn-p" target="_blank" style="display:inline-flex">AI PIA 직접 체험하기 →</a>
-      </div>
-    </div>
-    <div class="feat-vis rv-right">
-      <div class="feat-vis-wrap">
-        <img loading="lazy" src="images/sol_pia_hero.jpg" alt="AI PIA 영유아 발달 플랫폼 메인 화면">
-      </div>
-    </div>
-  </div>
-</section>
-<!-- ══ TRACK RECORD ══ -->
-<section class="sec record" id="record">
-  <div class="sec-in">
-    <div class="sec-hd-center">
-      <div class="sec-num rv">06 — Track Record</div>
-      <div class="kicker rv">실적 · 이력</div>
-      <h2 class="title rv d1">숫자로 증명하는<br><span class="em">신뢰.</span></h2>
-    </div>
-    <div class="record-grid rv">
-      <div class="rec-item">
-        <div class="rec-n"><span class="counter" data-target="11">0</span><span style="font-size:.5em">년</span></div>
-        <div class="rec-lbl">업력</div>
-        <div class="rec-sub">2014년 9월 설립</div>
-      </div>
-      <div class="rec-item">
-        <div class="rec-n"><span class="counter" data-target="15">0</span><span style="font-size:.5em">+</span></div>
-        <div class="rec-lbl">수행 프로젝트</div>
-        <div class="rec-sub">SI · AI · 공공 전 분야</div>
-      </div>
-      <div class="rec-item">
-        <div class="rec-n"><span class="counter" data-target="9">0</span><span style="font-size:.5em">년</span></div>
-        <div class="rec-lbl">비상교육 파트너십</div>
-        <div class="rec-sub">연속 수행 달성</div>
-      </div>
-      <div class="rec-item">
-        <div class="rec-n"><span class="counter" data-target="25">0</span><span style="font-size:.5em">%</span></div>
-        <div class="rec-lbl">영업이익률</div>
-        <div class="rec-sub">2020년 최고 기록</div>
-      </div>
-    </div>
-    <div class="proj-list">
-      <div class="proj-card rv">
-        <div class="proj-yr">2015 — 2016</div>
-        <div class="proj-ttl">비상교육 RMS 시스템 개편</div>
-        <div class="proj-cl">㈜비상교육</div>
-        <div class="proj-amt">1.925억원</div>
-      </div>
-      <div class="proj-card rv d1">
-        <div class="proj-yr">2016 — 2018</div>
-        <div class="proj-ttl">비바샘 · 유아Core 유지보수</div>
-        <div class="proj-cl">㈜비상교육</div>
-        <div class="proj-amt">연속 수주</div>
-      </div>
-      <div class="proj-card rv d2">
-        <div class="proj-yr">2018 — 2020</div>
-        <div class="proj-ttl">윙스 · 누리샘 · 티키토키 운영</div>
-        <div class="proj-cl">㈜비상교육</div>
-        <div class="proj-amt">5개 서비스 병행</div>
-      </div>
-      <div class="proj-card rv d3">
-        <div class="proj-yr">2020</div>
-        <div class="proj-ttl">현대NGV 컨소시엄 사업</div>
-        <div class="proj-cl">현대NGV · 교육부</div>
-        <div class="proj-amt">영업이익률 25% 달성</div>
-      </div>
-      <div class="proj-card rv">
-        <div class="proj-yr">2021 — 2022</div>
-        <div class="proj-ttl">경기도청 공공 IT 사업</div>
-        <div class="proj-cl">경기도청</div>
-        <div class="proj-amt">공공 SI 역량 확장</div>
-      </div>
-      <div class="proj-card rv d1">
-        <div class="proj-yr">2022 — 2024</div>
-        <div class="proj-ttl">국방부 · 공군사관학교 사업</div>
-        <div class="proj-cl">국방부 · 공군사관학교</div>
-        <div class="proj-amt">방산 · 교육 IT 확대</div>
-      </div>
-    </div>
-    <!-- 전략적 파트너사 이미지 -->
-    <div style="margin-top:64px" class="rv d2">
-      <img loading="lazy" src="images/infra_3pillar.jpg" alt="예담정보통신 3대 인프라 전략 기둥" style="width:100%;border-radius:20px;border:1px solid rgba(148,163,184,.15);box-shadow:0 16px 56px rgba(15,23,42,.1)">
-    </div>
-  </div>
-</section>
-
-<!-- ══ CLIENTS / PARTNERS ══ -->
-<section class="sec clients" id="clients">
-  <div class="sec-in">
-    <div class="sec-hd-center">
-      <div class="sec-num rv">07 — Partners</div>
-      <div class="kicker rv">파트너 & 클라이언트</div>
-      <h2 class="title rv d1">함께해 온<br><span class="em">신뢰의 파트너.</span></h2>
-      <p class="desc rv d2" style="margin:0 auto">단발성 거래가 아닌, 장기적 파트너십으로 이어진 교육·공공·민간 네트워크.</p>
+<!-- ══════════ CLIENTS / PARTNERS ══════════ -->
+<section class="sec alt" id="clients">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Clients &amp; Partners</span>
+      <h2 class="title">함께해 온 <span class="em">신뢰의 파트너.</span></h2>
+      <p class="lead-desc">단발성 거래가 아닌, 장기적 파트너십으로 이어진 교육·공공·민간 네트워크.</p>
     </div>
     <div class="cl-grid">
-      <a class="cl-card rv" href="https://www.visang.com" target="_blank" rel="noopener">
-        <div class="cl-name">㈜비상교육</div>
-        <div class="cl-role">9-Year Partner</div>
-      </a>
-      <a class="cl-card rv d1" href="https://www.hyundai-ngv.com" target="_blank" rel="noopener">
-        <div class="cl-name">현대NGV</div>
-        <div class="cl-role">Consortium</div>
-      </a>
-      <a class="cl-card rv d2" href="https://www.gg.go.kr" target="_blank" rel="noopener">
-        <div class="cl-name">경기도청</div>
-        <div class="cl-role">Government</div>
-      </a>
-      <a class="cl-card rv d3" href="https://www.mnd.go.kr" target="_blank" rel="noopener">
-        <div class="cl-name">국방부</div>
-        <div class="cl-role">Defense</div>
-      </a>
-      <a class="cl-card rv d4" href="https://www.ybm.co.kr" target="_blank" rel="noopener">
-        <div class="cl-name">YBM</div>
-        <div class="cl-role">Education</div>
-      </a>
-      <a class="cl-card rv" href="https://thespacek.com/" target="_blank" rel="noopener">
-        <div class="cl-name">스페이스케이</div>
-        <div class="cl-role">Aerospace</div>
-      </a>
-      <a class="cl-card rv d1" href="https://www.ubion.co.kr" target="_blank" rel="noopener">
-        <div class="cl-name">유비온</div>
-        <div class="cl-role">Edu Platform</div>
-      </a>
-      <a class="cl-card rv d2" href="https://www.npage.co.kr" target="_blank" rel="noopener">
-        <div class="cl-name">엔페이지</div>
-        <div class="cl-role">Mobile Dev</div>
-      </a>
-      <a class="cl-card rv d3" href="https://www.tta.or.kr" target="_blank" rel="noopener">
-        <div class="cl-name">정보통신기술협회</div>
-        <div class="cl-role">TTA · Certification</div>
-      </a>
-      <a class="cl-card rv d4" href="https://rokaf.airforce.mil.kr/afa/index.do" target="_blank" rel="noopener">
-        <div class="cl-name">공군사관학교</div>
-        <div class="cl-role">Defense · Academy</div>
-      </a>
+      <a class="cl-card rv" href="https://www.visang.com" target="_blank" rel="noopener"><div class="cl-name">㈜비상교육</div><div class="cl-role">9-Year Partner</div></a>
+      <a class="cl-card rv d1" href="https://www.hyundai-ngv.com" target="_blank" rel="noopener"><div class="cl-name">현대NGV</div><div class="cl-role">Consortium</div></a>
+      <a class="cl-card rv d2" href="https://www.gg.go.kr" target="_blank" rel="noopener"><div class="cl-name">경기도청</div><div class="cl-role">Government</div></a>
+      <a class="cl-card rv d3" href="https://www.mnd.go.kr" target="_blank" rel="noopener"><div class="cl-name">국방부</div><div class="cl-role">Defense</div></a>
+      <a class="cl-card rv" href="https://www.ybm.co.kr" target="_blank" rel="noopener"><div class="cl-name">YBM</div><div class="cl-role">Education</div></a>
+      <a class="cl-card rv d1" href="https://www.spacekai.com" target="_blank" rel="noopener"><div class="cl-name">스페이스케이</div><div class="cl-role">Aerospace</div></a>
+      <a class="cl-card rv d2" href="https://www.ubion.co.kr" target="_blank" rel="noopener"><div class="cl-name">유비온</div><div class="cl-role">Edu Platform</div></a>
+      <a class="cl-card rv d3" href="https://www.npage.co.kr" target="_blank" rel="noopener"><div class="cl-name">엔페이지</div><div class="cl-role">Mobile Dev</div></a>
+      <a class="cl-card rv" href="https://www.tta.or.kr" target="_blank" rel="noopener"><div class="cl-name">정보통신기술협회</div><div class="cl-role">TTA · Certification</div></a>
+      <a class="cl-card rv d1" href="https://www.afa.ac.kr" target="_blank" rel="noopener"><div class="cl-name">공군사관학교</div><div class="cl-role">Defense · Academy</div></a>
     </div>
   </div>
 </section>
 
-<!-- ══ CONTACT ══ -->
-<section class="sec contact-sec" id="contact">
-  <div class="sec-in">
-    <div class="sec-hd">
-      <div class="sec-num rv">08 — Contact</div>
-      <div class="kicker rv">프로젝트 문의</div>
-      <h2 class="title rv d1">함께 만들어 갈<br><span class="em">다음을 논의해요.</span></h2>
+<!-- ══════════ AI PIA CTA ══════════ -->
+<section class="sec pia-cta">
+  <div class="wrap">
+    <div class="inner rv">
+      <span class="chip">AI PIA · 밀착형 성장 진단</span>
+      <h2>지금 바로 AI PIA를<br>체험해보세요.</h2>
+      <p>Big5 성격 · RIASEC 흥미 · 강점 · 그릿 · 사회적 판단력<br>7가지 학습 검증 검사를 무료로 체험할 수 있습니다.</p>
+      <a href="ai-pia.html" class="btn btn-primary" style="padding:1em 2.4em;font-size:1.05rem">AI PIA 체험 시작하기 →</a>
+      <p class="note">무료 · 회원가입 불필요 · 약 35분 소요</p>
     </div>
-    <div class="contact-grid">
-      <div>
-        <div class="contact-info-item rv">
-          <div class="contact-icon">📍</div>
-          <div>
-            <div class="contact-lbl">주소</div>
-            <div class="contact-val">서울 금천구 가산디지털1로 212, 1405호<br><span style="font-size:13px;color:var(--text3)">(코오롱디지털타워애스턴)</span></div>
-          </div>
-        </div>
-        <div class="contact-info-item rv d1">
-          <div class="contact-icon">📞</div>
-          <div>
-            <div class="contact-lbl">전화</div>
-            <div class="contact-val">02-851-7714</div>
-          </div>
-        </div>
-        <div class="contact-info-item rv d2">
-          <div class="contact-icon">📧</div>
-          <div>
-            <div class="contact-lbl">이메일</div>
-            <div class="contact-val">contact@yedam.kr</div>
-          </div>
-        </div>
-        <div class="contact-info-item rv d3">
-          <div class="contact-icon">🕐</div>
-          <div>
-            <div class="contact-lbl">운영 시간</div>
-            <div class="contact-val">평일 09:00 – 18:00<br><span style="font-size:13px;color:var(--text3)">주말 · 공휴일 휴무</span></div>
-          </div>
-        </div>
-        <div class="contact-info-item rv d4">
-          <div class="contact-icon">🏢</div>
-          <div>
-            <div class="contact-lbl">사업자번호</div>
-            <div class="contact-val">127-86-57189</div>
-          </div>
-        </div>
+  </div>
+</section>
+
+<!-- ══════════ CONTACT ══════════ -->
+<section class="sec" id="contact">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Contact Us</span>
+      <h2 class="title">함께 만들 다음의<br><span class="em">교육을 이야기합시다.</span></h2>
+    </div>
+    <div class="ct-grid">
+      <div class="rv">
+        <div class="ct-row"><div class="l">대표</div><div class="v">송 규 봉 (Song Kyu Bong)</div></div>
+        <div class="ct-row"><div class="l">주소</div><div class="v">서울특별시 금천구 가산디지털1로 212<br>코오롱디지털타워애스턴 1405호</div></div>
+        <div class="ct-row"><div class="l">대표전화</div><div class="v"><a href="tel:0222614528">02-2261-4528</a></div></div>
+        <div class="ct-row"><div class="l">휴대전화</div><div class="v"><a href="tel:01033230310">010-3323-0310</a></div></div>
+        <div class="ct-row"><div class="l">이메일</div><div class="v"><a href="mailto:skb1004@gmail.com">skb1004@gmail.com</a></div></div>
+        <div class="ct-row"><div class="l">사업자번호</div><div class="v">127-86-57189</div></div>
       </div>
       <div class="rv d1">
-        <div class="contact-form">
-          <div class="form-row">
-            <label class="form-lbl">성함 *</label>
-            <input class="form-inp" type="text" placeholder="홍길동" required>
-          </div>
-          <div class="form-row">
-            <label class="form-lbl">연락처 *</label>
-            <input class="form-inp" type="tel" placeholder="010-0000-0000" required>
-          </div>
-          <div class="form-row">
-            <label class="form-lbl">이메일</label>
-            <input class="form-inp" type="email" placeholder="example@company.com">
-          </div>
-          <div class="form-row">
-            <label class="form-lbl">문의 유형</label>
-            <select class="form-inp form-select">
-              <option value="">유형 선택</option>
-              <option>AI PIA 도입 문의</option>
-              <option>AI ClassBoard 도입</option>
-              <option>AREX-Climbing 도입</option>
-              <option>AI 디지털 간판</option>
-              <option>SI 개발 의뢰</option>
-              <option>파트너십 · 투자</option>
-              <option>기타</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label class="form-lbl">문의 내용</label>
-            <textarea class="form-inp" placeholder="프로젝트 규모, 일정, 예산 등을 자유롭게 작성해주세요."></textarea>
-          </div>
-          <button class="form-btn" onclick="alert('문의가 접수되었습니다. 빠르게 연락드리겠습니다.')">문의 제출하기 →</button>
+        <div class="ct-box">
+          <h3>프로젝트 문의</h3>
+          <p>교육·공공기관 정보시스템 구축, 유지보수, AI 솔루션 도입 문의를 환영합니다. 영업일 기준 24시간 내 회신드립니다.</p>
+          <a href="mailto:skb1004@gmail.com?subject=[프로젝트 문의] 예담정보통신&body=안녕하세요. 예담정보통신에 문의드립니다.%0A%0A▪ 회사/기관명:%0A▪ 담당자:%0A▪ 연락처:%0A▪ 문의 내용:%0A" class="btn btn-primary">이메일 문의하기</a>
+          <a href="tel:0222614528" class="btn btn-ghost">02-2261-4528 전화하기</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ PIA CTA ══ -->
-<section class="pia-cta">
-  <div class="sec-in" style="position:relative;z-index:2;text-align:center">
-    <div class="kicker rv">지금 바로 체험</div>
-    <h2 class="pia-cta-h rv d1">AI PIA로<br><span>영유아 발달 분석</span>을 경험해보세요.</h2>
-    <p class="pia-cta-p rv d2">Claude AI 기반의 맞춤형 발달 리포트를 무료로 체험할 수 있습니다.</p>
-    <div class="rv d3">
-      <a href="ai-pia.html" class="btn-p" target="_blank" style="display:inline-flex;font-size:15px;padding:18px 48px"><span class="ko-text">AI PIA 무료 체험 →</span><span class="en-text">Try AI PIA Free →</span></a>
-    </div>
-  </div>
-</section>
-
-<!-- ══ FOOTER ══ -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <div class="footer-logo">
-          <img src="images/logo_h_white.png" alt="예담정보통신 로고">
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft-inner">
+      <div>
+        <img src="images/logo_h_white.png" alt="㈜예담정보통신" class="ft-logo">
+        <div class="ft-meta">
+          <span>대표 송규봉</span>
+          <span>사업자등록번호 127-86-57189</span>
+          <span>서울 금천구 가산디지털1로 212, 1405호</span>
+          <span>Tel 02-2261-4528</span>
         </div>
-        <p class="footer-tagline">11년간 교육·공공 디지털 전환을 함께한 AI 에듀테크 전문기업. 신뢰와 혁신으로 미래 교육을 설계합니다.</p>
       </div>
-      <div>
-        <div class="footer-h">솔루션</div>
-        <ul class="footer-links">
-          <li><a href="ai-pia.html" target="_blank">AI PIA</a></li>
-          <li><a href="#solutions">AI ClassBoard</a></li>
-          <li><a href="#solutions">AREX-Climbing</a></li>
-          <li><a href="#solutions">AI 디지털 간판</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="footer-h">회사</div>
-        <ul class="footer-links">
-          <li><a href="#about">회사 소개</a></li>
-          <li><a href="#record">수행 실적</a></li>
-          <li><a href="#clients">파트너</a></li>
-          <li><a href="admin.html">관리자</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="footer-h">Contact</div>
-        <ul class="footer-links">
-          <li><a href="tel:02-851-7714">02-851-7714</a></li>
-          <li><a href="mailto:contact@yedam.kr">contact@yedam.kr</a></li>
-          <li><a href="#contact">문의 폼</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bot">
-      <div class="footer-copy">© 2014–2026 ㈜예담정보통신. All rights reserved. 사업자번호 127-86-57189</div>
-      <div class="footer-badges">
-        <span class="footer-badge">중소기업</span>
-        <span class="footer-badge">정보시스템 전문기업</span>
-        <span class="footer-badge">AI 에듀테크</span>
-      </div>
+      <div class="ft-cr">© 2026 Yedam I&amp;C. All Rights Reserved.</div>
     </div>
   </div>
 </footer>
 
-<!-- ══ LIGHTBOX ══ -->
-<div class="lb" id="lb">
-  <button class="lb-close" id="lb-close">✕</button>
-  <button class="lb-prev" id="lb-prev">‹</button>
-  <img class="lb-img" id="lb-img" src="" alt="확대 이미지">
-  <button class="lb-next" id="lb-next">›</button>
-  <div class="lb-counter" id="lb-counter"></div>
-</div>
 <script>
-/* ══ PROGRESS BAR ══ */
 (function(){
-  var bar = document.getElementById('progress');
-  window.addEventListener('scroll', function(){
-    var s = document.documentElement;
-    var p = (s.scrollTop||document.body.scrollTop)/(s.scrollHeight-s.clientHeight)*100;
-    bar.style.width = Math.min(p,100)+'%';
-  });
-})();
-
-/* ══ CURSOR GLOW ══ */
-(function(){
-  var g = document.getElementById('cursor-glow');
-  document.addEventListener('mousemove', function(e){
-    g.style.left = e.clientX+'px';
-    g.style.top  = e.clientY+'px';
-  });
-})();
-
-/* ══ GNB SCROLL ══ */
-(function(){
-  var gnb = document.getElementById('gnb');
-  window.addEventListener('scroll', function(){
-    gnb.classList.toggle('scrolled', window.scrollY > 40);
-  });
-})();
-
-/* ══ HAMBURGER ══ */
-(function(){
-  var btn  = document.getElementById('hamburger');
-  var menu = document.getElementById('mobMenu');
-  var close = document.getElementById('mobClose');
-  var links = document.querySelectorAll('.mob-link');
-  function open(){ btn.classList.add('open'); menu.style.display='flex'; setTimeout(function(){menu.classList.add('open');},10); document.body.style.overflow='hidden'; }
-  function shut(){ btn.classList.remove('open'); menu.classList.remove('open'); setTimeout(function(){menu.style.display='';},300); document.body.style.overflow=''; }
-  btn.addEventListener('click', function(){ menu.classList.contains('open') ? shut() : open(); });
-  if(close) close.addEventListener('click', shut);
-  links.forEach(function(l){ l.addEventListener('click', shut); });
-})();
-
-/* ══ CANVAS PARTICLES ══ */
-(function(){
-  var canvas = document.getElementById('hero-canvas');
-  if(!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var W,H,particles = [];
-  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = canvas.parentElement.offsetHeight; }
-  resize();
-  window.addEventListener('resize', resize);
-  function Particle(){
-    this.x = Math.random()*W;
-    this.y = Math.random()*H;
-    this.r = Math.random()*1.5+0.3;
-    this.a = Math.random()*Math.PI*2;
-    this.s = (Math.random()*0.3+0.05);
-    this.op = Math.random()*0.5+0.1;
-    this.fade = (Math.random()*0.008+0.002)*(Math.random()>.5?1:-1);
+  "use strict";
+  /* ── 모바일 햄버거 ── */
+  var burger = document.getElementById('burger');
+  var sheet  = document.getElementById('sheet');
+  function closeSheet(){
+    burger.classList.remove('open');
+    sheet.classList.remove('open');
+    burger.setAttribute('aria-expanded','false');
+    document.body.style.overflow='';
   }
-  Particle.prototype.update = function(){
-    this.x += Math.cos(this.a)*this.s;
-    this.y += Math.sin(this.a)*this.s;
-    this.a += (Math.random()-.5)*0.04;
-    this.op += this.fade;
-    if(this.op <= 0.05 || this.op >= 0.65){ this.fade *= -1; }
-    if(this.x<-10) this.x=W+10;
-    if(this.x>W+10) this.x=-10;
-    if(this.y<-10) this.y=H+10;
-    if(this.y>H+10) this.y=-10;
-  };
-  for(var i=0;i<120;i++) particles.push(new Particle());
-  var lines=[];
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    for(var i=0;i<particles.length;i++){
-      var p=particles[i];
-      p.update();
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(79,70,229,'+p.op.toFixed(2)+')';
-      ctx.fill();
-      for(var j=i+1;j<particles.length;j++){
-        var q=particles[j];
-        var dx=p.x-q.x, dy=p.y-q.y;
-        var dist=Math.sqrt(dx*dx+dy*dy);
-        if(dist<120){
-          ctx.beginPath();
-          ctx.moveTo(p.x,p.y);
-          ctx.lineTo(q.x,q.y);
-          var alpha=((1-dist/120)*0.12).toFixed(3);
-          ctx.strokeStyle='rgba(79,70,229,'+alpha+')';
-          ctx.lineWidth=0.5;
-          ctx.stroke();
-        }
-      }
-    }
-    requestAnimationFrame(draw);
+  burger.addEventListener('click', function(){
+    var open = sheet.classList.toggle('open');
+    burger.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.sheet a'), function(a){
+    a.addEventListener('click', closeSheet);
+  });
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && sheet.classList.contains('open')) closeSheet();
+  });
+
+  /* ── 진입 페이드인 (reduced-motion 존중) ── */
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.rv');
+  if(reduce || !('IntersectionObserver' in window)){
+    Array.prototype.forEach.call(items, function(el){ el.classList.add('on'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('on'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    Array.prototype.forEach.call(items, function(el){ io.observe(el); });
   }
-  draw();
 })();
-
-/* ══ SCROLL REVEAL ══ */
-(function(){
-  var els = document.querySelectorAll('.rv,.rv-left,.rv-right,.rv-scale');
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
-    });
-  },{threshold:0.12,rootMargin:'0px 0px -60px 0px'});
-  els.forEach(function(el){ io.observe(el); });
-})();
-
-/* ══ COUNTER ANIMATION ══ */
-(function(){
-  var counters = document.querySelectorAll('.counter');
-  var started  = new Set();
-  var io2 = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting && !started.has(e.target)){
-        started.add(e.target);
-        var target = parseInt(e.target.getAttribute('data-target'), 10);
-        var duration = 1800;
-        var start = null;
-        function step(ts){
-          if(!start) start=ts;
-          var prog = Math.min((ts-start)/duration, 1);
-          var ease = 1-Math.pow(1-prog,4);
-          e.target.textContent = Math.floor(ease*target);
-          if(prog<1) requestAnimationFrame(step);
-          else e.target.textContent = target;
-        }
-        requestAnimationFrame(step);
-        io2.unobserve(e.target);
-      }
-    });
-  },{threshold:0.5});
-  counters.forEach(function(c){ io2.observe(c); });
-})();
-
-/* ══ LIGHTBOX ══ */
-(function(){
-  var lb     = document.getElementById('lb');
-  var lbImg  = document.getElementById('lb-img');
-  var lbClose= document.getElementById('lb-close');
-  var lbPrev = document.getElementById('lb-prev');
-  var lbNext = document.getElementById('lb-next');
-  var lbCtr  = document.getElementById('lb-counter');
-  if(!lb) return;
-  var imgs = Array.from(document.querySelectorAll('.feat-vis img,.sol-img img,.hero-img img,.bento-main img,.strat-card img,.infra-card img'));
-  var cur = 0;
-  function open(i){ cur=i; lbImg.src=imgs[cur].src; lbImg.alt=imgs[cur].alt||'이미지'; lbCtr.textContent=(cur+1)+' / '+imgs.length; lb.classList.add('open'); document.body.style.overflow='hidden'; }
-  function close(){ lb.classList.remove('open'); document.body.style.overflow=''; }
-  function prev(){ open((cur-1+imgs.length)%imgs.length); }
-  function next(){ open((cur+1)%imgs.length); }
-  imgs.forEach(function(img,i){ img.style.cursor='zoom-in'; img.addEventListener('click',function(){ open(i); }); });
-  lbClose.addEventListener('click',close);
-  lb.addEventListener('click',function(e){ if(e.target===lb) close(); });
-  lbPrev.addEventListener('click',function(e){ e.stopPropagation(); prev(); });
-  lbNext.addEventListener('click',function(e){ e.stopPropagation(); next(); });
-  document.addEventListener('keydown',function(e){
-    if(!lb.classList.contains('open')) return;
-    if(e.key==='Escape') close();
-    if(e.key==='ArrowLeft') prev();
-    if(e.key==='ArrowRight') next();
-  });
-})();
-
-/* ══ SMOOTH SCROLL ══ */
-document.querySelectorAll('a[href^="#"]').forEach(function(a){
-  a.addEventListener('click',function(e){
-    var t = document.querySelector(a.getAttribute('href'));
-    if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
-  });
-});
-
-/* ══ THEME TOGGLE ══ */
-function toggleTheme(){
-  var d=document.documentElement;
-  var isDark=d.getAttribute('data-theme')==='dark';
-  var next=isDark?'light':'dark';
-  d.setAttribute('data-theme',next);
-  var btn=document.getElementById('themeToggle');
-  if(btn) btn.textContent=isDark?'🌙':'☀️';
-  localStorage.setItem('yedam_theme',next);
-}
-(function(){
-  var t=localStorage.getItem('yedam_theme')||'light';
-  document.documentElement.setAttribute('data-theme',t);
-  var btn=document.getElementById('themeToggle');
-  if(btn) btn.textContent=t==='dark'?'☀️':'🌙';
-})();
-
-/* ══ LANGUAGE TOGGLE ══ */
-function setLang(lang) {
-  document.documentElement.setAttribute('data-lang', lang);
-  document.documentElement.lang = lang === 'ko' ? 'ko' : 'en';
-  document.getElementById('btn-ko').classList.toggle('active', lang === 'ko');
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-  localStorage.setItem('yedam_lang', lang);
-}
-// 저장된 언어 설정 복원
-(function(){ var l = localStorage.getItem('yedam_lang'); if(l) setLang(l); })();
 </script>
 </body>
 </html>
