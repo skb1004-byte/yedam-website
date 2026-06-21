@@ -7064,11 +7064,16 @@ function renderHeaderProgress() {
     conv: state.results.conv?.turns || 0,
     cesd: state.results.cesd?.answers?.length || 0,
     phqa: state.results.phqa?.answers?.length || 0,
-    gad: state.results.gad?.answers?.length || 0
+    gad: state.results.gad?.answers?.length || 0,
+    who5: state.results.who5?.answers?.length || 0,
+    rses: state.results.rses?.answers?.length || 0,
+    learn: state.results.learn?.answers?.length || 0,
+    mi: state.results.mi?.answers?.length || 0
   };
-  const totals = { big5:50, riasec:30, via:24, grit:8, sjt:30, conv:10, cesd:10, phqa:9, gad:7 };
+  const totals = { big5:50, riasec:30, via:24, grit:8, sjt:(typeof SJT_30!=='undefined'?SJT_30.length:30), conv:8, cesd:10, phqa:9, gad:7, who5:5, rses:10, learn:14, mi:16 };
+  const _tot = Object.keys(totals).length;
   const done = Object.entries(counts).filter(([k,v]) => v >= totals[k]).length;
-  bar.innerHTML = `<span class="text-slate-500">진행</span><div class="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:${Math.round(done/9*100)}%"></div></div><span class="font-semibold">${done}/9</span>`;
+  bar.innerHTML = `<span class="text-slate-500">진행</span><div class="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:${Math.round(done/_tot*100)}%"></div></div><span class="font-semibold">${done}/${_tot}</span>`;
 }
 
 // ---- 검사 히스토리 스냅샷 ----
@@ -7208,7 +7213,7 @@ window.addEventListener("DOMContentLoaded", () => {
     addBackupRestoreUI();
     renderHeaderProgress();
     if (state.profile) renderProfileBar();
-    else ensureStudentProfile();
+    else if(!_piaSkipGate()) ensureStudentProfile();
   }, 200);
 });
 
@@ -7664,11 +7669,12 @@ function injectGlobalActions() {
   nav.appendChild(div);
 }
 
+function _piaSkipGate(){ try{ var q=new URLSearchParams(location.search); return q.get('print')==='items' || q.get('paper')==='1' || q.get('sample')==='1' || location.hash==='#sample'; }catch(e){ return false; } }
 // ---- 초기화 ----
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(async () => {
     if (sessionStorage.getItem('pia_v3_dark') === '1') applyDarkMode(true);
-    await showConsentModalIfNeeded();
+    if(!_piaSkipGate()) await showConsentModalIfNeeded();
     injectGlobalActions();
   }, 100);
 });
