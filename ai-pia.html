@@ -5152,6 +5152,14 @@ function piaSampleReport(){
     fill('rses',RSES,1,4,scoreRses);
     fill('learn',LEARN_ITEMS,1,5,scoreLearn);
     fill('mi',MI_ITEMS,1,5,scoreMi);
+    try{ // 정서검사: 문항 방향을 고려한 '건강한 예시'로 채움(고위험·자해 플래그 없이 정상범위)
+      var ce=CES_D_10.map(function(it){ return (it.s>0)? rnd(0,1) : rnd(2,3); });
+      state.results.cesd.answers=ce; state.results.cesd.scores=scoreCesd();
+      var pa=[0,1,0,1,0,0,1,0,0].slice(0,PHQ_A.length); while(pa.length<PHQ_A.length)pa.push(0); pa[8]=0;
+      state.results.phqa.answers=pa; state.results.phqa.scores=scorePhqa();
+      var ga=[1,0,1,0,0,1,0].slice(0,GAD_7.length); while(ga.length<GAD_7.length)ga.push(0);
+      state.results.gad.answers=ga; state.results.gad.scores=scoreGad();
+    }catch(e){}
     try{ if(state.results.conv){ state.results.conv.turns=8; state.results.conv.answers=state.results.conv.answers||[]; } }catch(e){}
     try{ save(); }catch(e){}
     showView('result');
