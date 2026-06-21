@@ -4059,6 +4059,10 @@ function renderHome() {
     red:{bg:'bg-red-50',border:'border-red-300',text:'text-red-900',btn:'bg-red-600 hover:bg-red-700',badge:'bg-red-100 text-red-800'}
   };
 
+  // 완료 판정 + '다음 추천' 카드 (순차 진행 강조용)
+  const _isCardDone = (c)=> c.key==='conv' ? state.results.conv.turns >= 8 : c.key==='sjt' ? state.results.sjt.answers.length >= SJT_30.length : _likertDoneCount(c.key) >= (c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100);
+  const _nextCardId = ((cards||[]).find(c=>!_isCardDone(c))||{}).id;
+
   // 진행률 헤더 + 카드 그리드
   container.innerHTML = `
     <div class="col-span-full mb-2">
@@ -4103,14 +4107,14 @@ function renderHome() {
                          'bg-slate-200 text-slate-700';
 
     return `
-      <div class="${col.bg} ${col.border} border-2 rounded-2xl p-4 hover:shadow-lg transition relative">
+      <div class="${col.bg} ${col.border} border-2 rounded-2xl p-4 transition relative ${isDone?'opacity-60 grayscale':'hover:shadow-lg'} ${c.id===_nextCardId?'ring-2 ring-amber-400 shadow-lg':''}">
         <div class="absolute -top-3 left-3 bg-slate-900 text-white text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">${c.step}</div>
         <div class="flex items-start justify-between mb-2 mt-2">
           <div class="flex items-center gap-2">
             <span class="text-2xl">${c.icon}</span>
             <span class="pill ${priorityBadge} text-[10px]">${c.priority}</span>
           </div>
-          ${isDone ? '<span class="pill bg-emerald-100 text-emerald-800">✓ 완료</span>' : inProgress ? '<span class="pill bg-blue-100 text-blue-800">진행 중</span>' : ''}
+          ${isDone ? '<span class="pill bg-emerald-100 text-emerald-800">✓ 완료</span>' : inProgress ? '<span class="pill bg-blue-100 text-blue-800">진행 중</span>' : (c.id===_nextCardId ? '<span class="pill bg-amber-100 text-amber-800">⭐ 다음 추천</span>' : '')}
         </div>
         <h3 class="font-bold text-sm ${col.text} mb-1">${c.title}</h3>
         <p class="text-xs ${col.text} opacity-90 mb-1 leading-relaxed font-medium">${c.desc}</p>
@@ -4121,9 +4125,9 @@ function renderHome() {
           <span class="pill ${col.badge} text-[10px]">${c.track}</span>
         </div>
         ${inProgress ? `<div class="w-full bg-white rounded-full h-1.5 mb-2 overflow-hidden"><div class="${col.btn.split(' ')[0]} h-1.5" style="width:${itemProgress}%"></div></div><div class="text-[10px] text-slate-500 text-center mb-2">${currentItems}/${totalItems}</div>` : ''}
-        <button onclick="showView('${c.id}')" class="w-full ${col.btn} text-white py-2.5 rounded-lg text-sm font-semibold transition">
-          ${isDone ? '🔄 다시 검사' : inProgress ? '▶ 이어서' : '▶ 시작'}
-        </button>
+        ${isDone
+          ? '<button disabled class="w-full bg-slate-200 text-slate-500 py-2.5 rounded-lg text-sm font-semibold cursor-not-allowed" title="완료된 검사예요. 다시 하려면 상단 \'새 학생 시작\'으로 초기화해 주세요.">✓ 완료 · 잠금</button>'
+          : `<button onclick="showView('${c.id}')" class="w-full ${col.btn} text-white py-2.5 rounded-lg text-sm font-semibold transition">${inProgress ? '▶ 이어서' : '▶ 시작'}</button>`}
       </div>
     `;
   }).join('');
@@ -4481,6 +4485,9 @@ function initChat() {
     try { if (risk !== 'HIGH' && state.results.conv.turns >= 3 && state.results.conv.turns % 3 === 0) aiInferTraits(); } catch(e) {}
 
     if (state.results.conv.turns === 16) {
+      try{ _micWant=false; }catch(e){}
+      try{ if(typeof releaseMicStream==='function') releaseMicStream(); }catch(e){}
+      try{ if(_recognition && _recognition.stop) _recognition.stop(); }catch(e){}
       setTimeout(() => {
         appendMsg('얘기 많이 들려줘서 고마워! 더 이야기해도 좋고, 준비되면 아래 버튼으로 결과를 봐도 돼.', 'ai');
         const wrap = document.createElement('div');
