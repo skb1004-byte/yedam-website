@@ -3969,6 +3969,19 @@ function _likertDoneCount(stateKey){
   var a = (state.results[stateKey] && state.results[stateKey].answers) || [];
   var n = 0; for (var i=0;i<a.length;i++){ if (a[i]!==undefined && a[i]!==null) n++; } return n;
 }
+// 완료된 검사 하나만 초기화하고 다시 응시 (다른 검사 답안은 유지)
+function retakeTest(id, key){
+  try{
+    if(!confirm('이 검사만 초기화하고 다시 하시겠어요?\n(다른 검사 답안·결과는 그대로 유지됩니다)')) return;
+    if(key==='conv'){ state.results.conv = { turns:0, dims:{}, riskHist:[], topics:{}, transcript:[] }; }
+    else if(key==='sjt'){ state.results.sjt = { answers:[], dims:{}, order:[], adaptive:false }; }
+    else if(state.results[key]){ state.results[key] = { answers:[], scores:null }; }
+    try{ save(); }catch(e){}
+    if(typeof renderHome==='function') renderHome();
+    if(typeof showView==='function') showView(id);
+  }catch(e){}
+}
+try{ window.retakeTest = retakeTest; }catch(e){}
 function renderHome() {
   const container = el('home-content');
   // 권장 순서: 자유대화 → VIA(강점) → Big5 → Grit → RIASEC → SJT → 정서 스크리닝 3종
@@ -4105,7 +4118,7 @@ function renderHome() {
         </div>
         ${inProgress ? `<div class="w-full bg-white rounded-full h-1.5 mb-2 overflow-hidden"><div class="${col.btn.split(' ')[0]} h-1.5" style="width:${itemProgress}%"></div></div><div class="text-[10px] text-slate-500 text-center mb-2">${currentItems}/${totalItems}</div>` : ''}
         ${isDone
-          ? '<button disabled class="w-full bg-slate-200 text-slate-500 py-2.5 rounded-lg text-sm font-semibold cursor-not-allowed" title="완료된 검사예요. 다시 하려면 상단 \'새 학생 시작\'으로 초기화해 주세요.">✓ 완료 · 잠금</button>'
+          ? `<button onclick="retakeTest('${c.id}','${c.key}')" class="w-full bg-emerald-50 text-emerald-800 border border-emerald-300 py-2.5 rounded-lg text-sm font-semibold hover:bg-emerald-100 transition" title="이 검사만 초기화하고 다시 합니다">✓ 완료 · 다시 하기</button>`
           : `<button onclick="showView('${c.id}')" class="w-full ${col.btn} text-white py-2.5 rounded-lg text-sm font-semibold transition">${inProgress ? '▶ 이어서' : '▶ 시작'}</button>`}
       </div>
     `;
