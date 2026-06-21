@@ -814,7 +814,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   <div class="bg-white rounded-2xl border border-slate-200 p-3 mb-3 flex items-center gap-3 sticky top-0 z-10">
     <button onclick="showView('result')" class="px-4 py-2 bg-slate-200 rounded-lg text-sm font-semibold" data-en="← Summary Results">← 통합 결과</button>
     <span class="font-bold text-slate-700 flex-1" data-en="📋 AI PIA Full Report">📋 AI PIA 전체 결과지</span>
-    <div class="pia-lang-toggle" data-pia-lang-toggle style="display:inline-flex;align-items:center;gap:4px;background:#f3efe7;border:1px solid #e3d9c6;border-radius:9px;padding:2px;"><button type="button" class="pia-lang-btn" data-lang="ko" onclick="piaSetReportLang('ko')" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;border:0;cursor:pointer;">KR</button><button type="button" class="pia-lang-btn" data-lang="en" onclick="piaSetReportLang('en')" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;border:0;cursor:pointer;">EN</button></div><button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold" data-en="🖨️ Print/PDF">🖨️ 인쇄/PDF</button>
+    <div class="pia-lang-toggle" data-pia-lang-toggle style="display:inline-flex;align-items:center;gap:4px;background:#f3efe7;border:1px solid #e3d9c6;border-radius:9px;padding:2px;"><button type="button" class="pia-lang-btn" data-lang="ko" onclick="piaSetReportLang('ko')" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;border:0;cursor:pointer;">KR</button><button type="button" class="pia-lang-btn" data-lang="en" onclick="piaSetReportLang('en')" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;border:0;cursor:pointer;">EN</button></div><button onclick="piaPrintReport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold" data-en="🖨️ Print/PDF">🖨️ 인쇄/PDF</button>
   </div>
   <div id="fullreport-wrap">
     <div id="pia-report">
@@ -823,7 +823,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   <span data-en="📋 AI PIA Assessment Report">📋 AI PIA 검사 결과지</span>
   <button id="btn-back-student" style="display:none;" onclick="window.close()" data-en="← Back to student page">← 학생 페이지로</button>
   <button onclick="window.open('AI_PIA_관리자.html','_blank')" data-en="🏫 Admin page">🏫 관리자 페이지</button>
-  <button onclick="window.print()" data-en="🖨️ Print / Save PDF">🖨️ 인쇄 / PDF 저장</button>
+  <button onclick="piaPrintReport()" data-en="🖨️ Print / Save PDF">🖨️ 인쇄 / PDF 저장</button>
   <button onclick="document.querySelectorAll('.page').forEach((p,i)=>p.style.display=i==0?'':'none')" data-en="Cover only">표지만</button>
   <button onclick="document.querySelectorAll('.page').forEach(p=>p.style.display='')" data-en="View all">전체 보기</button>
 </div>
@@ -5094,6 +5094,22 @@ function piaPaperScan(){
     };
   }catch(e){ try{ alert('종이답안 판독 오류: '+(e&&e.message)); }catch(_){} }
 }
+function piaPrintReport(){
+  try{
+    var rep=document.getElementById('pia-report');
+    if(!rep){ window.print(); return; }
+    var clone=rep.cloneNode(true);
+    var srcC=rep.querySelectorAll('canvas'), dstC=clone.querySelectorAll('canvas');
+    for(var i=0;i<srcC.length;i++){ try{ var img=document.createElement('img'); img.src=srcC[i].toDataURL('image/png'); img.setAttribute('style', srcC[i].getAttribute('style')||''); img.style.maxWidth='100%'; if(dstC[i]&&dstC[i].parentNode){ dstC[i].parentNode.replaceChild(img,dstC[i]); } }catch(e){} }
+    var styles=''; document.querySelectorAll('style').forEach(function(st){ styles+='<style>'+st.textContent+'</style>'; });
+    var w=window.open('','_blank');
+    if(!w){ alert('팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도하세요.'); return; }
+    w.document.open();
+    w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 통합 결과지</title>'+styles+'<style>@page{size:A4;margin:10mm;} html,body{margin:0;background:#fff;height:auto;overflow:visible;} #pia-report{background:#fff!important;padding:0;} #pia-report .page{margin:0 auto 0!important;box-shadow:none!important;border-radius:0!important;page-break-after:always;break-after:page;} #pia-report .page:last-child{page-break-after:auto;} .no-print{display:none!important;}</style></head><body>'+clone.outerHTML+'</body></html>');
+    w.document.close();
+    setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 650);
+  }catch(e){ try{ window.print(); }catch(_){} }
+}
 function piaPrintItems(){
   try{
     function esc(x){ return (typeof _escHtml==='function')? _escHtml(x) : String(x==null?'':x); }
@@ -8727,18 +8743,4 @@ window._ttsClean=function(s){
     try{ saved = localStorage.getItem(KEY) || 'ko'; }catch(e){}
     window.piaSetReportLang(saved);
   }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', init);
-  }else{ init(); }
-  // re-apply whenever report becomes visible (openFullReport/showView re-render some nodes)
-  document.addEventListener('click', function(){
-    setTimeout(function(){
-      var saved='ko'; try{ saved=localStorage.getItem(KEY)||'ko'; }catch(e){}
-      if(saved==='en') applyLang('en');
-    }, 120);
-  }, true);
-})();
-</script>
-
-</body>
-</html>
+  if(document.readyState=
