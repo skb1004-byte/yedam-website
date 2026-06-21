@@ -5015,6 +5015,55 @@ async function autoConnectFreeAI() {
     : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 기본 · 미지원 시 로컬 규칙형 자동 폴백</span>';
 }
 
+function piaPrintItems(){
+  try{
+    function esc(x){ return (typeof _escHtml==='function')? _escHtml(x) : String(x==null?'':x); }
+    function tbl(title, items, opts){
+      var rows=items.map(function(it,i){
+        var t=(typeof it==='string')?it:((it&&(it.t||it.q))||'');
+        var fac=(it&&it.f)?it.f:'';
+        var rev=(it&&it.s!==undefined&&it.s<=0)?'역채점':'';
+        return '<tr><td style="text-align:center;color:#999;padding:4px 6px;border-bottom:1px solid #eee">'+(i+1)+'</td>'
+          +(opts.factor?'<td style="white-space:nowrap;color:#c4623f;font-weight:700;padding:4px 6px;border-bottom:1px solid #eee">'+esc(fac)+'</td>':'')
+          +'<td style="padding:4px 6px;border-bottom:1px solid #eee">'+esc(t)+'</td>'
+          +(opts.reverse?'<td style="text-align:center;color:#c0392b;font-size:12px;padding:4px 6px;border-bottom:1px solid #eee">'+rev+'</td>':'')+'</tr>';
+      }).join('');
+      return '<section style="margin:18px 0;break-inside:avoid"><h2 style="font-size:15.5px;font-weight:800;margin:0 0 6px;color:#141413">'+esc(title)+' <span style="font-size:12px;color:#999;font-weight:500">('+items.length+'문항'+(opts.scale?' · 척도 '+opts.scale:'')+')</span></h2>'
+        +'<table style="width:100%;border-collapse:collapse;font-size:13.5px"><thead><tr style="background:#f3f1ea">'
+        +'<th style="width:34px;padding:5px 6px;text-align:center">#</th>'
+        +(opts.factor?'<th style="padding:5px 6px;text-align:left">요인</th>':'')
+        +'<th style="padding:5px 6px;text-align:left">문항</th>'
+        +(opts.reverse?'<th style="width:60px;padding:5px 6px;text-align:center">채점</th>':'')
+        +'</tr></thead><tbody>'+rows+'</tbody></table></section>';
+    }
+    function sjtTbl(){
+      var rows=SJT_30.map(function(sc,i){
+        var ch=(sc.choices||[]).map(function(c){return '<li style="margin:2px 0">'+esc(c.t)+'</li>';}).join('');
+        return '<section style="margin:9px 0;break-inside:avoid"><div style="font-weight:700;font-size:13.5px">'+(i+1)+'. '+esc(sc.q)+'</div><ol type="A" style="margin:3px 0 0 20px;font-size:13px;color:#333">'+ch+'</ol></section>';
+      }).join('');
+      return '<section style="margin:18px 0"><h2 style="font-size:15.5px;font-weight:800;margin:0 0 6px;color:#141413">SJT 상황판단 검사 <span style="font-size:12px;color:#999;font-weight:500">(30 시나리오 · 4지선다)</span></h2>'+rows+'</section>';
+    }
+    var out='<div style="max-width:880px;margin:0 auto;padding:24px;font-family:\'Noto Sans KR\',-apple-system,sans-serif;color:#141413;background:#fff">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;border-bottom:2px solid #d97757;padding-bottom:10px">'
+      +'<h1 style="font-size:20px;font-weight:800;margin:0">AI PIA · 전체 검사 문항지</h1>'
+      +'<div class="no-print"><button onclick="window.print()" style="background:#d97757;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">🖨 인쇄</button> <a href="results-admin.html" style="margin-left:6px;color:#d97757;font-weight:700;text-decoration:none">← 관리자</a></div></div>'
+      +'<p style="font-size:12.5px;color:#666;margin:0 0 16px;line-height:1.6">역채점 문항은 \'역채점\'으로 표시됩니다. 응답 척도: 리커트 1~5, WHO-5 1~6, RSES 1~4, CES-D·PHQ-A·GAD-7 0~3.</p>'
+      +tbl('IPIP Big5-50 (성격 5요인)',IPIP_BIG5_50,{factor:true,reverse:true,scale:'1~5'})
+      +tbl('RIASEC-30 (진로 흥미·Holland)',RIASEC_30,{factor:true,reverse:false,scale:'1~5'})
+      +tbl('VIA Youth 24 (성격강점)',VIA_YOUTH,{factor:true,reverse:false,scale:'1~5'})
+      +tbl('Grit-S (끈기 척도)',GRIT_S,{factor:true,reverse:true,scale:'1~5'})
+      +tbl('WHO-5 (정서 웰빙)',WHO5,{factor:false,reverse:false,scale:'1~6'})
+      +tbl('RSES (자존감)',RSES,{factor:false,reverse:true,scale:'1~4'})
+      +tbl('학습역량 (과목별)',LEARN_ITEMS,{factor:true,reverse:false,scale:'1~5'})
+      +tbl('다중지능 MI',MI_ITEMS,{factor:true,reverse:false,scale:'1~5'})
+      +tbl('CES-D-10 (우울 선별)',CES_D_10,{factor:false,reverse:true,scale:'0~3'})
+      +tbl('PHQ-A (우울 선별)',PHQ_A,{factor:false,reverse:false,scale:'0~3'})
+      +tbl('GAD-7 (불안 선별)',GAD_7,{factor:false,reverse:false,scale:'0~3'})
+      +sjtTbl()
+      +'<p style="font-size:11px;color:#aab;margin-top:20px;border-top:1px solid #eee;padding-top:10px">© AI PIA · 예담정보통신 — 교육·진로·자기이해 참고용 도구</p></div>';
+    document.body.innerHTML=out; document.title='AI PIA 전체 문항지';
+  }catch(e){ try{ document.body.innerHTML='<pre style="padding:20px">문항 출력 오류: '+(e&&e.message)+'</pre>'; }catch(_){} }
+}
 function piaSampleReport(){
   try{
     state.profile={name:'샘플 학생', grade:'중2', class:'1', school:'예시중학교', createdAt:Date.now()};
@@ -5044,7 +5093,7 @@ initSettings();
 renderHome();
 showView('home');
 autoConnectFreeAI();
-try{ var _qp=new URLSearchParams(location.search); if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } }catch(e){}
+try{ var _qp=new URLSearchParams(location.search); if(_qp.get('print')==='items'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPrintItems(); }catch(e){} }, 150); }); } else if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } }catch(e){}
 async function autoEnableOnDevice(){
   try {
     if (!state.cfg || state.cfg.mode !== 'ONDEVICE') return;
