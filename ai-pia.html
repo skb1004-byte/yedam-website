@@ -5079,7 +5079,10 @@ function piaPrintReport(audOverride){
   try{
     var _prevAud=(typeof currentAudience!=='undefined')?currentAudience:'student';
     if(audOverride==='student'||audOverride==='parent'||audOverride==='teacher'){ try{ currentAudience=audOverride; }catch(e){} }
+    try{ if(window.Chart&&Chart.defaults){ Chart.defaults.animation=false; if('animations' in Chart.defaults) Chart.defaults.animations=false; } }catch(e){}
     try{ if(typeof renderDetailedResult==='function')renderDetailedResult(); if(typeof renderExtendedSections==='function')renderExtendedSections(); }catch(e){}
+    setTimeout(function(){
+    try{
     var rep=document.getElementById('pia-report');
     if(!rep){ window.print(); return; }
     var _audKo=(typeof currentAudience!=='undefined')?(currentAudience==='student'?'학생 본인용':currentAudience==='parent'?'학부모용':'선생님용'):'';
@@ -5095,58 +5098,59 @@ function piaPrintReport(audOverride){
     var w=window.open('','_blank');
     if(!w){ alert('팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도하세요.'); return; }
     w.document.open();
-    w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 통합 결과지'+(_audKo?(' — '+_audKo):'')+'</title>'+styles+'<style>@page{size:A4;margin:0;} html,body{margin:0;padding:0;background:#fff;height:auto;overflow:visible;} #pia-report{background:#fff!important;padding:0;margin:0;} #pia-report .page{width:210mm!important;min-height:0!important;height:auto!important;margin:0 auto!important;padding:14mm 13mm!important;box-shadow:none!important;border-radius:0!important;break-after:page;page-break-after:always;overflow:hidden;} #pia-report .page:last-child{page-break-after:auto;break-after:auto;} #pia-report canvas,#pia-report img{max-width:100%!important;} .aud-analysis{page-break-before:always;padding:14mm 13mm;max-width:210mm;margin:0 auto;} .aud-analysis-head{font-size:15px;font-weight:800;color:#d97757;border-bottom:2px solid #d97757;padding-bottom:6px;margin-bottom:12px;} .aud-analysis .mt-5{margin-top:14px;} .aud-analysis canvas,.aud-analysis img{max-width:100%!important;} .no-print{display:none!important;}</style></head><body>'+clone.outerHTML+_analysis+'</body></html>');
+    w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 통합 결과지'+(_audKo?(' — '+_audKo):'')+'</title>'+styles+'<style>@page{size:A4;margin:0;} html,body{margin:0;padding:0;background:#fff;height:auto;overflow:visible;} #pia-report{background:#fff!important;padding:0;margin:0;} #pia-report .page{width:210mm!important;min-height:0!important;height:auto!important;margin:0 auto!important;padding:14mm 13mm!important;box-shadow:none!important;border-radius:0!important;break-after:page;page-break-after:always;overflow:hidden;} #pia-report .page:last-child{page-break-after:auto;break-after:auto;} #pia-report canvas,#pia-report img{max-width:100%!important;} .aud-analysis{page-break-before:always;padding:14mm 13mm;max-width:210mm;margin:0 auto;} .aud-analysis-head{font-size:15px;font-weight:800;color:#d97757;border-bottom:2px solid #d97757;padding-bottom:6px;margin-bottom:12px;} .aud-analysis .mt-5{margin-top:14px;} .aud-analysis .rounded-2xl,.aud-analysis .bg-white,.aud-analysis table,.aud-analysis tr,.aud-analysis canvas,.aud-analysis img,.aud-analysis h3,.aud-analysis .mt-5,.aud-analysis .grid>div{break-inside:avoid;page-break-inside:avoid;} .aud-analysis canvas,.aud-analysis img{max-width:100%!important;} .no-print{display:none!important;}</style></head><body>'+clone.outerHTML+_analysis+'</body></html>');
     w.document.close();
     try{ if(audOverride && currentAudience!==_prevAud){ currentAudience=_prevAud; if(typeof renderDetailedResult==='function')renderDetailedResult(); if(typeof renderExtendedSections==='function')renderExtendedSections(); } }catch(e){}
     setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 650);
+    }catch(e){ try{ window.print(); }catch(_){} }
+    }, 420);
   }catch(e){ try{ window.print(); }catch(_){} }
 }
 function piaPrintItems(){
   try{
     function esc(x){ return (typeof _escHtml==='function')? _escHtml(x) : String(x==null?'':x); }
+    function legendFor(lo,hi){
+      if(lo===0&&hi===3) return '0 전혀 아니다 · 1 며칠 · 2 절반 이상 · 3 거의 매일';
+      if(lo===1&&hi===4) return '1 전혀 아니다 · 2 아니다 · 3 그렇다 · 4 매우 그렇다';
+      if(lo===1&&hi===6) return '1 전혀 없음 · 2 가끔 · 3 절반 이하 · 4 절반 이상 · 5 대부분 · 6 항상';
+      return '1 전혀 아니다 · 2 아니다 · 3 보통 · 4 그렇다 · 5 매우 그렇다';
+    }
     function tbl(title, items, opts){
-      var rows=items.map(function(it,i){
+      var sp=(opts&&opts.scale?opts.scale:'1~5').split('~'); var lo=parseInt(sp[0],10), hi=parseInt(sp[1],10);
+      var nums=''; for(var v=lo;v<=hi;v++){ nums+='<th style="width:26px;text-align:center;padding:5px 3px">'+v+'</th>'; }
+      var rows=(items||[]).map(function(it,i){
         var t=(typeof it==='string')?it:((it&&(it.t||it.q))||'');
-        var fac=(it&&it.f)?it.f:'';
-        var rev=(it&&it.s!==undefined&&it.s<=0)?'역채점':'';
-        return '<tr><td style="text-align:center;color:#999;padding:4px 6px;border-bottom:1px solid #eee">'+(i+1)+'</td>'
-          +(opts.factor?'<td style="white-space:nowrap;color:#c4623f;font-weight:700;padding:4px 6px;border-bottom:1px solid #eee">'+esc(fac)+'</td>':'')
-          +'<td style="padding:4px 6px;border-bottom:1px solid #eee">'+esc(t)+'</td>'
-          +(opts.reverse?'<td style="text-align:center;color:#c0392b;font-size:12px;padding:4px 6px;border-bottom:1px solid #eee">'+rev+'</td>':'')+'</tr>';
+        var os=''; for(var v2=lo;v2<=hi;v2++){ os+='<td style="text-align:center;padding:4px 3px;border-bottom:1px solid #eee">○</td>'; }
+        return '<tr><td style="text-align:center;color:#999;padding:4px 6px;border-bottom:1px solid #eee">'+(i+1)+'</td><td style="padding:4px 6px;border-bottom:1px solid #eee">'+esc(t)+'</td>'+os+'</tr>';
       }).join('');
-      return '<section style="margin:18px 0;break-inside:avoid"><h2 style="font-size:15.5px;font-weight:800;margin:0 0 6px;color:#141413">'+esc(title)+' <span style="font-size:12px;color:#999;font-weight:500">('+items.length+'문항'+(opts.scale?' · 척도 '+opts.scale:'')+')</span></h2>'
-        +'<table style="width:100%;border-collapse:collapse;font-size:13.5px"><thead><tr style="background:#f3f1ea">'
-        +'<th style="width:34px;padding:5px 6px;text-align:center">#</th>'
-        +(opts.factor?'<th style="padding:5px 6px;text-align:left">요인</th>':'')
-        +'<th style="padding:5px 6px;text-align:left">문항</th>'
-        +(opts.reverse?'<th style="width:60px;padding:5px 6px;text-align:center">채점</th>':'')
-        +'</tr></thead><tbody>'+rows+'</tbody></table></section>';
+      return '<section style="margin:14px 0"><div class="qhead"><h2 style="font-size:15px;font-weight:800;margin:10px 0 1px;color:#141413">'+esc(title)+'</h2><p style="font-size:11.5px;color:#666;margin:0 0 4px">'+legendFor(lo,hi)+'</p></div><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#f3f1ea"><th style="width:30px;padding:5px 6px;text-align:center">No</th><th style="padding:5px 6px;text-align:left">문항</th>'+nums+'</tr></thead><tbody>'+rows+'</tbody></table></section>';
     }
     function sjtTbl(){
-      var rows=SJT_30.map(function(sc,i){
-        var ch=(sc.choices||[]).map(function(c){return '<li style="margin:2px 0">'+esc(c.t)+'</li>';}).join('');
-        return '<section style="margin:9px 0;break-inside:avoid"><div style="font-weight:700;font-size:13.5px">'+(i+1)+'. '+esc(sc.q)+'</div><ol type="A" style="margin:3px 0 0 20px;font-size:13px;color:#333">'+ch+'</ol></section>';
+      var rows=(typeof SJT_30!=='undefined'?SJT_30:[]).map(function(sc,i){
+        var ch=(sc.choices||[]).map(function(c){return '<li style="margin:2px 0">○ '+esc(c.t)+'</li>';}).join('');
+        return '<section style="margin:8px 0;break-inside:avoid;page-break-inside:avoid"><div style="font-weight:700;font-size:13px">'+(i+1)+'. '+esc(sc.q)+'</div><ul style="list-style:none;margin:3px 0 0 8px;padding:0;font-size:12.5px">'+ch+'</ul></section>';
       }).join('');
-      return '<section style="margin:18px 0"><h2 style="font-size:15.5px;font-weight:800;margin:0 0 6px;color:#141413">SJT 상황판단 검사 <span style="font-size:12px;color:#999;font-weight:500">(30 시나리오 · 4지선다)</span></h2>'+rows+'</section>';
+      return '<section style="margin:14px 0"><div class="qhead"><h2 style="font-size:15px;font-weight:800;margin:10px 0 4px;color:#141413">SJT 상황판단 검사</h2><p style="font-size:11.5px;color:#666;margin:0 0 4px">각 상황에서 자신과 가장 가까운 보기의 ○에 표시하세요.</p></div>'+rows+'</section>';
     }
-    var out='<div style="max-width:880px;margin:0 auto;padding:24px;font-family:\'Noto Sans KR\',-apple-system,sans-serif;color:#141413;background:#fff">'
-      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;border-bottom:2px solid #d97757;padding-bottom:10px">'
+    var st='<style>@media print{@page{size:A4;margin:10mm} thead{display:table-header-group} tr{break-inside:avoid;page-break-inside:avoid} .qhead{break-inside:avoid;page-break-after:avoid} table{break-inside:auto;page-break-inside:auto} section{break-inside:auto} .no-print{display:none!important}} table td,table th{border-bottom:1px solid #eee}</style>';
+    var out=st+'<div style="max-width:880px;margin:0 auto;padding:20px;font-family:\'Noto Sans KR\',-apple-system,sans-serif;color:#141413;background:#fff">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;border-bottom:2px solid #d97757;padding-bottom:8px">'
       +'<h1 style="font-size:20px;font-weight:800;margin:0">AI PIA · 전체 검사 문항지</h1>'
-      +'<div class="no-print"><button onclick="window.print()" style="background:#d97757;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">🖨 인쇄</button> <a href="results-admin.html" style="margin-left:6px;color:#d97757;font-weight:700;text-decoration:none">← 관리자</a></div></div>'
-      +'<p style="font-size:12.5px;color:#666;margin:0 0 16px;line-height:1.6">역채점 문항은 \'역채점\'으로 표시됩니다. 응답 척도: 리커트 1~5, WHO-5 1~6, RSES 1~4, CES-D·PHQ-A·GAD-7 0~3.</p>'
-      +tbl('IPIP Big5-50 (성격 5요인)',IPIP_BIG5_50,{factor:true,reverse:true,scale:'1~5'})
-      +tbl('RIASEC-30 (진로 흥미·Holland)',RIASEC_30,{factor:true,reverse:false,scale:'1~5'})
-      +tbl('VIA Youth 24 (성격강점)',VIA_YOUTH,{factor:true,reverse:false,scale:'1~5'})
-      +tbl('Grit-S (끈기 척도)',GRIT_S,{factor:true,reverse:true,scale:'1~5'})
-      +tbl('WHO-5 (정서 웰빙)',WHO5,{factor:false,reverse:false,scale:'1~6'})
-      +tbl('RSES (자존감)',RSES,{factor:false,reverse:true,scale:'1~4'})
-      +tbl('학습역량 (과목별)',LEARN_ITEMS,{factor:true,reverse:false,scale:'1~5'})
-      +tbl('다중지능 MI',MI_ITEMS,{factor:true,reverse:false,scale:'1~5'})
-      +tbl('CES-D-10 (우울 선별)',CES_D_10,{factor:false,reverse:true,scale:'0~3'})
-      +tbl('PHQ-A (우울 선별)',PHQ_A,{factor:false,reverse:false,scale:'0~3'})
-      +tbl('GAD-7 (불안 선별)',GAD_7,{factor:false,reverse:false,scale:'0~3'})
+      +'<div class="no-print"><button onclick="window.print()" style="background:#d97757;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">🖨 인쇄</button></div></div>'
+      +'<p style="font-size:12.5px;color:#555;margin:0 0 12px;line-height:1.6">각 문항을 읽고, 자신과 가장 가까운 번호의 ○에 색칠하거나 ∨ 표시하세요.</p>'
+      +tbl('IPIP Big5-50 (성격 5요인)',(typeof IPIP_BIG5_50!=='undefined'?IPIP_BIG5_50:[]),{scale:'1~5'})
+      +tbl('RIASEC-30 (진로 흥미)',(typeof RIASEC_30!=='undefined'?RIASEC_30:[]),{scale:'1~5'})
+      +tbl('VIA Youth 24 (성격강점)',(typeof VIA_YOUTH!=='undefined'?VIA_YOUTH:[]),{scale:'1~5'})
+      +tbl('Grit-S (끈기 척도)',(typeof GRIT_S!=='undefined'?GRIT_S:[]),{scale:'1~5'})
+      +tbl('WHO-5 (정서 웰빙)',(typeof WHO5!=='undefined'?WHO5:[]),{scale:'1~6'})
+      +tbl('RSES (자존감)',(typeof RSES!=='undefined'?RSES:[]),{scale:'1~4'})
+      +tbl('학습역량 (과목별)',(typeof LEARN_ITEMS!=='undefined'?LEARN_ITEMS:[]),{scale:'1~5'})
+      +tbl('다중지능 MI',(typeof MI_ITEMS!=='undefined'?MI_ITEMS:[]),{scale:'1~5'})
+      +tbl('CES-D-10 (우울 선별)',(typeof CES_D_10!=='undefined'?CES_D_10:[]),{scale:'0~3'})
+      +tbl('PHQ-A (우울 선별)',(typeof PHQ_A!=='undefined'?PHQ_A:[]),{scale:'0~3'})
+      +tbl('GAD-7 (불안 선별)',(typeof GAD_7!=='undefined'?GAD_7:[]),{scale:'0~3'})
       +sjtTbl()
-      +'<p style="font-size:11px;color:#aab;margin-top:20px;border-top:1px solid #eee;padding-top:10px">© AI PIA · 예담정보통신 — 교육·진로·자기이해 참고용 도구</p></div>';
+      +'<p style="font-size:11px;color:#aab;margin-top:18px;border-top:1px solid #eee;padding-top:10px">© AI PIA · 예담정보통신 — 교육·진로·자기이해 참고용 도구</p></div>';
     document.body.innerHTML=out; document.title='AI PIA 전체 문항지';
   }catch(e){ try{ document.body.innerHTML='<pre style="padding:20px">문항 출력 오류: '+(e&&e.message)+'</pre>'; }catch(_){} }
 }
