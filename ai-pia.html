@@ -820,7 +820,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   <div class="bg-white rounded-2xl border border-slate-200 p-3 mb-3 flex items-center gap-3 sticky top-0 z-10">
     <button onclick="showView('result')" class="px-4 py-2 bg-slate-200 rounded-lg text-sm font-semibold" data-en="← Summary Results">← 통합 결과</button>
     <span class="font-bold text-slate-700 flex-1" data-en="📋 AI PIA Full Report">📋 AI PIA 전체 결과지</span>
-    <button onclick="piaPrintReport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold" data-en="🖨️ Print/PDF">🖨️ 인쇄/PDF</button>
+    <button onclick="piaPrintAsk()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold" data-en="🖨️ Print/PDF">🖨️ 인쇄/PDF</button>
   </div>
   <div id="fullreport-wrap">
     <div id="pia-report">
@@ -829,7 +829,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;
   <span data-en="📋 AI PIA Assessment Report">📋 AI PIA 검사 결과지</span>
   <button id="btn-back-student" style="display:none;" onclick="window.close()" data-en="← Back to student page">← 학생 페이지로</button>
   <button onclick="window.open('AI_PIA_관리자.html','_blank')" data-en="🏫 Admin page">🏫 관리자 페이지</button>
-  <button onclick="piaPrintReport()" data-en="🖨️ Print / Save PDF">🖨️ 인쇄 / PDF 저장</button>
+  <button onclick="piaPrintAsk()" data-en="🖨️ Print / Save PDF">🖨️ 인쇄 / PDF 저장</button>
   <button onclick="document.querySelectorAll('.page').forEach((p,i)=>p.style.display=i==0?'':'none')" data-en="Cover only">표지만</button>
   <button onclick="document.querySelectorAll('.page').forEach(p=>p.style.display='')" data-en="View all">전체 보기</button>
 </div>
@@ -5066,8 +5066,19 @@ function piaPaperScan(){
     };
   }catch(e){ try{ alert('종이답안 판독 오류: '+(e&&e.message)); }catch(_){} }
 }
-function piaPrintReport(){
+function piaPrintAsk(){
   try{
+    var ov=document.createElement('div'); ov.className='pia-print-hide';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:1002;padding:20px;';
+    ov.innerHTML=`<div style="background:#fff;border-radius:16px;padding:22px;max-width:340px;width:100%;text-align:center;font-family:inherit;box-shadow:0 20px 50px -20px rgba(0,0,0,.5)"><div style="font-weight:800;font-size:16px;margin-bottom:6px;color:#141413">\uB204\uAD6C\uC758 \uACB0\uACFC\uC9C0\uB97C \uC778\uC1C4\uD560\uAE4C\uC694?</div><div style="font-size:12.5px;color:#6b6457;margin-bottom:14px">\uC120\uD0DD\uD55C \uB300\uC0C1\uC6A9 \uB9DE\uCDA4 \uBD84\uC11D\uC774 \uBCF8 \uACB0\uACFC\uC9C0 \uB4A4\uC5D0 \uD568\uAED8 \uCD9C\uB825\uB429\uB2C8\uB2E4.</div><div style="display:flex;flex-direction:column;gap:8px"><button data-aud="student" style="padding:11px;border:0;border-radius:10px;background:#6a9bcc;color:#fff;font-weight:700;cursor:pointer;font-size:14px">\uD83C\uDF92 \uD559\uC0DD\uC6A9</button><button data-aud="parent" style="padding:11px;border:0;border-radius:10px;background:#d9a14f;color:#fff;font-weight:700;cursor:pointer;font-size:14px">\uD83D\uDC6A \uD559\uBD80\uBAA8\uC6A9</button><button data-aud="teacher" style="padding:11px;border:0;border-radius:10px;background:#788c5d;color:#fff;font-weight:700;cursor:pointer;font-size:14px">\uD83C\uDFEB \uC120\uC0DD\uB2D8\uC6A9</button><button data-aud="" style="padding:9px;border:1px solid #e3d9c6;border-radius:10px;background:#fff;color:#6b6457;font-weight:600;cursor:pointer;margin-top:2px;font-size:13px">\uD604\uC7AC \uD654\uBA74 \uADF8\uB300\uB85C</button></div></div>`;
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function(e){ var b=e.target.closest('button'); if(b){ var a=b.getAttribute('data-aud'); ov.remove(); piaPrintReport(a||undefined); return; } if(e.target===ov){ ov.remove(); } });
+  }catch(e){ piaPrintReport(); }
+}
+function piaPrintReport(audOverride){
+  try{
+    var _prevAud=(typeof currentAudience!=='undefined')?currentAudience:'student';
+    if(audOverride==='student'||audOverride==='parent'||audOverride==='teacher'){ try{ currentAudience=audOverride; }catch(e){} }
     try{ if(typeof renderDetailedResult==='function')renderDetailedResult(); if(typeof renderExtendedSections==='function')renderExtendedSections(); }catch(e){}
     var rep=document.getElementById('pia-report');
     if(!rep){ window.print(); return; }
@@ -5086,6 +5097,7 @@ function piaPrintReport(){
     w.document.open();
     w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 통합 결과지'+(_audKo?(' — '+_audKo):'')+'</title>'+styles+'<style>@page{size:A4;margin:0;} html,body{margin:0;padding:0;background:#fff;height:auto;overflow:visible;} #pia-report{background:#fff!important;padding:0;margin:0;} #pia-report .page{width:210mm!important;min-height:0!important;height:auto!important;margin:0 auto!important;padding:14mm 13mm!important;box-shadow:none!important;border-radius:0!important;break-after:page;page-break-after:always;overflow:hidden;} #pia-report .page:last-child{page-break-after:auto;break-after:auto;} #pia-report canvas,#pia-report img{max-width:100%!important;} .aud-analysis{page-break-before:always;padding:14mm 13mm;max-width:210mm;margin:0 auto;} .aud-analysis-head{font-size:15px;font-weight:800;color:#d97757;border-bottom:2px solid #d97757;padding-bottom:6px;margin-bottom:12px;} .aud-analysis .mt-5{margin-top:14px;} .aud-analysis canvas,.aud-analysis img{max-width:100%!important;} .no-print{display:none!important;}</style></head><body>'+clone.outerHTML+_analysis+'</body></html>');
     w.document.close();
+    try{ if(audOverride && currentAudience!==_prevAud){ currentAudience=_prevAud; if(typeof renderDetailedResult==='function')renderDetailedResult(); if(typeof renderExtendedSections==='function')renderExtendedSections(); } }catch(e){}
     setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 650);
   }catch(e){ try{ window.print(); }catch(_){} }
 }
@@ -6065,7 +6077,7 @@ function initResultActions() {
   const dlTxtBtn = el('result-download-txt');
   const copyBtn = el('result-copy');
 
-  if (printBtn) printBtn.addEventListener('click', () => piaPrintReport());
+  if (printBtn) printBtn.addEventListener('click', () => piaPrintAsk());
   if (dlTxtBtn) dlTxtBtn.addEventListener('click', () => {
     const text = buildResultText();
     const blob = new Blob([text], { type:'text/plain;charset=utf-8' });
