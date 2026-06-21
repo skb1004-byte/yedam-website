@@ -22,6 +22,8 @@
     header, nav, #topNav, .no-print, button { display:none !important; }
     section[data-view].hidden { display:none !important; }
     section[data-view]:not(.hidden) { display:block !important; padding:0; }
+    #fullreport-wrap { max-height:none !important; height:auto !important; overflow:visible !important; }
+    #pia-report .page:not(:last-child) { page-break-after:always; }
     .max-w-6xl { max-width:100% !important; padding:0 !important; }
     .border, .rounded-2xl, .rounded-xl, .rounded-lg { border:1px solid #ccc !important; box-shadow:none !important; }
     canvas { max-height:200px !important; }
