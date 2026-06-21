@@ -4445,7 +4445,7 @@ function initChat() {
       // 견고한 AI 캐스케이드: (1)설정 엔진(키) → (2)무료 게이트웨이(2중 폴백) → (3)로컬 규칙형
       const typing = appendTyping();
       const stage = inferStage(state.results.conv.turns);
-      const sys = buildSystemPrompt(stage, topic) + '\n\n[필수] 반드시 한국어(한글)로만 답한다. 영어·중국어·일본어 등 외국어나 한자(漢字)를 절대 섞지 않는다. 그리고 반드시 존댓말(해요체)로만 답하고 반말은 절대 쓰지 않는다.';
+      const sys = buildSystemPrompt(stage, topic) + '\n\n[필수] 반드시 한국어(한글)로만 답한다. 영어·중국어·일본어 등 외국어나 한자(漢字)를 절대 섞지 않는다. 그리고 반드시 존댓말(해요체)로만 답하고 반말은 절대 쓰지 않는다. [말투] 항상 밝고 명랑하고 따뜻하게! 응원·긍정·생기를 담아 다정한 해요체로 답하고, 칭찬과 공감을 자주 표현한다. 이모지는 0~1개만 가볍게(\uD83D\uDE0A\u2728\uD83D\uDE4C) 곁들이되 과하지 않게.';
       const ctx = buildConvContext(clean);
       const keyed = (mode !== 'LOCAL' && mode !== 'AUTO_FREE');
       let out = null;
