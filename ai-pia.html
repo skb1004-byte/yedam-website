@@ -5097,6 +5097,7 @@ function piaPaperScan(){
 function piaPrintReport(){
   try{
     var rep=document.getElementById('pia-report');
+    if(rep && rep.querySelectorAll('.page').length===0){ try{ if(typeof renderDetailedResult==='function')renderDetailedResult(); if(typeof renderExtendedSections==='function')renderExtendedSections(); }catch(e){} }
     if(!rep){ window.print(); return; }
     var clone=rep.cloneNode(true);
     var srcC=rep.querySelectorAll('canvas'), dstC=clone.querySelectorAll('canvas');
@@ -6086,7 +6087,7 @@ function initResultActions() {
   const dlTxtBtn = el('result-download-txt');
   const copyBtn = el('result-copy');
 
-  if (printBtn) printBtn.addEventListener('click', () => window.print());
+  if (printBtn) printBtn.addEventListener('click', () => piaPrintReport());
   if (dlTxtBtn) dlTxtBtn.addEventListener('click', () => {
     const text = buildResultText();
     const blob = new Blob([text], { type:'text/plain;charset=utf-8' });
