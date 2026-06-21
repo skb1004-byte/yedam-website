@@ -3092,7 +3092,7 @@ let state = {
 function load() {
   try {
     for (const k of Object.keys(STORAGE)) {
-      const v = sessionStorage.getItem(STORAGE[k]);
+      const v = localStorage.getItem(STORAGE[k]) || sessionStorage.getItem(STORAGE[k]);
       if (v) {
         const parsed = JSON.parse(v);
         if (k === 'cfg') state.cfg = Object.assign({}, state.cfg, parsed);
@@ -3110,14 +3110,16 @@ function load() {
   if (!state.cfg || !state.cfg._engineChosen) { state.cfg = Object.assign({}, state.cfg, { mode: 'AUTO_FREE' }); }
 }
 function save() {
-  sessionStorage.setItem(STORAGE.cfg, JSON.stringify(state.cfg));
   try { localStorage.setItem(STORAGE.cfg, JSON.stringify(state.cfg)); } catch(e) {}
-  sessionStorage.setItem(STORAGE.meta, JSON.stringify(state.meta));
-  sessionStorage.setItem(STORAGE.conv, JSON.stringify(state.results.conv));
-  sessionStorage.setItem(STORAGE.sjt, JSON.stringify(state.results.sjt));
-  for (const k of ['big5','riasec','via','grit','cesd','phqa','gad','who5','rses','learn','mi']) {
-    sessionStorage.setItem(STORAGE[k], JSON.stringify(state.results[k]));
-  }
+  try {
+    localStorage.setItem(STORAGE.meta, JSON.stringify(state.meta));
+    localStorage.setItem(STORAGE.conv, JSON.stringify(state.results.conv));
+    localStorage.setItem(STORAGE.sjt, JSON.stringify(state.results.sjt));
+    for (const k of ['big5','riasec','via','grit','cesd','phqa','gad','who5','rses','learn','mi']) {
+      localStorage.setItem(STORAGE[k], JSON.stringify(state.results[k]));
+    }
+    sessionStorage.setItem(STORAGE.meta, JSON.stringify(state.meta));
+  } catch(e) {}
 }
 
 // =================================================================
@@ -7195,7 +7197,7 @@ function addBackupRestoreUI() {
     '<div class="flex gap-2 flex-wrap">' +
     '<button onclick="exportAllData()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">💾 백업 내보내기</button>' +
     '<label class="bg-sky-600 text-white px-4 py-2 rounded-lg text-sm cursor-pointer">📂 복원<input type="file" accept=".json" class="hidden" onchange="if(this.files[0]) importAllData(this.files[0])" /></label>' +
-    '<button onclick="if(confirm(\'모든 데이터를 삭제할까요?\')) { sessionStorage.clear(); location.reload(); }" class="bg-rose-600 text-white px-4 py-2 rounded-lg text-sm">🗑 모두 삭제</button>' +
+    '<button onclick="if(confirm(\'모든 데이터를 삭제할까요?\')) { try{Object.keys(localStorage).forEach(function(k){if(k.indexOf(\'pia_v3_\')===0)localStorage.removeItem(k);});}catch(e){} sessionStorage.clear(); location.reload(); }" class="bg-rose-600 text-white px-4 py-2 rounded-lg text-sm">🗑 모두 삭제</button>' +
     '</div>';
   settings.appendChild(div);
 }
