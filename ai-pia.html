@@ -4445,7 +4445,7 @@ function initChat() {
       // 견고한 AI 캐스케이드: (1)설정 엔진(키) → (2)무료 게이트웨이(2중 폴백) → (3)로컬 규칙형
       const typing = appendTyping();
       const stage = inferStage(state.results.conv.turns);
-      const sys = buildSystemPrompt(stage, topic) + '\n\n[필수] 반드시 한국어(한글)로만 답한다. 영어·중국어·일본어 등 외국어나 한자(漢字)를 절대 섞지 않는다. 그리고 반드시 존댓말(해요체)로만 답하고 반말은 절대 쓰지 않는다. [말투] 항상 밝고 명랑하고 따뜻하게! 응원·긍정·생기를 담아 다정한 해요체로 답하고, 칭찬과 공감을 자주 표현한다. 이모지는 0~1개만 가볍게(\uD83D\uDE0A\u2728\uD83D\uDE4C) 곁들이되 과하지 않게.';
+      const sys = buildSystemPrompt(stage, topic) + '\n\n[필수] 반드시 한국어(한글)로만 답한다. 영어·중국어·일본어 등 외국어나 한자(漢字)를 절대 섞지 않는다. 그리고 반드시 존댓말(해요체)로만 답하고 반말은 절대 쓰지 않는다. [말투] 항상 밝고 명랑하고 따뜻하게! 응원·긍정·생기를 담아 다정한 해요체로 답하고, 칭찬과 공감을 자주 표현한다. 이모지는 0~1개만 가볍게(\uD83D\uDE0A\u2728\uD83D\uDE4C) 곁들이되 과하지 않게. [반복 금지] 이미 물어봤거나 직전에 한 질문·말은 절대 반복하지 않는다. 같은 주제를 두 번 묻지 말고, 매 답변마다 새로운 질문이나 관점으로 대화를 한 걸음 진전시킨다.';
       const ctx = buildConvContext(clean);
       const keyed = (mode !== 'LOCAL' && mode !== 'AUTO_FREE');
       let out = null;
@@ -4459,6 +4459,15 @@ function initChat() {
         try { var _kr = await callLLMFree(ctx, sys + '\n\n[경고] 직전 출력이 한국어가 아니었다. 오직 한국어(한글)로만 2~3문장으로 다시 답하라.'); out = (_kr && _isKoreanReply(_kr)) ? _kr : null; }
         catch(e){ out = null; }
       }
+      // [반복 방지] 직전 AI 답과 너무 비슷하면 1회 '다른 질문으로' 재생성
+      try{
+        var _lastRep=((state.results.conv.transcript||[]).slice(-1)[0]||{}).reply||'';
+        var _simRep=function(a,b){ a=(a||'').replace(/\s/g,''); b=(b||'').replace(/\s/g,''); if(!a||!b)return 0; var m=Math.min(a.length,b.length),sm=0; for(var i=0;i<m;i++){ if(a[i]===b[i])sm++; } return sm/Math.max(a.length,b.length); };
+        if(out && out.trim() && _lastRep && _simRep(out,_lastRep)>0.55){
+          var _rr=await callLLMFree(ctx, sys + '\n\n[\uC911\uC694] \uBC29\uAE08 \uB2F5\uC774 \uC9C1\uC804 \uB2F5\uACFC \uAC70\uC758 \uAC19\uB2E4. \uC808\uB300 \uBC18\uBCF5\uD558\uC9C0 \uB9D0\uACE0, \uC644\uC804\uD788 \uB2E4\uB978 \uC9C8\uBB38\u00B7\uAD00\uC810\uC73C\uB85C \uC0C8\uB86D\uAC8C 2~3\uBB38\uC7A5\uB9CC \uB2F5\uD558\uB77C.');
+          if(_rr && _rr.trim() && _isKoreanReply(_rr)) out=_rr;
+        }
+      }catch(e){}
       removeTyping(typing);
       reply = (out && out.trim()) ? out.trim() : generateReply(clean).reply;
     }
