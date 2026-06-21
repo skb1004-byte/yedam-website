@@ -5015,6 +5015,80 @@ async function autoConnectFreeAI() {
     : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 기본 · 미지원 시 로컬 규칙형 자동 폴백</span>';
 }
 
+function piaPaperScan(){
+  try{
+    var TESTS=[
+      {k:'big5',n:50,scale:'1~5',lo:1,hi:5,fn:'scoreBig5',label:'IPIP Big5-50'},
+      {k:'riasec',n:30,scale:'1~5',lo:1,hi:5,fn:'scoreRiasec',label:'RIASEC-30'},
+      {k:'via',n:24,scale:'1~5',lo:1,hi:5,fn:'scoreVia',label:'VIA 24강점'},
+      {k:'grit',n:8,scale:'1~5',lo:1,hi:5,fn:'scoreGrit',label:'Grit-S'},
+      {k:'who5',n:5,scale:'1~6',lo:1,hi:6,fn:'scoreWho5',label:'WHO-5'},
+      {k:'rses',n:10,scale:'1~4',lo:1,hi:4,fn:'scoreRses',label:'RSES 자존감'},
+      {k:'learn',n:14,scale:'1~5',lo:1,hi:5,fn:'scoreLearn',label:'학습역량'},
+      {k:'mi',n:16,scale:'1~5',lo:1,hi:5,fn:'scoreMi',label:'다중지능 MI'},
+      {k:'cesd',n:10,scale:'0~3',lo:0,hi:3,fn:'scoreCesd',label:'CES-D-10'},
+      {k:'phqa',n:9,scale:'0~3',lo:0,hi:3,fn:'scorePhqa',label:'PHQ-A'},
+      {k:'gad',n:7,scale:'0~3',lo:0,hi:3,fn:'scoreGad',label:'GAD-7'}
+    ];
+    function tof(k){ for(var i=0;i<TESTS.length;i++) if(TESTS[i].k===k) return TESTS[i]; return TESTS[0]; }
+    if(document.getElementById('paper-ov')) return;
+    var ov=document.createElement('div'); ov.id='paper-ov';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:flex-start;justify-content:center;padding:18px;overflow:auto';
+    var opts=TESTS.map(function(t){return '<option value="'+t.k+'">'+t.label+' ('+t.n+'문항·'+t.scale+')</option>';}).join('');
+    ov.innerHTML='<div style="background:#fff;border-radius:16px;max-width:680px;width:100%;padding:20px;font-family:\'Noto Sans KR\',sans-serif">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="font-size:18px;font-weight:800;margin:0">📷 종이답안 AI 판독 채점</h2><button id="paper-close" style="border:0;background:#eee;border-radius:8px;padding:6px 12px;cursor:pointer">닫기</button></div>'
+      +'<p style="font-size:12.5px;color:#666;margin:0 0 12px;line-height:1.6">검사를 고르고 마킹한 답안지를 촬영/업로드하면 AI가 표시한 번호를 읽어옵니다. 표를 검토·수정한 뒤 채점하세요.</p>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">'
+      +'<select id="paper-test" style="padding:8px;border:1px solid #ddd;border-radius:8px">'+opts+'</select>'
+      +'<input id="paper-file" type="file" accept="image/*" capture="environment" style="font-size:13px">'
+      +'<button id="paper-read" style="background:#6a9bcc;color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer">🔍 AI 판독</button>'
+      +'<button id="paper-manual" style="background:#fff;color:#333;border:1px solid #ddd;border-radius:8px;padding:8px 12px;cursor:pointer">✍ 직접 입력</button>'
+      +'<span id="paper-status" style="font-size:12.5px;color:#666"></span></div>'
+      +'<div id="paper-grid" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>'
+      +'<button id="paper-score" style="display:none;background:#d97757;color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:800;cursor:pointer">✅ 채점하고 결과 보기</button>'
+      +'</div>';
+    document.body.appendChild(ov);
+    function buildGrid(t, answers){
+      var g=document.getElementById('paper-grid'); g.innerHTML='';
+      for(var i=0;i<t.n;i++){
+        var v=(answers&&answers[i]!=null)?answers[i]:'';
+        var box=document.createElement('div'); box.style.cssText='display:flex;align-items:center;gap:3px;font-size:12px';
+        box.innerHTML='<span style="color:#999;width:22px;text-align:right">'+(i+1)+'</span><input data-i="'+i+'" type="number" min="'+t.lo+'" max="'+t.hi+'" value="'+v+'" style="width:44px;padding:4px;border:1px solid #ddd;border-radius:6px;text-align:center">';
+        g.appendChild(box);
+      }
+      document.getElementById('paper-score').style.display='';
+    }
+    document.getElementById('paper-close').onclick=function(){ ov.remove(); };
+    document.getElementById('paper-manual').onclick=function(){ buildGrid(tof(document.getElementById('paper-test').value),null); document.getElementById('paper-status').textContent='직접 입력 모드 — 번호를 채운 뒤 채점하세요.'; };
+    document.getElementById('paper-test').onchange=function(){ var g=document.getElementById('paper-grid'); g.innerHTML=''; document.getElementById('paper-score').style.display='none'; document.getElementById('paper-status').textContent=''; };
+    document.getElementById('paper-read').onclick=function(){
+      var t=tof(document.getElementById('paper-test').value);
+      var f=document.getElementById('paper-file').files[0]; var st=document.getElementById('paper-status');
+      if(!f){ st.textContent='먼저 답안지 사진을 선택하세요.'; return; }
+      st.textContent='🔍 AI 판독 중… (최대 30초)';
+      var rd=new FileReader();
+      rd.onload=function(){
+        fetch(PIA_CHAT_PROXY+'?task=ocr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:rd.result,n:t.n,scale:t.scale})})
+        .then(function(r){return r.json();}).then(function(d){
+          if(d&&d.answers){ st.textContent='✅ 판독 완료 — 표를 검토·수정한 뒤 채점하세요.'; buildGrid(t,d.answers); }
+          else { st.textContent='판독 실패('+((d&&d.error)||'알 수 없음')+'). 직접 입력으로 채점할 수 있어요.'; buildGrid(t,null); }
+        }).catch(function(e){ st.textContent='오류: '+(e&&e.message)+' — 직접 입력 가능'; buildGrid(t,null); });
+      };
+      rd.readAsDataURL(f);
+    };
+    document.getElementById('paper-score').onclick=function(){
+      var t=tof(document.getElementById('paper-test').value);
+      var inputs=document.querySelectorAll('#paper-grid input'); var ans=[];
+      for(var i=0;i<inputs.length;i++){ var v=parseInt(inputs[i].value,10); ans.push(isNaN(v)?t.lo:Math.max(t.lo,Math.min(t.hi,v))); }
+      try{ if(!state.profile||!state.profile.name) state.profile={name:'종이검사', grade:'', class:'', school:'', createdAt:Date.now()}; }catch(e){}
+      try{ state.results[t.k].answers=ans; state.results[t.k].scores=(typeof window[t.fn]==='function')?window[t.fn]():null; }catch(e){}
+      try{ save(); }catch(e){}
+      ov.remove();
+      try{ showView('result'); }catch(e){}
+      try{ if(typeof renderResult==='function')renderResult(); if(typeof renderDetailedResult==='function')renderDetailedResult(); if(typeof renderExtendedSections==='function')renderExtendedSections(); }catch(e){}
+    };
+  }catch(e){ try{ alert('종이답안 판독 오류: '+(e&&e.message)); }catch(_){} }
+}
 function piaPrintItems(){
   try{
     function esc(x){ return (typeof _escHtml==='function')? _escHtml(x) : String(x==null?'':x); }
@@ -5093,7 +5167,7 @@ initSettings();
 renderHome();
 showView('home');
 autoConnectFreeAI();
-try{ var _qp=new URLSearchParams(location.search); if(_qp.get('print')==='items'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPrintItems(); }catch(e){} }, 150); }); } else if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } }catch(e){}
+try{ var _qp=new URLSearchParams(location.search); if(_qp.get('paper')==='1'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPaperScan(); }catch(e){} }, 200); }); } else if(_qp.get('print')==='items'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPrintItems(); }catch(e){} }, 150); }); } else if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } }catch(e){}
 async function autoEnableOnDevice(){
   try {
     if (!state.cfg || state.cfg.mode !== 'ONDEVICE') return;

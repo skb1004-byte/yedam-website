@@ -136,6 +136,7 @@ a.link{color:var(--rust);text-decoration:none;font-weight:700}
       <button class="ghost" id="sampleParent">학부모용</button>
       <button class="ghost" id="sampleTeacher">선생님용</button>
       <button id="printItemsBtn" style="margin-left:8px">📄 전체 문항 출력</button>
+      <button id="paperScanBtn" style="margin-left:8px;background:var(--sky)">📷 종이답안 AI 판독</button>
     </div>
     <p class="tiny" style="margin-top:8px">검사 화면(ai-pia.html)의 실제 결과지 렌더러를 그대로 사용합니다. 인쇄·HTML/TXT 저장·KR/EN 토글도 동일하게 동작합니다.</p>
   </div>
@@ -598,6 +599,7 @@ window.addEventListener('DOMContentLoaded',()=>{ const b=localStorage.getItem(LS
     var s2=document.getElementById('sampleParent'); if(s2) s2.onclick=function(){openSample('parent');};
     var s3=document.getElementById('sampleTeacher'); if(s3) s3.onclick=function(){openSample('teacher');};
     var pi=document.getElementById('printItemsBtn'); if(pi) pi.onclick=function(){ window.open('ai-pia.html?print=items','_blank','noopener'); };
+    var ps=document.getElementById('paperScanBtn'); if(ps) ps.onclick=function(){ window.open('ai-pia.html?paper=1','_blank','noopener'); };
   })();
 </script>
 </body>
