@@ -2556,12 +2556,15 @@ async function callLLMFree(prompt, systemPrompt) {
 // CBT-aware 시스템 프롬프트 생성
 function _isKoreanReply(t){
   t=String(t||'');
-  var han=(t.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g)||[]).length;   // 한자(중국어)
-  var kana=(t.match(/[\u3040-\u30ff]/g)||[]).length;                 // 일본어 가나
-  var hangul=(t.match(/[\uac00-\ud7a3]/g)||[]).length;               // 한글
-  if(kana>0) return false;
-  if(han>2) return false;
-  if(hangul===0 && t.replace(/[^A-Za-z]/g,'').length>8) return false;
+  // 한국어 외 문자체계(한자·가나·태국·키릴·아랍·히브리·데바나가리·그리스 등) 혼입 시 차단
+  if(/[\u3040-\u30ff\u3400-\u9fff\u0e00-\u0e7f\u0400-\u04ff\u0600-\u06ff\u0590-\u05ff\u0900-\u097f\u0370-\u03ff]/.test(t)) return false;
+  // 영문 단어(3자 이상) 혼입 차단 — 흔한 약어만 허용
+  var allow=/^(ai|pia|mbti|tv|ok|sns|it|big5|riasec|via|grit|sjt|gad|phq|who|rses|ces|cesd|app|ux|ui)$/i;
+  var words=t.match(/[A-Za-z][A-Za-z0-9]*/g)||[];
+  for(var i=0;i<words.length;i++){ if(words[i].replace(/[0-9]/g,'').length>=3 && !allow.test(words[i])) return false; }
+  // 한글이 거의 없으면(외국어 위주) 차단
+  var hangul=(t.match(/[\uac00-\ud7a3]/g)||[]).length;
+  if(hangul===0 && t.replace(/[^A-Za-z]/g,'').length>4) return false;
   return true;
 }
 function buildSystemPrompt(stage, topic) {
