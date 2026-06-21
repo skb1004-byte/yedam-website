@@ -3037,6 +3037,15 @@ const SHORT_FEELING = ['외로워','쓸쓸','심심','속상','답답','막막',
 
 const RISK_HIGH = ['죽고 싶','자살','사라지고 싶','자해','학대','성폭력','맞았어','때렸어','협박'];
 const RISK_MED = ['왕따','따돌림','괴롭힘','외로워','힘들어','불안해','학교 가기 싫','무서워','울고 싶','혼자야'];
+const ABUSE_WORDS = ['씨발','시발','씨바','ㅅㅂ','병신','ㅂㅅ','지랄','ㅈㄹ','개새','개색','새끼','꺼져','꺼지','닥쳐','닥치','엿먹','좆','존나','존만','니애미','느금','애미','미친놈','미친년','등신','쓰레기야','fuck','shit','bitch','asshole'];
+function detectAbuse(text){ var t=String(text||'').toLowerCase().replace(/\s/g,''); return ABUSE_WORDS.some(function(w){ return t.indexOf(w)>=0; }); }
+// 3단계 모더레이션 멘트: 1 안내 → 2 경고 → 3 제한 안내 → 4+ 일시 중단
+function moderateReply(n){
+  if(n<=1) return '앗, 그런 말은 잠깐 접어둘까요? \uD83D\uDE0A 우리 다른 이야기로 가볍게 이어가봐요!';
+  if(n===2) return '\uC74C\u2026 거친 말이 반복되고 있어요. 대화를 계속하려면 서로 예의를 지켜요. \uD83D\uDE4F 진짜 궁금한 걸 편하게 물어봐 주세요!';
+  if(n===3) return '이런 표현이 계속되면 그 부분엔 답하기 어려워요. 예의 있는 질문으로 바꿔주면 다시 신나게 이어갈게요!';
+  return '지금은 대화를 잠시 쉬어갈게요. 마음이 가라앉으면 다시 편하게 이야기해요. \uD83C\uDF31';
+}
 
 const TOPIC_KW = [
   { keys:['국어','책','소설'], topic:'학습/국어' },
@@ -4436,11 +4445,16 @@ function initChat() {
     const risk = detectRisk(clean);
     const topic = detectTopic(clean);
     const mode = (state.cfg && state.cfg.mode) || 'LOCAL';
+    const abusive = (typeof detectAbuse==='function') && detectAbuse(clean);
 
     let reply;
     if (risk === 'HIGH') {
       // 고위험 신호는 LLM에 맡기지 않고 안전 응답을 강제
       reply = generateReply(clean).reply;
+    } else if (abusive) {
+      // 욕설·공격 표현: 3단계(안내→경고→제한) 모더레이션. LLM에 맡기지 않고 누적 카운트.
+      state.results.conv.abuse = (state.results.conv.abuse||0) + 1;
+      reply = moderateReply(state.results.conv.abuse);
     } else {
       // 견고한 AI 캐스케이드: (1)설정 엔진(키) → (2)무료 게이트웨이(2중 폴백) → (3)로컬 규칙형
       const typing = appendTyping();
@@ -5843,6 +5857,8 @@ function buildSummaryPrompt(audience, d){
   if(b) lines.push(`Big5 — 외향 ${b.E}, 우호 ${b.A}, 성실 ${b.C}, 정서안정 ${100-b.N}, 개방 ${b.O}`);
   if(rtop) lines.push(`흥미(RIASEC) 상위: ${rtop}`);
   if(vtop) lines.push(`대표 강점(VIA): ${vtop}`);
+  var _ab=(state.results&&state.results.conv&&state.results.conv.abuse)||0;
+  if(_ab>0) lines.push(`대화 태도: 자유대화 중 부적절·공격적 표현이 ${_ab}회 감지됨(지도 시 참고).`);
   const who = audience==='parent'?'학부모':audience==='teacher'?'교사':'학생 본인';
   const tone = audience==='parent'?'정중한 존댓말로, 자녀 이해와 가정에서의 지원 팁을 담아':audience==='teacher'?'객관적이고 전문적인 어조로, 생활지도·상담 활용 포인트를 담아':'따뜻한 반말로, 강점과 격려를 담아';
   return `다음은 한 청소년의 인적성 검사 요약 데이터야.\n${lines.join('\n')}\n\n이 데이터를 바탕으로 ${who}에게 전하는 종합 해석을 ${tone} 3~4문장으로 작성해줘. 과장·의료적 진단 표현은 피하고, 구체적 강점과 실천 제안 한 가지를 포함해. 한국어로만.`;
@@ -6918,7 +6934,7 @@ function freshResults() {
     grit:{answers:[],scores:null}, cesd:{answers:[],scores:null}, phqa:{answers:[],scores:null},
     gad:{answers:[],scores:null}, who5:{answers:[],scores:null}, rses:{answers:[],scores:null}, learn:{answers:[],scores:null}, mi:{answers:[],scores:null},
     sjt:{answers:[],dims:{},order:[],adaptive:false},
-    conv:{turns:0,dims:{},riskHist:[],topics:{},transcript:[]}
+    conv:{turns:0,dims:{},riskHist:[],topics:{},transcript:[],abuse:0}
   };
 }
 function editProfile() {
