@@ -413,6 +413,38 @@ h2.title .em{color:var(--rust)}
 .skip-link:focus{left:0}
 .ct-row .v a{color:#a8472a;text-decoration:underline;text-underline-offset:2px}
 </style>
+<style id="yd-premium">
+/* ===== YEDAM Premium Polish (고급화 오버레이) ===== */
+html{scroll-behavior:smooth}
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+h1,h2,h3,.hero-sub{letter-spacing:-0.022em}
+h1{line-height:1.12}
+::selection{background:rgba(217,119,87,.22)}
+/* 글래스 스티키 네비 */
+.nav{backdrop-filter:saturate(150%) blur(14px);-webkit-backdrop-filter:saturate(150%) blur(14px);background:rgba(250,249,245,.74)!important;border-bottom:1px solid rgba(227,224,214,.65);transition:box-shadow .35s ease,background .35s}
+.nav.yd-scrolled{box-shadow:0 10px 34px -20px rgba(20,20,19,.30);background:rgba(250,249,245,.92)!important}
+/* 프리미엄 버튼 */
+.btn{transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s,background .28s,border-color .28s}
+.btn-primary{background:linear-gradient(135deg,#e2906b,#d97757 58%,#c8623e)!important;border:0!important;box-shadow:0 12px 30px -14px rgba(217,119,87,.65),inset 0 1px 0 rgba(255,255,255,.28)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 40px -14px rgba(217,119,87,.72)}
+.btn-ghost{background:rgba(255,255,255,.55)}
+.btn-ghost:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 12px 30px -18px rgba(20,20,19,.30)}
+/* 히어로 깊이감 + 이미지 입체 */
+.hero{position:relative;background:radial-gradient(1100px 560px at 80% -12%,rgba(217,119,87,.11),transparent 58%),radial-gradient(820px 460px at -5% 112%,rgba(106,155,204,.10),transparent 55%),var(--paper)}
+.hero-figure img,.hero-img img,.hero img{border-radius:20px;box-shadow:0 34px 84px -34px rgba(20,20,19,.46),0 8px 22px -12px rgba(20,20,19,.22)}
+/* 솔루션/일반 카드 프리미엄 입체 */
+.sol-card{border-radius:18px;background:linear-gradient(180deg,#ffffff,#fdfcf9);box-shadow:0 1px 0 rgba(255,255,255,.7),0 20px 44px -30px rgba(20,20,19,.30);transition:transform .4s cubic-bezier(.2,.7,.2,1),box-shadow .4s,border-color .4s}
+.sol-card:hover{transform:translateY(-6px);border-color:rgba(217,119,87,.42);box-shadow:0 30px 64px -30px rgba(20,20,19,.42)}
+.sol-card-img{overflow:hidden;border-radius:14px}
+.sol-card-img img{transition:transform .6s cubic-bezier(.2,.7,.2,1);will-change:transform}
+.sol-card:hover .sol-card-img img{transform:scale(1.045)}
+/* 부드러운 등장 모션 */
+@media (prefers-reduced-motion:no-preference){.reveal{transition:opacity .75s ease,transform .75s cubic-bezier(.2,.7,.2,1)}}
+</style>
+<script>
+/* 스크롤 시 네비 그림자(프리미엄 디테일) */
+(function(){try{var n=document.querySelector('.nav');if(!n)return;var on=function(){n.classList.toggle('yd-scrolled',(window.scrollY||0)>24);};window.addEventListener('scroll',on,{passive:true});on();}catch(e){}})();
+</script>
 </head>
 <body>
 
