@@ -4501,7 +4501,7 @@ function initChat() {
       reply = (out && out.trim()) ? out.trim() : generateReply(clean).reply;
     }
 
-    state.results.conv.turns++;
+    if(!abusive) state.results.conv.turns++; // 욕설·비방 메시지는 대화 진행 턴에 누적하지 않음
     state.results.conv.riskHist.push(risk);
     state.results.conv.topics[topic] = (state.results.conv.topics[topic]||0)+1;
     state.results.conv.transcript.push({ msg:clean, reply, risk, topic, t:Date.now() });
