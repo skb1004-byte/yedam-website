@@ -271,14 +271,17 @@ let sortKey='savedAt', sortDir=-1;
 let chartG=null,chartT=null,chartR=null,chartTr=null,chartM=null,chartB=null;
 
 // === 관리자에서 학생별 결과지(본인/학부모/선생님) 출력 ===
-function openFullReport(aud){
-  var id=window._curDetailId; var rec=id&&FULL[id];
-  if(!rec){ alert('상세 데이터를 먼저 불러온 뒤 다시 시도하세요.'); return; }
+async function openViewerFor(id, aud){
+  var rec=FULL[id];
+  if(!rec){ try{ var r=await fetch(apiUrl({admin:PW,id:id})); var j=await r.json(); if(j.ok&&j.result){ rec=j.result; FULL[id]=rec; } }catch(e){} }
+  if(!rec){ alert('결과를 불러오지 못했습니다. 로그인 상태를 확인하세요.'); return; }
   try{ localStorage.setItem('pia_view_record', JSON.stringify(rec)); }
   catch(e){ alert('결과 데이터 전달 실패: '+e.message); return; }
-  window.open('ai-pia.html?view=record&aud='+aud,'_blank','noopener');
+  window.open('ai-pia.html?view=record&aud='+(aud||'teacher'),'_blank','noopener');
 }
+function openFullReport(aud){ openViewerFor(window._curDetailId, aud); }
 window.openFullReport=openFullReport;
+window.openViewerFor=openViewerFor;
 
 function apiUrl(params){
   let b=(BASE||location.origin).replace(/\/+$/,'');
@@ -428,12 +431,12 @@ function renderTable(f){
     const tn=getTurns(s); const turns= tn==null?'<span class="tiny">—</span>':tn;
     const tr=document.createElement('tr');
     tr.innerHTML='<td class="nos"><input type="checkbox" class="selOne" data-id="'+esc(s.id)+'" style="min-width:auto"></td>'+
-      '<td><b>'+esc(s.name||'익명')+'</b></td><td>'+esc(s.grade)+'</td><td>'+esc(s.klass||s.class)+'</td>'+
+      '<td><a class="link" style="cursor:pointer" title="클릭하면 결과지 뷰어" data-view="'+esc(s.id)+'"><b>'+esc(s.name||'익명')+'</b></a></td><td>'+esc(s.grade)+'</td><td>'+esc(s.klass||s.class)+'</td>'+
       '<td>'+esc(s.school)+'</td><td>'+(s.type?('<span class="chip">'+esc(s.type)+'</span>'):'')+'</td>'+
       mb+'<td>'+relPill(s)+'</td><td>'+(s.doneCount||0)+'</td><td>'+turns+'</td>'+
       '<td class="muted">'+fmt(s.savedAt)+'</td>'+
       '<td class="nos"><button class="warn sm" data-del="'+esc(s.id)+'">삭제</button></td>';
-    tr.addEventListener('click',ev=>{ if(ev.target.dataset.del||ev.target.classList.contains('selOne'))return; openDetail(s.id); });
+    tr.addEventListener('click',ev=>{ if(ev.target.dataset.del||ev.target.classList.contains('selOne'))return; var vt=ev.target.closest('[data-view]'); if(vt){ ev.stopPropagation(); openViewerFor(vt.getAttribute('data-view'),'teacher'); return; } openDetail(s.id); });
     rows.appendChild(tr);
   });
   rows.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();delRec(b.dataset.del);}));
