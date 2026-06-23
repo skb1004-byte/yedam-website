@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>AI PIA · 학부모 결과 열람</title>
+<link rel="icon" href="images/favicon_256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#141413;--ink-soft:#3d3d3a;--paper:#faf9f5;--paper-2:#f3f1ea;--line:#e3e0d6;
+  --rust:#d97757;--rust-deep:#c4623f;--gold:#c98a2b;--warn:#c0392b;--sky:#6a9bcc;
+  --sh:0 2px 10px rgba(20,20,19,.05),0 16px 44px rgba(20,20,19,.10);
+  --font-head:'Poppins','Noto Sans KR',sans-serif;--font-ui:'Noto Sans KR',-apple-system,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-ui);background:radial-gradient(1100px 560px at 80% -12%,rgba(217,119,87,.10),transparent 58%),var(--paper);
+  color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:32px 28px;max-width:420px;width:100%}
+.brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
+.brand .dot{width:30px;height:30px;border-radius:9px;background:var(--rust);display:grid;place-items:center;color:#fff;font-weight:800;font-family:var(--font-head)}
+h1{font-family:var(--font-head);font-size:19px;font-weight:800;text-align:center;letter-spacing:-.02em}
+.sub{text-align:center;color:var(--ink-soft);font-size:13px;margin:6px 0 20px;line-height:1.6}
+label{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin:14px 0 5px}
+input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:11px;font:inherit;background:var(--paper)}
+input:focus{outline:none;border-color:var(--rust);box-shadow:0 0 0 3px rgba(217,119,87,.16)}
+#code{letter-spacing:3px;font-weight:800;text-transform:uppercase}
+button{width:100%;margin-top:20px;padding:13px;border:0;border-radius:12px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;
+  background:linear-gradient(135deg,#e2906b,#d97757 60%,#c8623e);color:#fff;box-shadow:0 12px 30px -14px rgba(217,119,87,.6)}
+button:hover{transform:translateY(-1px)}
+button:disabled{opacity:.6;cursor:default;transform:none}
+.msg{margin-top:14px;font-size:13px;text-align:center;min-height:18px}
+.msg.err{color:var(--warn)} .msg.ok{color:#43543a}
+.help{margin-top:18px;padding-top:16px;border-top:1px solid var(--paper-2);font-size:12px;color:var(--ink-soft);line-height:1.7}
+.foot{text-align:center;margin-top:16px;font-size:11px;color:#b0aea5}
+a{color:var(--rust);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="brand"><span class="dot">P</span><span style="font-family:var(--font-head);font-weight:800">AI PIA</span></div>
+  <h1>학부모 결과 열람</h1>
+  <p class="sub">자녀의 <b>학생 ID</b>와 검사 후 발급된 <b>열람 코드</b>를 입력하시면<br>학부모용 결과지를 보실 수 있어요.</p>
+
+  <label for="sid">학생 ID</label>
+  <input id="sid" type="text" placeholder="예: 홍길동_1719...">
+  <label for="code">열람 코드 (6자리)</label>
+  <input id="code" type="text" maxlength="6" placeholder="예: K7M2QP" autocomplete="off">
+
+  <button id="go">학부모용 결과 보기</button>
+  <div class="msg" id="msg"></div>
+
+  <div class="help">
+    · 열람 코드는 자녀의 검사 결과 화면(인쇄 버튼)에서 확인할 수 있어요.<br>
+    · 코드를 모르면 담당 선생님께 문의해 주세요.<br>
+    · 결과는 의료·임상 진단이 아닌 교육·진로 참고용입니다.
+  </div>
+  <div class="foot">© 예담정보통신 · AI PIA</div>
+</div>
+
+<script>
+var API_BASE='https://brilliant-macaron-4b3ed2.netlify.app'; // 결과 API 주소
+function api(params){ var b=API_BASE.replace(/\/+$/,''); var u=new URL(b+'/api/results');
+  for(var k in params){ if(params[k]!=null) u.searchParams.set(k,params[k]); } return u.toString(); }
+var $=function(s){return document.querySelector(s);};
+function setMsg(t,cls){ var m=$('#msg'); m.textContent=t||''; m.className='msg'+(cls?(' '+cls):''); }
+
+async function go(){
+  var sid=($('#sid').value||'').trim();
+  var code=($('#code').value||'').trim().toUpperCase();
+  if(!sid||!code){ setMsg('학생 ID와 열람 코드를 모두 입력해 주세요.','err'); return; }
+  $('#go').disabled=true; setMsg('결과를 확인하는 중…');
+  try{
+    var r=await fetch(api({id:sid, code:code}));
+    if(r.status===404){ setMsg('해당 학생 결과를 찾을 수 없어요. 학생 ID를 확인해 주세요.','err'); $('#go').disabled=false; return; }
+    if(r.status===401||r.status===403){ setMsg('열람 코드가 일치하지 않아요. 다시 확인해 주세요.','err'); $('#go').disabled=false; return; }
+    var j=await r.json();
+    var rec=j.result||j.record||(j.ok?j.data:null);
+    if(!j.ok || !rec){ setMsg((j.error||'열람에 실패했어요. 코드를 확인해 주세요.'),'err'); $('#go').disabled=false; return; }
+    try{ localStorage.setItem('pia_view_record', JSON.stringify(rec)); }
+    catch(e){ setMsg('결과 데이터 처리 오류: '+e.message,'err'); $('#go').disabled=false; return; }
+    setMsg('확인되었습니다. 학부모용 결과지를 엽니다…','ok');
+    location.href='ai-pia.html?view=record&aud=parent';
+  }catch(e){
+    setMsg('서버 연결에 실패했어요. 잠시 후 다시 시도해 주세요. ('+e.message+')','err');
+    $('#go').disabled=false;
+  }
+}
+$('#go').addEventListener('click', go);
+$('#code').addEventListener('keydown', function(e){ if(e.key==='Enter') go(); });
+$('#sid').addEventListener('keydown', function(e){ if(e.key==='Enter') $('#code').focus(); });
+// URL로 ?id=&code= 전달 시 자동 채움
+try{ var q=new URLSearchParams(location.search); if(q.get('id'))$('#sid').value=q.get('id'); if(q.get('code'))$('#code').value=q.get('code'); }catch(e){}
+</script>
+</body>
+</html>
