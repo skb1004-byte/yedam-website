@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI PIA · 마이페이지</title>
+<link rel="icon" href="images/favicon_256.png">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#141413;--ink-soft:#3d3d3a;--paper:#faf9f5;--paper-2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust-deep:#c4623f;--warn:#c0392b;--moss:#788c5d;
+  --sh:0 2px 10px rgba(20,20,19,.05),0 14px 40px rgba(20,20,19,.08);--font-head:'Poppins','Noto Sans KR',sans-serif;--font-ui:'Noto Sans KR',-apple-system,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-ui);background:var(--paper-2);color:var(--ink);line-height:1.6}
+header{background:rgba(250,249,245,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;gap:12px;position:sticky;top:0}
+header .brand{font-family:var(--font-head);font-weight:800;display:flex;align-items:center;gap:9px}
+header .brand .dot{width:26px;height:26px;border-radius:8px;background:var(--rust);display:grid;place-items:center;color:#fff}
+header .sp{flex:1}
+a.link{color:var(--rust);font-weight:700;text-decoration:none}
+.wrap{max-width:760px;margin:0 auto;padding:24px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh);padding:22px;margin-bottom:18px}
+h2{font-family:var(--font-head);font-size:16px;margin-bottom:12px}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:6px 12px;font-size:14px}
+.kv b{color:var(--ink-soft);font-weight:600}
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:#f6e9e2;color:var(--rust-deep)}
+button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700}
+.btn-rust{background:var(--rust);color:#fff} .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn-warn{background:#fff;border:1.5px solid #e9c8c0;color:var(--warn)}
+.reslist{display:flex;flex-direction:column;gap:8px}
+.resitem{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:11px}
+.resitem .t{font-weight:700} .resitem .d{color:var(--ink-soft);font-size:12px} .resitem .sp{flex:1}
+.muted{color:var(--ink-soft);font-size:13px}
+.danger{border-color:#e9c8c0;background:#fdf4f2}
+.cfgwarn{display:none;background:#fff5e8;border:1px solid #f0d98a;color:#7a5b00;font-size:13px;padding:12px;border-radius:10px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot">P</span>AI PIA</div>
+  <span class="sp"></span>
+  <a class="link" href="ai-pia.html">검사하기</a>
+  <a class="link" href="#" id="logout" style="margin-left:14px">로그아웃</a>
+</header>
+
+<div class="wrap">
+  <div class="cfgwarn card" id="cfgwarn">⚙️ Supabase 연결 정보가 아직 입력되지 않았습니다. (관리자: SUPABASE_URL·ANON_KEY 입력 필요)</div>
+
+  <div id="app" style="display:none">
+    <div class="card">
+      <h2>내 정보</h2>
+      <div class="kv">
+        <b>이름</b><span id="m-name">-</span>
+        <b>이메일</b><span id="m-email">-</span>
+        <b>회원유형</b><span id="m-role">-</span>
+      </div>
+      <div id="roleSelect" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #f0ede4">
+        <div class="muted" style="margin-bottom:8px">처음 오셨네요! 회원 유형을 선택해 주세요.</div>
+        <button class="btn-rust" id="role-individual">👤 개인</button>
+        <button class="btn-ghost" id="role-org" style="margin-left:8px">🏫 기관(학교/센터)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>내 검사 이력</h2>
+      <div class="reslist" id="reslist"><div class="muted">불러오는 중…</div></div>
+    </div>
+
+    <div class="card danger">
+      <h2 style="color:var(--warn)">회원 탈퇴</h2>
+      <p class="muted" style="margin-bottom:12px">탈퇴 시 내 계정과 모든 검사 결과가 <b>완전히 삭제</b>되며 되돌릴 수 없습니다.</p>
+      <button class="btn-warn" id="withdraw">회원 탈퇴하기</button>
+      <span class="muted" id="wmsg" style="margin-left:10px"></span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ===== Supabase 연결 정보 (login.html 과 동일하게 채우기) =====
+var SUPABASE_URL = 'https://ushtyxnmqclzgdnynusm.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
+// ============================================================
+var ready = SUPABASE_URL.indexOf('http')===0 && SUPABASE_ANON_KEY.length>20;
+var $=function(s){return document.querySelector(s);};
+if(!ready){ $('#cfgwarn').style.display='block'; }
+else {
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var ROLE_KO = { individual:'개인', org_admin:'기관 관리자', org_member:'기관 구성원', parent:'학부모' };
+
+  (async function init(){
+    var { data:{ session } } = await sb.auth.getSession();
+    if(!session){ location.replace('login.html'); return; }
+    $('#app').style.display='block';
+    var user = session.user;
+    $('#m-name').textContent = (user.user_metadata && (user.user_metadata.name||user.user_metadata.full_name)) || '-';
+    $('#m-email').textContent = user.email || '-';
+
+    // 프로필 조회(역할)
+    var { data:prof } = await sb.from('profiles').select('role').eq('id', user.id).single();
+    if(prof){ $('#m-role').innerHTML = '<span class="chip">'+(ROLE_KO[prof.role]||prof.role)+'</span>'; }
+    // 역할 미선택(기본 individual인데 첫 방문이면 선택 유도) — 여기선 항상 변경 가능하게 노출
+    $('#roleSelect').style.display='block';
+
+    // 검사 이력
+    var { data:results } = await sb.from('results').select('id,created_at,data').order('created_at',{ascending:false});
+    var box=$('#reslist');
+    if(!results || !results.length){ box.innerHTML='<div class="muted">아직 저장된 검사 결과가 없어요. <a class="link" href="ai-pia.html">검사 시작하기 →</a></div>'; }
+    else {
+      box.innerHTML = results.map(function(r){
+        var t = (r.data && (r.data.type||(r.data.t16))) || 'AI PIA 검사';
+        var d = new Date(r.created_at).toLocaleString('ko-KR');
+        return '<div class="resitem"><span class="t">'+t+'</span><span class="d">'+d+'</span><span class="sp"></span>'
+          +'<button class="btn-ghost" data-id="'+r.id+'">결과 보기</button></div>';
+      }).join('');
+      box.querySelectorAll('[data-id]').forEach(function(b){
+        b.onclick=function(){ var rec=results.filter(function(x){return x.id===b.dataset.id;})[0];
+          try{ localStorage.setItem('pia_view_record', JSON.stringify(rec.data)); location.href='ai-pia.html?view=record&aud=student'; }catch(e){ alert(e.message); } };
+      });
+    }
+
+    // 역할 선택
+    async function setRole(role, extra){
+      var patch = Object.assign({ role:role }, extra||{});
+      await sb.from('profiles').update(patch).eq('id', user.id);
+      location.reload();
+    }
+    $('#role-individual').onclick=function(){ setRole('individual'); };
+    $('#role-org').onclick=async function(){
+      var name = prompt('기관(학교) 이름을 입력하세요'); if(!name) return;
+      var { data:org, error } = await sb.from('organizations').insert({ name:name, admin_id:user.id }).select().single();
+      if(error){ alert('기관 생성 오류: '+error.message); return; }
+      await setRole('org_admin', { org_id: org.id });
+    };
+
+    // 탈퇴 (서버 Edge Function 호출 — service_role로 계정 완전삭제)
+    $('#withdraw').onclick=async function(){
+      if(!confirm('정말 탈퇴하시겠어요? 모든 검사 결과가 완전히 삭제되며 되돌릴 수 없습니다.')) return;
+      $('#wmsg').textContent='처리 중…';
+      try{
+        var res = await fetch(SUPABASE_URL+'/functions/v1/delete-account', {
+          method:'POST', headers:{ 'Authorization':'Bearer '+session.access_token }
+        });
+        if(res.ok){ await sb.auth.signOut(); alert('탈퇴가 완료되었습니다.'); location.replace('index.html'); }
+        else { var j=await res.json().catch(function(){return{};}); $('#wmsg').textContent='탈퇴 실패: '+(j.error||res.status); }
+      }catch(e){ $('#wmsg').textContent='오류: '+e.message; }
+    };
+
+    $('#logout').onclick=async function(e){ e.preventDefault(); await sb.auth.signOut(); location.replace('index.html'); };
+  })();
+}
+</script>
+</body>
+</html>

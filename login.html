@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI PIA · 로그인 / 회원가입</title>
+<link rel="icon" href="images/favicon_256.png">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#141413;--ink-soft:#3d3d3a;--paper:#faf9f5;--line:#e3e0d6;--rust:#d97757;
+  --sh:0 16px 44px rgba(20,20,19,.10);--font-head:'Poppins','Noto Sans KR',sans-serif;--font-ui:'Noto Sans KR',-apple-system,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-ui);background:radial-gradient(1100px 560px at 80% -12%,rgba(217,119,87,.10),transparent 58%),var(--paper);
+  color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:34px 28px;max-width:400px;width:100%;text-align:center}
+.brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px}
+.brand .dot{width:30px;height:30px;border-radius:9px;background:var(--rust);display:grid;place-items:center;color:#fff;font-weight:800;font-family:var(--font-head)}
+h1{font-family:var(--font-head);font-size:20px;font-weight:800}
+.sub{color:var(--ink-soft);font-size:13px;margin:6px 0 22px;line-height:1.6}
+.oauth{display:flex;flex-direction:column;gap:10px}
+button{width:100%;padding:13px;border:0;border-radius:12px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.kakao{background:#FEE500;color:#191600}
+.google{background:#fff;color:#222;border:1.5px solid var(--line)}
+button:hover{filter:brightness(.97)}
+.msg{margin-top:14px;font-size:13px;min-height:18px;color:#c0392b}
+.help{margin-top:20px;padding-top:16px;border-top:1px solid #f0ede4;font-size:11.5px;color:var(--ink-soft);line-height:1.7}
+a{color:var(--rust);font-weight:700;text-decoration:none}
+.cfgwarn{display:none;background:#fff5e8;border:1px solid #f0d98a;color:#7a5b00;font-size:12px;padding:10px;border-radius:10px;margin-bottom:16px;text-align:left;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="brand"><span class="dot">P</span><span style="font-family:var(--font-head);font-weight:800">AI PIA</span></div>
+  <h1>로그인 / 회원가입</h1>
+  <p class="sub">카카오 또는 구글 계정으로 1초 만에 시작하세요.<br>처음이면 자동으로 회원가입됩니다.</p>
+
+  <div class="cfgwarn" id="cfgwarn">⚙️ 아직 Supabase 연결 정보가 입력되지 않았습니다. (관리자: 이 파일 상단 SUPABASE_URL·ANON_KEY 입력 필요)</div>
+
+  <div class="oauth">
+    <button class="kakao" id="kakao">💬 카카오로 시작하기</button>
+    <button class="google" id="google">🇬 구글로 시작하기</button>
+  </div>
+  <div class="msg" id="msg"></div>
+
+  <div class="help">
+    · 로그인하면 내 검사 결과를 저장하고 언제든 다시 볼 수 있어요.<br>
+    · 처음 로그인 시 <b>개인 / 기관(학교)</b> 중 선택하게 됩니다.<br>
+    · 가입은 무료이며, 마이페이지에서 언제든 <b>탈퇴</b>할 수 있어요.<br>
+    · <a href="ai-pia.html">로그인 없이 검사 체험하기 →</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ===== Supabase 연결 정보 (Supabase 프로젝트 생성 후 채우기) =====
+var SUPABASE_URL = 'https://ushtyxnmqclzgdnynusm.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
+// ================================================================
+var ready = SUPABASE_URL.indexOf('http')===0 && SUPABASE_ANON_KEY.length>20;
+var sb = ready ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+var $=function(s){return document.querySelector(s);};
+if(!ready) $('#cfgwarn').style.display='block';
+
+async function start(provider){
+  if(!sb){ $('#msg').textContent='연결 정보 미입력 — 관리자에게 문의하세요.'; return; }
+  try{
+    var { error } = await sb.auth.signInWithOAuth({
+      provider: provider,
+      options: { redirectTo: location.origin + '/mypage.html' }
+    });
+    if(error) $('#msg').textContent='로그인 오류: '+error.message;
+  }catch(e){ $('#msg').textContent='오류: '+e.message; }
+}
+$('#kakao').onclick=function(){ start('kakao'); };
+$('#google').onclick=function(){ start('google'); };
+
+// 이미 로그인돼 있으면 마이페이지로
+if(sb){ sb.auth.getSession().then(function(r){ if(r.data && r.data.session){ location.replace('mypage.html'); } }); }
+</script>
+</body>
+</html>
