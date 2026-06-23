@@ -5384,13 +5384,29 @@ function piaSampleReport(){
     try{ var _v=document.querySelector('section[data-view="result"]'); if(_v){ var _n=document.createElement('div'); _n.setAttribute('role','status'); _n.style.cssText='background:#fff8e1;border:1px solid #f0d98a;color:#7a5b00;padding:8px 14px;border-radius:10px;font-size:12.5px;margin:10px 0;'; _n.textContent='\uD83E\uDDEA \uC0D8\uD50C \uBBF8\uB9AC\uBCF4\uAE30 \u2014 \uBB34\uC791\uC704 \uC751\uB2F5\uC73C\uB85C \uC0DD\uC131\uB41C \uC608\uC2DC \uACB0\uACFC\uC9C0\uC785\uB2C8\uB2E4(\uC2E4\uC81C \uAC80\uC0AC \uC544\uB2D8).'; _v.insertBefore(_n,_v.firstChild); } }catch(e){}
   }catch(e){ console.warn('sample report fail', e); }
 }
+function piaViewRecord(){
+  try{
+    var raw=localStorage.getItem('pia_view_record'); if(!raw) return;
+    var rec=JSON.parse(raw);
+    if(rec.results) state.results=Object.assign(state.results||{}, rec.results);
+    state.profile=rec.profile||{name:rec.name||'', grade:rec.grade||'', class:rec.klass||rec.class||'', school:rec.school||'', createdAt:Date.now()};
+    state.studentId=rec.name||rec.id||state.studentId;
+    if(rec.meta) state.meta=rec.meta;
+    try{ var _a=new URLSearchParams(location.search).get('aud'); currentAudience=(['student','parent','teacher'].indexOf(_a)>=0)?_a:'teacher'; }catch(e){ currentAudience='teacher'; }
+    showView('result');
+    try{ if(typeof renderResult==='function')renderResult(); }catch(e){}
+    try{ if(typeof renderDetailedResult==='function')renderDetailedResult(); }catch(e){}
+    try{ if(typeof renderExtendedSections==='function')renderExtendedSections(); }catch(e){}
+    try{ var _v=document.querySelector('section[data-view="result"]'); if(_v){ var _n=document.createElement('div'); _n.setAttribute('role','status'); _n.style.cssText='background:#eef3f9;border:1px solid #c4d8ec;color:#2c4a6b;padding:8px 14px;border-radius:10px;font-size:12.5px;margin:10px 0;'; var _aw=currentAudience==='teacher'?'\uC120\uC0DD\uB2D8\uC6A9':currentAudience==='parent'?'\uD559\uBD80\uBAA8\uC6A9':'\uBCF8\uC778\uC6A9'; _n.textContent='\uD83C\uDFEB \uAD00\uB9AC\uC790 \uC5F4\uB78C \u2014 '+(rec.name||'')+' \uACB0\uACFC\uC9C0('+_aw+'). \uC704 \uC778\uC1C4 \uBC84\uD2BC\uC73C\uB85C \uCD9C\uB825\uD558\uC138\uC694.'; _v.insertBefore(_n,_v.firstChild); } }catch(e){}
+  }catch(e){ console.warn('view record fail', e); }
+}
 load();
 initChat();
 initSettings();
 renderHome();
 showView('home');
 autoConnectFreeAI();
-try{ var _qp=new URLSearchParams(location.search); if(_qp.get('paper')==='1'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPaperScan(); }catch(e){} }, 200); }); } else if(_qp.get('print')==='items'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPrintItems(); }catch(e){} }, 150); }); } else if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } }catch(e){}
+try{ var _qp=new URLSearchParams(location.search); if(_qp.get('paper')==='1'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPaperScan(); }catch(e){} }, 200); }); } else if(_qp.get('print')==='items'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPrintItems(); }catch(e){} }, 150); }); } else if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } else if(_qp.get('view')==='record'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaViewRecord(); }catch(e){} }, 250); }); } }catch(e){}
 async function autoEnableOnDevice(){
   try {
     if (!state.cfg || state.cfg.mode !== 'ONDEVICE') return;
@@ -7923,7 +7939,7 @@ function injectGlobalActions() {
   nav.appendChild(div);
 }
 
-function _piaSkipGate(){ try{ var q=new URLSearchParams(location.search); return q.get('print')==='items' || q.get('paper')==='1' || q.get('sample')==='1' || location.hash==='#sample'; }catch(e){ return false; } }
+function _piaSkipGate(){ try{ var q=new URLSearchParams(location.search); return q.get('print')==='items' || q.get('paper')==='1' || q.get('sample')==='1' || q.get('view')==='record' || location.hash==='#sample'; }catch(e){ return false; } }
 // ---- 초기화 ----
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(async () => {
