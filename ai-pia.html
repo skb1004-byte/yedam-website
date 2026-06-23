@@ -8407,13 +8407,13 @@ function pDimDesc(label, v){
 function populateResult(d){
   const sc = d.scores || {};
   // ── 표지 ──
-  setText('cover-name', d.name||'홍길동');
+  setText('cover-name', d.name||'');
   setText('cover-school', d.school||'');
   setText('cover-grade', d.grade||'');
   setText('cover-date', fmtDate(d.testDate));
 
   // ── 학생 정보 테이블 ──
-  document.querySelectorAll('[data-pia="name"]').forEach(el=>el.textContent=d.name||'홍길동');
+  document.querySelectorAll('[data-pia="name"]').forEach(el=>el.textContent=d.name||'');
   document.querySelectorAll('[data-pia="school"]').forEach(el=>el.textContent=d.school||'');
   document.querySelectorAll('[data-pia="grade"]').forEach(el=>el.textContent=d.grade||'');
   document.querySelectorAll('[data-pia="testDate"]').forEach(el=>el.textContent=fmtDate(d.testDate));
@@ -8780,7 +8780,7 @@ function mapAiPiaToResultData() {
 
   return {
     id: state.studentId || 'S001',
-    name: meta.name || '학생',
+    name: meta.name || '',
     school: meta.school || '',
     grade: meta.grade || '',
     gender: meta.gender || '',
