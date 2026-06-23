@@ -600,8 +600,8 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 <section data-view="learn" class="hidden bg-white rounded-2xl border border-slate-200 p-5">
   <div class="flex justify-between items-baseline mb-4">
     <div>
-      <h2 class="text-lg font-bold">과목별 학습 역량 (자가평가)</h2>
-      <p class="text-xs text-slate-500 mt-1">실제 성적이 아닌, 과목별 흥미·자신감 자가평가입니다.</p>
+      <h2 class="text-lg font-bold">분야별 학습·역량 (자가평가)</h2>
+      <p class="text-xs text-slate-500 mt-1">실제 성적·능력이 아닌, 분야별 흥미·자신감 자가평가입니다.</p>
     </div>
     <button onclick="showView('home')" class="text-xs text-slate-500">← 메뉴</button>
   </div>
@@ -2051,7 +2051,7 @@ const VIA_YOUTH = [
   { f:'사회지능', t:'나는 사람들의 기분을 잘 읽는다.' },
   { f:'협력', t:'나는 팀에서 잘 어울려 일한다.' },
   { f:'공정', t:'나는 모든 사람을 똑같이 대한다.' },
-  { f:'리더십', t:'나는 친구들을 이끄는 역할이 잘 맞는다.' },
+  { f:'리더십', t:'나는 사람들을 이끄는 역할이 잘 맞는다.' },
   { f:'용서', t:'나는 누군가 실수했을 때 용서할 줄 안다.' },
   { f:'겸손', t:'나는 자랑하지 않는다.' },
   { f:'신중', t:'나는 행동하기 전에 한 번 더 생각한다.' },
@@ -2059,7 +2059,7 @@ const VIA_YOUTH = [
   { f:'심미안', t:'나는 아름다운 것에 감동을 잘 받는다.' },
   { f:'감사', t:'나는 사소한 일에도 감사함을 자주 느낀다.' },
   { f:'희망', t:'나는 미래가 좋아질 것이라고 믿는다.' },
-  { f:'유머', t:'나는 친구들을 잘 웃게 한다.' },
+  { f:'유머', t:'나는 사람들을 잘 웃게 한다.' },
   { f:'영성', t:'나는 인생에서 의미를 자주 생각한다.' }
 ];
 
@@ -3982,13 +3982,13 @@ const LEARN_ITEMS = [
   { f:'english', t:'영어 문장을 읽고 뜻을 잘 파악한다.' },
   { f:'english', t:'영어로 말하거나 쓰는 것에 자신이 있다.' },
   { f:'social',  t:'역사·사회 현상에 흥미가 있다.' },
-  { f:'social',  t:'사회 과목 내용을 잘 이해하고 기억한다.' },
+  { f:'social',  t:'사회·시사 내용을 잘 이해하고 기억한다.' },
   { f:'science', t:'과학 원리를 이해하는 것이 즐겁다.' },
   { f:'science', t:'실험·관찰 활동을 잘한다.' },
   { f:'arts',    t:'그림·음악 등 예술 활동에 소질이 있다.' },
-  { f:'arts',    t:'예술(미술·음악) 수업이 즐겁다.' },
+  { f:'arts',    t:'예술(미술·음악) 활동이 즐겁다.' },
   { f:'pe',      t:'몸을 움직이는 활동·운동을 잘한다.' },
-  { f:'pe',      t:'체육 수업이 즐겁고 자신 있다.' }
+  { f:'pe',      t:'운동·신체활동이 즐겁고 자신 있다.' }
 ];
 
 // 가드너 다중지능(MI) 8지능 자가검사 — 각 2문항
@@ -4160,7 +4160,7 @@ function renderHome() {
     { id:'who5', step:11, title:'WHO-5 웰빙 지수', icon:'🌤️', desc:'정서적 웰빙 5문항 (WHO).',
       detail:'지난 2주 정서적 웰빙. 점수가 낮으면 마음 돌봄이 필요하다는 신호이며 진단이 아닙니다.',
       dur:'1분', items:5, key:'who5', track:'정서 안전', priority:'선택', color:'sky', sensitive:true },
-    { id:'learn', step:12, title:'과목별 학습 역량', icon:'📚', desc:'국·영·수·사·과·예체능 자가평가.',
+    { id:'learn', step:12, title:'과목별 학습 역량', icon:'📚', desc:'언어·수리·외국어·사회·과학·예술·신체 자가평가.',
       detail:'과목별 흥미·자신감을 스스로 평가합니다. 결과지의 학습역량 페이지에 실측값으로 반영됩니다.',
       dur:'2분', items:14, key:'learn', track:'I (학습)', priority:'권장', color:'indigo' },
     { id:'mi', step:13, title:'다중지능(MI) 8지능', icon:'🧩', desc:'가드너 8가지 지능 자가검사.',
@@ -4239,14 +4239,15 @@ function renderHome() {
                          'bg-slate-200 text-slate-700';
 
     return `
-      <div class="${col.bg} ${col.border} border-2 rounded-2xl p-4 transition relative ${isDone?'opacity-60 grayscale':'hover:shadow-lg'} ${c.id===_nextCardId?'ring-2 ring-amber-400 shadow-lg pia-next-glow':''}">
+      <div class="${col.bg} ${col.border} border-2 rounded-2xl p-4 transition relative ${isDone?'ring-2 ring-emerald-400':'hover:shadow-lg'} ${c.id===_nextCardId?'ring-2 ring-amber-400 shadow-lg pia-next-glow':''}">
+        ${isDone?'<div class="absolute -top-3 -right-2 bg-emerald-500 text-white text-[11px] font-bold rounded-full w-8 h-8 flex items-center justify-center shadow">✓</div>':''}
         <div class="absolute -top-3 left-3 bg-slate-900 text-white text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">${c.step}</div>
         <div class="flex items-start justify-between mb-2 mt-2">
           <div class="flex items-center gap-2">
             <span class="text-2xl">${c.icon}</span>
             <span class="pill ${priorityBadge} text-[10px]">${c.priority}</span>
           </div>
-          ${isDone ? '<span class="pill bg-emerald-100 text-emerald-800">✓ 완료</span>' : inProgress ? '<span class="pill bg-blue-100 text-blue-800">진행 중</span>' : (c.id===_nextCardId ? '<span class="pill bg-amber-100 text-amber-800">⭐ 다음 추천</span>' : '')}
+          ${isDone ? '<span class="pill bg-emerald-500 text-white font-bold">✓ 완료됨</span>' : inProgress ? '<span class="pill bg-blue-100 text-blue-800 font-semibold">▶ 진행 중 '+currentItems+'/'+totalItems+'</span>' : (c.id===_nextCardId ? '<span class="pill bg-amber-100 text-amber-800 font-semibold">⭐ 다음 추천 · 미완료</span>' : '<span class="pill bg-slate-200 text-slate-600">미완료</span>')}
         </div>
         <h3 class="font-bold text-sm ${col.text} mb-1">${c.title}</h3>
         <p class="text-xs ${col.text} opacity-90 mb-1 leading-relaxed font-medium">${c.desc}</p>
@@ -5955,7 +5956,7 @@ function renderLearnCard() {
       + '<div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden"><div class="h-2 rounded-full" style="width:'+v+'%;background:#6a9bcc"></div></div>'
       + '<span class="text-xs text-slate-500 w-8 text-right">'+v+'</span></div>';
   }).join('');
-  return '<div class="mt-5 bg-white rounded-2xl border border-slate-200 p-4"><h3 class="font-semibold text-sm mb-2">과목별 학습 역량 (자가평가)</h3>' + rows + '<p class="text-xs text-slate-500 mt-2">스스로 평가한 과목 흥미·자신감입니다. 실제 성적과 다를 수 있어요.</p></div>';
+  return '<div class="mt-5 bg-white rounded-2xl border border-slate-200 p-4"><h3 class="font-semibold text-sm mb-2">분야별 학습·역량 (자가평가)</h3>' + rows + '<p class="text-xs text-slate-500 mt-2">스스로 평가한 분야별 흥미·자신감입니다. 실제 성적·능력과 다를 수 있어요.</p></div>';
 }
 
 function renderExtraScales() {
