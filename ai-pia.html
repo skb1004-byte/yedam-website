@@ -2311,6 +2311,120 @@ const SJT_30 = [
   ]}
 ];
 
+// 8-b. 성인(일반인) 응답자용 SJT 18 시나리오 — 직장·생활·관계 맥락
+const SJT_ADULT = [
+  { q:'회의에서 낸 의견이 충분히 검토되지 않고 넘어갔습니다.', choices:[
+    { t:'근거를 정리해 다시 제안한다', w:{책임:2,분석:1} },
+    { t:'끝나고 결정권자에게 따로 설명한다', w:{계획:2,실천:1} },
+    { t:'동료들의 반응을 살피며 기회를 본다', w:{관찰:2,균형:1} },
+    { t:'이번엔 넘기고 다음을 준비한다', w:{현실:2,자유:1} }
+  ]},
+  { q:'동료가 마감을 못 지켜 내 업무까지 밀리고 있습니다.', choices:[
+    { t:'같이 끝낼 방법을 차분히 찾는다', w:{공감:2,책임:1} },
+    { t:'내가 그 부분까지 빠르게 처리한다', w:{실천:2,책임:1} },
+    { t:'상황을 정리해 상사와 상의한다', w:{계획:2,분석:1} },
+    { t:'기한을 분명히 정해 다시 요청한다', w:{도전:2,계획:1} }
+  ]},
+  { q:'주말인데 상사가 급한 업무를 부탁합니다.', choices:[
+    { t:'가능한 범위를 정해 돕겠다고 한다', w:{균형:2,책임:1} },
+    { t:'바로 처리하고 마무리한다', w:{실천:2,도전:1} },
+    { t:'우선순위를 확인하고 일정을 조율한다', w:{계획:2,분석:1} },
+    { t:'개인 일정을 설명하고 양해를 구한다', w:{자유:2,공감:1} }
+  ]},
+  { q:'팀에 새로운 업무 방식이 도입됐습니다.', choices:[
+    { t:'먼저 익혀보고 적극 적용한다', w:{도전:2,실천:1} },
+    { t:'장단점을 따져보고 받아들인다', w:{분석:2,탐구:1} },
+    { t:'동료들과 맞춰가며 천천히 적응한다', w:{공감:2,균형:1} },
+    { t:'필요한 부분만 골라 활용한다', w:{현실:2,자유:1} }
+  ]},
+  { q:'친한 동료와 일하는 방식에서 의견이 부딪힙니다.', choices:[
+    { t:'서로 입장을 먼저 들어본다', w:{공감:2,관찰:1} },
+    { t:'내 생각을 솔직하게 전한다', w:{도전:2,감성:1} },
+    { t:'절충안을 만들어 제안한다', w:{균형:2,분석:1} },
+    { t:'결과로 보여주며 설득한다', w:{실천:2,책임:1} }
+  ]},
+  { q:'처음 가는 모임에서 아는 사람이 거의 없습니다.', choices:[
+    { t:'먼저 다가가 말을 건다', w:{외향:2,도전:1} },
+    { t:'분위기를 살피며 자연스럽게 섞인다', w:{관찰:2,균형:1} },
+    { t:'관심사가 맞는 한두 명과 깊게 대화한다', w:{공감:2,탐구:1} },
+    { t:'편한 만큼만 머문다', w:{내향:2,자유:1} }
+  ]},
+  { q:'예상치 못한 보너스(목돈)가 생겼습니다.', choices:[
+    { t:'계획을 세워 일부 저축·투자한다', w:{계획:2,분석:1} },
+    { t:'평소 하고 싶던 경험에 쓴다', w:{자유:2,감성:1} },
+    { t:'가족·가까운 사람과 나눈다', w:{공감:2,균형:1} },
+    { t:'우선 두고 필요할 때 쓴다', w:{현실:2,관찰:1} }
+  ]},
+  { q:'더 좋은 조건의 이직 제안을 받았습니다.', choices:[
+    { t:'장단점을 표로 정리해 비교한다', w:{분석:2,계획:1} },
+    { t:'경험자·멘토에게 조언을 구한다', w:{공감:1,탐구:2} },
+    { t:'새로운 도전이라 생각하고 끌린다', w:{도전:2,자유:1} },
+    { t:'지금의 안정도 중요하게 본다', w:{현실:2,균형:1} }
+  ]},
+  { q:'업무에서 실수를 했다는 걸 알게 됐습니다.', choices:[
+    { t:'바로 알리고 수습 방법을 찾는다', w:{책임:2,실천:1} },
+    { t:'원인을 분석해 재발을 막는다', w:{분석:2,탐구:1} },
+    { t:'관련된 사람에게 먼저 사과한다', w:{공감:2,감성:1} },
+    { t:'침착하게 우선순위부터 처리한다', w:{균형:2,계획:1} }
+  ]},
+  { q:'가족(배우자·부모)과 중요한 일에서 의견이 다릅니다.', choices:[
+    { t:'상대의 마음을 먼저 헤아린다', w:{공감:2,감성:1} },
+    { t:'내 생각을 차분히 설명한다', w:{책임:1,분석:2} },
+    { t:'서로 맞는 지점을 찾아 절충한다', w:{균형:2,관찰:1} },
+    { t:'시간을 두고 다시 이야기한다', w:{자유:1,관찰:2} }
+  ]},
+  { q:'오랜만에 온전한 자유 시간이 생겼습니다.', choices:[
+    { t:'새로운 곳·활동에 도전한다', w:{도전:2,외향:2} },
+    { t:'좋아하는 취미·창작에 몰입한다', w:{창의:2,감성:1} },
+    { t:'가까운 사람들과 함께 보낸다', w:{외향:2,공감:1} },
+    { t:'집에서 쉬며 재충전한다', w:{내향:2,탐구:1} }
+  ]},
+  { q:'새로운 기술이나 자격을 익혀야 하는 상황입니다.', choices:[
+    { t:'학습 계획을 세워 단계별로 한다', w:{계획:2,책임:1} },
+    { t:'직접 부딪히며 빠르게 익힌다', w:{실천:2,도전:1} },
+    { t:'스터디·강의로 함께 배운다', w:{공감:1,외향:2} },
+    { t:'원리를 깊이 파고들어 이해한다', w:{탐구:2,분석:1} }
+  ]},
+  { q:'이웃·지인과 사소한 갈등이 생겼습니다.', choices:[
+    { t:'먼저 다가가 풀려고 한다', w:{공감:2,도전:1} },
+    { t:'상황을 객관적으로 정리해 본다', w:{분석:2,관찰:1} },
+    { t:'서로 불편하지 않게 거리를 둔다', w:{균형:2,자유:1} },
+    { t:'필요하면 분명히 입장을 말한다', w:{책임:2,실천:1} }
+  ]},
+  { q:'건강관리를 새로 시작하려고 합니다.', choices:[
+    { t:'목표와 루틴을 구체적으로 정한다', w:{계획:2,책임:1} },
+    { t:'일단 가볍게 바로 시작한다', w:{실천:2,현실:1} },
+    { t:'같이 할 사람을 구해 동기부여한다', w:{외향:2,공감:1} },
+    { t:'나에게 맞는 방법을 찾아본다', w:{탐구:2,분석:1} }
+  ]},
+  { q:'후배·신입을 지도해야 하는 역할을 맡았습니다.', choices:[
+    { t:'눈높이에 맞춰 차근차근 알려준다', w:{공감:2,책임:1} },
+    { t:'직접 해보게 하고 피드백을 준다', w:{실천:2,관찰:1} },
+    { t:'단계별 가이드를 만들어 준다', w:{계획:2,분석:1} },
+    { t:'스스로 답을 찾도록 질문으로 돕는다', w:{탐구:2,균형:1} }
+  ]},
+  { q:'노후·미래에 대해 막연한 불안이 듭니다.', choices:[
+    { t:'관심 분야·대비책을 하나씩 알아본다', w:{탐구:2,계획:1} },
+    { t:'경험 많은 사람의 이야기를 듣는다', w:{공감:1,탐구:2} },
+    { t:'지금 할 수 있는 일에 집중한다', w:{현실:2,책임:1} },
+    { t:'가까운 사람과 생각을 나눈다', w:{공감:2,감성:1} }
+  ]},
+  { q:'팀 프로젝트에서 리더를 정해야 합니다.', choices:[
+    { t:'직접 맡아 추진해 본다', w:{도전:2,실천:2} },
+    { t:'의견을 잘 조율하는 사람을 추천한다', w:{공감:2,관찰:1} },
+    { t:'책임감 있고 꼼꼼한 사람을 추천한다', w:{책임:2,계획:1} },
+    { t:'역량을 따져 다수 의견을 따른다', w:{분석:1,균형:2} }
+  ]},
+  { q:'중요한 결정을 앞두고 정보가 충분하지 않습니다.', choices:[
+    { t:'자료를 더 찾아 근거를 모은다', w:{탐구:2,분석:1} },
+    { t:'경험자에게 조언을 구한다', w:{공감:1,균형:2} },
+    { t:'일단 작은 시도로 확인해 본다', w:{실천:2,도전:1} },
+    { t:'직관과 가치 기준으로 선택한다', w:{감성:2,자유:1} }
+  ]}
+];
+// 응답자 유형에 맞는 SJT 세트 선택 (성인/일반 → 직장·생활 시나리오)
+function sjtSet(){ return (typeof selfIsAdult==='function' && selfIsAdult()) ? SJT_ADULT : SJT_30; }
+
 
 // =================================================================
 //  AI PIA v3.2 — 무료 오픈 API 통합 모듈
@@ -3917,8 +4031,9 @@ const renderMi = makeLikertRenderer('mi', MI_ITEMS, 'mi', LIKERT5, false);
 // =================================================================
 // 자유대화 신호로 SJT 시나리오 관련도 정렬 (자체 도구 → 타당성 영향 없음)
 function computeSjtOrder() {
+  const _S = sjtSet();
   const cd = (state.results.conv && state.results.conv.dims) || {};
-  const idxs = SJT_30.map(function(_, i){ return i; });
+  const idxs = _S.map(function(_, i){ return i; });
   const hasSignal = Object.keys(cd).some(function(k){ return cd[k] > 0; });
   if (!hasSignal) return { order: idxs, adaptive: false };
   function relevance(sc) {
@@ -3926,13 +4041,14 @@ function computeSjtOrder() {
     sc.choices.forEach(function(c){ for (const d in c.w) { r += (cd[d] || 0) * c.w[d]; } });
     return r;
   }
-  const ordered = idxs.slice().sort(function(a, b){ return relevance(SJT_30[b]) - relevance(SJT_30[a]); });
+  const ordered = idxs.slice().sort(function(a, b){ return relevance(_S[b]) - relevance(_S[a]); });
   return { order: ordered, adaptive: true };
 }
 function renderSjt() {
   const container = el('sjt-content');
+  const _S = sjtSet();
   // 첫 진입(응답 0개) 시 자유대화 신호로 순서를 1회 고정 구성
-  if (!state.results.sjt.order || state.results.sjt.order.length !== SJT_30.length) {
+  if (!state.results.sjt.order || state.results.sjt.order.length !== _S.length) {
     const r = computeSjtOrder();
     state.results.sjt.order = r.order;
     state.results.sjt.adaptive = r.adaptive;
@@ -3941,27 +4057,27 @@ function renderSjt() {
   const seq = state.results.sjt.order;
   const answers = state.results.sjt.answers;
   const idx = answers.length;
-  if (idx >= SJT_30.length) {
+  if (idx >= _S.length) {
     save();
     container.innerHTML = `
       <div class="text-center py-10">
         <div class="text-4xl mb-2">✓</div>
-        <div class="text-lg font-semibold mb-1">SJT 30문항 완료</div>
+        <div class="text-lg font-semibold mb-1">SJT ${_S.length}문항 완료</div>
         <div class="text-sm text-slate-500 mb-4">행동 예측 신뢰도가 가장 높은 검사입니다.</div>
         <button onclick="showView('home')" class="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm">메뉴로</button>
         <button onclick="state.results.sjt={answers:[],dims:{},order:[],adaptive:false}; save(); renderSjt()" class="bg-slate-100 px-5 py-2 rounded-lg text-sm ml-2">다시</button>
       </div>`;
     return;
   }
-  const q = SJT_30[seq[idx]];
-  const pct = Math.round((idx/SJT_30.length)*100);
+  const q = _S[seq[idx]];
+  const pct = Math.round((idx/_S.length)*100);
   const banner = state.results.sjt.adaptive
     ? '<div class="mb-4 text-xs bg-violet-50 border border-violet-200 rounded-lg p-2 text-violet-900">💬 자유대화에서 파악한 관심사·성향에 맞춰 시나리오 순서가 <strong>맞춤 구성</strong>되었습니다.</div>'
     : '';
   container.innerHTML = `
     ${banner}
     ${easyControls('sjt')}
-    <div class="mb-2 text-xs text-slate-500">시나리오 ${idx+1} / ${SJT_30.length}</div>
+    <div class="mb-2 text-xs text-slate-500">시나리오 ${idx+1} / ${_S.length}</div>
     <div class="w-full bg-slate-100 rounded-full h-1.5 mb-5">
       <div class="bg-emerald-500 h-1.5 rounded-full" style="width:${pct}%"></div>
     </div>
@@ -4056,7 +4172,7 @@ function renderHome() {
   const total = cards.length;
   const done = cards.filter(c => {
     if (c.key === 'conv') return state.results.conv.turns >= 8;
-    if (c.key === 'sjt') return state.results.sjt.answers.length >= SJT_30.length;
+    if (c.key === 'sjt') return state.results.sjt.answers.length >= sjtSet().length;
     const expected = c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100;
     return _likertDoneCount(c.key) >= expected;
   }).length;
@@ -4076,7 +4192,7 @@ function renderHome() {
   };
 
   // 완료 판정 + '다음 추천' 카드 (순차 진행 강조용)
-  const _isCardDone = (c)=> c.key==='conv' ? state.results.conv.turns >= 8 : c.key==='sjt' ? state.results.sjt.answers.length >= SJT_30.length : _likertDoneCount(c.key) >= (c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100);
+  const _isCardDone = (c)=> c.key==='conv' ? state.results.conv.turns >= 8 : c.key==='sjt' ? state.results.sjt.answers.length >= sjtSet().length : _likertDoneCount(c.key) >= (c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100);
   const _nextCardId = ((cards||[]).find(c=>!_isCardDone(c))||{}).id;
 
   // 진행률 헤더 + 카드 그리드
@@ -4106,7 +4222,7 @@ function renderHome() {
     </div>
   ` + cards.map(c => {
     const isDone = c.key === 'conv' ? state.results.conv.turns >= 8 :
-                   c.key === 'sjt' ? state.results.sjt.answers.length >= SJT_30.length :
+                   c.key === 'sjt' ? state.results.sjt.answers.length >= sjtSet().length :
                    _likertDoneCount(c.key) >= (c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100);
 
     // 진행 중 표시
@@ -7183,7 +7299,7 @@ function renderHeaderProgress() {
     learn: state.results.learn?.answers?.length || 0,
     mi: state.results.mi?.answers?.length || 0
   };
-  const totals = { big5:50, riasec:30, via:24, grit:8, sjt:(typeof SJT_30!=='undefined'?SJT_30.length:30), conv:8, cesd:10, phqa:9, gad:7, who5:5, rses:10, learn:14, mi:16 };
+  const totals = { big5:50, riasec:30, via:24, grit:8, sjt:(typeof sjtSet==='function'?sjtSet().length:30), conv:8, cesd:10, phqa:9, gad:7, who5:5, rses:10, learn:14, mi:16 };
   const _tot = Object.keys(totals).length;
   const done = Object.entries(counts).filter(([k,v]) => v >= totals[k]).length;
   bar.innerHTML = `<span class="text-slate-500">진행</span><div class="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:${Math.round(done/_tot*100)}%"></div></div><span class="font-semibold">${done}/${_tot}</span>`;
