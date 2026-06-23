@@ -5538,8 +5538,21 @@ const RIASEC_INTERPRETATIONS = {
 };
 
 // 청중별 인사말
+function selfIsAdult(){
+  // 응답자가 대학생/성인/일반인이면 true → 본인용 보고서를 '일반용(존댓말)'로
+  try{
+    var g=String((state.profile&&state.profile.grade)||'');
+    if(/대학|성인|일반|adult|univ/i.test(g)) return true;
+    var cg=(state.cfg&&state.cfg.grade)||'';
+    if(cg==='adult'||cg==='univ') return true;
+    var sel=document.getElementById('chat-grade');
+    if(sel&&(sel.value==='adult'||sel.value==='univ')) return true;
+  }catch(e){}
+  return false;
+}
 function audienceGreeting(audience, type, sid) {
   if (audience === 'student') {
+    if (selfIsAdult()) return `<strong>${sid}님, 안녕하세요!</strong><br>이번 검사에서 나타난 유형은 <strong>${type.name}</strong>입니다. 정답은 없습니다. 이 리포트는 자신을 더 잘 이해하는 출발점으로 활용해 주세요.`;
     return `<strong>${sid} 학생, 안녕!</strong><br>오늘 검사에서 너의 유형은 <strong>${type.name}</strong>이야. 정답은 없어. 이 결과지는 너 자신을 더 잘 이해하는 출발점이라고 생각해줘.`;
   }
   if (audience === 'parent') {
@@ -5551,6 +5564,12 @@ function audienceGreeting(audience, type, sid) {
 // 청중별 상세 가이드 (메인 결과 위에 표시)
 function audienceGuide(audience, type, reliability) {
   if (audience === 'student') {
+    if (selfIsAdult()) return `
+      <h3 class="font-semibold mb-2">당신에게 전하는 한 마디</h3>
+      <p class="text-sm text-slate-700 leading-relaxed mb-3">${type.desc} 다만 이건 '오늘'의 모습을 본 결과일 뿐이며, 사람은 계속 변화하고 성장합니다. 도움이 되는 한두 가지만 가져가셔도 충분합니다.</p>
+      <h4 class="font-semibold text-sm mb-1">검사 신뢰도</h4>
+      <p class="text-xs text-slate-600">현재 신뢰도 <strong>${reliability.grade}</strong> (${reliability.label})${reliability.validity && reliability.validity.grade && reliability.validity.grade!=='-' ? ' · 응답 성실도: <strong>'+reliability.validity.grade+'</strong>' : ''}. 더 많은 검사를 완료하면 분석이 더 정확해집니다.</p>
+    `;
     return `
       <h3 class="font-semibold mb-2">너에게 전하는 한 마디</h3>
       <p class="text-sm text-slate-700 leading-relaxed mb-3">${type.desc} 하지만 이건 너의 '오늘'을 본 결과일 뿐, 너는 매일 자라고 있어. 결과를 너무 진지하게 받아들이지 말고, 도움 되는 한두 가지만 챙겨가도 충분해.</p>
@@ -5690,6 +5709,26 @@ function renderCareerDetailed(type, audience) {
 function renderAudienceActions(audience, type) {
   if (!type) type = (typeof inferIntegratedType === 'function' ? (inferIntegratedType() || {}) : {});
   if (audience === 'student') {
+    if (selfIsAdult()) return `
+      <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4">
+        <h3 class="font-semibold text-sky-900 mb-3">이번 주 추천 활동</h3>
+        <ul class="text-sm text-sky-900 space-y-2 list-decimal pl-5">
+          <li>강점을 살리는 활동 한 가지 시도하기 (${type.careers[0]||''} 관련 자료·영상)</li>
+          <li>관심 있는 콘텐츠 1편 + 짧은 감상 메모</li>
+          <li>가까운 사람과 짧은 대화 먼저 시작해 보기</li>
+          <li>하루 한 번 감정을 한 단어로 표현해 보기</li>
+          <li>부담스러운 일을 메모로 정리해 보기</li>
+        </ul>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 mt-5">
+        <h3 class="font-semibold text-emerald-900 mb-2">다음 단계</h3>
+        <ul class="text-sm text-emerald-900 space-y-1.5">
+          <li>· 더 정확한 결과를 위해 미완료 검사를 진행해 보세요.</li>
+          <li>· 방향이 막연하면 ${type.careers[0]||''} 관련 자료를 한 편 살펴보세요.</li>
+          <li>· 더 깊이 살펴보고 싶다면 AI PIA와 자유롭게 대화해 보세요.</li>
+          <li>· 어려움이 있으면 가까운 전문기관의 도움을 받아도 좋습니다.</li>
+        </ul>
+      </div>`;
     return `
       <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4">
         <h3 class="font-semibold text-sky-900 mb-3">이번 주 너에게 추천하는 활동</h3>
@@ -5816,6 +5855,7 @@ function renderExtraScales() {
 function audienceTheme(a) {
   if (a === 'parent') return { emoji:'👨‍👩‍👧', title:'학부모용 · 자녀 이해 리포트', sub:'자녀의 성향을 이해하고 가정에서 도울 방법을 중심으로 정리했습니다.', bg:'#eef3f9', bd:'#c4d8ec', fg:'#2c4a6b' };
   if (a === 'teacher') return { emoji:'🏫', title:'교사용 · 지도 참고 자료', sub:'객관적 근거(신뢰도·규준)와 생활지도·상담 활용 정보를 제공합니다.', bg:'#fbf1ec', bd:'#eccfc1', fg:'#8a3d22' };
+  if (selfIsAdult()) return { emoji:'🌱', title:'본인용 · 성장 리포트', sub:'당신의 강점과 가능성을 중심으로 이해하기 쉽게 정리했습니다.', bg:'#f1f4ea', bd:'#cdd9b8', fg:'#3a4630' };
   return { emoji:'🌱', title:'학생 본인용 · 성장 리포트', sub:'너의 강점과 가능성을 중심으로 쉽고 따뜻하게 풀어 썼어.', bg:'#f1f4ea', bd:'#cdd9b8', fg:'#3a4630' };
 }
 function audienceBanner(a) {
@@ -5869,6 +5909,7 @@ function localSummary(audience, d){
   const t=d.type||{};
   if(audience==='parent') return `자녀는 '${t.name||'성장형'}' 성향으로 보입니다. ${t.desc||''} 강점을 먼저 구체적으로 인정해 주시고, 성장 포인트는 한 번에 한 가지씩 함께 시도해 보세요.`;
   if(audience==='teacher') return `학생은 '${t.name||'성장형'}' 유형입니다. ${t.desc||''} 강점 기반 역할 부여와 관찰 중심 지도가 효과적이며, 정서 신호는 정기적으로 점검해 주세요.`;
+  if(typeof selfIsAdult==='function' && selfIsAdult()) return `'${t.name||'성장형'}' 유형으로 보입니다. ${t.desc||''} 자신의 강점을 하루 한 번 의도적으로 활용해 보시면 더욱 빛날 것입니다.`;
   return `너는 '${t.name||'성장형'}' 유형이야. ${t.desc||''} 너의 강점을 하루 한 번 의도적으로 써보면 훨씬 더 빛날 거야.`;
 }
 function buildSummaryPrompt(audience, d){
@@ -5882,9 +5923,9 @@ function buildSummaryPrompt(audience, d){
   if(vtop) lines.push(`대표 강점(VIA): ${vtop}`);
   var _ab=(state.results&&state.results.conv&&state.results.conv.abuse)||0;
   if(_ab>0) lines.push(`대화 태도: 자유대화 중 부적절·공격적 표현이 ${_ab}회 감지됨(지도 시 참고).`);
-  const who = audience==='parent'?'학부모':audience==='teacher'?'교사':'학생 본인';
-  const tone = audience==='parent'?'정중한 존댓말로, 자녀 이해와 가정에서의 지원 팁을 담아':audience==='teacher'?'객관적이고 전문적인 어조로, 생활지도·상담 활용 포인트를 담아':'따뜻한 반말로, 강점과 격려를 담아';
-  return `다음은 한 청소년의 인적성 검사 요약 데이터야.\n${lines.join('\n')}\n\n이 데이터를 바탕으로 ${who}에게 전하는 종합 해석을 ${tone} 3~4문장으로 작성해줘. 과장·의료적 진단 표현은 피하고, 구체적 강점과 실천 제안 한 가지를 포함해. 한국어로만.`;
+  const who = audience==='parent'?'학부모':audience==='teacher'?'교사':(selfIsAdult()?'본인':'학생 본인');
+  const tone = audience==='parent'?'정중한 존댓말로, 자녀 이해와 가정에서의 지원 팁을 담아':audience==='teacher'?'객관적이고 전문적인 어조로, 생활지도·상담 활용 포인트를 담아':(selfIsAdult()?'정중한 존댓말로, 강점과 도움이 될 점을 담아':'따뜻한 반말로, 강점과 격려를 담아');
+  return `다음은 한 응답자의 인적성 검사 요약 데이터야.\n${lines.join('\n')}\n\n이 데이터를 바탕으로 ${who}에게 전하는 종합 해석을 ${tone} 3~4문장으로 작성해줘. 과장·의료적 진단 표현은 피하고, 구체적 강점과 실천 제안 한 가지를 포함해. 한국어로만.`;
 }
 async function fillAiSummary(audience, d){
   const card = el('ai-summary-card');
@@ -6029,7 +6070,7 @@ function renderDetailedResult() {
     detailedHTML += `<div class="mt-5 bg-white rounded-2xl border border-slate-200 p-4">
       <h3 class="font-semibold text-sm mb-3">자유대화 발화 인용 (분석 근거)</h3>
       ${quotes}
-      <p class="text-xs text-slate-500 mt-2">실제 학생의 발화에서 분석 근거를 직접 확인할 수 있습니다.</p>
+      <p class="text-xs text-slate-500 mt-2">실제 응답자의 발화에서 분석 근거를 직접 확인할 수 있습니다.</p>
     </div>`;
   }
 
@@ -6040,7 +6081,7 @@ function renderDetailedResult() {
     <strong>고지사항:</strong> 본 검사는 의료·임상 진단이 아닌 교육·진로·자기이해를 위한 참고용 성장분석 도구입니다.
     위험 신호 감지 시 즉시 학교 상담교사, 청소년상담 1388, 정신건강위기 1577-0199, 자살예방상담 109 등을 이용해 주세요.
     <br><br>
-    <strong>발급일:</strong> ${new Date().toLocaleString('ko-KR')} · <strong>학생ID:</strong> ${sid} · <strong>대상:</strong> ${currentAudience==='student'?'학생 본인용':currentAudience==='parent'?'학부모용':'선생님용'} · <strong>신뢰도:</strong> ${reliability.grade} (${reliability.label})${reliability.validity && reliability.validity.grade && reliability.validity.grade!=='-' ? ' · <strong>응답 성실도:</strong> '+reliability.validity.grade : ''}
+    <strong>발급일:</strong> ${new Date().toLocaleString('ko-KR')} · <strong>${selfIsAdult()?'응시자ID':'학생ID'}:</strong> ${sid} · <strong>대상:</strong> ${currentAudience==='student'?(selfIsAdult()?'본인용(일반)':'학생 본인용'):currentAudience==='parent'?'학부모용':'선생님용'} · <strong>신뢰도:</strong> ${reliability.grade} (${reliability.label})${reliability.validity && reliability.validity.grade && reliability.validity.grade!=='-' ? ' · <strong>응답 성실도:</strong> '+reliability.validity.grade : ''}
   </div>`;
 
   let container = el('detailed-result');
@@ -6070,7 +6111,7 @@ function buildResultText() {
   const type = inferIntegratedType();
   const sid = state.studentId || 'S001';
 
-  const audienceTitle = currentAudience === 'student' ? '학생 본인용' : currentAudience === 'parent' ? '학부모용' : '선생님용';
+  const audienceTitle = currentAudience === 'student' ? (selfIsAdult()?'본인용(일반)':'학생 본인용') : currentAudience === 'parent' ? '학부모용' : '선생님용';
 
   const lines = [];
   lines.push('========================================');
@@ -6790,7 +6831,7 @@ function renderResultUsageGuide(audience) {
       <p class="text-xs text-slate-500 mb-4">결과지를 가장 효과적으로 활용하는 방법입니다.</p>
       <div class="grid sm:grid-cols-3 gap-3 text-xs">
         <div class="bg-violet-50 rounded-lg p-3">
-          <strong class="text-violet-900">학생 본인</strong>
+          <strong class="text-violet-900">${(typeof selfIsAdult==="function"&&selfIsAdult())?"본인":"학생 본인"}</strong>
           <ul class="mt-1 space-y-0.5 ml-4 list-disc text-violet-900">
             <li>강점을 일상에서 의도적으로 활용</li>
             <li>성장 포인트는 한 가지만 시도</li>
