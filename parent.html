@@ -40,10 +40,10 @@ a{color:var(--rust);font-weight:700;text-decoration:none}
 <div class="box">
   <div class="brand"><span class="dot">P</span><span style="font-family:var(--font-head);font-weight:800">AI PIA</span></div>
   <h1>학부모 결과 열람</h1>
-  <p class="sub">자녀의 <b>학생 ID</b>와 검사 후 발급된 <b>열람 코드</b>를 입력하시면<br>학부모용 결과지를 보실 수 있어요.</p>
+  <p class="sub">검사 후 자녀 화면에 표시된 <b>열람 코드</b>(6자리)를 입력하시면<br>학부모용 결과지를 보실 수 있어요.</p>
 
-  <label for="sid">학생 ID</label>
-  <input id="sid" type="text" placeholder="예: 홍길동_1719...">
+  <label for="sid">학생 ID <span style="font-weight:400;color:#b0aea5">(선택 — 몰라도 됩니다)</span></label>
+  <input id="sid" type="text" placeholder="(비워둬도 됩니다)">
   <label for="code">열람 코드 (6자리)</label>
   <input id="code" type="text" maxlength="6" placeholder="예: K7M2QP" autocomplete="off">
 
@@ -51,7 +51,7 @@ a{color:var(--rust);font-weight:700;text-decoration:none}
   <div class="msg" id="msg"></div>
 
   <div class="help">
-    · 열람 코드는 자녀의 검사 결과 화면(인쇄 버튼)에서 확인할 수 있어요.<br>
+    · 열람 코드는 자녀의 검사 결과 화면(인쇄 버튼)에서 확인할 수 있어요. 코드만 있으면 됩니다.<br>
     · 코드를 모르면 담당 선생님께 문의해 주세요.<br>
     · 결과는 의료·임상 진단이 아닌 교육·진로 참고용입니다.
   </div>
@@ -68,11 +68,11 @@ function setMsg(t,cls){ var m=$('#msg'); m.textContent=t||''; m.className='msg'+
 async function go(){
   var sid=($('#sid').value||'').trim();
   var code=($('#code').value||'').trim().toUpperCase();
-  if(!sid||!code){ setMsg('학생 ID와 열람 코드를 모두 입력해 주세요.','err'); return; }
+  if(!code){ setMsg('열람 코드(6자리)를 입력해 주세요.','err'); return; }
   $('#go').disabled=true; setMsg('결과를 확인하는 중…');
   try{
-    var r=await fetch(api({id:sid, code:code}));
-    if(r.status===404){ setMsg('해당 학생 결과를 찾을 수 없어요. 학생 ID를 확인해 주세요.','err'); $('#go').disabled=false; return; }
+    var r=await fetch(api(sid?{id:sid, code:code}:{code:code}));
+    if(r.status===404){ setMsg('코드와 일치하는 결과를 찾을 수 없어요. 코드를 다시 확인해 주세요.','err'); $('#go').disabled=false; return; }
     if(r.status===401||r.status===403){ setMsg('열람 코드가 일치하지 않아요. 다시 확인해 주세요.','err'); $('#go').disabled=false; return; }
     var j=await r.json();
     var rec=j.result||j.record||(j.ok?j.data:null);
