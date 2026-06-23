@@ -270,6 +270,16 @@ let PW='', BASE='', LIST=[], FULL={}, deepLoaded=false, autoTimer=null;
 let sortKey='savedAt', sortDir=-1;
 let chartG=null,chartT=null,chartR=null,chartTr=null,chartM=null,chartB=null;
 
+// === 관리자에서 학생별 결과지(본인/학부모/선생님) 출력 ===
+function openFullReport(aud){
+  var id=window._curDetailId; var rec=id&&FULL[id];
+  if(!rec){ alert('상세 데이터를 먼저 불러온 뒤 다시 시도하세요.'); return; }
+  try{ localStorage.setItem('pia_view_record', JSON.stringify(rec)); }
+  catch(e){ alert('결과 데이터 전달 실패: '+e.message); return; }
+  window.open('ai-pia.html?view=record&aud='+aud,'_blank','noopener');
+}
+window.openFullReport=openFullReport;
+
 function apiUrl(params){
   let b=(BASE||location.origin).replace(/\/+$/,'');
   const u=new URL(b+'/api/results');
@@ -490,13 +500,20 @@ function renderAdvanced(f){
 }
 
 async function openDetail(id){
+  window._curDetailId=id;
   const d=$('#detail'); $('#dBody').innerHTML='<p class="muted">불러오는 중…</p>'; d.showModal();
   try{
     let rec=FULL[id];
     if(!rec){ const r=await fetch(apiUrl({admin:PW,id})); const j=await r.json(); if(!j.ok){ $('#dBody').innerHTML='<p class="err">'+(j.error||'오류')+'</p>'; return;} rec=j.result; FULL[id]=rec; }
     $('#dTitle').textContent=(rec.name||'익명')+' 결과';
     const b5=getBig5(rec); const mbti=big5Mbti(b5);
-    let h='<div class="kv">'+
+    let h='<div class="row" style="gap:8px;margin-bottom:12px;flex-wrap:wrap">'
+      +'<button class="sm" onclick="openFullReport(\'student\')">🖨 본인용 결과지</button>'
+      +'<button class="sm" style="background:var(--gold)" onclick="openFullReport(\'parent\')">🖨 학부모용 결과지</button>'
+      +'<button class="sm" style="background:var(--moss)" onclick="openFullReport(\'teacher\')">🖨 선생님용 결과지</button>'
+      +'<span class="tiny" style="align-self:center">새 탭에서 전체 결과지를 열어 인쇄/PDF 저장합니다.</span>'
+      +'</div>';
+    h+='<div class="kv">'+
       kv('이름',rec.name)+kv('학년',rec.grade)+kv('반',rec.klass||rec.class)+kv('학교',rec.school)+
       kv('통합유형',rec.type)+kv('신뢰도',(rec.reliability!=null?rec.reliability:'')+'')+kv('완료검사',rec.doneCount)+kv('저장시각',fmt(rec.savedAt))+'</div>';
     if(mbti) h+='<div style="margin:0 0 12px"><span class="chip" style="font-size:13px;padding:4px 12px">Big5 기반 추정 유형 '+mbti+'</span> <span class="tiny">(참고용)</span></div>';
