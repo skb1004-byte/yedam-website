@@ -857,7 +857,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     <div style="font-size:11px;color:#888;margin-bottom:6px;">교육부 인가 제262호 · 사)한국인간과학연구소</div>
     <div class="cover-title-main" data-en="Standardized Personality &amp; Aptitude Assessment">표준화 인·적성 검사</div>
     <div class="cover-title-sub" data-en="AI PIA Assessment Report">AI PIA 검사 결과지</div>
-    <div class="cover-badge" data-en="Middle School — Institutional Copy">중학교 기관제출용</div>
+    <div class="cover-badge" id="cover-badge-txt" data-en="Assessment Report">학생 본인용</div>
     <div class="cover-info-box">
       <table>
         <tr><td class="lbl" data-en="Name">성  명</td><td class="val" id="cover-name">홍 길 동</td></tr>
@@ -5266,20 +5266,27 @@ function piaPrintReport(audOverride){
     try{
     var rep=document.getElementById('pia-report');
     if(!rep){ window.print(); return; }
-    var _audKo=(typeof currentAudience!=='undefined')?(currentAudience==='student'?'학생 본인용':currentAudience==='parent'?'학부모용':'선생님용'):'';
+    var _isAdultR=(typeof selfIsAdult==='function'&&selfIsAdult());
+    var _audKo=(typeof currentAudience!=='undefined')?(currentAudience==='student'?(_isAdultR?'본인용(일반)':'학생 본인용'):currentAudience==='parent'?'학부모용':'선생님용'):'';
+    var _respKo=_isAdultR?'일반(성인)':'학생';
     var clone=rep.cloneNode(true);
+    try{ var _cb=clone.querySelector('#cover-badge-txt'); if(_cb) _cb.textContent=_respKo+' · '+_audKo; }catch(e){}
+    function _c2img(cv){ var d=''; try{ var ch=(window.Chart&&Chart.getChart)?Chart.getChart(cv):null; if(ch&&ch.toBase64Image) d=ch.toBase64Image('image/png',1); }catch(e){} if(!d||d.length<200){ try{ d=cv.toDataURL('image/png'); }catch(e){ d=''; } } return (d&&d.length>200)?d:''; }
+    function _swapCanvas(srcCv,dstCv){ if(!dstCv||!dstCv.parentNode) return; var d=_c2img(srcCv); if(d){ var im=document.createElement('img'); im.src=d; im.setAttribute('style', srcCv.getAttribute('style')||''); im.style.maxWidth='100%'; dstCv.parentNode.replaceChild(im,dstCv); } else { var ph=document.createElement('div'); ph.style.cssText='padding:16px;text-align:center;color:#999;font-size:11px;border:1px dashed #d6cdbf;border-radius:6px;background:#faf9f5;'; ph.textContent='(그래프는 화면 \u2018결과 보기\u2019에서 확인하세요)'; dstCv.parentNode.replaceChild(ph,dstCv); } }
     var srcC=rep.querySelectorAll('canvas'), dstC=clone.querySelectorAll('canvas');
-    for(var i=0;i<srcC.length;i++){ try{ var img=document.createElement('img'); img.src=srcC[i].toDataURL('image/png'); img.setAttribute('style', srcC[i].getAttribute('style')||''); img.style.maxWidth='100%'; if(dstC[i]&&dstC[i].parentNode){ dstC[i].parentNode.replaceChild(img,dstC[i]); } }catch(e){} }
+    for(var i=0;i<srcC.length;i++){ _swapCanvas(srcC[i],dstC[i]); }
     // 청중별 상세 분석(#detailed-result + 확장섹션) 추가 — 교사>학부모>학생 분량 차등
-    function _cloneWithImgs(srcEl){ if(!srcEl) return ''; var c=srcEl.cloneNode(true); var sc=srcEl.querySelectorAll('canvas'), dc=c.querySelectorAll('canvas'); for(var k=0;k<sc.length;k++){ try{ var im=document.createElement('img'); im.src=sc[k].toDataURL('image/png'); im.style.maxWidth='100%'; if(dc[k]&&dc[k].parentNode) dc[k].parentNode.replaceChild(im,dc[k]); }catch(e){} } c.querySelectorAll('.no-print, [data-pia-lang-toggle], button').forEach(function(b){ try{ b.remove(); }catch(e){} }); return c.innerHTML; }
+    function _cloneWithImgs(srcEl){ if(!srcEl) return ''; var c=srcEl.cloneNode(true); var sc=srcEl.querySelectorAll('canvas'), dc=c.querySelectorAll('canvas'); for(var k=0;k<sc.length;k++){ _swapCanvas(sc[k],dc[k]); } c.querySelectorAll('.no-print, [data-pia-lang-toggle], button').forEach(function(b){ try{ b.remove(); }catch(e){} }); return c.innerHTML; }
     var _detHTML=_cloneWithImgs(document.getElementById('detailed-result'));
     var _extHTML=_cloneWithImgs(document.getElementById('extended-sections'));
-    var _analysis = (_detHTML||_extHTML) ? ('<div class="aud-analysis"><div class="aud-analysis-head">📋 청중별 맞춤 상세 분석 — '+(_audKo||'')+'</div>'+_detHTML+_extHTML+'</div>') : '';
+    var _audClass=(currentAudience==='teacher')?'aud-teacher':(currentAudience==='parent')?'aud-parent':'aud-self';
+    var _audNote=(currentAudience==='teacher')?'아래 내용은 학생의 측정 결과를 <b>선생님(지도자) 관점에서 해석</b>한 지도·상담 참고자료입니다. 앞쪽 측정 결과 페이지와 구분해 활용하세요.':(currentAudience==='parent')?'아래 내용은 자녀의 측정 결과를 <b>학부모 관점에서 해석</b>한 가정 지도 참고자료입니다.':'아래 내용은 본인의 측정 결과를 <b>이해하기 쉽게 해석</b>한 자료입니다.';
+    var _analysis = (_detHTML||_extHTML) ? ('<div class="aud-analysis '+_audClass+'"><div class="aud-analysis-head">📋 '+(_audKo||'')+' 맞춤 해석 <span style="font-weight:600;font-size:11px;">(측정 결과 해석·참고자료)</span></div><div class="aud-analysis-note">'+_audNote+'</div>'+_detHTML+_extHTML+'</div>') : '';
     var styles=''; document.querySelectorAll('style').forEach(function(st){ styles+='<style>'+st.textContent+'</style>'; });
     var w=window.open('','_blank');
     if(!w){ alert('팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도하세요.'); return; }
     w.document.open();
-    w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 통합 결과지'+(_audKo?(' — '+_audKo):'')+'</title>'+styles+'<style>@page{size:A4;margin:0;} html,body{margin:0;padding:0;background:#fff;height:auto;overflow:visible;} #pia-report{background:#fff!important;padding:0;margin:0;} #pia-report .page{width:210mm!important;min-height:0!important;height:auto!important;margin:0 auto!important;padding:14mm 13mm!important;box-shadow:none!important;border-radius:0!important;break-after:page;page-break-after:always;overflow:hidden;} #pia-report .page:last-child{page-break-after:auto;break-after:auto;} #pia-report canvas,#pia-report img{max-width:100%!important;} .aud-analysis{page-break-before:always;padding:14mm 13mm;max-width:210mm;margin:0 auto;} .aud-analysis-head{font-size:15px;font-weight:800;color:#d97757;border-bottom:2px solid #d97757;padding-bottom:6px;margin-bottom:12px;} .aud-analysis .mt-5{margin-top:14px;} .aud-analysis .rounded-2xl,.aud-analysis .bg-white,.aud-analysis table,.aud-analysis tr,.aud-analysis canvas,.aud-analysis img,.aud-analysis h3,.aud-analysis .mt-5,.aud-analysis .grid>div{break-inside:avoid;page-break-inside:avoid;} .aud-analysis canvas,.aud-analysis img{max-width:100%!important;} .no-print{display:none!important;}</style></head><body>'+clone.outerHTML+_analysis+'</body></html>');
+    w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 통합 결과지'+(_audKo?(' — '+_audKo):'')+'</title>'+styles+'<style>@page{size:A4;margin:0;} html,body{margin:0;padding:0;background:#fff;height:auto;overflow:visible;} #pia-report{background:#fff!important;padding:0;margin:0;} #pia-report .page{width:210mm!important;min-height:0!important;height:auto!important;margin:0 auto!important;padding:14mm 13mm!important;box-shadow:none!important;border-radius:0!important;break-after:page;page-break-after:always;overflow:hidden;} #pia-report .page:last-child{page-break-after:auto;break-after:auto;} #pia-report canvas,#pia-report img{max-width:100%!important;} .aud-analysis{page-break-before:always;padding:14mm 13mm;max-width:210mm;margin:0 auto;} .aud-analysis-head{font-size:15px;font-weight:800;color:#d97757;border-bottom:2px solid #d97757;padding-bottom:6px;margin-bottom:12px;} .aud-analysis{background:#faf7f2;padding:14mm 13mm!important;} .aud-analysis-note{font-size:11px;color:#7a5c3a;background:#fff5e8;border-left:4px solid #d9a557;padding:8px 11px;border-radius:6px;margin-bottom:14px;line-height:1.6;} .aud-analysis.aud-teacher{background:#f3f6fb;} .aud-analysis.aud-teacher .aud-analysis-head{color:#2c4a6b;border-bottom-color:#5b8fd1;} .aud-analysis.aud-teacher .aud-analysis-note{background:#eaf1f9;border-left-color:#5b8fd1;color:#2c4a6b;} .aud-analysis .mt-5{margin-top:14px;} .aud-analysis .rounded-2xl,.aud-analysis .bg-white,.aud-analysis table,.aud-analysis tr,.aud-analysis canvas,.aud-analysis img,.aud-analysis h3,.aud-analysis .mt-5,.aud-analysis .grid>div{break-inside:avoid;page-break-inside:avoid;} .aud-analysis canvas,.aud-analysis img{max-width:100%!important;} #pia-report #p-cover{display:flex;align-items:center;justify-content:center;min-height:267mm;} #p-cover .cover-wrap{zoom:1.28;} .no-print{display:none!important;}</style></head><body>'+clone.outerHTML+_analysis+'</body></html>');
     w.document.close();
     try{ if(audOverride && currentAudience!==_prevAud){ currentAudience=_prevAud; if(typeof renderDetailedResult==='function')renderDetailedResult(); if(typeof renderExtendedSections==='function')renderExtendedSections(); } }catch(e){}
     setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 650);
@@ -8365,7 +8372,7 @@ const DEFAULT_DATA = {
     personality:72, iq:112,
     intel:{verbal:92,logical:75,spatial:62,musical:78,bodily:83,interpersonal:88,intrapersonal:70,naturalist:72},
     riasec:{R:42,I:58,A:87,S:71,E:35,C:29},
-    aptitude:{문인문:82,자자연:64,예예능:75,체체육:80},
+    aptitude:{인문:82,자연:64,예능:75,체육:80},
     subjects:{korean:88,math:65,english:82,social:80,science:68,arts:76,pe:84}
   }
 };
@@ -8543,6 +8550,14 @@ function populateResult(d){
 
   // ── 발급일 ──
   setText('cover-issue', fmtDate(new Date().toISOString()));
+  // ── 표지 배지: 응답자 유형 · 대상 ──
+  (function(){
+    var aud=(typeof currentAudience!=='undefined')?currentAudience:'student';
+    var isA=(typeof selfIsAdult==='function'&&selfIsAdult());
+    var audW=aud==='parent'?'학부모용':aud==='teacher'?'선생님용':(isA?'본인용(일반)':'학생 본인용');
+    var respW=isA?'일반(성인)':'학생';
+    setText('cover-badge-txt', respW+' · '+audW);
+  })();
   // ── 인성 종합 점수 ──
   const _pv = sc.personality||72;
   setText('rep-pers-score', _pv); setGB('rep-pers-grade', _pv);
