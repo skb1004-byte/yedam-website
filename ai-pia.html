@@ -669,8 +669,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       <span class="text-xs text-slate-500" data-en="Report view:">결과지 보기:</span>
       <div class="inline-flex bg-slate-100 rounded-lg p-1 gap-1" role="tablist" aria-label="결과지 보기 대상">
         <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" role="tab" data-audience="student" aria-selected="true" data-en="For the student">학생 본인용</button>
-        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" role="tab" data-audience="parent" aria-selected="false" data-en="For parents">학부모용</button>
-        <button class="aud-btn px-3 py-1.5 rounded-md text-xs font-semibold" role="tab" data-audience="teacher" aria-selected="false" data-en="For teachers">선생님용</button>
+        <span class="text-[11px] text-slate-400 px-2 self-center">학부모·선생님용은 관리자/학부모 인증으로 제공</span>
       </div>
     </div>
     <div class="flex flex-wrap gap-2">
@@ -5251,9 +5250,20 @@ function piaPrintAsk(){
   try{
     var ov=document.createElement('div'); ov.className='pia-print-hide';
     ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:1002;padding:20px;';
-    ov.innerHTML=`<div style="background:#fff;border-radius:16px;padding:22px;max-width:340px;width:100%;text-align:center;font-family:inherit;box-shadow:0 20px 50px -20px rgba(0,0,0,.5)"><div style="font-weight:800;font-size:16px;margin-bottom:6px;color:#141413">\uB204\uAD6C\uC758 \uACB0\uACFC\uC9C0\uB97C \uC778\uC1C4\uD560\uAE4C\uC694?</div><div style="font-size:12.5px;color:#6b6457;margin-bottom:14px">\uC120\uD0DD\uD55C \uB300\uC0C1\uC6A9 \uB9DE\uCDA4 \uBD84\uC11D\uC774 \uBCF8 \uACB0\uACFC\uC9C0 \uB4A4\uC5D0 \uD568\uAED8 \uCD9C\uB825\uB429\uB2C8\uB2E4.</div><div style="display:flex;flex-direction:column;gap:8px"><button data-aud="student" style="padding:11px;border:0;border-radius:10px;background:#6a9bcc;color:#fff;font-weight:700;cursor:pointer;font-size:14px">\uD83C\uDF92 \uD559\uC0DD\uC6A9</button><button data-aud="parent" style="padding:11px;border:0;border-radius:10px;background:#d9a14f;color:#fff;font-weight:700;cursor:pointer;font-size:14px">\uD83D\uDC6A \uD559\uBD80\uBAA8\uC6A9</button><button data-aud="teacher" style="padding:11px;border:0;border-radius:10px;background:#788c5d;color:#fff;font-weight:700;cursor:pointer;font-size:14px">\uD83C\uDFEB \uC120\uC0DD\uB2D8\uC6A9</button><button data-aud="" style="padding:9px;border:1px solid #e3d9c6;border-radius:10px;background:#fff;color:#6b6457;font-weight:600;cursor:pointer;margin-top:2px;font-size:13px">\uD604\uC7AC \uD654\uBA74 \uADF8\uB300\uB85C</button></div></div>`;
+    ov.innerHTML='<div style="background:#fff;border-radius:16px;padding:22px;max-width:360px;width:100%;text-align:center;font-family:inherit;box-shadow:0 20px 50px -20px rgba(0,0,0,.5)">'
+      +'<div style="font-weight:800;font-size:16px;margin-bottom:6px;color:#141413">본인용 결과지 인쇄</div>'
+      +'<div style="font-size:12.5px;color:#6b6457;margin-bottom:14px">학생(본인)용 결과지를 인쇄·PDF로 저장합니다.</div>'
+      +'<button data-aud="student" style="padding:12px;border:0;border-radius:10px;background:#6a9bcc;color:#fff;font-weight:700;cursor:pointer;font-size:14px;width:100%">🖨️ 본인용 인쇄 / PDF</button>'
+      +'<div style="margin-top:14px;padding:12px;border:1px dashed #d9a14f;border-radius:10px;background:#fff8ec;text-align:left">'
+        +'<div style="font-size:12px;color:#8a6d3b;font-weight:700;margin-bottom:4px">👪 학부모 열람 코드</div>'
+        +'<div style="font-size:21px;font-weight:900;letter-spacing:3px;color:#b5651d;text-align:center;margin:4px 0">'+getPairCode()+'</div>'
+        +'<div style="font-size:11px;color:#7a5c3a;line-height:1.5">학부모님은 <b>학부모 열람 페이지</b>에서 <b>학생ID('+(state.studentId||'-')+')</b>와 위 코드를 입력해 학부모용 결과를 보실 수 있어요.</div>'
+      +'</div>'
+      +'<div style="margin-top:8px;font-size:11px;color:#6b6457;line-height:1.5">🏫 선생님용 결과지는 학교 <b>관리자(선생님) 포털</b>에서 제공됩니다.</div>'
+      +'<button data-aud="__close" style="padding:9px;border:1px solid #e3d9c6;border-radius:10px;background:#fff;color:#6b6457;font-weight:600;cursor:pointer;margin-top:12px;font-size:13px;width:100%">닫기</button>'
+      +'</div>';
     document.body.appendChild(ov);
-    ov.addEventListener('click', function(e){ var b=e.target.closest('button'); if(b){ var a=b.getAttribute('data-aud'); ov.remove(); piaPrintReport(a||undefined); return; } if(e.target===ov){ ov.remove(); } });
+    ov.addEventListener('click', function(e){ var b=e.target.closest('button'); if(b){ var a=b.getAttribute('data-aud'); if(a==='__close'){ ov.remove(); return; } ov.remove(); piaPrintReport(a||undefined); return; } if(e.target===ov){ ov.remove(); } });
   }catch(e){ piaPrintReport(); }
 }
 function piaPrintReport(audOverride){
@@ -7368,6 +7378,12 @@ function _piaDoneCount(){
     if(R.sjt&&R.sjt.answers&&R.sjt.answers.length>=10) n++;
   }catch(e){} return n;
 }
+function getPairCode(){
+  try{ var c=localStorage.getItem('pia_v3_paircode'); if(c&&/^[A-Z0-9]{6}$/.test(c)) return c;
+    var ch='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r=''; for(var i=0;i<6;i++) r+=ch[Math.floor(Math.random()*ch.length)];
+    localStorage.setItem('pia_v3_paircode', r); return r;
+  }catch(e){ return '------'; }
+}
 function buildAdminRecord(){
   let type='', rel='', _relObj=null, validity='';
   try{ type=(inferIntegratedType()||{}).name||''; }catch(e){}
@@ -7376,7 +7392,7 @@ function buildAdminRecord(){
   const id=((state.studentId||'S')+'_'+(p.createdAt||'anon'));
   return { id, name:p.name||'익명', grade:p.grade||'', klass:p.class||'', school:p.school||'',
     type, reliability:rel, validity:validity, validityDetail:(_relObj&&_relObj.validity)||null, doneCount:_piaDoneCount(),
-    version:'v3.7', exportedAt:new Date().toISOString(),
+    version:'v3.7', exportedAt:new Date().toISOString(), pairCode:getPairCode(),
     results:state.results, meta:state.meta, profile:p };
 }
 let _adminSig='';
