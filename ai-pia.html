@@ -4245,13 +4245,21 @@ function resultContext(){
   if(r.mi&&r.mi.scores){ const t=Object.entries(r.mi.scores).sort(function(a,b){return b[1]-a[1];}).slice(0,2).map(function(e){return e[0];}).join(', '); c+='강한 지능영역: '+t+'\n'; }
   return c;
 }
+function _stripForeign(t){ return String(t||'').replace(/[\u3040-\u30ff\u3400-\u9fff\uF900-\uFAFF\u0e00-\u0e7f\u0400-\u04ff\u0600-\u06ff\u0590-\u05ff\u0900-\u097f]/g,'').replace(/ +/g,' ').trim(); }
 async function askResultQuestion(q){
   const ans=el('qa-answer'); if(!ans) return;
   if(!q||!q.trim()) return;
   ans.textContent='🤖 생각 중…';
-  const sys='너는 청소년 진로·자기이해를 돕는 상담가야. 아래 학생의 실제 검사 결과에 근거해서만, 따뜻하고 쉽게 3~5문장으로 답해. 결과에 없는 단정·진단은 피하고 한국어로만.';
+  const sys='너는 진로·자기이해를 돕는 친근한 도우미야. 아래 사람의 실제 검사 결과에 근거해서만 밝고 따뜻하게 3~4문장으로 답해. 결과에 없는 단정·진단은 피해. 상대를 "학생님" 같은 딱딱한 호칭으로 부르지 말고 "너"라고 친근하게 부르며, "~하십니다/계시며" 같은 보고체 대신 밝고 편한 말투로 답해. ★반드시 한국어(한글)로만 쓰고 한자·외국 문자를 절대 섞지 마(예: "개방적"을 "개放적", "창의력"을 "창의力"처럼 쓰지 말 것).';
   const prompt=resultContext()+'\n학생 질문: '+q+'\n위 결과에 근거해 답해줘.';
   let out=null; try{ out=await callLLMFree(prompt, sys); }catch(e){ out=null; }
+  // 한자·외국문자 혼입 방지: 1회 재생성 → 실패 시 정제
+  try{
+    if(out && out.trim() && typeof _isKoreanReply==='function' && !_isKoreanReply(out)){
+      var r2=await callLLMFree(prompt, sys+'\n\n[중요] 직전 답에 한글이 아닌 문자가 섞였다. 한자·외국어를 모두 빼고 자연스러운 한국어로만 다시 써.');
+      if(r2 && r2.trim() && _isKoreanReply(r2)) out=r2; else out=_stripForeign(out);
+    }
+  }catch(e){}
   ans.textContent=(out&&out.trim())?out.trim():'지금은 답변을 불러오지 못했어요(무료 AI 혼잡). 잠시 후 다시 시도해줘.';
 }
 function initResultQA(){
@@ -5906,7 +5914,7 @@ async function fillAiSummary(audience, d){
     });
   }
   if(_aiSumCache[audience]){ render(_aiSumCache[audience], 'ai'); return; }
-  const sys = '너는 청소년 인적성 결과를 해석하는 전문 상담가야. 한국어로만, 따뜻하고 정확하게 답해.';
+  const sys = '너는 검사 결과를 쉽게 풀어주는 친근한 도우미야. 한국어(한글)로만, 밝고 따뜻하고 정확하게 답해. 한자·외국 문자 금지.';
   const prompt = buildSummaryPrompt(audience, d);
   let out = null;
   try {
@@ -5915,6 +5923,12 @@ async function fillAiSummary(audience, d){
     out = await callLLMFree(prompt, sys);
     // 워커가 비었을 때만, 사용자가 직접 넣은 키 엔진을 최후 폴백
     if((!out || !out.trim()) && (mode !== 'LOCAL' && mode !== 'AUTO_FREE')) { out = await callLLM(prompt, sys); }
+    // 한자·외국문자 혼입 방지: 1회 재생성 → 실패 시 정제
+    if(out && out.trim() && typeof _isKoreanReply==='function' && !_isKoreanReply(out)){
+      var _kr2=null; try{ _kr2=await callLLMFree(prompt, sys+'\n\n[중요] 직전 답에 한글이 아닌 문자가 섞였다. 한자·외국어를 모두 빼고 자연스러운 한국어로만 다시 써.'); }catch(e){}
+      if(_kr2 && _kr2.trim() && _isKoreanReply(_kr2)) out=_kr2;
+      else if(typeof _stripForeign==='function') out=_stripForeign(out);
+    }
   } catch(e) { out = null; }
   if(out && out.trim()){ _aiSumCache[audience] = out.trim(); render(out.trim(), 'ai'); }
   else { render(localSummary(audience, d), 'local'); }
