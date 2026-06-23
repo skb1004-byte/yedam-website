@@ -943,9 +943,9 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     </tr>
     <tr>
       <td class="row-head">인성 종합 점수</td>
-      <td>72</td><td>68</td><td>65</td>
-      <td><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:72%"></div></div><span class="prog-bar-val">72</span></div></td>
-      <td><span class="grade-box grade-B-plus">B+</span></td>
+      <td data-p2pers>72</td><td>68</td><td>65</td>
+      <td data-p2persbar><div class="prog-bar-wrap"><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:72%"></div></div><span class="prog-bar-val">72</span></div></td>
+      <td><span class="grade-box grade-B-plus" data-p2persg>B+</span></td>
     </tr>
   </table>
 
@@ -1338,20 +1338,20 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
           <text x="58"  y="248" text-anchor="middle" font-size="11" font-weight="700" fill="#333">자아</text>
           <text x="8"   y="103" text-anchor="start"  font-size="11" font-weight="700" fill="#333">초자아</text>
           
-          <text x="130" y="50" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">82</text>
-          <text x="218" y="115" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">78</text>
-          <text x="180" y="220" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">65</text>
-          <text x="80"  y="220" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">85</text>
-          <text x="42"  y="115" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">91</text>
+          <text id="rdx-1" x="130" y="50" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">82</text>
+          <text id="rdx-2" x="218" y="115" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">78</text>
+          <text id="rdx-3" x="180" y="220" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">65</text>
+          <text id="rdx-4" x="80"  y="220" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">85</text>
+          <text id="rdx-5" x="42"  y="115" text-anchor="middle" font-size="10" fill="#d97757" font-weight="700">91</text>
         </svg>
       </div>
       <table class="data-table" style="margin-top:8px;">
         <tr><th data-en="Axis">축</th><th data-en="Item">항목</th><th data-en="Score">점수</th><th data-en="Grade">등급</th></tr>
-        <tr><td>감정</td><td>리더십·창의</td><td>82</td><td><span class="grade-box grade-A">A</span></td></tr>
-        <tr><td>정서</td><td>정서안정·공감</td><td>78</td><td><span class="grade-box grade-B-plus">B+</span></td></tr>
-        <tr><td>본능</td><td>자기통제</td><td>65</td><td><span class="grade-box grade-B">B</span></td></tr>
-        <tr><td>자아</td><td>책임감·진로</td><td>85</td><td><span class="grade-box grade-A">A</span></td></tr>
-        <tr><td>초자아</td><td>도덕성·사회성</td><td>91</td><td><span class="grade-box grade-A-plus">A+</span></td></tr>
+        <tr data-radaxis="0"><td>감정</td><td>리더십·창의</td><td>82</td><td><span class="grade-box grade-A">A</span></td></tr>
+        <tr data-radaxis="1"><td>정서</td><td>정서안정·공감</td><td>78</td><td><span class="grade-box grade-B-plus">B+</span></td></tr>
+        <tr data-radaxis="2"><td>본능</td><td>자기통제</td><td>65</td><td><span class="grade-box grade-B">B</span></td></tr>
+        <tr data-radaxis="3"><td>자아</td><td>책임감·진로</td><td>85</td><td><span class="grade-box grade-A">A</span></td></tr>
+        <tr data-radaxis="4"><td>초자아</td><td>도덕성·사회성</td><td>91</td><td><span class="grade-box grade-A-plus">A+</span></td></tr>
       </table>
     </div>
   </div>
@@ -1373,9 +1373,9 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     <tr>
       <td class="row-head" data-pia="name">홍길동</td>
       <td><strong id="intel-iq">IQ 112</strong></td>
-      <td>언어적 지능 (A+)</td>
-      <td>수·공간 지능 (B)</td>
-      <td><span class="grade-box grade-A">A · 상위 22%</span></td>
+      <td id="intel-top-dom">언어적 지능 (A+)</td>
+      <td id="intel-bot-dom">수·공간 지능 (B)</td>
+      <td><span class="grade-box grade-A" id="intel-iq-grade">A · 상위 22%</span></td>
     </tr>
   </table>
 
@@ -1439,7 +1439,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
   <div style="padding:0 10px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px;">
       <span style="font-size:11px;color:#555;">지능 종합 지수</span>
-      <span style="font-size:18px;font-weight:900;color:#d97757;">IQ 112 &nbsp;<span class="grade-box grade-A">A</span></span>
+      <span style="font-size:18px;font-weight:900;color:#d97757;"><span id="intel-rb-iq">IQ 112</span> &nbsp;<span class="grade-box grade-A" id="intel-rb-g">A</span></span>
     </div>
     <div class="rainbow-bar-wrap">
       <div class="rainbow-bar" id="rainbow-bar-iq">
@@ -1481,8 +1481,8 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       <th data-en="Fit">적합도</th>
     </tr>
     
-    <tr><td class="row-head" rowspan="3" style="vertical-align:middle;background:#f3ebe1;color:#7a3a20;font-weight:700;">인문계</td>
-      <td>언어 능력</td><td>75</td><td>92</td>
+    <tr data-aptrow="hum1"><td class="row-head" rowspan="3" style="vertical-align:middle;background:#f3ebe1;color:#7a3a20;font-weight:700;">인문계</td>
+      <td>언어 능력</td><td>75</td><td data-aptgot>92</td>
       <td><div class="dual-bar-row" style="margin:0;">
         <div class="dual-bar-bg" style="flex:1;">
           <div class="dual-bar-std" style="width:75%"></div>
@@ -1490,14 +1490,14 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
         </div></div></td>
       <td><span class="grade-box grade-A-plus">A+</span></td>
     </tr>
-    <tr><td>사회 이해</td><td>70</td><td>80</td>
+    <tr data-aptrow="hum2"><td>사회 이해</td><td>70</td><td data-aptgot>80</td>
       <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
         <div class="dual-bar-std" style="width:70%"></div>
         <div class="dual-bar-got" style="width:80%;top:2px;"></div>
       </div></div></td>
       <td><span class="grade-box grade-A">A</span></td>
     </tr>
-    <tr><td>논리적 사고</td><td>70</td><td>75</td>
+    <tr data-aptrow="hum3"><td>논리적 사고</td><td>70</td><td data-aptgot>75</td>
       <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
         <div class="dual-bar-std" style="width:70%"></div>
         <div class="dual-bar-got" style="width:75%;top:2px;"></div>
@@ -1505,22 +1505,22 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       <td><span class="grade-box grade-B-plus">B+</span></td>
     </tr>
     
-    <tr><td class="row-head" rowspan="3" style="vertical-align:middle;background:#f3ebe1;color:#7a3a20;font-weight:700;">자연계</td>
-      <td>수리 능력</td><td>75</td><td>62</td>
+    <tr data-aptrow="nat1"><td class="row-head" rowspan="3" style="vertical-align:middle;background:#f3ebe1;color:#7a3a20;font-weight:700;">자연계</td>
+      <td>수리 능력</td><td>75</td><td data-aptgot>62</td>
       <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
         <div class="dual-bar-std" style="width:75%"></div>
         <div class="dual-bar-got" style="width:62%;top:2px;"></div>
       </div></div></td>
       <td><span class="grade-box grade-B">B</span></td>
     </tr>
-    <tr><td>공간 지각</td><td>70</td><td>62</td>
+    <tr data-aptrow="nat2"><td>공간 지각</td><td>70</td><td data-aptgot>62</td>
       <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
         <div class="dual-bar-std" style="width:70%"></div>
         <div class="dual-bar-got" style="width:62%;top:2px;"></div>
       </div></div></td>
       <td><span class="grade-box grade-C">C</span></td>
     </tr>
-    <tr><td>과학적 탐구</td><td>70</td><td>68</td>
+    <tr data-aptrow="nat3"><td>과학적 탐구</td><td>70</td><td data-aptgot>68</td>
       <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
         <div class="dual-bar-std" style="width:70%"></div>
         <div class="dual-bar-got" style="width:68%;top:2px;"></div>
@@ -1528,15 +1528,15 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       <td><span class="grade-box grade-B-plus">B+</span></td>
     </tr>
     
-    <tr><td class="row-head" rowspan="2" style="vertical-align:middle;background:#f3ebe1;color:#7a3a20;font-weight:700;">예능계</td>
-      <td>음악 감수성</td><td>65</td><td>78</td>
+    <tr data-aptrow="art1"><td class="row-head" rowspan="2" style="vertical-align:middle;background:#f3ebe1;color:#7a3a20;font-weight:700;">예능계</td>
+      <td>음악 감수성</td><td>65</td><td data-aptgot>78</td>
       <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
         <div class="dual-bar-std" style="width:65%"></div>
         <div class="dual-bar-got" style="width:78%;top:2px;"></div>
       </div></div></td>
       <td><span class="grade-box grade-A">A</span></td>
     </tr>
-    <tr><td>미술 창의</td><td>65</td><td>72</td>
+    <tr data-aptrow="art2"><td>미술 창의</td><td>65</td><td data-aptgot>72</td>
       <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
         <div class="dual-bar-std" style="width:65%"></div>
         <div class="dual-bar-got" style="width:72%;top:2px;"></div>
@@ -1544,15 +1544,15 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       <td><span class="grade-box grade-B-plus">B+</span></td>
     </tr>
     
-    <tr><td class="row-head" rowspan="2" style="vertical-align:middle;background:#f3ebe1;color:#7a3a20;font-weight:700;">체육계</td>
-      <td>신체 협응</td><td>65</td><td>83</td>
+    <tr data-aptrow="pe1"><td class="row-head" rowspan="2" style="vertical-align:middle;background:#f3ebe1;color:#7a3a20;font-weight:700;">체육계</td>
+      <td>신체 협응</td><td>65</td><td data-aptgot>83</td>
       <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
         <div class="dual-bar-std" style="width:65%"></div>
         <div class="dual-bar-got" style="width:83%;top:2px;"></div>
       </div></div></td>
       <td><span class="grade-box grade-A-plus">A+</span></td>
     </tr>
-    <tr><td>지구력·집중력</td><td>65</td><td>76</td>
+    <tr data-aptrow="pe2"><td>지구력·집중력</td><td>65</td><td data-aptgot>76</td>
       <td><div class="dual-bar-row" style="margin:0;"><div class="dual-bar-bg" style="flex:1;">
         <div class="dual-bar-std" style="width:65%"></div>
         <div class="dual-bar-got" style="width:76%;top:2px;"></div>
@@ -1573,7 +1573,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 
   <div class="alert-box" style="background:#fff8e1;border-color:#ffe082;color:#5d4037;margin-top:10px;">
     <strong>※ 최우선 추천 진로 계열 : <span id="apt-top">인문계</span></strong><br>
-    언어적 지능(A+), 사회성(A+), 대인지능(A)이 모두 높아 인문·사회·미디어 계열이 가장 적합합니다.
+    <span id="apt-top-desc">계열별 적성 점수를 종합한 결과를 바탕으로 상위 계열을 중심으로 진로를 탐색해 보세요.</span>
   </div>
 </div>
 
@@ -8476,6 +8476,51 @@ function populateResult(d){
     if(gb){const g=getGrade(v);gb.className='grade-box '+g.cls;gb.textContent=g.label;}
   });
 
+  // ── [전수검토] IQ 종합표: 최고/최저 영역·등급·상위% ──
+  (function(){
+    var labels={verbal:'언어적 지능',logical:'논리·수학 지능',spatial:'공간 지능',musical:'음악 지능',bodily:'신체·운동 지능',interpersonal:'대인 지능',intrapersonal:'자기성찰 지능',naturalist:'자연 지능'};
+    var it=sc.intel||{}; var ents=Object.keys(labels).filter(function(k){return it[k]!=null;}).map(function(k){return [k,it[k]];});
+    if(ents.length){ ents.sort(function(a,b){return b[1]-a[1];}); var hi=ents[0],lo=ents[ents.length-1];
+      setText('intel-top-dom', labels[hi[0]]+' ('+getGrade(hi[1]).label+')');
+      setText('intel-bot-dom', labels[lo[0]]+' ('+getGrade(lo[1]).label+')'); }
+    var q=sc.iq||100;
+    function erf(x){var sgn=x<0?-1:1;x=Math.abs(x);var t=1/(1+0.3275911*x);var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return sgn*y;}
+    var pct=Math.round((1-0.5*(1+erf((q-100)/(15*Math.SQRT2))))*100); pct=Math.min(99,Math.max(1,pct));
+    var lab=q>=120?'A+':q>=110?'A':q>=100?'B+':q>=90?'B':'C';
+    var cls=q>=120?'grade-A-plus':q>=110?'grade-A':q>=100?'grade-B-plus':q>=90?'grade-B':'grade-C';
+    var ge=el('intel-iq-grade'); if(ge){ge.textContent=lab+' · 상위 '+pct+'%';ge.className='grade-box '+cls;}
+    setText('intel-rb-iq','IQ '+q);
+    var rg=el('intel-rb-g'); if(rg){rg.textContent=lab;rg.className='grade-box '+cls;}
+  })();
+
+  // ── [전수검토] 레이더 축 숫자·표 (P차원) ──
+  (function(){
+    var ax=[sc.P7,sc.P6,sc.P2,sc.P5,sc.P4];
+    ax.forEach(function(v,i){ if(v==null)return; setText('rdx-'+(i+1), v);
+      var tr=document.querySelector('[data-radaxis="'+i+'"]'); if(tr){ var tds=tr.querySelectorAll('td'); if(tds[2])tds[2].textContent=v;
+        var g=tr.querySelector('.grade-box'); if(g){var gg=getGrade(v);g.className='grade-box '+gg.cls;g.textContent=gg.label;} } });
+  })();
+
+  // ── [전수검토] 계열 적성 세부표 받은점수 ──
+  (function(){
+    var it=sc.intel||{}; var P5=sc.P5||70;
+    var SUB={hum1:it.verbal,hum2:it.interpersonal,hum3:it.logical,nat1:it.logical,nat2:it.spatial,nat3:it.naturalist,art1:it.musical,art2:it.spatial,pe1:it.bodily,pe2:Math.round(((it.bodily||70)+P5)/2)};
+    document.querySelectorAll('[data-aptrow]').forEach(function(tr){
+      var v=SUB[tr.getAttribute('data-aptrow')]; if(v==null)return; v=Math.round(v);
+      var got=tr.querySelector('[data-aptgot]'); if(got)got.textContent=v;
+      var bar=tr.querySelector('.dual-bar-got'); if(bar)bar.style.width=v+'%';
+      var g=tr.querySelector('.grade-box'); if(g){var gg=getGrade(v);g.className='grade-box '+gg.cls;g.textContent=gg.label;}
+    });
+  })();
+
+  // ── [전수검토] page2 인성 종합 점수 행 ──
+  (function(){
+    var v=sc.personality||72;
+    var t=document.querySelector('[data-p2pers]'); if(t)t.textContent=v;
+    var br=document.querySelector('[data-p2persbar]'); if(br){var f=br.querySelector('.prog-bar-fill'); if(f)f.style.width=v+'%'; var pv=br.querySelector('.prog-bar-val'); if(pv)pv.textContent=v;}
+    var g=document.querySelector('[data-p2persg]'); if(g){var gg=getGrade(v);g.className='grade-box '+gg.cls;g.textContent=gg.label;}
+  })();
+
   // ── 과목별 학습역량 ──
   document.querySelectorAll('[data-subject]').forEach(el=>{
     const k=el.getAttribute('data-subject');
@@ -8551,7 +8596,10 @@ function populateResult(d){
     const m={hum:'인문',nat:'자연',art:'예능',pe:'체육'};
     Object.keys(m).forEach(function(k){ const v=ap[m[k]]; if(v==null) return; setText('apt-'+k+'-sc', v); const b=band(v); const g=el('apt-'+k+'-g'); if(g){ g.textContent=b.l; g.className='grade-box '+b.c; } });
     const top=Object.entries(ap).sort(function(a,b){return b[1]-a[1];})[0];
-    if(top){ const e=el('apt-top'); if(e) e.textContent=top[0]+'계'; }
+    if(top){ const e=el('apt-top'); if(e) e.textContent=top[0]+'계';
+      var fields={'인문':'언어·인문·사회·미디어','자연':'수리·과학·공학·IT','예능':'예술·디자인·음악·미디어','체육':'체육·스포츠·건강·여가'};
+      var de=el('apt-top-desc'); if(de) de.textContent='계열별 적성 점수를 종합한 결과 '+top[0]+' 계열 적성이 가장 높게 나타났습니다. '+(fields[top[0]]||'')+' 분야를 중심으로 진로를 탐색해 보세요.';
+    }
   })();
   // ── 학습 세부역량(page8) 추정 바인딩 ──
   (function(){
@@ -8731,12 +8779,16 @@ function mapAiPiaToResultData() {
       iq: (function(){ var vv=Object.values(intel); var m=vv.length?vv.reduce(function(s,x){return s+x;},0)/vv.length:60; return Math.round(Math.min(145, Math.max(70, 85+(m-50)*0.8))); })(),
       intel,
       riasec: riasec,
-      aptitude: {
-        '인문': clamp(avg(riasec.A, riasec.S, big5.A)),
-        '자연': clamp(avg(riasec.I, riasec.R, big5.O)),
-        '예능': clamp(avg(riasec.A, big5.O)),
-        '체육': clamp(avg(riasec.R, big5.E))
-      },
+      aptitude: (function(){
+        var subj=(state.results.learn&&state.results.learn.scores)||null;
+        var it=intel||{};
+        return {
+          '인문': clamp(subj? avg(subj.korean,subj.english,subj.social,riasec.A,riasec.S) : avg(riasec.A,riasec.S,it.verbal,it.interpersonal)),
+          '자연': clamp(subj? avg(subj.math,subj.science,riasec.I,it.logical) : avg(riasec.I,it.logical,it.naturalist)),
+          '예능': clamp(subj? avg(subj.arts,riasec.A,it.spatial,it.musical) : avg(riasec.A,it.spatial,it.musical)),
+          '체육': clamp(subj? avg(subj.pe,riasec.R,it.bodily,big5.E) : avg(riasec.R,it.bodily,big5.E))
+        };
+      })(),
       subjects: (state.results.learn && state.results.learn.scores) ? state.results.learn.scores : {
         korean:  clamp(avg(riasec.A, big5.O, big5.A)),
         math:    clamp(avg(riasec.I, big5.O, big5.C)),
