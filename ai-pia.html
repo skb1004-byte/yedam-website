@@ -4274,7 +4274,13 @@ function renderHome() {
           : `<button onclick="showView('${c.id}')" class="w-full ${col.btn} text-white py-2.5 rounded-lg text-sm font-semibold transition">${inProgress ? '▶ 이어서' : '▶ 시작'}</button>`}
       </div>
     `;
-  }).join('');
+  }).join('') + `
+    <div class="bg-gradient-to-r from-indigo-50 to-violet-50 border-2 border-indigo-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-1 mt-2"><span class="text-2xl">🧭</span><span class="pill bg-indigo-100 text-indigo-800 text-[10px]">공식 · 선택</span></div>
+      <h3 class="font-bold text-sm text-indigo-900 mb-1">커리어넷 공식 진로심리검사</h3>
+      <p class="text-xs text-slate-600 mb-3 leading-relaxed border-t border-white pt-2">교육부·한국직업능력연구원 <b>국가 표준화 검사</b>(직업적성·흥미·가치관·진로성숙도 등). 결과는 AI PIA 결과지에 <b>교차검증 카드</b>로 추가됩니다.</p>
+      <button onclick="openCareernetModal()" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-semibold transition">🧭 공식 검사 선택하기</button>
+    </div>`;
 }
 
 // =================================================================
@@ -4865,6 +4871,7 @@ async function hfTranscribe(file){
 }
 var CAREERNET_PROXY='https://ushtyxnmqclzgdnynusm.supabase.co/functions/v1/careernet';
 var CAREERNET_KEY='7a81155d537a4d4d95a3eec0cbf7a3be'; // 커리어넷 공공데이터 OpenAPI 키 (기본값)
+var CN_ACTIVE=null; // 커리어넷 검사 렌더 대상 컨테이너(설정 패널 또는 홈 모달)
 function initCareernet(){
   var i=el('cfg-careernet'); if(!i) return;
   i.value=(state.cfg&&state.cfg.careernet)||CAREERNET_KEY;
@@ -4874,17 +4881,30 @@ function initCareernet(){
     if(st) st.textContent=state.cfg.careernet?'✅ 키 저장됨 (이 브라우저에 보관)':'⚠ 키가 비어 있습니다.';
   });
   var ls=el('careernet-list'); if(ls) ls.addEventListener('click',function(){
-    if(!box) return; box.classList.remove('hidden');
-    box.innerHTML = CAREERNET_TESTS.map(function(t){
-      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #eee">'
-        +'<b style="min-width:160px">'+t.name+'</b><span style="color:#888;font-size:11px">q='+t.q+' · '+t.n+'문항</span>'
-        +'<button data-cnq="'+t.q+'" class="bg-blue-600 text-white px-2 py-1 rounded text-[11px]" style="margin-left:auto">문항 보기</button>'
-        +'<button data-cnrun="'+t.q+'" data-cnname="'+t.name+'" class="bg-emerald-600 text-white px-2 py-1 rounded text-[11px]">검사 시작</button></div>';
-    }).join('') + '<div id="cn-qout" style="margin-top:8px;color:#444"></div>';
-    box.querySelectorAll('[data-cnq]').forEach(function(b){ b.onclick=function(){ careernetLoadQuestions(b.getAttribute('data-cnq')); }; });
-    box.querySelectorAll('[data-cnrun]').forEach(function(b){ b.onclick=function(){ careernetRunTest(b.getAttribute('data-cnrun'), b.getAttribute('data-cnname')); }; });
-    if(st) st.textContent='커리어넷 진로심리검사 '+CAREERNET_TESTS.length+'종 — "문항 불러오기"로 실제 데이터 확인';
+    if(!box) return; box.classList.remove('hidden'); CN_ACTIVE=box; careernetRenderList(box);
+    if(st) st.textContent='커리어넷 진로심리검사 '+CAREERNET_TESTS.length+'종 — 검사를 선택하세요';
   });
+}
+function careernetRenderList(box){
+  box.innerHTML = CAREERNET_TESTS.map(function(t){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #eee">'
+      +'<b style="min-width:150px;font-size:13px">'+t.name+'</b><span style="color:#888;font-size:11px">'+t.n+'문항</span>'
+      +'<button data-cnq="'+t.q+'" class="bg-blue-600 text-white px-2 py-1 rounded text-[11px]" style="margin-left:auto">문항 보기</button>'
+      +'<button data-cnrun="'+t.q+'" data-cnname="'+t.name+'" class="bg-emerald-600 text-white px-2 py-1 rounded text-[11px]">검사 시작</button></div>';
+  }).join('') + '<div id="cn-qout" style="margin-top:8px;color:#444"></div>';
+  box.querySelectorAll('[data-cnq]').forEach(function(b){ b.onclick=function(){ careernetLoadQuestions(b.getAttribute('data-cnq')); }; });
+  box.querySelectorAll('[data-cnrun]').forEach(function(b){ b.onclick=function(){ careernetRunTest(b.getAttribute('data-cnrun'), b.getAttribute('data-cnname')); }; });
+}
+function openCareernetModal(){
+  var ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(20,20,19,.5);display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow:auto';
+  var m=document.createElement('div'); m.className='bg-white rounded-2xl'; m.style.cssText='max-width:640px;width:100%;padding:18px';
+  m.innerHTML='<div style="display:flex;align-items:center;margin-bottom:6px"><h3 style="font-weight:800;font-size:16px">🧭 커리어넷 공식 진로심리검사</h3><button id="cn-modal-x" style="margin-left:auto;font-size:18px;line-height:1">✕</button></div>'
+    +'<p style="font-size:12px;color:#666;margin-bottom:10px">국가 표준화 검사(교육부·한국직업능력연구원)를 선택해 응답하면 공식 결과를 받고, AI PIA 결과지에 교차검증 카드로 추가됩니다.</p><div id="cn-modal-box"></div>';
+  ov.appendChild(m); document.body.appendChild(ov);
+  var close=function(){ CN_ACTIVE=null; ov.remove(); };
+  m.querySelector('#cn-modal-x').onclick=close;
+  ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+  CN_ACTIVE=m.querySelector('#cn-modal-box'); careernetRenderList(CN_ACTIVE);
 }
 var CAREERNET_TESTS=[
   {q:1, name:'직업적성검사(중·고)', n:59},
@@ -4898,7 +4918,7 @@ var CAREERNET_TESTS=[
   {q:9, name:'전공·학습 흥미검사(대학)', n:107}
 ];
 async function careernetLoadQuestions(q){
-  var out=document.getElementById('cn-qout'); var key=(state.cfg&&state.cfg.careernet)||CAREERNET_KEY;
+  var out=(CN_ACTIVE&&CN_ACTIVE.querySelector('#cn-qout'))||document.getElementById('cn-qout'); var key=(state.cfg&&state.cfg.careernet)||CAREERNET_KEY;
   if(!key){ if(out) out.textContent='⚠ 먼저 커리어넷 API 키를 저장하세요.'; return; }
   if(out) out.textContent='🔌 q='+q+' 문항 불러오는 중…';
   try{
@@ -4910,7 +4930,7 @@ async function careernetLoadQuestions(q){
   }catch(e){ if(out) out.textContent='⚠ 오류: '+e.message; }
 }
 async function careernetRunTest(q, name){
-  var box=document.getElementById('careernet-result'); if(!box) return;
+  var box=CN_ACTIVE||document.getElementById('careernet-result'); if(!box) return;
   var AK='sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
   var key=(state.cfg&&state.cfg.careernet)||CAREERNET_KEY;
   box.classList.remove('hidden'); box.innerHTML='🔌 '+name+' 문항 불러오는 중…';
