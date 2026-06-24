@@ -7411,6 +7411,38 @@ function buildAdminRecord(){
     version:'v3.7', exportedAt:new Date().toISOString(), pairCode:getPairCode(),
     results:state.results, meta:state.meta, profile:p };
 }
+
+// ---- Supabase 회원 결과 자동 저장(로그인 시) ----
+var _piaSB=null;
+function _piaEnsureSB(){
+  return new Promise(function(res){
+    if(_piaSB){res(_piaSB);return;}
+    function mk(){ try{ _piaSB=window.supabase.createClient('https://ushtyxnmqclzgdnynusm.supabase.co','sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'); }catch(e){ _piaSB=null; } res(_piaSB); }
+    if(window.supabase&&window.supabase.createClient){ mk(); return; }
+    var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    sc.onload=mk; sc.onerror=function(){ res(null); }; document.head.appendChild(sc);
+  });
+}
+function piaSaveSupabase(rec){
+  _piaEnsureSB().then(function(sb){
+    if(!sb) return;
+    sb.auth.getSession().then(function(r){
+      var ses=r&&r.data&&r.data.session; if(!ses) return; // 비로그인은 저장 안 함
+      var uid=ses.user.id;
+      var map={}; try{ map=JSON.parse(localStorage.getItem('pia_sb_rows')||'{}'); }catch(e){}
+      var row={ user_id:uid, pair_code:(rec.pairCode||null), data:rec };
+      var rowId=map[rec.id];
+      if(rowId){
+        sb.from('results').update(row).eq('id',rowId).then(function(u){ if(u&&u.error){ delete map[rec.id]; try{localStorage.setItem('pia_sb_rows',JSON.stringify(map));}catch(e){} } });
+      } else {
+        sb.from('results').insert(row).select('id').single().then(function(ins){
+          if(ins&&ins.data&&ins.data.id){ map[rec.id]=ins.data.id; try{ localStorage.setItem('pia_sb_rows',JSON.stringify(map)); }catch(e){} }
+        });
+      }
+    });
+  });
+}
+
 let _adminSig='';
 function sendResultToAdmin(opts){
   opts=opts||{}; const rec=buildAdminRecord();
@@ -7419,6 +7451,7 @@ function sendResultToAdmin(opts){
   if(!opts.force && sig===_adminSig) return;
   const base=piaApiBase();
   _adminSig=sig;
+  try{ piaSaveSupabase(rec); }catch(e){}
   fetch((base||'')+'/api/results',{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(rec)})
     .then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
     .then(()=>{ if(opts.toast){ try{ toast('결과가 관리자 서버에 저장되었습니다.'); }catch(e){} } })
