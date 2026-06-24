@@ -5624,15 +5624,23 @@ async function catTestItem(btn){
   if(st){ st.className='cat-st text-[11px] text-blue-600'; st.textContent='🔌 '+name+' 연결 테스트 중…'; }
   var headers={ 'Accept':'application/json' };
   if(key) headers['Authorization']='Bearer '+key;
-  var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},8000);
+  // 공공데이터(커리어넷·data.go.kr·워크넷)는 CORS가 막혀 Supabase 프록시 경유
+  var useProxy=false; try{ useProxy=/(career|data|work)\.go\.kr$/.test(new URL(ep).hostname); }catch(_e){}
+  var _url=ep, _hdrs=headers;
+  if(useProxy){
+    var _tgt=ep; if(key && !/apikey=|serviceKey=/i.test(ep)) _tgt+=(ep.indexOf('?')>=0?'&':'?')+'apikey='+encodeURIComponent(key);
+    _url=CAREERNET_PROXY+'?op=raw&url='+encodeURIComponent(_tgt);
+    _hdrs={'apikey':'sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'};
+  }
+  var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},12000);
   try{
-    var res=await fetch(ep,{ signal:ctrl.signal, headers:headers });
+    var res=await fetch(_url,{ signal:ctrl.signal, headers:_hdrs });
     if(st){
-      if(res.ok){ st.className='cat-st text-[11px] text-emerald-700'; st.textContent='✅ 연결 성공 ('+res.status+') — "저장"을 누르면 키가 보관됩니다.'; }
-      else { st.className='cat-st text-[11px] text-amber-700'; st.textContent='⚠ 응답 '+res.status+' — 키/권한/엔드포인트를 확인하세요.'; }
+      if(res.ok){ st.className='cat-st text-[11px] text-emerald-700'; st.textContent='✅ 연결 성공 ('+res.status+')'+(useProxy?' · 프록시 경유':'')+' — "저장"을 누르면 키가 보관됩니다.'; }
+      else { st.className='cat-st text-[11px] text-amber-700'; st.textContent='⚠ 응답 '+res.status+(useProxy?' (프록시 경유)':'')+' — 키/권한/엔드포인트를 확인하세요.'; }
     }
   }catch(e){
-    if(st){ st.className='cat-st text-[11px] text-rose-700'; st.textContent='⚠ 연결 실패(CORS·네트워크·키 확인). 브라우저 직접 호출이 막힌 API는 프록시가 필요할 수 있어요.'; }
+    if(st){ st.className='cat-st text-[11px] text-rose-700'; st.textContent='⚠ 연결 실패('+(useProxy?'프록시·키 확인':'CORS·네트워크·키 확인')+'). '+(useProxy?'키가 맞는지 확인하세요.':'브라우저 직접 호출이 막힌 API는 프록시가 필요합니다.'); }
   }finally{ clearTimeout(timer); }
 }
 
