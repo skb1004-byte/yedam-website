@@ -4872,17 +4872,39 @@ function initCareernet(){
     state.cfg=Object.assign({},state.cfg,{careernet:(i.value||'').trim()}); save();
     if(st) st.textContent=state.cfg.careernet?'✅ 키 저장됨 (이 브라우저에 보관)':'⚠ 키가 비어 있습니다.';
   });
-  var ls=el('careernet-list'); if(ls) ls.addEventListener('click',async function(){
-    var key=(state.cfg&&state.cfg.careernet)||'';
-    if(!key){ if(st) st.textContent='⚠ 먼저 키를 저장하세요.'; return; }
-    if(st) st.textContent='🔌 커리어넷 검사 목록 불러오는 중…';
-    try{
-      var r=await fetch(CAREERNET_PROXY+'?op=list&key='+encodeURIComponent(key),{headers:{'apikey':'sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'}});
-      var t=await r.text();
-      if(box){ box.classList.remove('hidden'); box.textContent=t.slice(0,5000); }
-      if(st) st.textContent=r.ok?('✅ 응답 수신 (상태 '+r.status+')'):('⚠ 실패 (상태 '+r.status+') — 키·프록시 확인');
-    }catch(e){ if(st) st.textContent='⚠ 오류: '+e.message+' (프록시 미배포면 함수 배포 필요)'; }
+  var ls=el('careernet-list'); if(ls) ls.addEventListener('click',function(){
+    if(!box) return; box.classList.remove('hidden');
+    box.innerHTML = CAREERNET_TESTS.map(function(t){
+      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #eee">'
+        +'<b style="min-width:160px">'+t.name+'</b><span style="color:#888;font-size:11px">q='+t.q+' · '+t.n+'문항</span>'
+        +'<button data-cnq="'+t.q+'" class="bg-blue-600 text-white px-2 py-1 rounded text-[11px]" style="margin-left:auto">문항 불러오기</button></div>';
+    }).join('') + '<div id="cn-qout" style="margin-top:8px;color:#444"></div>';
+    box.querySelectorAll('[data-cnq]').forEach(function(b){ b.onclick=function(){ careernetLoadQuestions(b.getAttribute('data-cnq')); }; });
+    if(st) st.textContent='커리어넷 진로심리검사 '+CAREERNET_TESTS.length+'종 — "문항 불러오기"로 실제 데이터 확인';
   });
+}
+var CAREERNET_TESTS=[
+  {q:1, name:'직업적성검사(중·고)', n:59},
+  {q:10,name:'직업적성검사(간편형)', n:49},
+  {q:4, name:'직업흥미검사 K형', n:96},
+  {q:5, name:'직업흥미검사 H형', n:96},
+  {q:6, name:'직업가치관검사', n:28},
+  {q:7, name:'진로성숙도검사', n:64},
+  {q:12,name:'진로성숙도검사(확장)', n:157},
+  {q:8, name:'진로개발역량검사', n:35},
+  {q:9, name:'전공·학습 흥미검사(대학)', n:107}
+];
+async function careernetLoadQuestions(q){
+  var out=document.getElementById('cn-qout'); var key=(state.cfg&&state.cfg.careernet)||'';
+  if(!key){ if(out) out.textContent='⚠ 먼저 커리어넷 API 키를 저장하세요.'; return; }
+  if(out) out.textContent='🔌 q='+q+' 문항 불러오는 중…';
+  try{
+    var r=await fetch(CAREERNET_PROXY+'?op=questions&key='+encodeURIComponent(key)+'&q='+encodeURIComponent(q),{headers:{'apikey':'sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'}});
+    var j=await r.json();
+    if(j&&j.SUCC_YN==='Y'&&j.RESULT){ var arr=Array.isArray(j.RESULT)?j.RESULT:[j.RESULT];
+      if(out) out.innerHTML='✅ '+arr.length+'문항 수신 · 첫 문항: <i>'+String((arr[0]&&arr[0].question)||'').replace(/<[^>]+>/g,' ').slice(0,80)+'</i>'; }
+    else if(out) out.textContent='⚠ 실패('+r.status+'): '+JSON.stringify(j).slice(0,120);
+  }catch(e){ if(out) out.textContent='⚠ 오류: '+e.message; }
 }
 function initHuggingFace(){
   const t=el('hf-token'); if(!t) return;
