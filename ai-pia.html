@@ -1927,7 +1927,18 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 
   
 
-  
+  <div class="border-t border-slate-200 pt-4">
+    <h3 class="font-semibold text-sm mb-2">🧭 커리어넷 진로심리검사 연동</h3>
+    <p class="text-xs text-slate-500 mb-3">커리어넷(career.go.kr) OpenAPI 인증키를 저장하면 공식 진로심리검사(직업적성·직업흥미·직업가치관·진로성숙도 등) 목록을 불러올 수 있어요. 브라우저 직접 호출은 CORS로 막혀 Supabase 프록시를 경유합니다. 키 발급: career.go.kr → OpenAPI 센터.</p>
+    <label class="block mb-2"><span class="text-xs text-slate-600">커리어넷 API 키</span>
+      <input id="cfg-careernet" type="password" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="커리어넷 인증키" /></label>
+    <div class="flex flex-wrap gap-2 items-center mb-2">
+      <button id="careernet-save" class="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs">키 저장</button>
+      <button id="careernet-list" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs">검사 목록 불러오기</button>
+      <span id="careernet-status" class="text-[11px] text-slate-500"></span>
+    </div>
+    <pre id="careernet-result" class="hidden mt-2 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs overflow-auto max-h-72 whitespace-pre-wrap"></pre>
+  </div>
 </section>
 </div>
 <script>
@@ -3224,7 +3235,7 @@ let state = {
     sjt: { answers: [], dims: {}, order: [], adaptive: false },
     conv: { turns: 0, dims: {}, riskHist: [], topics: {}, transcript: [] }
   },
-  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'ai-proxy.php', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
+  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'ai-proxy.php', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
 };
 
 function load() {
@@ -4852,6 +4863,27 @@ async function hfTranscribe(file){
     if(!res.ok) return null; const j=await res.json(); return j.text || (Array.isArray(j)&&j[0]&&j[0].text) || '';
   }catch(e){ return null; }
 }
+var CAREERNET_PROXY='https://ushtyxnmqclzgdnynusm.supabase.co/functions/v1/careernet';
+function initCareernet(){
+  var i=el('cfg-careernet'); if(!i) return;
+  i.value=(state.cfg&&state.cfg.careernet)||'';
+  var st=el('careernet-status'), box=el('careernet-result');
+  var sv=el('careernet-save'); if(sv) sv.addEventListener('click',function(){
+    state.cfg=Object.assign({},state.cfg,{careernet:(i.value||'').trim()}); save();
+    if(st) st.textContent=state.cfg.careernet?'✅ 키 저장됨 (이 브라우저에 보관)':'⚠ 키가 비어 있습니다.';
+  });
+  var ls=el('careernet-list'); if(ls) ls.addEventListener('click',async function(){
+    var key=(state.cfg&&state.cfg.careernet)||'';
+    if(!key){ if(st) st.textContent='⚠ 먼저 키를 저장하세요.'; return; }
+    if(st) st.textContent='🔌 커리어넷 검사 목록 불러오는 중…';
+    try{
+      var r=await fetch(CAREERNET_PROXY+'?op=list&key='+encodeURIComponent(key),{headers:{'apikey':'sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'}});
+      var t=await r.text();
+      if(box){ box.classList.remove('hidden'); box.textContent=t.slice(0,5000); }
+      if(st) st.textContent=r.ok?('✅ 응답 수신 (상태 '+r.status+')'):('⚠ 실패 (상태 '+r.status+') — 키·프록시 확인');
+    }catch(e){ if(st) st.textContent='⚠ 오류: '+e.message+' (프록시 미배포면 함수 배포 필요)'; }
+  });
+}
 function initHuggingFace(){
   const t=el('hf-token'); if(!t) return;
   t.value=(state.cfg&&state.cfg.hfToken)||'';
@@ -5006,6 +5038,7 @@ function initSettings() {
   // Apply
   modeSel.value = state.cfg.mode || 'LOCAL';
   try { initHuggingFace(); } catch(e) {}
+  try { initCareernet(); } catch(e) {}
   if ((state.cfg.mode||'LOCAL')==='ONDEVICE') { const _cs=el('cfg-status'); if(_cs && !_cs.textContent) _cs.textContent = window._ondeviceReady ? '✅ 온디바이스 AI 자동 활성화됨 — 인터넷·키 없이 대화' : (window._ondeviceLazy ? '🖥 온디바이스 기본 — 첫 대화에서 자동 로드(저사양/모바일 데이터 절약)' : '🖥 온디바이스 AI 자동 기동 중…'); }
   if ((state.cfg.mode||'')==='GITHUB_MODELS') { const _csg=el('cfg-status'); if(_csg) _csg.textContent = (state.cfg.proxy ? '✅ GitHub Models 사용 중 (프록시·서버 키 — API Key 입력 불필요)' : 'ℹ GitHub Models — 프록시 미설정 시 API Key 필요'); }
   const p = PROVIDERS[state.cfg.mode] || PROVIDERS.LOCAL;
