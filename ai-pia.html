@@ -124,7 +124,8 @@ body {background:#fff;}
 #pia-report .item-card-head {background:#d97757;color:#fff;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;}
 #pia-report .item-card-head .item-name {font-size:13px;font-weight:700;}
 #pia-report .item-card-body {padding:10px 14px;}
-#pia-report .compare-index {font-size:11px;color:#555;margin:4px 0 8px;}
+#pia-report .compare-index {font-size:11px;color:#555;margin:4px 0 8px;white-space:nowrap;overflow:visible;}
+#pia-report .item-card svg, #pia-report .two-col svg, #pia-report .gauge-wrap svg {overflow:visible;}
 
 /* ===== 이중 바(계열적성) ===== */
 #pia-report .dual-bar-row {display:flex;align-items:center;gap:4px;margin-bottom:4px;}
@@ -8474,7 +8475,7 @@ function populateResult(d){
   // ── 표지 ──
   setText('cover-name', d.name||'');
   setText('cover-school', d.school||'');
-  setText('cover-grade', d.grade||'');
+  setText('cover-grade', (d.grade||'') + (d.class ? ' '+d.class : ''));
   setText('cover-date', fmtDate(d.testDate));
 
   // ── 학생 정보 테이블 ──
