@@ -4878,9 +4878,11 @@ function initCareernet(){
     box.innerHTML = CAREERNET_TESTS.map(function(t){
       return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #eee">'
         +'<b style="min-width:160px">'+t.name+'</b><span style="color:#888;font-size:11px">q='+t.q+' · '+t.n+'문항</span>'
-        +'<button data-cnq="'+t.q+'" class="bg-blue-600 text-white px-2 py-1 rounded text-[11px]" style="margin-left:auto">문항 불러오기</button></div>';
+        +'<button data-cnq="'+t.q+'" class="bg-blue-600 text-white px-2 py-1 rounded text-[11px]" style="margin-left:auto">문항 보기</button>'
+        +'<button data-cnrun="'+t.q+'" data-cnname="'+t.name+'" class="bg-emerald-600 text-white px-2 py-1 rounded text-[11px]">검사 시작</button></div>';
     }).join('') + '<div id="cn-qout" style="margin-top:8px;color:#444"></div>';
     box.querySelectorAll('[data-cnq]').forEach(function(b){ b.onclick=function(){ careernetLoadQuestions(b.getAttribute('data-cnq')); }; });
+    box.querySelectorAll('[data-cnrun]').forEach(function(b){ b.onclick=function(){ careernetRunTest(b.getAttribute('data-cnrun'), b.getAttribute('data-cnname')); }; });
     if(st) st.textContent='커리어넷 진로심리검사 '+CAREERNET_TESTS.length+'종 — "문항 불러오기"로 실제 데이터 확인';
   });
 }
@@ -4906,6 +4908,39 @@ async function careernetLoadQuestions(q){
       if(out) out.innerHTML='✅ '+arr.length+'문항 수신 · 첫 문항: <i>'+String((arr[0]&&arr[0].question)||'').replace(/<[^>]+>/g,' ').slice(0,80)+'</i>'; }
     else if(out) out.textContent='⚠ 실패('+r.status+'): '+JSON.stringify(j).slice(0,120);
   }catch(e){ if(out) out.textContent='⚠ 오류: '+e.message; }
+}
+async function careernetRunTest(q, name){
+  var box=document.getElementById('careernet-result'); if(!box) return;
+  var AK='sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
+  var key=(state.cfg&&state.cfg.careernet)||CAREERNET_KEY;
+  box.classList.remove('hidden'); box.innerHTML='🔌 '+name+' 문항 불러오는 중…';
+  var j; try{ j=await fetch(CAREERNET_PROXY+'?op=questions&key='+encodeURIComponent(key)+'&q='+encodeURIComponent(q),{headers:{'apikey':AK}}).then(function(r){return r.json();}); }
+  catch(e){ box.textContent='⚠ 문항 오류: '+e.message; return; }
+  if(!j||j.SUCC_YN!=='Y'||!j.RESULT){ box.textContent='⚠ 문항 로드 실패'; return; }
+  var qs=Array.isArray(j.RESULT)?j.RESULT:[j.RESULT];
+  var gd=(state.profile&&state.profile.grade)||''; var defT=/대학|성인|일반|adult|univ/i.test(gd)?'100211':(/고/.test(gd)?'100210':'100209');
+  var h='<div style="font-weight:700;margin-bottom:6px">'+name+' · 총 '+qs.length+'문항</div>';
+  h+='<div style="display:flex;gap:10px;margin-bottom:8px;font-size:11px"><label>대상 <select id="cn-trget"><option value="100209"'+(defT==='100209'?' selected':'')+'>중학생</option><option value="100210"'+(defT==='100210'?' selected':'')+'>고등학생</option><option value="100211"'+(defT==='100211'?' selected':'')+'>대학·일반</option></select></label><label>성별 <select id="cn-gender"><option value="100323">남</option><option value="100324">여</option></select></label></div>';
+  h+='<div style="max-height:320px;overflow:auto;border:1px solid #eee;border-radius:8px;padding:8px">';
+  qs.forEach(function(it,idx){ var qn=idx+1; var ans=[]; for(var a=1;a<=30;a++){ var kk='answer'+(a<10?'0'+a:a); var v=it[kk]; if(v==null||v==='') break; ans.push(v); }
+    h+='<div style="padding:6px 0;border-bottom:1px solid #f0f0f0"><div style="font-size:12px;margin-bottom:3px">'+qn+'. '+String(it.question).replace(/<[^>]+>/g,' ')+'</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+ans.map(function(label,ai){ return '<label style="font-size:11px;white-space:nowrap"><input type="radio" name="cnq'+qn+'" value="'+(ai+1)+'"> '+label+'</label>'; }).join('')+'</div></div>';
+  });
+  h+='</div><div style="margin-top:8px"><button id="cn-submit" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs">결과 받기</button> <button id="cn-allfirst" class="bg-slate-200 px-2 py-1 rounded text-[11px]">데모: 모두 1번</button> <span id="cn-submsg" style="font-size:11px"></span></div>';
+  box.innerHTML=h;
+  document.getElementById('cn-allfirst').onclick=function(){ qs.forEach(function(_,idx){ var f=box.querySelector('input[name="cnq'+(idx+1)+'"]'); if(f) f.checked=true; }); };
+  document.getElementById('cn-submit').onclick=async function(){
+    var msg=document.getElementById('cn-submsg'); var parts=[]; var miss=0;
+    for(var qn=1;qn<=qs.length;qn++){ var sel=box.querySelector('input[name="cnq'+qn+'"]:checked'); if(sel) parts.push(qn+'='+sel.value); else miss++; }
+    if(miss>0){ msg.style.color='#c0392b'; msg.textContent='미응답 '+miss+'개 — 모두 응답해 주세요.'; return; }
+    msg.style.color='#555'; msg.textContent='결과 생성 중…';
+    var body={ apikey:key, qestrnSeq:String(q), trgetSe:document.getElementById('cn-trget').value, gender:document.getElementById('cn-gender').value, grade:'4', startDtm:Date.now(), answers:parts.join(' ') };
+    try{
+      var r=await fetch(CAREERNET_PROXY+'?op=report&key='+encodeURIComponent(key),{method:'POST',headers:{'apikey':AK,'Content-Type':'application/json'},body:JSON.stringify(body)});
+      var rj=await r.json();
+      if(rj&&rj.SUCC_YN==='Y'&&rj.RESULT&&rj.RESULT.url){ msg.innerHTML='✅ 완료 — <a href="'+rj.RESULT.url+'" target="_blank" rel="noopener" style="color:#2563eb;font-weight:700">커리어넷 결과 보기 ↗</a>'; }
+      else { msg.style.color='#c0392b'; msg.textContent='⚠ 실패: '+String(rj.ERROR_REASON||JSON.stringify(rj)).slice(0,120); }
+    }catch(e){ msg.style.color='#c0392b'; msg.textContent='⚠ 오류: '+e.message; }
+  };
 }
 function initHuggingFace(){
   const t=el('hf-token'); if(!t) return;
