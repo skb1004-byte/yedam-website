@@ -6792,7 +6792,7 @@ function renderMultiIntel(big5, via, riasec) {
   return `
     <div class="bg-white rounded-2xl border border-slate-200 p-4">
       <h3 class="font-semibold text-sm mb-1">가드너 다중지능(MI) 8지능 분석</h3>
-      <p class="text-xs text-slate-500 mb-4">검사 결과를 기반으로 추정한 8가지 지능 영역 점수입니다. 상위 2~3개가 학생의 강점 지능입니다.</p>
+      <p class="text-xs text-slate-500 mb-4">검사 결과를 기반으로 추정한 8가지 지능 영역 점수입니다. 상위 2~3개가 ${(typeof selfIsAdult==='function'&&selfIsAdult())?'본인':'학생'}의 강점 지능입니다.</p>
       <div class="space-y-2">
         ${sorted.map((mi, i) => `
           <div class="flex items-center gap-3 ${i<3 ? 'bg-indigo-50' : ''} rounded-lg px-3 py-2">
@@ -6824,7 +6824,7 @@ function renderVARK(big5, via, riasec) {
   return `
     <div class="bg-white rounded-2xl border border-slate-200 p-4">
       <h3 class="font-semibold text-sm mb-1">학습 스타일 진단 (VARK)</h3>
-      <p class="text-xs text-slate-500 mb-4">학생에게 효과적인 학습 방식을 추정합니다. 우세 스타일: <strong>${top.name}</strong></p>
+      <p class="text-xs text-slate-500 mb-4">${(typeof selfIsAdult==='function'&&selfIsAdult())?'본인':'학생'}에게 효과적인 학습 방식을 추정합니다. 우세 스타일: <strong>${top.name}</strong></p>
       <div class="grid sm:grid-cols-2 gap-3">
         ${scores.map(v => `
           <div class="${v.code===top.code?'bg-amber-50 border-amber-200':'bg-slate-50 border-slate-200'} border rounded-lg p-3">
@@ -6989,21 +6989,22 @@ function renderReliabilityStats() {
 }
 
 function renderResultUsageGuide(audience) {
+  var aduG=(typeof selfIsAdult==='function'&&selfIsAdult());
   return `
     <div class="bg-white rounded-2xl border border-slate-200 p-4">
       <h3 class="font-semibold text-sm mb-1">이 결과지 활용 안내</h3>
       <p class="text-xs text-slate-500 mb-4">결과지를 가장 효과적으로 활용하는 방법입니다.</p>
-      <div class="grid sm:grid-cols-3 gap-3 text-xs">
+      <div class="grid ${aduG?'sm:grid-cols-1':'sm:grid-cols-3'} gap-3 text-xs">
         <div class="bg-violet-50 rounded-lg p-3">
           <strong class="text-violet-900">${(typeof selfIsAdult==="function"&&selfIsAdult())?"본인":"학생 본인"}</strong>
           <ul class="mt-1 space-y-0.5 ml-4 list-disc text-violet-900">
             <li>강점을 일상에서 의도적으로 활용</li>
             <li>성장 포인트는 한 가지만 시도</li>
-            <li>다음 학기에 재검사로 변화 확인</li>
-            <li>1388·Wee클래스 도움 채널 기억</li>
+            <li>${aduG?'일정 기간 후 재검사로 변화 확인':'다음 학기에 재검사로 변화 확인'}</li>
+            <li>${aduG?'필요 시 1577-0199·전문 상담 채널 기억':'1388·Wee클래스 도움 채널 기억'}</li>
           </ul>
         </div>
-        <div class="bg-emerald-50 rounded-lg p-3">
+        <div class="bg-emerald-50 rounded-lg p-3" style="${aduG?'display:none':''}">
           <strong class="text-emerald-900">학부모</strong>
           <ul class="mt-1 space-y-0.5 ml-4 list-disc text-emerald-900">
             <li>14일 코칭 플랜 실천</li>
@@ -7012,7 +7013,7 @@ function renderResultUsageGuide(audience) {
             <li>위험 신호 시 즉시 1577-0199 활용</li>
           </ul>
         </div>
-        <div class="bg-amber-50 rounded-lg p-3">
+        <div class="bg-amber-50 rounded-lg p-3" style="${aduG?'display:none':''}">
           <strong class="text-amber-900">선생님</strong>
           <ul class="mt-1 space-y-0.5 ml-4 list-disc text-amber-900">
             <li>12주 학급 운영 가이드 활용</li>
@@ -8482,6 +8483,25 @@ function pDimDesc(label, v){
   return (T[label]&&T[label][band]) || '';
 }
 
+function adaptReportForAdult(){
+  try{
+    if(!(typeof selfIsAdult==='function'&&selfIsAdult())) return;
+    var root=document.getElementById('pia-report'); if(!root) return;
+    var pairs=[
+      ['학교 상담실 또는 Wee 클래스를 적극 활용하세요.','정신건강복지센터·전문 상담기관(1577-0199)을 활용하세요.'],
+      ['담당교사·부모님께 드리는 종합 코멘트','본인을 위한 종합 코멘트'],
+      ['뛰어난 학생입니다','뛰어난 분입니다'],
+      ['학교 상담 교사와의 정기 면담','전문 상담기관과의 정기 상담'],
+      ['과도한 스마트폰·게임 사용을 제한하고','과도한 디지털 사용을 조절하고'],
+      ['청소년 우울','우울(PHQ)']
+    ];
+    var wk=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n;
+    while(n=wk.nextNode()){ var t=n.nodeValue, o=t;
+      for(var i=0;i<pairs.length;i++){ if(t.indexOf(pairs[i][0])>=0) t=t.split(pairs[i][0]).join(pairs[i][1]); }
+      if(t!==o) n.nodeValue=t;
+    }
+  }catch(e){}
+}
 function populateResult(d){
   const sc = d.scores || {};
   // ── 표지 ──
@@ -8709,6 +8729,7 @@ function populateResult(d){
   // 뒤로가기 버튼 표시
   const backBtn=document.getElementById('btn-back-student');
   if(backBtn)backBtn.style.display='inline-flex';
+  try{ adaptReportForAdult(); }catch(e){}
 }
 
 function setText(id, val){const el=document.getElementById(id);if(el)el.textContent=val;}
