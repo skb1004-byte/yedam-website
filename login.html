@@ -37,7 +37,7 @@ a{color:var(--rust);font-weight:700;text-decoration:none}
   <div class="cfgwarn" id="cfgwarn">⚙️ 아직 Supabase 연결 정보가 입력되지 않았습니다. (관리자: 이 파일 상단 SUPABASE_URL·ANON_KEY 입력 필요)</div>
 
   <div class="oauth">
-    <button class="kakao" id="kakao">💬 카카오로 시작하기</button>
+    <button class="kakao" id="kakao" style="opacity:.55">💬 카카오로 시작하기 <span style="font-size:11px;font-weight:600">(준비중)</span></button>
     <button class="google" id="google">🇬 구글로 시작하기</button>
   </div>
   <div class="msg" id="msg"></div>
@@ -71,7 +71,7 @@ async function start(provider){
     if(error) $('#msg').textContent='로그인 오류: '+error.message;
   }catch(e){ $('#msg').textContent='오류: '+e.message; }
 }
-$('#kakao').onclick=function(){ start('kakao'); };
+$('#kakao').onclick=function(){ $('#msg').style.color='#7a5b00'; $('#msg').textContent='카카오 로그인은 준비 중입니다. 구글로 시작해 주세요 🙂'; };
 $('#google').onclick=function(){ start('google'); };
 
 // 이미 로그인돼 있으면 마이페이지로
