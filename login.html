@@ -77,5 +77,6 @@ $('#google').onclick=function(){ start('google'); };
 // 이미 로그인돼 있으면 마이페이지로
 if(sb){ sb.auth.getSession().then(function(r){ if(r.data && r.data.session){ location.replace('mypage.html'); } }); }
 </script>
+<script src="err-cs.js" defer></script>
 </body>
 </html>

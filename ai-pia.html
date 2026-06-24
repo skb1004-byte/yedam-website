@@ -9108,4 +9108,31 @@ window._ttsClean=function(s){
     try{ saved = localStorage.getItem(KEY) || 'ko'; }catch(e){}
     window.piaSetReportLang(saved);
   }
-  if(document.readyState=
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+</script>
+
+<!-- 계정 이름 자동입력: 로그인 상태면 검사 시작 이름칸(pf-name)을 계정 이름으로 자동 채움 -->
+<script id="acct-name-fill">
+(function(){
+  var U='https://ushtyxnmqclzgdnynusm.supabase.co', K='sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
+  var acctName=null;
+  function getName(cb){
+    function go(){ try{ var sb=window.supabase.createClient(U,K);
+      sb.auth.getSession().then(function(r){ var u=r&&r.data&&r.data.session&&r.data.session.user;
+        var nm=u&&u.user_metadata&&(u.user_metadata.name||u.user_metadata.full_name||u.user_metadata.nickname);
+        cb(nm||null);
+      }).catch(function(){cb(null);}); }catch(e){cb(null);} }
+    if(window.supabase&&window.supabase.createClient) return go();
+    var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.onload=go; s.onerror=function(){cb(null);}; document.head.appendChild(s);
+  }
+  function fill(){ if(!acctName) return; var n=document.getElementById('pf-name');
+    if(n && !n.value.trim()){ n.value=acctName; try{ n.dispatchEvent(new Event('input',{bubbles:true})); }catch(_){}}}
+  getName(function(nm){ acctName=nm; fill(); });
+  try{ new MutationObserver(fill).observe(document.documentElement,{childList:true,subtree:true}); }catch(_){}
+})();
+</script>
+
+<script src="err-cs.js" defer></script>
+</body></html>
