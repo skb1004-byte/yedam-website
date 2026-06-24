@@ -3235,7 +3235,7 @@ let state = {
     sjt: { answers: [], dims: {}, order: [], adaptive: false },
     conv: { turns: 0, dims: {}, riskHist: [], topics: {}, transcript: [] }
   },
-  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'ai-proxy.php', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
+  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'ai-proxy.php', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'7a81155d537a4d4d95a3eec0cbf7a3be', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
 };
 
 function load() {
@@ -4864,9 +4864,10 @@ async function hfTranscribe(file){
   }catch(e){ return null; }
 }
 var CAREERNET_PROXY='https://ushtyxnmqclzgdnynusm.supabase.co/functions/v1/careernet';
+var CAREERNET_KEY='7a81155d537a4d4d95a3eec0cbf7a3be'; // 커리어넷 공공데이터 OpenAPI 키 (기본값)
 function initCareernet(){
   var i=el('cfg-careernet'); if(!i) return;
-  i.value=(state.cfg&&state.cfg.careernet)||'';
+  i.value=(state.cfg&&state.cfg.careernet)||CAREERNET_KEY;
   var st=el('careernet-status'), box=el('careernet-result');
   var sv=el('careernet-save'); if(sv) sv.addEventListener('click',function(){
     state.cfg=Object.assign({},state.cfg,{careernet:(i.value||'').trim()}); save();
@@ -4895,7 +4896,7 @@ var CAREERNET_TESTS=[
   {q:9, name:'전공·학습 흥미검사(대학)', n:107}
 ];
 async function careernetLoadQuestions(q){
-  var out=document.getElementById('cn-qout'); var key=(state.cfg&&state.cfg.careernet)||'';
+  var out=document.getElementById('cn-qout'); var key=(state.cfg&&state.cfg.careernet)||CAREERNET_KEY;
   if(!key){ if(out) out.textContent='⚠ 먼저 커리어넷 API 키를 저장하세요.'; return; }
   if(out) out.textContent='🔌 q='+q+' 문항 불러오는 중…';
   try{
