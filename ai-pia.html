@@ -4937,7 +4937,11 @@ async function careernetRunTest(q, name){
     try{
       var r=await fetch(CAREERNET_PROXY+'?op=report&key='+encodeURIComponent(key),{method:'POST',headers:{'apikey':AK,'Content-Type':'application/json'},body:JSON.stringify(body)});
       var rj=await r.json();
-      if(rj&&rj.SUCC_YN==='Y'&&rj.RESULT&&rj.RESULT.url){ msg.innerHTML='✅ 완료 — <a href="'+rj.RESULT.url+'" target="_blank" rel="noopener" style="color:#2563eb;font-weight:700">커리어넷 결과 보기 ↗</a>'; }
+      if(rj&&rj.SUCC_YN==='Y'&&rj.RESULT&&rj.RESULT.url){
+        try{ var arr=JSON.parse(localStorage.getItem('pia_cn_results')||'[]'); arr=arr.filter(function(x){return String(x.q)!==String(q);}); arr.push({q:String(q),name:name,url:rj.RESULT.url,seq:rj.RESULT.inspctSeq,ts:Date.now()}); localStorage.setItem('pia_cn_results',JSON.stringify(arr)); }catch(_){}
+        msg.innerHTML='✅ 완료 — <a href="'+rj.RESULT.url+'" target="_blank" rel="noopener" style="color:#2563eb;font-weight:700">커리어넷 결과 보기 ↗</a> · 결과지에 카드로 추가됨';
+        try{ if(typeof renderExtendedSections==='function') renderExtendedSections(); }catch(_){}
+      }
       else { msg.style.color='#c0392b'; msg.textContent='⚠ 실패: '+String(rj.ERROR_REASON||JSON.stringify(rj)).slice(0,120); }
     }catch(e){ msg.style.color='#c0392b'; msg.textContent='⚠ 오류: '+e.message; }
   };
@@ -7153,6 +7157,23 @@ function renderSourcesAppendix() {
 }
 
 // 메인 확장 렌더링
+function renderCareernetCard(){
+  var arr=[]; try{ arr=JSON.parse(localStorage.getItem('pia_cn_results')||'[]'); }catch(_){}
+  if(!arr || !arr.length) return '';
+  var rows=arr.slice().sort(function(a,b){return b.ts-a.ts;}).map(function(x){
+    var d=''; try{ d=new Date(x.ts).toLocaleDateString('ko-KR'); }catch(_){}
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #eef2ff">'
+      +'<b style="min-width:150px;font-size:13px;color:#3730a3">'+x.name+'</b>'
+      +'<span style="color:#888;font-size:11px">'+d+'</span>'
+      +'<a href="'+x.url+'" target="_blank" rel="noopener" style="margin-left:auto;color:#2563eb;font-weight:700;font-size:12px">공식 결과 보기 ↗</a></div>';
+  }).join('');
+  var vr=''; try{ var rel=calcReliability(); if(rel&&rel.validity&&rel.validity.grade&&rel.validity.grade!=='-') vr=' · 응답 성실도 '+rel.validity.grade; }catch(_){}
+  return '<div class="bg-white rounded-2xl border border-indigo-200 p-4">'
+    +'<h3 class="font-semibold text-sm mb-1">🧭 커리어넷 공식 진로심리검사 (교차검증)</h3>'
+    +'<p class="text-xs text-slate-500 mb-3">교육부·한국직업능력연구원 <b>국가 표준화 검사</b> 결과입니다. AI PIA의 추정 결과를 공인 검사로 <b>교차 확인</b>해 정확도를 높입니다.'+vr+'</p>'
+    +rows
+    +'<p class="text-[11px] text-indigo-700 mt-2">✓ 공인검사 '+arr.length+'건 반영 — AI 추정과 표준화 점수를 함께 보면 해석이 더 정확합니다.</p></div>';
+}
 function renderExtendedSections() {
   const big5 = state.results.big5.scores;
   const via = state.results.via.scores;
@@ -7177,12 +7198,14 @@ function renderExtendedSections() {
       <h2 class="text-lg font-bold text-violet-900">심층 분석 — 추가 진단 결과</h2>
       <p class="text-xs text-violet-700 mt-1">기본 검사 결과를 바탕으로 다양한 이론을 적용한 종합 분석입니다.</p>
     </div>
+    ${(function(){ try{ var v=calcReliability().validity; if(v&&(v.grade==='낮음'||v.grade==='주의')){ var low=v.grade==='낮음'; return '<div class="rounded-2xl border p-3" style="background:'+(low?'#fdecec':'#fff7ed')+';border-color:'+(low?'#f5b5b5':'#fed7aa')+'"><b style="color:'+(low?'#b91c1c':'#9a3412')+'">⚠ 응답 성실도: '+v.grade+'</b><div style="font-size:12px;color:#7a3b1a;margin-top:3px">'+(v.reason||'')+' 더 정확한 결과를 위해 천천히 다시 검사하는 것을 권장합니다.</div></div>'; } }catch(_){} return ''; })()}
     ${(typeof selfIsAdult==='function'&&selfIsAdult())?'':renderInseong8(big5, via)}
     ${renderVARK(big5, via, riasec)}
     ${renderRecommendations(type.code)}
     ${renderRoadmap()}
     ${currentAudience === 'parent' ? renderParent14Day() : ''}
     ${currentAudience === 'teacher' ? renderTeacher12Wk() + renderCrisisSOP() : ''}
+    ${renderCareernetCard()}
     ${renderResultUsageGuide(currentAudience)}
     ${renderReliabilityStats()}
   `;
