@@ -54,6 +54,7 @@ main{flex:1;position:relative;background:var(--paper)}
     <button class="tab active" data-f="f-results" role="tab">📊 <span class="lab">검사 결과 관리</span><span class="lab short">결과</span></button>
     <button class="tab" data-f="f-biz" role="tab">🏢 <span class="lab">사업 · 웹 관리</span><span class="lab short">사업</span></button>
     <button class="tab" data-f="f-engine" role="tab">🤖 <span class="lab">AI 엔진</span><span class="lab short">엔진</span></button>
+    <button class="tab" data-f="f-errors" role="tab">🐞 <span class="lab">오류 · 문의</span><span class="lab short">오류</span></button>
   </div>
   <div class="sp"></div>
   <a class="home" href="index.html">← 홈으로</a>
@@ -62,8 +63,9 @@ main{flex:1;position:relative;background:var(--paper)}
   <iframe id="f-results" class="frame active" src="results-admin.html" title="검사 결과 관리" loading="eager" onload="paperUnify(this)"></iframe>
   <iframe id="f-biz" class="frame" src="admin.html" title="사업 및 웹사이트 관리" loading="lazy" onload="paperUnify(this)"></iframe>
   <iframe id="f-engine" class="frame" src="pia-engine.html" title="AI 엔진 설정" loading="lazy"></iframe>
+  <iframe id="f-errors" class="frame" src="errors-admin.html" title="프로그램 오류 및 문의 관리" loading="lazy"></iframe>
 </main>
-<div class="hint" id="hint">검사 결과 · 사업/웹 · AI 엔진을 한 곳에서 · 탭으로 전환 (v2)</div>
+<div class="hint" id="hint">한 곳에서 검사 결과 · 사업/웹 · AI 엔진 · 프로그램 오류를 함께 운영합니다 · 탭으로 전환</div>
 <script>
   function paperUnify(ifr){
     try{

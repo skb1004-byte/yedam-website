@@ -7189,6 +7189,24 @@ function calcCI(score, alpha){
 // 정규분포 모델 기반 추정 백분위 (z=(점수-50)/15) — 임의 예시값 대신 원리 있는 추정
 function _erf(x){ var s=x<0?-1:1; x=Math.abs(x); var t=1/(1+0.3275911*x); var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x); return s*y; }
 function pctFromScore(s){ var z=(s-50)/15; var cdf=0.5*(1+_erf(z/Math.SQRT2)); var p=Math.round(cdf*100); return Math.max(1,Math.min(99,p)); }
+// 실제 응시 코호트 백분위 (Supabase results 집계, n>=30일 때만 사용)
+var _piaRealNorms=null, _piaNormsTried=false;
+function piaLoadRealNorms(){
+  try{
+    var R=state.results, sc={};
+    function set(k,v){ if(typeof v==='number'&&isFinite(v)) sc[k]=Math.round(v); }
+    if(R.big5.scores){ set('big5.E',R.big5.scores.E); set('big5.A',R.big5.scores.A); set('big5.C',R.big5.scores.C); set('big5.N',R.big5.scores.N); set('big5.O',R.big5.scores.O); }
+    if(R.grit.scores) set('grit.overall',R.grit.scores.overall);
+    if(R.riasec.scores){ ['R','I','A','S','E','C'].forEach(function(k){ set('riasec.'+k, R.riasec.scores[k]); }); }
+    if(!Object.keys(sc).length) return;
+    if(typeof _piaEnsureSB!=='function') return;
+    _piaEnsureSB().then(function(sb){ if(!sb||!sb.rpc) return;
+      sb.rpc('pia_percentile',{scores:sc}).then(function(r){
+        if(r&&!r.error&&r.data){ _piaRealNorms=r.data; if(_piaRealNorms.n>=30){ try{ renderExtendedSections(); }catch(e){} } }
+      }).catch(function(){});
+    });
+  }catch(e){}
+}
 // 응답편향: 묵종(예-편향)·극단·중앙·부정 응답 스타일 탐지 (1~5 리커트 풀)
 function calcResponseStyle(){
   try{
@@ -7254,9 +7272,16 @@ function renderAccuracyPanel(){
     if(!checks.length) rows='<div style="font-size:12px;color:#888">교차검증할 검사(Big5·Grit·RIASEC·VIA·정서)를 더 완료하면 일관성 점검이 표시됩니다.</div>';
     // 신뢰구간(95% CI) 표 — 핵심 점수
     var ciItems=[];
-    if(b){ ciItems.push(['외향성',b.E,'big5'],['성실성',b.C,'big5'],['정서안정',100-b.N,'big5'],['개방성',b.O,'big5']); }
-    if(g&&typeof g.overall==='number') ciItems.push(['끈기(Grit)',g.overall,'grit']);
-    var ciRows=ciItems.map(function(it){ var ci=calcCI(it[1],REL_ALPHA[it[2]]); var pc=pctFromScore(it[1]); var top=100-pc; return '<div style="display:flex;gap:8px;font-size:12px;padding:2px 0;flex-wrap:wrap"><span style="flex:1;min-width:70px">'+it[0]+'</span><b>'+Math.round(it[1])+'점</b><span style="color:#64748b">95% 구간 '+ci.lo+'~'+ci.hi+' (±'+ci.sem+')</span><span style="color:#7c3aed">추정 '+(top<=50?'상위 '+top:'하위 '+pc)+'%</span></div>'; }).join('');
+    if(b){ ciItems.push(['외향성',b.E,'big5','big5.E',false],['성실성',b.C,'big5','big5.C',false],['정서안정',100-b.N,'big5','big5.N',true],['개방성',b.O,'big5','big5.O',false]); }
+    if(g&&typeof g.overall==='number') ciItems.push(['끈기(Grit)',g.overall,'grit','grit.overall',false]);
+    var realOn=!!(_piaRealNorms&&_piaRealNorms.n>=30&&_piaRealNorms.pct);
+    var ciRows=ciItems.map(function(it){
+      var ci=calcCI(it[1],REL_ALPHA[it[2]]);
+      var real=null;
+      if(realOn&&_piaRealNorms.pct[it[3]]!=null){ var rp=_piaRealNorms.pct[it[3]]; real=it[4]?(100-rp):rp; }
+      var pc=(real!=null?real:pctFromScore(it[1])); var top=100-pc;
+      var src=(real!=null?'실제 '+_piaRealNorms.n+'명':'정규분포 가정');
+      return '<div style="display:flex;gap:8px;font-size:12px;padding:2px 0;flex-wrap:wrap"><span style="flex:1;min-width:70px">'+it[0]+'</span><b>'+Math.round(it[1])+'점</b><span style="color:#64748b">95% 구간 '+ci.lo+'~'+ci.hi+' (±'+ci.sem+')</span><span style="color:'+(real!=null?'#15803d':'#7c3aed')+'">추정 '+(top<=50?'상위 '+top:'하위 '+pc)+'% <span style="color:#94a3b8">('+src+')</span></span></div>'; }).join('');
     // 응답스타일 배지 색
     var rsColor=rs.grade==='양호'?'bg-emerald-100 text-emerald-800':rs.grade==='경미'?'bg-amber-100 text-amber-800':rs.grade==='주의'?'bg-rose-100 text-rose-800':'bg-slate-100 text-slate-500';
     return '<div class="bg-white rounded-2xl border border-slate-200 p-4">'
@@ -7331,6 +7356,7 @@ function renderExtendedSections() {
     ${renderResultUsageGuide(currentAudience)}
     ${renderReliabilityStats()}
   `;
+  if(!_piaNormsTried){ _piaNormsTried=true; try{ piaLoadRealNorms(); }catch(e){} }
 }
 
 // renderDetailedResult 추가 확장

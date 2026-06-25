@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>프로그램 오류 · 문의 관리</title>
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--ok:#788c5d;--red:#b91c1c;--sky:#6a9bcc;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--paper);color:var(--ink);padding:18px;font-size:14px}
+h1{font-size:18px;font-weight:800;margin-bottom:2px}
+.sub{color:var(--ink2);font-size:12.5px;margin-bottom:14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+button{font:inherit;font-weight:700;border:0;border-radius:9px;padding:9px 14px;cursor:pointer;background:var(--ink);color:#fff}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+button:hover{opacity:.92}
+input[type=text]{font:inherit;border:1px solid var(--line);border-radius:9px;padding:8px 11px;min-width:180px}
+.pill{display:inline-block;background:var(--paper2);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{background:var(--paper2);color:var(--ink2);border-radius:999px;padding:8px 16px}
+.tab.on{background:var(--ink);color:#fff}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:12.5px}
+th{background:var(--paper2);font-weight:800;position:sticky;top:0}
+tr:hover td{background:#fcfbf7}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px}
+.loc a{color:var(--rust2);font-weight:700;text-decoration:none}
+.loc a:hover{text-decoration:underline}
+.msg{max-width:340px}
+.code{font-weight:800;letter-spacing:.5px;color:var(--rust2)}
+details summary{cursor:pointer;color:var(--sky);font-weight:700;font-size:11.5px}
+pre{white-space:pre-wrap;background:#1e1e1d;color:#e8e6df;border-radius:8px;padding:10px;margin-top:6px;font-size:11px;overflow:auto;max-height:240px}
+.empty{padding:26px;text-align:center;color:var(--ink2)}
+.note{font-size:12px;color:var(--ink2);margin-top:8px}
+.err{color:var(--red);font-weight:700}
+.auth{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center}
+.hide{display:none}
+</style>
+</head>
+<body>
+<h1>🐞 프로그램 오류 · 문의 관리</h1>
+<div class="sub">사용자 화면에서 발생한 JS 오류(파일·줄·스택 포함)와 CS 문의를 실시간으로 확인합니다.</div>
+
+<div id="auth" class="auth hide">
+  <p style="margin-bottom:14px">관리자 계정으로 로그인해야 오류 로그를 볼 수 있습니다.</p>
+  <button id="login">Google로 관리자 로그인</button>
+  <div class="note" id="authmsg"></div>
+</div>
+
+<div id="app" class="hide">
+  <div class="bar">
+    <button id="refresh">🔄 새로고침</button>
+    <input type="text" id="filter" placeholder="검색 (메시지·페이지·코드·이메일)">
+    <span class="pill" id="meta">—</span>
+    <span class="sp" style="flex:1"></span>
+    <span class="note" id="who"></span>
+  </div>
+  <div class="tabs">
+    <button class="tab on" data-v="errors">프로그램 오류 <span id="c-err"></span></button>
+    <button class="tab" data-v="inq">CS 문의 <span id="c-inq"></span></button>
+  </div>
+  <div class="card" id="view-errors">
+    <div class="empty" id="err-empty">불러오는 중…</div>
+    <table id="err-table" class="hide"><thead><tr>
+      <th>시각</th><th>코드</th><th>페이지</th><th>단계</th><th>메시지</th><th>위치(파일:줄:열)</th><th>사용자</th><th>스택</th>
+    </tr></thead><tbody id="err-body"></tbody></table>
+  </div>
+  <div class="card hide" id="view-inq">
+    <div class="empty" id="inq-empty">불러오는 중…</div>
+    <table id="inq-table" class="hide"><thead><tr>
+      <th>시각</th><th>이름</th><th>연락처</th><th>문의 내용</th><th>오류코드</th><th>페이지</th><th>사용자</th>
+    </tr></thead><tbody id="inq-body"></tbody></table>
+  </div>
+  <div class="note" id="rpcnote"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SB_URL='https://ushtyxnmqclzgdnynusm.supabase.co';
+var SB_KEY='sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
+var REPO='https://github.com/skb1004-byte/yedam-website/blob/main/';
+var sb=window.supabase.createClient(SB_URL,SB_KEY);
+var _errors=[], _inq=[], _view='errors';
+
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function fmt(t){ try{ return new Date(t).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return t||''; } }
+function fileOf(src){ if(!src) return ''; try{ var u=src.split('?')[0].split('#')[0]; return u.split('/').pop(); }catch(e){ return src; } }
+function locCell(o){
+  var f=fileOf(o.source); if(!f) return '<span class="mono">—</span>';
+  var ln=o.lineno?(':'+o.lineno):''; var cl=o.colno?(':'+o.colno):'';
+  var url=REPO+f+(o.lineno?('#L'+o.lineno):'');
+  return '<span class="loc mono"><a href="'+url+'" target="_blank" rel="noopener">'+esc(f)+ln+cl+'</a></span>';
+}
+
+function show(el,on){ document.getElementById(el).classList[on?'remove':'add']('hide'); }
+
+async function checkAuth(){
+  var r=await sb.auth.getSession();
+  var ses=r&&r.data&&r.data.session;
+  if(ses){ show('auth',false); show('app',true); document.getElementById('who').textContent='로그인: '+(ses.user.email||''); load(); }
+  else { show('auth',true); show('app',false); }
+}
+document.getElementById('login').onclick=function(){
+  sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}});
+};
+
+async function load(){
+  document.getElementById('err-empty').textContent='불러오는 중…';
+  var e=await sb.rpc('pia_recent_errors',{lim:300});
+  var q=await sb.rpc('pia_recent_inquiries',{lim:300});
+  var note=document.getElementById('rpcnote'); note.innerHTML='';
+  if(e.error){
+    document.getElementById('err-empty').innerHTML='<span class="err">읽기 함수가 아직 없습니다.</span><div class="note">Supabase SQL Editor에서 <b>pia_recent_errors</b> 함수를 생성하세요 (작업장 20260625_관리자_에러뷰어_RPC.sql).</div>';
+    _errors=[];
+  } else { _errors=e.data||[]; }
+  _inq = q.error ? [] : (q.data||[]);
+  document.getElementById('c-err').textContent='('+_errors.length+')';
+  document.getElementById('c-inq').textContent='('+_inq.length+')';
+  render();
+}
+
+function render(){
+  var kw=(document.getElementById('filter').value||'').toLowerCase();
+  // errors
+  var er=_errors.filter(function(o){ return !kw || ((o.message||'')+(o.page||'')+(o.code||'')+(o.user_email||'')+(o.source||'')).toLowerCase().indexOf(kw)>=0; });
+  var eb=document.getElementById('err-body'); eb.innerHTML='';
+  if(!er.length){ show('err-table',false); document.getElementById('err-empty').classList.remove('hide'); if(_errors.length) document.getElementById('err-empty').textContent='검색 결과 없음'; else if(!document.getElementById('err-empty').querySelector('.err')) document.getElementById('err-empty').textContent='기록된 오류가 없습니다 ✅'; }
+  else {
+    document.getElementById('err-empty').classList.add('hide'); show('err-table',true);
+    er.forEach(function(o){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td class="mono">'+fmt(o.created_at)+'</td>'
+        +'<td class="code">'+esc(o.code||'')+'</td>'
+        +'<td class="mono">'+esc(o.page||'')+'</td>'
+        +'<td>'+esc(o.step||'')+'</td>'
+        +'<td class="msg">'+esc(o.message||'')+'</td>'
+        +'<td>'+locCell(o)+'</td>'
+        +'<td>'+esc(o.user_email||(o.user_id?'(회원)':'비로그인'))+'</td>'
+        +'<td>'+(o.stack?('<details><summary>보기</summary><pre>'+esc(o.stack)+'</pre></details>'):'—')+'</td>';
+      eb.appendChild(tr);
+    });
+  }
+  // inquiries
+  var qr=_inq.filter(function(o){ return !kw || ((o.message||'')+(o.name||'')+(o.contact||'')+(o.error_code||'')+(o.page||'')).toLowerCase().indexOf(kw)>=0; });
+  var qb=document.getElementById('inq-body'); qb.innerHTML='';
+  if(!qr.length){ show('inq-table',false); document.getElementById('inq-empty').classList.remove('hide'); document.getElementById('inq-empty').textContent=_inq.length?'검색 결과 없음':'접수된 문의가 없습니다.'; }
+  else {
+    document.getElementById('inq-empty').classList.add('hide'); show('inq-table',true);
+    qr.forEach(function(o){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td class="mono">'+fmt(o.created_at)+'</td>'
+        +'<td>'+esc(o.name||'')+'</td><td>'+esc(o.contact||'')+'</td>'
+        +'<td class="msg">'+esc(o.message||'')+'</td>'
+        +'<td class="code">'+esc(o.error_code||'')+'</td>'
+        +'<td class="mono">'+esc(o.page||'')+'</td>'
+        +'<td>'+esc(o.user_email||'')+'</td>';
+      qb.appendChild(tr);
+    });
+  }
+  document.getElementById('meta').textContent='오류 '+_errors.length+' · 문의 '+_inq.length;
+}
+
+document.getElementById('refresh').onclick=load;
+document.getElementById('filter').oninput=render;
+document.querySelectorAll('.tab').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')}); t.classList.add('on');
+    _view=t.dataset.v;
+    show('view-errors',_view==='errors'); show('view-inq',_view==='inq');
+  };
+});
+checkAuth();
+</script>
+</body>
+</html>
