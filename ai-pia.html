@@ -7177,34 +7177,101 @@ function renderSourcesAppendix() {
 }
 
 // 메인 확장 렌더링
+// ===== 정확도 고도화 헬퍼 =====
+// 척도별 내적합치도(α) — 공개 규준 근사값. SEM = SD·√(1-α), SD는 0~100 척도에서 15 가정.
+var REL_ALPHA = { big5:0.84, grit:0.82, riasec:0.86, via:0.78, learn:0.80, mi:0.80 };
+function calcCI(score, alpha){
+  var sd=15, a=(typeof alpha==='number'?alpha:0.80);
+  var sem=sd*Math.sqrt(Math.max(0,1-a));
+  var ci=1.96*sem; // 95% 신뢰구간
+  return { lo:Math.max(0,Math.round(score-ci)), hi:Math.min(100,Math.round(score+ci)), sem:Math.round(sem*10)/10 };
+}
+// 응답편향: 묵종(예-편향)·극단·중앙·부정 응답 스타일 탐지 (1~5 리커트 풀)
+function calcResponseStyle(){
+  try{
+    var R=state.results, pools=['big5','grit','learn','mi','via'], vals=[];
+    pools.forEach(function(k){ var a=(R[k]&&R[k].answers)||[]; a.forEach(function(x){ if(x>=1&&x<=5) vals.push(x); }); });
+    var n=vals.length; if(n<20) return { grade:'-', n:n };
+    function p(f){ return vals.filter(f).length/n; }
+    var ext=p(function(v){return v===1||v===5;});
+    var mid=p(function(v){return v===3;});
+    var acq=p(function(v){return v>=4;});
+    var dis=p(function(v){return v<=2;});
+    var flags=[];
+    if(acq>0.78) flags.push('긍정편향');
+    if(dis>0.78) flags.push('부정편향');
+    if(ext>0.65) flags.push('극단응답');
+    if(mid>0.55) flags.push('중앙편중');
+    var grade=flags.length>=2?'주의':flags.length===1?'경미':'양호';
+    return { grade:grade, n:n, ext:ext, mid:mid, acq:acq, dis:dis, flags:flags };
+  }catch(e){ return { grade:'-' }; }
+}
+// 정서안정 지수(0~100) — 정서검사로 신경증 교차검증용
+function emotionStabilityIndex(){
+  try{
+    var R=state.results, parts=[];
+    if(R.cesd.scores&&typeof R.cesd.scores.total==='number') parts.push(100-Math.min(100,R.cesd.scores.total/30*100));
+    if(R.gad.scores&&typeof R.gad.scores.total==='number') parts.push(100-Math.min(100,R.gad.scores.total/21*100));
+    if(R.phqa.scores&&typeof R.phqa.scores.total==='number') parts.push(100-Math.min(100,R.phqa.scores.total/27*100));
+    if(R.who5.scores&&typeof R.who5.scores.pct==='number') parts.push(R.who5.scores.pct);
+    if(R.rses.scores&&typeof R.rses.scores.total==='number') parts.push(Math.max(0,Math.min(100,(R.rses.scores.total-10)/30*100)));
+    if(!parts.length) return null;
+    return Math.round(parts.reduce(function(a,b){return a+b;},0)/parts.length);
+  }catch(e){ return null; }
+}
 function renderAccuracyPanel(){
   try{
     var R=state.results;
     var b=R.big5.scores, g=R.grit.scores, ri=R.riasec.scores, vi=R.via.scores;
     function band(d){ return d<15?{t:'일치',c:'#15803d'}:d<30?{t:'보통',c:'#b45309'}:{t:'주의',c:'#b91c1c'}; }
+    function add(checks,name,v1,v2){ if(typeof v1==='number'&&typeof v2==='number'){ var d=Math.abs(v1-v2); var x=band(d); checks.push({name:name,d:d,t:x.t,c:x.c}); } }
     var checks=[];
-    if(b&&g&&typeof b.C==='number'&&typeof g.overall==='number'){ var d=Math.abs(b.C-g.overall); var x=band(d); checks.push({name:'성실성 ↔ 끈기(Grit)', d:d, t:x.t, c:x.c}); }
-    if(b&&ri&&typeof b.E==='number'&&typeof ri.E==='number'){ var rx=(ri.E+ri.S)/2; var d2=Math.abs(b.E-rx); var x2=band(d2); checks.push({name:'외향성 ↔ 진취·사회(RIASEC)', d:d2, t:x2.t, c:x2.c}); }
-    if(g&&vi&&vi['끈기']!=null&&typeof g.overall==='number'){ var d3=Math.abs(g.overall-vi['끈기']); var x3=band(d3); checks.push({name:'Grit ↔ VIA 끈기 강점', d:d3, t:x3.t, c:x3.c}); }
+    if(b&&g) add(checks,'성실성 ↔ 끈기(Grit)', b.C, g.overall);
+    if(b&&ri) add(checks,'외향성 ↔ 진취·사회(RIASEC)', b.E, (ri.E+ri.S)/2);
+    if(g&&vi&&vi['끈기']!=null) add(checks,'Grit ↔ VIA 끈기 강점', g.overall, vi['끈기']);
+    if(b&&ri) add(checks,'개방성 ↔ 예술·탐구(RIASEC)', b.O, (ri.A+ri.I)/2);
+    if(b&&ri) add(checks,'친화성 ↔ 사회형(RIASEC)', b.A, ri.S);
+    var esi=emotionStabilityIndex();
+    if(b&&esi!=null) add(checks,'정서안정 ↔ 정서검사(우울·불안 등)', 100-b.N, esi);
     var core=[R.conv.turns>=8,!!b,!!ri,!!vi,!!g]; var nDone=core.filter(Boolean).length;
     var vgrade='-'; try{ var rel=calcReliability(); if(rel&&rel.validity) vgrade=rel.validity.grade; }catch(_){}
+    var rs=calcResponseStyle();
     var cn=0; try{ cn=(JSON.parse(localStorage.getItem('pia_cn_results')||'[]')).length; }catch(_){}
     var consistOK=checks.filter(function(c){return c.t==='일치';}).length;
-    var score=Math.min(nDone,5)+(vgrade==='양호'?2:vgrade==='주의'?1:0)+consistOK+(cn>0?2:0);
-    var grade=score>=9?'매우 높음':score>=6?'높음':score>=4?'보통':'보강 필요';
-    var rows=checks.map(function(c){ return '<div style="display:flex;gap:8px;font-size:12px;padding:3px 0"><span style="min-width:200px">'+c.name+'</span><span style="color:'+c.c+';font-weight:700">'+c.t+'</span><span style="color:#999">차이 '+Math.round(c.d)+'점</span></div>'; }).join('');
-    if(!checks.length) rows='<div style="font-size:12px;color:#888">교차검증할 검사(Big5·Grit·RIASEC·VIA)를 더 완료하면 일관성 점검이 표시됩니다.</div>';
+    // 0~100 종합 정확도 (데이터30 + 성실도25 + 응답스타일15 + 일관성20 + 공식검사10)
+    var sData=Math.round(Math.min(nDone,5)/5*30);
+    var sVal=(vgrade==='양호'?25:vgrade==='주의'?12:vgrade==='낮음'?0:10);
+    var sStyle=(rs.grade==='양호'?15:rs.grade==='경미'?8:rs.grade==='주의'?0:8);
+    var sCons=checks.length?Math.round(consistOK/checks.length*20):10;
+    var sCn=(cn>0?10:0);
+    var total=sData+sVal+sStyle+sCons+sCn;
+    var grade=total>=80?'매우 높음':total>=65?'높음':total>=50?'보통':'보강 필요';
+    var gColor=total>=80?'#15803d':total>=65?'#0369a1':total>=50?'#b45309':'#b91c1c';
+    var rows=checks.map(function(c){ return '<div style="display:flex;gap:8px;font-size:12px;padding:3px 0;align-items:center"><span style="flex:1;min-width:180px">'+c.name+'</span><span style="color:'+c.c+';font-weight:700;min-width:40px">'+c.t+'</span><span style="color:#999">차이 '+Math.round(c.d)+'점</span></div>'; }).join('');
+    if(!checks.length) rows='<div style="font-size:12px;color:#888">교차검증할 검사(Big5·Grit·RIASEC·VIA·정서)를 더 완료하면 일관성 점검이 표시됩니다.</div>';
+    // 신뢰구간(95% CI) 표 — 핵심 점수
+    var ciItems=[];
+    if(b){ ciItems.push(['외향성',b.E,'big5'],['성실성',b.C,'big5'],['정서안정',100-b.N,'big5'],['개방성',b.O,'big5']); }
+    if(g&&typeof g.overall==='number') ciItems.push(['끈기(Grit)',g.overall,'grit']);
+    var ciRows=ciItems.map(function(it){ var ci=calcCI(it[1],REL_ALPHA[it[2]]); return '<div style="display:flex;gap:8px;font-size:12px;padding:2px 0"><span style="flex:1">'+it[0]+'</span><b>'+Math.round(it[1])+'점</b><span style="color:#64748b">95% 구간 '+ci.lo+'~'+ci.hi+' (오차 ±'+ci.sem+')</span></div>'; }).join('');
+    // 응답스타일 배지 색
+    var rsColor=rs.grade==='양호'?'bg-emerald-100 text-emerald-800':rs.grade==='경미'?'bg-amber-100 text-amber-800':rs.grade==='주의'?'bg-rose-100 text-rose-800':'bg-slate-100 text-slate-500';
     return '<div class="bg-white rounded-2xl border border-slate-200 p-4">'
-      +'<h3 class="font-semibold text-sm mb-1">🎯 결과 정확도 점검</h3>'
-      +'<p class="text-xs text-slate-500 mb-3">여러 검사 결과의 일관성·응답 성실도·데이터 충분성을 종합한 신뢰 지표입니다. 모든 점수는 측정오차(±약 5~8점)를 포함하니 <b>범위</b>로 해석하세요.</p>'
-      +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'
-      +'<span class="pill bg-indigo-100 text-indigo-800 font-bold">종합 정확도: '+grade+'</span>'
+      +'<h3 class="font-semibold text-sm mb-1">🎯 결과 정확도 점검 (고도화)</h3>'
+      +'<p class="text-xs text-slate-500 mb-3">데이터 충분성·응답 성실도·응답편향·교차 일관성·공식검사를 종합한 신뢰 지표입니다. 모든 점수는 측정오차를 포함하니 아래 <b>신뢰구간(범위)</b>으로 해석하세요.</p>'
+      +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">'
+      +'<div style="font-size:30px;font-weight:800;color:'+gColor+';line-height:1">'+total+'<span style="font-size:14px;color:#94a3b8">/100</span></div>'
+      +'<div><span class="pill font-bold" style="background:'+gColor+'1a;color:'+gColor+'">종합 정확도: '+grade+'</span></div></div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'
       +'<span class="pill bg-slate-100 text-slate-700">데이터 충분성 '+nDone+'/5</span>'
       +'<span class="pill bg-slate-100 text-slate-700">응답 성실도 '+vgrade+'</span>'
+      +'<span class="pill '+rsColor+'">응답편향 '+rs.grade+(rs.flags&&rs.flags.length?'('+rs.flags.join('·')+')':'')+'</span>'
       +'<span class="pill '+(cn>0?'bg-emerald-100 text-emerald-800':'bg-slate-100 text-slate-500')+'">공식검사 교차검증 '+(cn>0?cn+'건 ✓':'없음')+'</span>'
       +'</div>'
-      +'<div style="border-top:1px solid #eee;padding-top:6px"><div style="font-size:11px;color:#666;margin-bottom:4px">교차 일관성 — 서로 관련된 검사끼리 결과가 일치하는지</div>'+rows+'</div>'
+      +(ciRows?'<div style="border-top:1px solid #eee;padding-top:6px;margin-bottom:6px"><div style="font-size:11px;color:#666;margin-bottom:4px">📏 신뢰구간(95%) — 점수는 한 점이 아니라 이 범위 안의 값입니다</div>'+ciRows+'</div>':'')
+      +'<div style="border-top:1px solid #eee;padding-top:6px"><div style="font-size:11px;color:#666;margin-bottom:4px">🔗 교차 일관성 — 서로 관련된 검사끼리 결과가 일치하는지 ('+consistOK+'/'+checks.length+' 일치)</div>'+rows+'</div>'
       +((checks.length&&consistOK<checks.length)?'<p class="text-[11px] text-amber-700 mt-2">⚠ 일부 검사 간 결과 차이가 있습니다. 천천히 다시 응답하면 정확도가 올라갑니다.</p>':(checks.length?'<p class="text-[11px] text-emerald-700 mt-2">✓ 관련 검사들이 서로 일치해 결과 신뢰도가 높습니다.</p>':''))
+      +((rs.flags&&rs.flags.length)?'<p class="text-[11px] text-rose-700 mt-1">⚠ 응답 패턴('+rs.flags.join('·')+')이 감지돼 일부 점수가 실제보다 높거나 낮게 나타날 수 있습니다.</p>':'')
       +'</div>';
   }catch(e){ return ''; }
 }
