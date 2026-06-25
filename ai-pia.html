@@ -7177,6 +7177,37 @@ function renderSourcesAppendix() {
 }
 
 // 메인 확장 렌더링
+function renderAccuracyPanel(){
+  try{
+    var R=state.results;
+    var b=R.big5.scores, g=R.grit.scores, ri=R.riasec.scores, vi=R.via.scores;
+    function band(d){ return d<15?{t:'일치',c:'#15803d'}:d<30?{t:'보통',c:'#b45309'}:{t:'주의',c:'#b91c1c'}; }
+    var checks=[];
+    if(b&&g&&typeof b.C==='number'&&typeof g.overall==='number'){ var d=Math.abs(b.C-g.overall); var x=band(d); checks.push({name:'성실성 ↔ 끈기(Grit)', d:d, t:x.t, c:x.c}); }
+    if(b&&ri&&typeof b.E==='number'&&typeof ri.E==='number'){ var rx=(ri.E+ri.S)/2; var d2=Math.abs(b.E-rx); var x2=band(d2); checks.push({name:'외향성 ↔ 진취·사회(RIASEC)', d:d2, t:x2.t, c:x2.c}); }
+    if(g&&vi&&vi['끈기']!=null&&typeof g.overall==='number'){ var d3=Math.abs(g.overall-vi['끈기']); var x3=band(d3); checks.push({name:'Grit ↔ VIA 끈기 강점', d:d3, t:x3.t, c:x3.c}); }
+    var core=[R.conv.turns>=8,!!b,!!ri,!!vi,!!g]; var nDone=core.filter(Boolean).length;
+    var vgrade='-'; try{ var rel=calcReliability(); if(rel&&rel.validity) vgrade=rel.validity.grade; }catch(_){}
+    var cn=0; try{ cn=(JSON.parse(localStorage.getItem('pia_cn_results')||'[]')).length; }catch(_){}
+    var consistOK=checks.filter(function(c){return c.t==='일치';}).length;
+    var score=Math.min(nDone,5)+(vgrade==='양호'?2:vgrade==='주의'?1:0)+consistOK+(cn>0?2:0);
+    var grade=score>=9?'매우 높음':score>=6?'높음':score>=4?'보통':'보강 필요';
+    var rows=checks.map(function(c){ return '<div style="display:flex;gap:8px;font-size:12px;padding:3px 0"><span style="min-width:200px">'+c.name+'</span><span style="color:'+c.c+';font-weight:700">'+c.t+'</span><span style="color:#999">차이 '+Math.round(c.d)+'점</span></div>'; }).join('');
+    if(!checks.length) rows='<div style="font-size:12px;color:#888">교차검증할 검사(Big5·Grit·RIASEC·VIA)를 더 완료하면 일관성 점검이 표시됩니다.</div>';
+    return '<div class="bg-white rounded-2xl border border-slate-200 p-4">'
+      +'<h3 class="font-semibold text-sm mb-1">🎯 결과 정확도 점검</h3>'
+      +'<p class="text-xs text-slate-500 mb-3">여러 검사 결과의 일관성·응답 성실도·데이터 충분성을 종합한 신뢰 지표입니다. 모든 점수는 측정오차(±약 5~8점)를 포함하니 <b>범위</b>로 해석하세요.</p>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'
+      +'<span class="pill bg-indigo-100 text-indigo-800 font-bold">종합 정확도: '+grade+'</span>'
+      +'<span class="pill bg-slate-100 text-slate-700">데이터 충분성 '+nDone+'/5</span>'
+      +'<span class="pill bg-slate-100 text-slate-700">응답 성실도 '+vgrade+'</span>'
+      +'<span class="pill '+(cn>0?'bg-emerald-100 text-emerald-800':'bg-slate-100 text-slate-500')+'">공식검사 교차검증 '+(cn>0?cn+'건 ✓':'없음')+'</span>'
+      +'</div>'
+      +'<div style="border-top:1px solid #eee;padding-top:6px"><div style="font-size:11px;color:#666;margin-bottom:4px">교차 일관성 — 서로 관련된 검사끼리 결과가 일치하는지</div>'+rows+'</div>'
+      +((checks.length&&consistOK<checks.length)?'<p class="text-[11px] text-amber-700 mt-2">⚠ 일부 검사 간 결과 차이가 있습니다. 천천히 다시 응답하면 정확도가 올라갑니다.</p>':(checks.length?'<p class="text-[11px] text-emerald-700 mt-2">✓ 관련 검사들이 서로 일치해 결과 신뢰도가 높습니다.</p>':''))
+      +'</div>';
+  }catch(e){ return ''; }
+}
 function renderCareernetCard(){
   var arr=[]; try{ arr=JSON.parse(localStorage.getItem('pia_cn_results')||'[]'); }catch(_){}
   if(!arr || !arr.length) return '';
@@ -7225,6 +7256,7 @@ function renderExtendedSections() {
     ${renderRoadmap()}
     ${currentAudience === 'parent' ? renderParent14Day() : ''}
     ${currentAudience === 'teacher' ? renderTeacher12Wk() + renderCrisisSOP() : ''}
+    ${renderAccuracyPanel()}
     ${renderCareernetCard()}
     ${renderResultUsageGuide(currentAudience)}
     ${renderReliabilityStats()}
