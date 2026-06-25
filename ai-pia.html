@@ -2941,7 +2941,19 @@ const FREE_API_CATALOG = [
     { name:'Brief Resilience Scale(BRS)', url:'https://ogg.osu.edu/media/documents/MB%20Stream/Brief%20Resilience%20Scale.pdf', limit:'무료(연구·교육)', models:'회복탄력성 6문항', notes:'Smith 2008 · 출처표기' },
     { name:'일반적 자기효능감(GSE)', url:'https://userpage.fu-berlin.de/~health/faq_gse.pdf', limit:'무료(연구·교육)', models:'자기효능감 10문항', notes:'Schwarzer & Jerusalem' },
     { name:'커리어넷 진로심리검사(6종)', url:'https://www.career.go.kr/cnet/front/examen/examenMain.do', limit:'무료(정부)', models:'직업흥미·적성·가치관·진로성숙도', notes:'무상 응시·해석(KRIVET)' },
-    { name:'워크넷 청소년 직업심리검사', url:'https://www.work.go.kr/consltJobCarpa/jobPsyExam/jobPsyExamIntro.do', limit:'무료(정부)', models:'흥미·적성·가치관·진로발달', notes:'무상 응시·해석(고용정보원)' }
+    { name:'워크넷 청소년 직업심리검사', url:'https://www.work.go.kr/consltJobCarpa/jobPsyExam/jobPsyExamIntro.do', limit:'무료(정부)', models:'흥미·적성·가치관·진로발달', notes:'무상 응시·해석(고용정보원)' },
+    { name:'삶의 만족도 척도(SWLS)', url:'https://eddiener.com/scales/7', limit:'무료(연구·교육)', models:'삶의 만족 5문항(7점)', notes:'Diener 1985 · 공개 문항 자체구현 · 출처표기' },
+    { name:'긍·부정 정서 척도(PANAS)', url:'https://psytests.org/emotional/panasen.html', limit:'무료(공개 문항)', models:'긍정·부정 정서 각 10문항', notes:'Watson 1988 · 공개 · 자체구현' },
+    { name:'청소년 자기자비 척도(SCS-Y)', url:'https://self-compassion.org/self-compassion-scales-for-researchers/', limit:'무료(연구·교육)', models:'청소년 자기자비 17문항', notes:'Neff · 공개·다국어 · 출처표기' },
+    { name:'강점·난점 설문(SDQ)', url:'https://www.sdqinfo.org/', limit:'무료(비영리 다운로드)', models:'청소년 정서·행동 25문항(5영역)', notes:'Goodman · 무료 다운로드·자체채점' },
+    { name:'워릭-에든버러 정신웰빙(WEMWBS)', url:'https://warwick.ac.uk/fac/sci/med/research/platform/wemwbs/', limit:'무료(등록)', models:'정신적 웰빙 14문항(청소년 검증)', notes:'등록 후 무료 사용' },
+    { name:'UCLA 외로움 척도', url:'https://peplau.psych.ucla.edu/loneliness-scale/', limit:'퍼블릭 도메인', models:'외로움 20문항', notes:'Russell 1996 · 공개 · 출처표기' },
+    { name:'학습동기·전략(MSLQ)', url:'https://eric.ed.gov/?id=ED338122', limit:'퍼블릭 도메인', models:'학습동기·전략 81문항', notes:'Pintrich · 공개·자체구현' }
+  ]},
+  { category:'🌎 해외 진로·학습 오픈 검사·API (웹검증 2026)', items:[
+    { name:'O*NET Interest Profiler API', url:'https://services.onetcenter.org/ip', limit:'무료(O*NET 라이선스·개발자 등록)', models:'RIASEC 30/60문항 + 채점 REST API', notes:'미 노동부 · 공식 위젯/API · 영문' },
+    { name:'O*NET Interest Profiler(자료)', url:'https://www.onetcenter.org/IP.html', limit:'퍼블릭 도메인(문항 공개)', models:'흥미 60문항 + 채점 매뉴얼', notes:'공개 문항·자체구현 가능 · 영문' },
+    { name:'CareerOneStop Web API', url:'https://www.careeronestop.org/Developers/WebAPI/web-api.aspx', limit:'무료(USDOL 오픈데이터·키)', models:'직업·임금·스킬·자격 데이터', notes:'royalty-free · 키 등록 · 영문' }
   ]},
   { category:'🧪 인적성·심리검사 구현용 오픈소스 (웹검증 2026)', items:[
     { name:'IPIP Item Pool', url:'https://ipip.ori.org/', limit:'퍼블릭 도메인', models:'Big5 등 3,300+ 문항', notes:'저작권 無 · 상업·연구 자유 이용' },
@@ -2950,11 +2962,16 @@ const FREE_API_CATALOG = [
     { name:'five-factor-e (IPIP-NEO)', url:'https://github.com/NeuroQuestAi/five-factor-e', limit:'오픈소스', models:'IPIP-NEO 120/300 자동 채점', notes:'Python 라이브러리 · 백엔드 채점' },
     { name:'Sentino Personality API', url:'https://sentino.org/api/', limit:'프리티어', models:'Big5 NLP 추론', notes:'텍스트→성격 추정 REST' },
     { name:'Big Five Aspect Scales (BFAS)', url:'https://www.colby.edu/psych/personality-lab/', limit:'공개 문항', models:'Big5 10측면 100문항', notes:'DeYoung 2007 · 공개·자체구현(출처표기)' },
-    { name:'HEXACO-PI-R 공개 문항', url:'https://hexaco.org/', limit:'공개 문항', models:'HEXACO 6요인', notes:'Lee & Ashton · 비상업 공개·자체구현' }
+    { name:'HEXACO-PI-R 공개 문항', url:'https://hexaco.org/', limit:'공개 문항', models:'HEXACO 6요인', notes:'Lee & Ashton · 비상업 공개·자체구현' },
+    { name:'Mini-IPIP (간편 Big5)', url:'https://ipip.ori.org/newShortFormMeasures.htm', limit:'퍼블릭 도메인', models:'Big5 간편 20문항(4×5)', notes:'IPIP · 공개·자체구현 · 짧은 검사용' },
+    { name:'BFI-2 (Big Five Inventory-2)', url:'https://www.colby.edu/psych/personality-lab/', limit:'무료(연구·비상업)', models:'Big5 60문항 + 15 facet', notes:'Soto & John 2017 · 공개 문항 · 출처표기' }
   ]},
   { category:'🧠 정서 스크리닝 척도 (퍼블릭 도메인, 웹검증)', items:[
     { name:'PHQ / GAD 스크리너', url:'https://www.phqscreeners.com/', limit:'무료 · 저작권 無', models:'PHQ-9 · PHQ-A · GAD-7', notes:'2010 Pfizer 공개 — 번역·배포 허가 불필요' },
-    { name:'CES-D 우울 척도', url:'https://en.wikipedia.org/wiki/Center_for_Epidemiologic_Studies_Depression_Scale', limit:'무료(공개 척도)', models:'우울 선별 10/20문항', notes:'참고용 선별 도구' }
+    { name:'CES-D 우울 척도', url:'https://en.wikipedia.org/wiki/Center_for_Epidemiologic_Studies_Depression_Scale', limit:'무료(공개 척도)', models:'우울 선별 10/20문항', notes:'참고용 선별 도구' },
+    { name:'DASS-21 (우울·불안·스트레스)', url:'https://www2.psy.unsw.edu.au/dass/', limit:'퍼블릭 도메인', models:'우울·불안·스트레스 21문항', notes:'무료 · 채점 공개(R) · 출처표기' },
+    { name:'지각된 스트레스 척도(PSS-10)', url:'https://www.cmu.edu/dietrich/psychology/stress-immunity-disease-lab/scales/', limit:'비상업 무료(공개)', models:'지각된 스트레스 10문항', notes:'Cohen · 공개·자체구현 · 출처표기' },
+    { name:'Kessler 심리적 고통(K10)', url:'https://www.hcp.med.harvard.edu/ncs/k6_scales.php', limit:'퍼블릭 도메인', models:'심리적 고통 10/6문항', notes:'Kessler · 공개 선별 도구' }
   ]},
   { category:'🇰🇷 국내 진로·심리검사 OpenAPI (웹검증)', items:[
     { name:'커리어넷 진로심리검사 API', url:'https://www.career.go.kr/cnet/front/openapi/openApiTestCenter.do', limit:'무료(인증키)', models:'검사 문항·결과 요청', notes:'중·고등 진로심리검사 · CORS 차단(백엔드 프록시)' },
