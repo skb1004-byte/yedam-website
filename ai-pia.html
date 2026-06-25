@@ -7186,6 +7186,9 @@ function calcCI(score, alpha){
   var ci=1.96*sem; // 95% 신뢰구간
   return { lo:Math.max(0,Math.round(score-ci)), hi:Math.min(100,Math.round(score+ci)), sem:Math.round(sem*10)/10 };
 }
+// 정규분포 모델 기반 추정 백분위 (z=(점수-50)/15) — 임의 예시값 대신 원리 있는 추정
+function _erf(x){ var s=x<0?-1:1; x=Math.abs(x); var t=1/(1+0.3275911*x); var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x); return s*y; }
+function pctFromScore(s){ var z=(s-50)/15; var cdf=0.5*(1+_erf(z/Math.SQRT2)); var p=Math.round(cdf*100); return Math.max(1,Math.min(99,p)); }
 // 응답편향: 묵종(예-편향)·극단·중앙·부정 응답 스타일 탐지 (1~5 리커트 풀)
 function calcResponseStyle(){
   try{
@@ -7253,7 +7256,7 @@ function renderAccuracyPanel(){
     var ciItems=[];
     if(b){ ciItems.push(['외향성',b.E,'big5'],['성실성',b.C,'big5'],['정서안정',100-b.N,'big5'],['개방성',b.O,'big5']); }
     if(g&&typeof g.overall==='number') ciItems.push(['끈기(Grit)',g.overall,'grit']);
-    var ciRows=ciItems.map(function(it){ var ci=calcCI(it[1],REL_ALPHA[it[2]]); return '<div style="display:flex;gap:8px;font-size:12px;padding:2px 0"><span style="flex:1">'+it[0]+'</span><b>'+Math.round(it[1])+'점</b><span style="color:#64748b">95% 구간 '+ci.lo+'~'+ci.hi+' (오차 ±'+ci.sem+')</span></div>'; }).join('');
+    var ciRows=ciItems.map(function(it){ var ci=calcCI(it[1],REL_ALPHA[it[2]]); var pc=pctFromScore(it[1]); var top=100-pc; return '<div style="display:flex;gap:8px;font-size:12px;padding:2px 0;flex-wrap:wrap"><span style="flex:1;min-width:70px">'+it[0]+'</span><b>'+Math.round(it[1])+'점</b><span style="color:#64748b">95% 구간 '+ci.lo+'~'+ci.hi+' (±'+ci.sem+')</span><span style="color:#7c3aed">추정 '+(top<=50?'상위 '+top:'하위 '+pc)+'%</span></div>'; }).join('');
     // 응답스타일 배지 색
     var rsColor=rs.grade==='양호'?'bg-emerald-100 text-emerald-800':rs.grade==='경미'?'bg-amber-100 text-amber-800':rs.grade==='주의'?'bg-rose-100 text-rose-800':'bg-slate-100 text-slate-500';
     return '<div class="bg-white rounded-2xl border border-slate-200 p-4">'
@@ -7268,7 +7271,7 @@ function renderAccuracyPanel(){
       +'<span class="pill '+rsColor+'">응답편향 '+rs.grade+(rs.flags&&rs.flags.length?'('+rs.flags.join('·')+')':'')+'</span>'
       +'<span class="pill '+(cn>0?'bg-emerald-100 text-emerald-800':'bg-slate-100 text-slate-500')+'">공식검사 교차검증 '+(cn>0?cn+'건 ✓':'없음')+'</span>'
       +'</div>'
-      +(ciRows?'<div style="border-top:1px solid #eee;padding-top:6px;margin-bottom:6px"><div style="font-size:11px;color:#666;margin-bottom:4px">📏 신뢰구간(95%) — 점수는 한 점이 아니라 이 범위 안의 값입니다</div>'+ciRows+'</div>':'')
+      +(ciRows?'<div style="border-top:1px solid #eee;padding-top:6px;margin-bottom:6px"><div style="font-size:11px;color:#666;margin-bottom:4px">📏 신뢰구간(95%)·추정 백분위 — 점수는 한 점이 아니라 범위 안의 값이며, 백분위는 정규분포 가정 추정치입니다</div>'+ciRows+'</div>':'')
       +'<div style="border-top:1px solid #eee;padding-top:6px"><div style="font-size:11px;color:#666;margin-bottom:4px">🔗 교차 일관성 — 서로 관련된 검사끼리 결과가 일치하는지 ('+consistOK+'/'+checks.length+' 일치)</div>'+rows+'</div>'
       +((checks.length&&consistOK<checks.length)?'<p class="text-[11px] text-amber-700 mt-2">⚠ 일부 검사 간 결과 차이가 있습니다. 천천히 다시 응답하면 정확도가 올라갑니다.</p>':(checks.length?'<p class="text-[11px] text-emerald-700 mt-2">✓ 관련 검사들이 서로 일치해 결과 신뢰도가 높습니다.</p>':''))
       +((rs.flags&&rs.flags.length)?'<p class="text-[11px] text-rose-700 mt-1">⚠ 응답 패턴('+rs.flags.join('·')+')이 감지돼 일부 점수가 실제보다 높거나 낮게 나타날 수 있습니다.</p>':'')
