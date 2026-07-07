@@ -20,7 +20,7 @@ input[type=text]{font:inherit;border:1px solid var(--line);border-radius:9px;pad
 .tabs{display:flex;gap:6px;margin-bottom:12px}
 .tab{background:var(--paper2);color:var(--ink2);border-radius:999px;padding:8px 16px}
 .tab.on{background:var(--ink);color:#fff}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:12.5px}
 th{background:var(--paper2);font-weight:800;position:sticky;top:0}
@@ -37,6 +37,7 @@ pre{white-space:pre-wrap;background:#1e1e1d;color:#e8e6df;border-radius:8px;padd
 .err{color:var(--red);font-weight:700}
 .auth{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center}
 .hide{display:none}
+@media(max-width:640px){body{padding:12px}h1{font-size:16px}table{font-size:11px}th,td{padding:7px 8px}.msg{max-width:150px}.bar{gap:6px}input[type=text]{min-width:140px;flex:1}pre{font-size:10px}}
 </style>
 </head>
 <body>
