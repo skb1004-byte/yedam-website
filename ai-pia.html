@@ -7381,7 +7381,8 @@ function renderAccuracyPanel(){
     var total=sData+sVal+sStyle+sCons+sCn;
     var grade=total>=80?'매우 높음':total>=65?'높음':total>=50?'보통':'보강 필요';
     var gColor=total>=80?'#15803d':total>=65?'#0369a1':total>=50?'#b45309':'#b91c1c';
-    var rows=checks.map(function(c){ return '<div style="display:grid;grid-template-columns:1fr 52px 70px;gap:8px;font-size:12px;padding:3px 0;align-items:center"><span>'+c.name+'</span><span style="color:'+c.c+';font-weight:700;text-align:center">'+c.t+'</span><span style="color:#999;text-align:right">'+Math.round(c.d)+'점차</span></div>'; }).join('');
+    var rows=checks.map(function(c){ return '<tr style="border-top:1px solid #f1f1ee"><td style="padding:4px 6px 4px 0;font-size:12px">'+c.name+'</td><td style="padding:4px 6px;font-size:12px;color:'+c.c+';font-weight:700;text-align:center;white-space:nowrap">'+c.t+'</td><td style="padding:4px 0;font-size:12px;color:#999;text-align:right;white-space:nowrap">'+Math.round(c.d)+'점차</td></tr>'; }).join('');
+    rows='<table style="width:100%;border-collapse:collapse;table-layout:fixed"><colgroup><col><col style="width:54px"><col style="width:64px"></colgroup>'+rows+'</table>';
     if(!checks.length) rows='<div style="font-size:12px;color:#888">교차검증할 검사(Big5·끈기·RIASEC·강점·정서)를 더 완료하면 일관성 점검이 표시됩니다.</div>';
     // 신뢰구간(95% CI) 표 — 핵심 점수
     var ciItems=[];
@@ -7395,7 +7396,8 @@ function renderAccuracyPanel(){
       var pc=(real!=null?real:pctFromScore(ts.t)); var top=100-pc;   // 백분위는 진점수 추정치 기준
       var src=(real!=null?'실제 '+_piaRealNorms.n+'명':'정규분포 가정');
       var shrink=(ts.shrink!==0?' <span style="color:#94a3b8">(관측 '+Math.round(it[1])+')</span>':'');
-      return '<div style="display:grid;grid-template-columns:84px auto 1fr auto;gap:8px;font-size:12px;padding:3px 0;align-items:baseline"><span style="font-weight:600">'+it[0]+'</span><span><b>'+ts.t+'점</b>'+shrink+'</span><span style="color:#64748b">95% 구간 '+ts.lo+'~'+ts.hi+' (±'+ts.se+')</span><span style="color:'+(real!=null?'#15803d':'#7c3aed')+';text-align:right;white-space:nowrap">추정 '+(top<=50?'상위 '+top:'하위 '+pc)+'% <span style="color:#94a3b8">('+src+')</span></span></div>'; }).join('');
+      return '<tr style="border-top:1px solid #f1f1ee"><td style="padding:4px 6px 4px 0;font-size:12px;font-weight:600;white-space:nowrap">'+it[0]+'</td><td style="padding:4px 6px;font-size:12px;white-space:nowrap"><b>'+ts.t+'점</b>'+shrink+'</td><td style="padding:4px 6px;font-size:12px;color:#64748b;white-space:nowrap">95% 구간 '+ts.lo+'~'+ts.hi+' (±'+ts.se+')</td><td style="padding:4px 0;font-size:12px;color:'+(real!=null?'#15803d':'#7c3aed')+';text-align:right;white-space:nowrap">추정 '+(top<=50?'상위 '+top:'하위 '+pc)+'% <span style="color:#94a3b8">('+src+')</span></td></tr>'; }).join('');
+    ciRows=ciRows?'<table style="width:100%;border-collapse:collapse">'+ciRows+'</table>':'';
     // 응답스타일 배지 색
     var rsColor=rs.grade==='양호'?'bg-emerald-100 text-emerald-800':rs.grade==='경미'?'bg-amber-100 text-amber-800':rs.grade==='주의'?'bg-rose-100 text-rose-800':'bg-slate-100 text-slate-500';
     return '<div class="bg-white rounded-2xl border border-slate-200 p-4">'
@@ -7472,20 +7474,65 @@ function renderCounselReport(){
     var gritTxt = gritBand==='상'?'목표를 향해 끈기 있게 노력하는':gritBand==='중'?'꾸준함을 갖춘':'관심 분야에서 몰입할 때 집중하는';
     var emo=_emotionNote();
 
-    parts.push('<div style="font-size:13.5px;line-height:1.7;color:#2b2b28">');
-    parts.push('<p style="margin-bottom:8px"><b>■ 종합 소견</b><br>'+who+'은(는) '+(type&&type.name?('<b>'+type.name+'</b> 유형으로, '+(type.desc||'')):'검사 결과를 종합할 때')+'</p>');
-    if(strengths.length) parts.push('<p style="margin-bottom:8px"><b>■ 강점</b><br>'+strengths.join(' · ')+' 영역에서 두드러진 강점을 보입니다. 이러한 강점은 협업·과제 수행·진로 탐색에서 긍정적으로 발휘될 수 있습니다.</p>');
-    if(rt.length) parts.push('<p style="margin-bottom:8px"><b>■ 흥미·진로</b><br>'+riLabel+' 성향이 뚜렷하여 관련 분야에 관심과 적성을 나타냅니다. 관심 직업·학과를 함께 탐색하며 구체적 경험(동아리·체험·독서)을 연결하면 좋습니다.</p>');
-    var lline=''; if(lt.length) lline+=lt[0][0]+' 역량이 우수합니다. '; if(learnLow&&learnLow[1]<55) lline+=learnLow[0]+'은(는) 격려와 단계적 지도를 통한 성장이 기대됩니다.';
-    parts.push('<p style="margin-bottom:8px"><b>■ 학습·태도</b><br>'+gritTxt+' 모습이 관찰됩니다. '+(lline||'전반적으로 균형 잡힌 학습 태도를 보입니다.')+'</p>');
-    if(emo.length) parts.push('<p style="margin-bottom:8px"><b>■ 정서·생활 (관찰 권장)</b><br><span style="color:#9a3412">'+emo.join(' · ')+' 신호가 확인됩니다. 진단이 아닌 <b>선별</b> 결과이므로, 따뜻한 정서적 지지와 함께 필요 시 전문 상담(Wee클래스·1388)을 연계해 주세요.</span></p>');
-    else parts.push('<p style="margin-bottom:8px"><b>■ 정서·생활</b><br>정서 선별 지표가 대체로 안정적입니다.</p>');
-    parts.push('<p style="margin-bottom:2px"><b>■ 상담 제언</b></p><ul style="margin:0 0 4px 16px;padding:0;font-size:13px;color:#3d3d3a"><li>강점('+(strengths[0]||'대표 강점')+')을 활용한 역할·과제 부여로 자기효능감 강화</li><li>'+(rt.length?riLabel.split(' · ')[0]+' 관련 진로 체험 연계':'관심 분야 탐색 지원')+'</li><li>'+(emo.length?'정서적 지지 및 정기 관찰, 필요 시 전문 상담 연계':'현재의 긍정적 태도를 지지·격려')+'</li></ul>');
+    // Big5 차원 기반 지도 함의 (교사 관점)
+    function _bd(v,hiT){ return v>=(hiT||60)?'상':v>=45?'중':'하'; }
+    var dimTips=[];
+    if(b){
+      var E=_bd(b.E), A=_bd(b.A), C=_bd(b.C), S=_bd(100-b.N), O=_bd(b.O);
+      if(E==='상') dimTips.push('외향성이 높아 발표·모둠 리더·또래 멘토 역할에서 에너지를 얻습니다. 표현 기회를 적극 부여하세요.');
+      else if(E==='하') dimTips.push('내향적 성향으로 대집단 발표에 부담을 느낄 수 있어, 소규모·글쓰기·1:1 발표 등 대안 통로를 마련해 주세요.');
+      if(C==='상') dimTips.push('성실성이 높아 자기주도 과제·장기 프로젝트를 맡기면 책임감 있게 완수합니다.');
+      else if(C==='하') dimTips.push('계획·마무리에 지원이 필요하므로 과제를 작은 단위로 쪼개고 중간 점검을 함께 해 주세요.');
+      if(A==='상') dimTips.push('친화성이 높아 갈등 중재·배려 역할에 적합하나, 자기 의견을 눌러 참지 않도록 발언 기회를 보장해 주세요.');
+      if(S==='하') dimTips.push('정서 기복에 민감할 수 있어, 결과보다 과정을 인정하는 피드백과 예측 가능한 학급 루틴이 안정에 도움이 됩니다.');
+      if(O==='상') dimTips.push('개방성이 높아 새로운 주제·창의 과제·탐구 활동에서 몰입도가 높습니다.');
+    }
+    // 다중지능 상위
+    var miTop=(typeof mi==='object'&&mi)?_topN(mi,2).map(function(x){return x[0];}):[];
+
+    parts.push('<div style="font-size:13.5px;line-height:1.75;color:#2b2b28">');
+    // 1. 종합 소견
+    parts.push('<p style="margin-bottom:10px"><b>■ 종합 소견</b><br>'+who+'은(는) '+(type&&type.name?('<b>'+type.name+'</b> 유형으로, '+(type.desc||'')+' 이 특성을 학급 활동·진로 지도에 연결하면 강점이 잘 발현됩니다.'):'검사 결과를 종합할 때 균형 잡힌 성향을 보입니다.')+'</p>');
+    // 2. 강점 프로파일 & 학급 활용
+    if(strengths.length){
+      parts.push('<p style="margin-bottom:4px"><b>■ 강점 프로파일 &amp; 학급 활용</b><br>대표 강점: <b>'+strengths.join(' · ')+'</b></p>');
+      parts.push('<ul style="margin:0 0 10px 16px;padding:0;font-size:13px;color:#3d3d3a">'
+        +'<li>강점을 드러낼 <b>역할·과제</b>를 우선 배정해 자기효능감을 키워 주세요(예: '+strengths[0]+' 관련 발표·프로젝트 리더).</li>'
+        +(dimTips.length?dimTips.map(function(t){return '<li>'+t+'</li>';}).join(''):'')
+        +'</ul>');
+    }
+    // 3. 흥미·진로 지도
+    if(rt.length) parts.push('<p style="margin-bottom:10px"><b>■ 흥미·진로 지도</b><br><b>'+riLabel+'</b> 성향이 뚜렷합니다. 관련 직업·학과를 함께 탐색하고, 동아리·체험·독서 등 <b>구체적 경험</b>과 연결해 진로 목표를 단계적으로 구체화하도록 지도해 주세요.'+(miTop.length?(' 다중지능상 <b>'+miTop.join('·')+'</b>이 두드러져 해당 방식의 학습·표현이 효과적입니다.'):'')+'</p>');
+    // 4. 학습·태도 지도
+    var lline=''; if(lt.length) lline+='<b>'+lt[0][0]+'</b> 역량이 우수해 이를 발판 삼은 심화 과제가 효과적입니다. '; if(learnLow&&learnLow[1]<55) lline+='<b>'+learnLow[0]+'</b>은(는) 단계적 목표 설정과 즉각적 격려로 성장이 기대됩니다.';
+    parts.push('<p style="margin-bottom:10px"><b>■ 학습·태도 지도</b><br>'+gritTxt+' 모습이 관찰됩니다. '+(lline||'전반적으로 균형 잡힌 학습 태도를 보이므로 현재 습관을 지지·강화해 주세요.')+'</p>');
+    // 5. 정서·생활 지도
+    if(emo.length) parts.push('<p style="margin-bottom:10px"><b>■ 정서·생활 지도 (관찰 권장)</b><br><span style="color:#9a3412"><b>'+emo.join(' · ')+'</b> 신호가 확인됩니다. 진단이 아닌 <b>선별</b> 결과입니다. 비난·평가보다 <b>공감과 정서적 지지</b>를 먼저 제공하고, 지속·악화 시 보호자 공유 및 <b>Wee클래스·청소년상담 1388</b> 연계를 권장합니다. 자해·위기 신호 감지 시 학교 위기관리 매뉴얼에 따라 즉시 조치하세요.</span></p>');
+    else parts.push('<p style="margin-bottom:10px"><b>■ 정서·생활</b><br>정서 선별 지표가 대체로 안정적입니다. 현재의 안정감을 유지하도록 지지적 환경을 이어가 주세요.</p>');
+    // 6. 학부모 상담 시 전달 포인트
+    parts.push('<p style="margin-bottom:4px"><b>■ 학부모 상담 시 전달 포인트</b></p><ul style="margin:0 0 10px 16px;padding:0;font-size:13px;color:#3d3d3a">'
+      +'<li>먼저 <b>강점('+(strengths[0]||'대표 강점')+')</b>을 구체적 사례와 함께 전달해 긍정적으로 시작합니다.</li>'
+      +'<li>가정에서는 '+(rt.length?riLabel.split(' · ')[0]+' 관련 경험을 지지':'관심 분야 탐색을 지지')+'하고, 결정 과정을 존중하도록 안내합니다.</li>'
+      +(emo.length?'<li>정서 신호는 <b>문제가 아닌 도움 요청</b>으로 받아들이도록 안내하고, 필요 시 전문기관 연계를 함께 제안합니다.</li>':'<li>정서·생활은 안정적임을 전하고, 변화 시 학교와 소통하도록 요청합니다.</li>')
+      +'</ul>');
+    // 7. 상담 제언 (구체 액션)
+    parts.push('<p style="margin-bottom:2px"><b>■ 상담 제언 (실행 아이디어)</b></p><ul style="margin:0 0 4px 16px;padding:0;font-size:13px;color:#3d3d3a">'
+      +'<li>강점('+(strengths[0]||'대표 강점')+') 활용 역할·과제 부여 → 자기효능감 강화</li>'
+      +'<li>'+(rt.length?riLabel.split(' · ')[0]+' 관련 진로 체험·멘토 연계':'관심 분야 탐색 지원')+'</li>'
+      +'<li>'+(learnLow&&learnLow[1]<55?learnLow[0]+' 보완을 위한 단계별 목표·중간 점검':'현재 학습 습관 지지·심화 과제 제공')+'</li>'
+      +'<li>'+(emo.length?'정기 정서 관찰 및 지지, 필요 시 전문 상담 연계':'긍정적 태도를 지지·격려하며 성장 관찰')+'</li>'
+      +'</ul>');
+    // 8. 다음 상담까지 관찰 포인트
+    parts.push('<p style="margin-bottom:2px"><b>■ 다음 상담까지 관찰 포인트</b></p><ul style="margin:0 0 4px 16px;padding:0;font-size:12.5px;color:#64748b">'
+      +'<li>강점 발현 상황(어떤 활동에서 몰입·주도했는지)</li>'
+      +'<li>학습 태도 변화(과제 완수·집중 지속 시간)</li>'
+      +(emo.length?'<li>정서 신호의 빈도·강도 변화, 또래 관계</li>':'<li>또래 관계·수업 참여의 일관성</li>')
+      +'</ul>');
     parts.push('</div>');
 
     return '<div class="bg-white rounded-2xl border border-violet-200 p-4">'
-      +'<h3 class="font-semibold text-sm mb-1">🧑‍🏫 AI 상담 소견서 (교사·상담용)</h3>'
-      +'<p class="text-xs text-slate-500 mb-3">검사 결과를 종합해 자동 생성한 <b>상담 참고용 소견</b>입니다. 최종 판단·기록은 교사가 관찰과 함께 검토·수정하세요.</p>'
+      +'<h3 class="font-semibold text-sm mb-1">🧑‍🏫 AI 상담 소견서 (교사 지도용)</h3>'
+      +'<p class="text-xs text-slate-500 mb-3">검사 결과를 <b>교사·지도자 관점</b>에서 종합한 상세 소견입니다. 강점 활용·학급 운영·진로/정서 지도·학부모 상담 포인트를 담았으며, 최종 판단·기록은 교사가 관찰과 함께 검토·수정하세요.</p>'
       +'<div id="counsel-body">'+parts.join('')+'</div>'
       +'<div class="mt-3"><button onclick="piaCopy(\'counsel-body\',this)" class="pill bg-violet-600 text-white font-bold" style="border:0;cursor:pointer;padding:6px 14px">📋 소견 복사</button></div>'
       +'</div>';
@@ -7505,19 +7552,26 @@ function renderNiceCard(){
     var s4=lt.length?(lt[0][0]+' 역량이 돋보여 관련 활동에서 적극적으로 참여함. '):'';
     // 행동특성 및 종합의견(행발) 초안 — 개조식(명사형 종결)·관찰 기반, 검사 수치·진단 표현 배제
     var haeng='성실하고 긍정적인 태도로 학교생활에 충실히 참여함. '+s1+s2+s3+s4+'교우 관계가 원만하고 배려심이 있어 급우들과 협력적으로 지냄. 자신의 강점을 살려 꾸준히 성장하는 모습이 기대되며, 다양한 경험과 도전을 통해 잠재력을 더욱 발휘할 수 있도록 지속적인 관심과 격려가 필요함.';
-    var sang='[상담 요약] 대표 강점은 '+(vt.join(', ')||'—')+'이며, '+(riTop||'관심')+' 분야에 흥미를 보임. '+(gritBand==='상'?'목표를 향해 끈기 있게 노력하는 편임. ':gritBand==='중'?'과제를 꾸준히 수행하는 태도를 지님. ':'몰입할 활동을 함께 탐색할 필요가 있음. ')+'상담에서 강점을 활용한 학습·진로 계획 수립을 논의하고, 관심 분야의 체험활동과 독서를 안내함. 정서·생활 영역은 지속 관찰하며, 필요 시 보호자 안내 및 전문기관(Wee클래스·청소년상담 1388) 연계 예정임.';
+    var _today=(function(){ try{ var d=new Date(); return d.getFullYear()+'. '+(d.getMonth()+1)+'. '+d.getDate()+'.'; }catch(e){ return ''; } })();
+    var _emoNeed=(function(){ try{ var cd=state.results.cesd&&state.results.cesd.scores,pq=state.results.phqa&&state.results.phqa.scores,gd=state.results.gad&&state.results.gad.scores; return [cd,pq,gd].some(function(x){return x&&(x.level==='HIGH'||x.level==='MEDIUM');})||(pq&&pq.selfHarm>0); }catch(e){ return false; } })();
+    // 나이스 상담관리 화면 형식(상담일자/영역/방법/내용/조치)
+    var sang='[상담일자] '+_today+'<br>'
+      +'[상담영역] 성격·진로'+(_emoNeed?'·정서':'')+'<br>'
+      +'[상담방법] 인·적성 검사 결과 기반 개별상담<br>'
+      +'[상담내용] 대표 강점은 '+(vt.join(', ')||'—')+'이며, '+(riTop||'관심')+' 분야에 흥미를 보임. '+(gritBand==='상'?'목표를 향해 끈기 있게 노력하는 편임. ':gritBand==='중'?'과제를 꾸준히 수행하는 태도를 지님. ':'몰입할 활동을 함께 탐색할 필요가 있음. ')+'강점을 활용한 학습·진로 계획 수립을 논의하고, 관심 분야의 체험활동과 독서를 안내함.<br>'
+      +'[조치사항] 강점 활용 과제 부여 및 진로 체험 연계. '+(_emoNeed?'정서 영역 주의 관찰, 보호자 안내 및 Wee클래스·청소년상담 1388 연계 예정.':'정서·생활 영역 지속 관찰.');
     var jinro='자신의 흥미와 적성에 대한 이해를 바탕으로 '+(riTop||'관심')+' 분야에 꾸준한 관심을 가지고 관련 직업·학과 정보를 탐색함. '+(vt.length?(vt.join(', ')+' 강점을 진로와 연결하려는 노력이 관찰됨. '):'')+'관심 분야의 체험활동과 독서를 통해 진로 목표를 구체화해 나감.';
-    var changche='진로탐색 활동에 적극적으로 참여하여 자기이해와 진로설계 역량을 기름. '+(vt.length?(vt[0]+' 강점을 발휘하여 모둠 활동에서 협력적인 태도를 보임. '):'')+'자신의 진로를 진지하게 고민하며 구체적인 실천 계획을 세워 나감.';
-    function _len(t){ var b=0; for(var i=0;i<t.length;i++) b+=(t.charCodeAt(i)>127?2:1); return '<span style="color:#94a3b8;font-weight:400">('+t.length+'자 · '+b+'byte)</span>'; }
+    var changche='학급 및 자율 활동에 성실히 참여하며 맡은 역할을 책임감 있게 수행함. '+(vt.length?(vt[0]+' 강점을 발휘하여 모둠 활동에서 협력적인 태도를 보임. '):'')+'규칙을 준수하고 자기 관리에 힘쓰는 모범적인 생활 태도를 보임.';
+    function _len(t){ t=String(t||'').replace(/<[^>]+>/g,''); var b=0; for(var i=0;i<t.length;i++) b+=(t.charCodeAt(i)>127?2:1); return '<span style="color:#94a3b8;font-weight:400">('+t.length+'자 · '+b+'byte)</span>'; }
     function _fld(id,label,text){ return '<div style="font-size:12px;font-weight:700;color:#3730a3;margin:12px 0 4px">'+label+' '+_len(text)+'</div><div id="'+id+'" style="font-size:13px;line-height:1.7;color:#222;background:#f5f7ff;border:1px solid #e0e5ff;border-radius:10px;padding:11px">'+text+'</div><button onclick="piaCopy(\''+id+'\',this)" class="pill bg-indigo-600 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 복사</button>'; }
     return '<div class="bg-white rounded-2xl border border-indigo-200 p-4">'
-      +'<h3 class="font-semibold text-sm mb-1">🏫 나이스(NEIS) 연동 — 생기부·상담기록 문구</h3>'
-      +'<p class="text-xs text-slate-500 mb-2">4세대 나이스에 <b>붙여넣어</b> 활용하는 초안입니다. 모두 <b>개조식(명사형 종결)</b>·관찰 기반이며 검사 수치·진단 표현은 넣지 않았습니다. 아래 <b>전체 복사</b> 또는 항목별 복사 후 붙여넣고, <b>기재요령·분량 제한에 맞게 교사 검토·수정</b>하세요.</p>'
-      +'<button onclick="piaCopyAll([\'nice-haeng\',\'nice-sang\',\'nice-jinro\',\'nice-changche\'],[\'행동특성 및 종합의견(행발)\',\'상담기록 요약\',\'진로활동 특기사항\',\'창의적 체험활동(진로) 특기사항\'],this)" class="pill bg-indigo-700 text-white font-bold mb-1" style="border:0;cursor:pointer;padding:8px 16px;font-size:13px">📋 전체 문구 복사</button>'
-      +_fld('nice-haeng','행동특성 및 종합의견(행발) 초안',haeng)
-      +_fld('nice-sang','상담기록 요약',sang)
-      +_fld('nice-jinro','진로활동 특기사항 초안',jinro)
-      +_fld('nice-changche','창의적 체험활동(진로) 특기사항 초안',changche)
+      +'<h3 class="font-semibold text-sm mb-1">🏫 나이스(NEIS) 연동 — 담임교사 입력 항목</h3>'
+      +'<p class="text-xs text-slate-500 mb-2">4세대 나이스 화면에 <b>붙여넣어</b> 활용하는 초안으로, <b>담임교사가 입력하는 항목</b>(행동특성 및 종합의견 · 창의적 체험활동 · 상담기록)만 담았습니다. 모두 <b>개조식(명사형 종결)</b>·관찰 기반이며 검사 수치·진단 표현은 넣지 않았습니다. 아래 <b>전체 복사</b> 또는 항목별 복사 후 해당 칸에 붙여넣고, <b>기재요령·분량 제한에 맞게 검토·수정</b>하세요.</p>'
+      +'<button onclick="piaCopyAll([\'nice-haeng\',\'nice-jinro\',\'nice-changche\',\'nice-sang\'],[\'행동특성 및 종합의견\',\'창의적 체험활동 — 진로활동 특기사항\',\'창의적 체험활동 — 자율활동 특기사항\',\'상담기록\'],this)" class="pill bg-indigo-700 text-white font-bold mb-1" style="border:0;cursor:pointer;padding:8px 16px;font-size:13px">📋 전체 문구 복사</button>'
+      +_fld('nice-haeng','행동특성 및 종합의견 (담임 입력)',haeng)
+      +_fld('nice-jinro','창의적 체험활동 — 진로활동 특기사항',jinro)
+      +_fld('nice-changche','창의적 체험활동 — 자율활동 특기사항',changche)
+      +_fld('nice-sang','상담기록 (나이스 상담관리 형식)',sang)
       +'<p class="text-[11px] text-slate-400 mt-3">※ 나이스 개방 API는 학교정보·학사일정만 제공하며, 학생 생기부·상담기록은 개인정보·보안상 외부 자동 연동이 불가합니다. 본 기능은 규정 준수 하의 <b>문구 생성·복사</b>입니다. (byte는 한글 2 기준 참고값)</p>'
       +'</div>';
   }catch(e){ return ''; }
@@ -7587,7 +7641,7 @@ function renderExtendedSections() {
     ${renderRoadmap()}
     ${(currentAudience === 'parent' && audAllowed('parent')) ? renderParent14Day() : ''}
     ${(currentAudience === 'teacher' && audAllowed('teacher')) ? renderTeacher12Wk() + renderCrisisSOP() : ''}
-    ${((currentAudience==='teacher'&&audAllowed('teacher'))||(currentAudience==='parent'&&audAllowed('parent')))?renderCounselReport():''}
+    ${(currentAudience==='teacher'&&audAllowed('teacher'))?renderCounselReport():''}
     ${(currentAudience==='teacher'&&audAllowed('teacher'))?renderTeacherToolkit():''}
     ${(currentAudience==='teacher'&&audAllowed('teacher'))?renderNiceCard():''}
     ${renderAccuracyPanel()}
