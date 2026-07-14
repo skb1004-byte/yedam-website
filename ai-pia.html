@@ -5454,7 +5454,7 @@ function piaPrintAsk(){
 function piaPrintReport(audOverride){
   try{
     var _prevAud=(typeof currentAudience!=='undefined')?currentAudience:'student';
-    if(audOverride==='student'||audOverride==='parent'||audOverride==='teacher'){ try{ currentAudience=audOverride; }catch(e){} }
+    if((audOverride==='student'||audOverride==='parent'||audOverride==='teacher') && audAllowed(audOverride)){ try{ currentAudience=audOverride; }catch(e){} }
     try{ if(window.Chart&&Chart.defaults){ Chart.defaults.animation=false; if('animations' in Chart.defaults) Chart.defaults.animations=false; } }catch(e){}
     try{ if(typeof renderDetailedResult==='function')renderDetailedResult(); if(typeof renderExtendedSections==='function')renderExtendedSections(); }catch(e){}
     setTimeout(function(){
@@ -5541,7 +5541,7 @@ function piaPrintItems(){
 function piaSampleReport(){
   try{
     state.profile={name:'샘플 학생', grade:'중2', class:'1', school:'예시중학교', createdAt:Date.now()};
-    try{ var _a=new URLSearchParams(location.search).get('aud'); currentAudience=(['student','parent','teacher'].indexOf(_a)>=0)?_a:'student'; }catch(e){ currentAudience='student'; }
+    try{ var _a=new URLSearchParams(location.search).get('aud'); currentAudience=(['student','parent','teacher'].indexOf(_a)>=0 && audAllowed(_a))?_a:'student'; }catch(e){ currentAudience='student'; }
     var rnd=function(lo,hi){return lo+Math.floor(Math.random()*(hi-lo+1));};
     var fill=function(key,bank,lo,hi,fn){ try{ var len=(bank&&bank.length)||0; if(!len)return; var a=[]; for(var k=0;k<len;k++)a.push(rnd(lo,hi)); if(state.results[key]){ state.results[key].answers=a; if(typeof fn==='function')state.results[key].scores=fn(); } }catch(e){} };
     fill('big5',IPIP_BIG5_50,1,5,scoreBig5);
@@ -6572,7 +6572,9 @@ function initResultActions() {
   // Audience 전환
   document.querySelectorAll('.aud-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      currentAudience = btn.dataset.audience;
+      var _a=btn.dataset.audience;
+      if(!audAllowed(_a)){ alert(_audKoName(_a)+' 화면은 해당 역할(로그인)로만 볼 수 있습니다.\n마이페이지에서 회원 유형을 설정하세요.'); return; }
+      currentAudience = _a;
       document.querySelectorAll('.aud-btn').forEach(b => b.setAttribute('aria-selected', b === btn));
       renderDetailedResult();
     });
@@ -7566,11 +7568,11 @@ function renderExtendedSections() {
     ${renderVARK(big5, via, riasec)}
     ${renderRecommendations(type.code)}
     ${renderRoadmap()}
-    ${currentAudience === 'parent' ? renderParent14Day() : ''}
-    ${currentAudience === 'teacher' ? renderTeacher12Wk() + renderCrisisSOP() : ''}
-    ${(currentAudience==='teacher'||currentAudience==='parent')?renderCounselReport():''}
-    ${currentAudience==='teacher'?renderTeacherToolkit():''}
-    ${currentAudience==='teacher'?renderNiceCard():''}
+    ${(currentAudience === 'parent' && audAllowed('parent')) ? renderParent14Day() : ''}
+    ${(currentAudience === 'teacher' && audAllowed('teacher')) ? renderTeacher12Wk() + renderCrisisSOP() : ''}
+    ${((currentAudience==='teacher'&&audAllowed('teacher'))||(currentAudience==='parent'&&audAllowed('parent')))?renderCounselReport():''}
+    ${(currentAudience==='teacher'&&audAllowed('teacher'))?renderTeacherToolkit():''}
+    ${(currentAudience==='teacher'&&audAllowed('teacher'))?renderNiceCard():''}
     ${renderAccuracyPanel()}
     ${renderCareernetCard()}
     ${renderResultUsageGuide(currentAudience)}
@@ -7946,6 +7948,37 @@ function piaSaveSupabase(rec){
     });
   });
 }
+
+// ---- RBAC: 로그인 역할로 허용 audience 결정 ----
+var PIA_ALLOWED_AUD=['student'];
+function audAllowed(a){ return PIA_ALLOWED_AUD.indexOf(a)>=0; }
+function _audKoName(a){ return a==='teacher'?'선생님용':a==='parent'?'학부모용':'본인용'; }
+function piaSyncAudButtons(){
+  try{ document.querySelectorAll('.aud-btn').forEach(function(b){
+    var a=b.dataset.audience; var ok=audAllowed(a);
+    b.disabled=!ok; b.style.opacity=ok?'':'0.45'; b.style.cursor=ok?'':'not-allowed';
+    b.title=ok?'':(_audKoName(a)+' 화면은 해당 역할로 로그인해야 볼 수 있습니다');
+  }); }catch(e){}
+}
+function piaLoadRole(){
+  try{ _piaEnsureSB().then(function(sb){ if(!sb){ piaSyncAudButtons(); return; }
+    sb.auth.getSession().then(function(r){
+      var ses=r&&r.data&&r.data.session;
+      if(!ses){ PIA_ALLOWED_AUD=['student']; piaSyncAudButtons(); return; }
+      sb.rpc('pia_my_profile').then(function(res){
+        try{
+          var d=res&&res.data&&res.data[0];
+          if(d&&d.allowed&&d.allowed.length){ PIA_ALLOWED_AUD=d.allowed; }
+          window.PIA_ROLE=d?d.role:'individual'; window.PIA_ROLE_STATUS=d?d.role_status:'active';
+        }catch(e){}
+        if(!audAllowed(currentAudience)){ currentAudience='student'; }
+        piaSyncAudButtons();
+        try{ if(typeof renderDetailedResult==='function' && document.getElementById('detailed-result')) renderDetailedResult(); }catch(e){}
+      }, function(){ piaSyncAudButtons(); });
+    });
+  }); }catch(e){ piaSyncAudButtons(); }
+}
+try{ if(document.readyState!=='loading'){ setTimeout(piaLoadRole,300); } else { window.addEventListener('DOMContentLoaded', function(){ setTimeout(piaLoadRole,300); }); } }catch(e){}
 
 let _adminSig='';
 function sendResultToAdmin(opts){

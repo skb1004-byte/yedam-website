@@ -53,9 +53,13 @@ button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;font:inherit
         <b>회원유형</b><span id="m-role">-</span>
       </div>
       <div id="roleSelect" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #f0ede4">
-        <div class="muted" style="margin-bottom:8px">처음 오셨네요! 회원 유형을 선택해 주세요.</div>
-        <button class="btn-rust" id="role-individual">👤 개인</button>
-        <button class="btn-ghost" id="role-org" style="margin-left:8px">🏫 기관(학교/센터)</button>
+        <div class="muted" style="margin-bottom:8px">회원 유형을 선택하세요. 유형에 따라 볼 수 있는 결과 화면이 달라집니다.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <button class="btn-rust" id="role-individual">👤 학생·개인</button>
+          <button class="btn-ghost" id="role-parent">👪 학부모</button>
+          <button class="btn-ghost" id="role-teacher">🏫 선생님·기관</button>
+        </div>
+        <div id="roleMsg" class="muted" style="margin-top:10px"></div>
       </div>
     </div>
 
@@ -84,7 +88,7 @@ var $=function(s){return document.querySelector(s);};
 if(!ready){ $('#cfgwarn').style.display='block'; }
 else {
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  var ROLE_KO = { individual:'개인', org_admin:'기관 관리자', org_member:'기관 구성원', parent:'학부모' };
+  var ROLE_KO = { individual:'학생·개인', org_admin:'기관장(선생님)', org_member:'소속 교사', parent:'학부모', super_admin:'운영자' };
 
   (async function init(){
     var { data:{ session } } = await sb.auth.getSession();
@@ -94,9 +98,13 @@ else {
     $('#m-name').textContent = (user.user_metadata && (user.user_metadata.name||user.user_metadata.full_name)) || '-';
     $('#m-email').textContent = user.email || '-';
 
-    // 프로필 조회(역할)
-    var { data:prof } = await sb.from('profiles').select('role').eq('id', user.id).single();
-    if(prof){ $('#m-role').innerHTML = '<span class="chip">'+(ROLE_KO[prof.role]||prof.role)+'</span>'; }
+    // 프로필 조회(역할·상태)
+    var { data:prof } = await sb.from('profiles').select('role,role_status').eq('id', user.id).single();
+    if(prof){
+      var pend = (prof.role==='org_admin'&&prof.role_status==='pending');
+      $('#m-role').innerHTML = '<span class="chip">'+(ROLE_KO[prof.role]||prof.role)+'</span>'
+        + (pend?' <span class="chip" style="background:#fff5e8;color:#7a5b00">운영자 승인 대기</span>':'');
+    }
     // 역할 미선택(기본 individual인데 첫 방문이면 선택 유도) — 여기선 항상 변경 가능하게 노출
     $('#roleSelect').style.display='block';
 
@@ -117,18 +125,43 @@ else {
       });
     }
 
-    // 역할 선택
-    async function setRole(role, extra){
-      var patch = Object.assign({ role:role }, extra||{});
-      await sb.from('profiles').update(patch).eq('id', user.id);
+    // 역할 선택 — 서버 RPC로만(자가 권한상승 차단)
+    var rmsg=$('#roleMsg');
+    function say(t){ if(rmsg) rmsg.textContent=t; }
+    // 학생·개인: 직접 individual 은 허용(트리거가 하향만 허용)
+    $('#role-individual').onclick=async function(){
+      say('설정 중…');
+      var { error } = await sb.from('profiles').update({ role:'individual' }).eq('id', user.id);
+      if(error){ say('오류: '+error.message); return; }
       location.reload();
-    }
-    $('#role-individual').onclick=function(){ setRole('individual'); };
-    $('#role-org').onclick=async function(){
-      var name = prompt('기관(학교) 이름을 입력하세요'); if(!name) return;
-      var { data:org, error } = await sb.from('organizations').insert({ name:name, admin_id:user.id }).select().single();
-      if(error){ alert('기관 생성 오류: '+error.message); return; }
-      await setRole('org_admin', { org_id: org.id });
+    };
+    // 학부모: 자녀 연결코드 입력 → pia_link_parent
+    $('#role-parent').onclick=async function(){
+      var code = prompt('자녀의 결과 연결코드(pair_code)를 입력하세요.\n(자녀가 검사 후 발급받은 코드)'); if(!code) return;
+      say('자녀 확인 중…');
+      var { data, error } = await sb.rpc('pia_link_parent', { code: code.trim() });
+      if(error){ say('오류: '+error.message); return; }
+      if(data==='NOT_FOUND'){ say('해당 코드의 자녀 검사기록을 찾지 못했습니다. 코드를 확인하세요.'); return; }
+      alert('학부모 연결이 완료되었습니다.'); location.reload();
+    };
+    // 선생님·기관: 기관코드 참여 or 새 기관 생성(승인 대기)
+    $('#role-teacher').onclick=async function(){
+      var join = confirm('학교/기관 코드가 있나요?\n\n[확인] 기관코드로 참여   /   [취소] 새 기관 만들기(기관장)');
+      if(join){
+        var oc = prompt('기관코드(6자리)를 입력하세요'); if(!oc) return;
+        say('기관 확인 중…');
+        var { data, error } = await sb.rpc('pia_join_org', { p_code: oc.trim() });
+        if(error){ say('오류: '+error.message); return; }
+        if(data==='NOT_FOUND'){ say('해당 기관코드를 찾지 못했습니다.'); return; }
+        alert('교사(소속) 등록이 완료되었습니다.'); location.reload();
+      } else {
+        var nm = prompt('새 기관(학교/센터) 이름을 입력하세요'); if(!nm) return;
+        say('기관 생성 중…');
+        var { data, error } = await sb.rpc('pia_create_org', { p_name: nm.trim() });
+        if(error){ say('오류: '+error.message); return; }
+        alert('기관이 생성되었습니다.\n기관코드: '+data+'\n\n※ 기관장 권한은 운영자 승인 후 활성화됩니다. 승인 전에는 교사 화면이 잠깁니다.');
+        location.reload();
+      }
     };
 
     // 탈퇴 (서버 Edge Function 호출 — service_role로 계정 완전삭제)
