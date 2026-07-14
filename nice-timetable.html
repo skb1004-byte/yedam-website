@@ -414,6 +414,8 @@ function renderResult(grid,D,P){
   wi.onchange=function(){ weekStart=mondayOf(new Date(wi.value)); renderResult(lastGrid,lastD,lastP); };
   wk.appendChild(wi);
   wk.appendChild(el('button',{class:'ghost sm',onclick:''},'')); wk.lastChild.textContent='이번 주'; wk.lastChild.onclick=function(){ weekStart=mondayOf(new Date()); renderResult(lastGrid,lastD,lastP); };
+  var pa=el('button',{class:'ghost sm'},'🖨 전체 인쇄(학급별 1장)'); pa.onclick=function(){ printAll(grid,D,P,winfo); }; wk.appendChild(pa);
+  var px=el('button',{class:'ghost sm'},'⬇ 엑셀(CSV)'); px.onclick=function(){ exportAllCsv(grid,D,P); }; wk.appendChild(px);
   var winfo=weekInfo(D); var hols=winfo.filter(function(x){return x.info;});
   wk.appendChild(el('span',{class:'mut'}, hols.length?('이 주: '+hols.map(function(x){return x.md+' '+x.info.name;}).join(' · ')+' → 해당 요일 회색 표시'):'이 주에는 공휴일·등록 행사가 없습니다.'));
   out.appendChild(wk);
@@ -531,6 +533,50 @@ function printOne(title,arr,D,P,winfo){
   for(var d=0;d<D;d++) html+='<th>'+DOW[d]+'</th>'; html+='</tr>';
   for(var p=0;p<P;p++){ html+='<tr><th>'+(p+1)+'</th>'; for(var d=0;d<D;d++){ var c=arr[d*P+p]; html+='<td>'+(c?c.sub+(c.sp?'(전담)':''):'')+'</td>'; } html+='</tr>'; }
   html+='</table></body></html>'; w.document.write(html); w.document.close(); w.print();
+}
+/* 한 표 HTML(제목 포함) 생성 — 일괄 인쇄용 */
+function _ttTableHtml(title,arr,D,P,teacherView){
+  var h='<section class="pg"><h2>'+esc(title)+'</h2><table><tr><th>교시</th>';
+  for(var d=0;d<D;d++) h+='<th>'+DOW[d]+'</th>'; h+='</tr>';
+  for(var p=0;p<P;p++){ h+='<tr><th>'+(p+1)+'</th>'; for(var d=0;d<D;d++){ var c=arr[d*P+p]; var txt=c?(esc(c.sub)+(teacherView?(c.teacher?('<br><span class="sub2">'+esc(c.teacher)+'</span>'):''):(c.sp?'<br><span class="sub2">(전담)</span>':''))):''; h+='<td>'+txt+'</td>'; } h+='</tr>'; }
+  h+='</table></section>';
+  return h;
+}
+/* 전체 학급(+전담) 시간표를 학급당 1장씩 페이지 나눠 인쇄 */
+function printAll(grid,D,P,winfo){
+  var w=window.open('','_blank'); if(!w){alert('팝업 차단을 해제해 주세요.');return;}
+  var sc=''; try{ var s=JSON.parse(localStorage.getItem('pia_school')||'{}')||{}; sc=s.nm||''; }catch(e){}
+  var body='';
+  classes.forEach(function(cl){ body+=_ttTableHtml((sc?sc+' · ':'')+cl+' 반 시간표', grid[cl], D,P, false); });
+  // 전담 교사별
+  var sps={}; classes.forEach(function(cl){ grid[cl].forEach(function(cell,slot){ if(cell&&cell.sp){ var t=cell.tid.slice(3); (sps[t]=sps[t]||{})[slot]={sub:cell.sub,cl:cl}; } }); });
+  Object.keys(sps).forEach(function(t){ var arr=new Array(D*P).fill(null); for(var slot in sps[t]) arr[slot]={sub:sps[t][slot].sub,teacher:sps[t][slot].cl,sp:true}; body+=_ttTableHtml((sc?sc+' · ':'')+t+' 선생님 시간표', arr, D,P, true); });
+  var css='body{font-family:sans-serif;margin:0}'+
+    '.pg{padding:28px 32px;page-break-after:always}'+
+    '.pg:last-child{page-break-after:auto}'+
+    'h2{font-size:18px;margin:0 0 12px}'+
+    'table{border-collapse:collapse;width:100%}'+
+    'th,td{border:1px solid #888;padding:10px 8px;text-align:center;font-size:14px;height:52px}'+
+    'th{background:#f0efe9}.sub2{font-size:11px;color:#666}'+
+    '@media print{.pg{padding:12mm}}';
+  w.document.write('<html><head><meta charset=utf-8><title>전체 시간표</title><style>'+css+'</style></head><body>'+body+'</body></html>');
+  w.document.close(); setTimeout(function(){ try{w.print();}catch(e){} },250);
+}
+/* 전체 시간표 CSV(엑셀) 내보내기 — 학급/전담별 블록 */
+function exportAllCsv(grid,D,P){
+  var rows=[];
+  function block(title,arr,teacherView){
+    rows.push([title]);
+    var head=['교시']; for(var d=0;d<D;d++) head.push(DOW[d]); rows.push(head);
+    for(var p=0;p<P;p++){ var r=[(p+1)+'교시']; for(var d=0;d<D;d++){ var c=arr[d*P+p]; r.push(c?(c.sub+(teacherView?(c.teacher?('('+c.teacher+')'):''):(c.sp?'(전담)':''))):''); } rows.push(r); }
+    rows.push([]);
+  }
+  classes.forEach(function(cl){ block(cl+' 반', grid[cl], false); });
+  var sps={}; classes.forEach(function(cl){ grid[cl].forEach(function(cell,slot){ if(cell&&cell.sp){ var t=cell.tid.slice(3); (sps[t]=sps[t]||{})[slot]={sub:cell.sub,cl:cl}; } }); });
+  Object.keys(sps).forEach(function(t){ var arr=new Array(D*P).fill(null); for(var slot in sps[t]) arr[slot]={sub:sps[t][slot].sub,teacher:sps[t][slot].cl,sp:true}; block(t+' 선생님', arr, true); });
+  var csv=rows.map(function(r){ return r.map(function(c){ c=(c==null?'':String(c)); return /[",\n]/.test(c)?('"'+c.replace(/"/g,'""')+'"'):c; }).join(','); }).join('\r\n');
+  var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='시간표_전체.csv'; document.body.appendChild(a); a.click(); setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); },100);
 }
 function copyTT(arr,D,P,teacherView,title){
   var lines=[title]; var head='교시'; for(var d=0;d<D;d++) head+='\t'+DOW[d]; lines.push(head);
