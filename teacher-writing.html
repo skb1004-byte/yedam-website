@@ -398,7 +398,7 @@ function buildRec(){
   /* 2) 자유 키워드 */
   free.forEach(function(f){ addUniq(pick([f+' 활동에 적극적으로 참여하여 자신의 역량을 발휘함.', f+'에서 맡은 역할을 성실히 수행하는 모습이 돋보임.', f+'을(를) 통해 배우고 성장하는 태도가 인상적임.'])); });
   /* 3) 권장 분량(약 92%)까지 확장 — 키워드 추가 변형 + 영역 서술 + 성장 문장 */
-  var target=Math.round(LIMIT_CHAR[area]*0.90);
+  var target=Math.round(LIMIT_CHAR[area]*0.95);
   var pool=[];
   keys.forEach(function(k){ if(BANK[k]) BANK[k].forEach(function(s){ pool.push(s); }); });
   (AREA_FILL[area]||[]).forEach(function(s){ pool.push(s); });
