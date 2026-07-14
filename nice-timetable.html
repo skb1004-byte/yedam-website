@@ -342,27 +342,33 @@ function generate(){
   if(sum>cap){ $('#genMsg').innerHTML='<span class="bad pill">주당 시수('+sum+')가 최대 교시('+cap+')를 초과합니다.</span>'; return; }
 
   // 전담 교사 자동 증원: 한 전담이 전 학급을 못 맡는 규모면 교사 수를 자동으로 늘림
-  var spNeed={};
-  valid.forEach(function(s){ if(s.type==='sp'){ spNeed[s.name]=Math.max(1, Math.ceil((classes.length*s.hours)/cap)); } });
-  function tidFor(cl,ci,s){ if(s.type!=='sp') return 'HR:'+cl; var need=spNeed[s.name]||1; var base=s.teacher||s.name; return 'SP:'+(need>1?(base+'('+((ci%need)+1)+')'):base); }
-  // 레슨 생성: 전담(공유 교사) 먼저 → 제약 큰 순
-  var lessons=[];
-  classes.forEach(function(cl,ci){
-    valid.forEach(function(s){
-      var tid=tidFor(cl,ci,s);
-      for(var k=0;k<s.hours;k++) lessons.push({cl:cl,sub:s,tid:tid,sp:s.type==='sp'});
-    });
-  });
-  lessons.sort(function(a,b){ return (b.sp?1:0)-(a.sp?1:0); });
-
-  var slots=[]; for(var d=0;d<D;d++)for(var p=0;p<P;p++)slots.push(d*P+p);
   var big=classes.length>16;
-  var best=null, attempts=big?10:40, capSteps=big?2000000:400000;
-  for(var attempt=0; attempt<attempts && !best; attempt++){
-    var order=lessons.slice(); if(attempt>0) shuffle(order);
-    var grid={}; classes.forEach(function(c){ grid[c]=new Array(D*P).fill(null); });
-    var tbusy={}; var steps={n:0,cap:capSteps};
-    if(place(order,0,grid,tbusy,D,P,slots,steps)) best=grid;
+  var spNeed={};
+  valid.forEach(function(s){ if(s.type==='sp'){ var n=Math.ceil((classes.length*s.hours)/cap); if(big) n=Math.ceil(n*1.2); /* 대규모 안전여유: 분산제약 여유분 확보 */ spNeed[s.name]=Math.max(1,n); } });
+  function tidFor(cl,ci,s){ if(s.type!=='sp') return 'HR:'+cl; var need=spNeed[s.name]||1; var base=s.teacher||s.name; return 'SP:'+(need>1?(base+'('+((ci%need)+1)+')'):base); }
+  var slots=[]; for(var d=0;d<D;d++)for(var p=0;p<P;p++)slots.push(d*P+p);
+  // 프리즈 방지: 대규모는 시도·스텝 상한을 낮추고 안전여유로 esc=0에서 성공 유도(수 ms)
+  var attempts=big?4:40, capSteps=big?300000:400000;
+  var best=null, escalated=0;
+  // 편성 실패 시 전담 교사를 단계적으로 +1 증원해 재시도(언더프로비저닝 보정)
+  for(escalated=0; escalated<=3 && !best; escalated++){
+    if(escalated>0){ valid.forEach(function(s){ if(s.type==='sp') spNeed[s.name]=(spNeed[s.name]||1)+1; }); }
+    // 레슨 생성(현재 spNeed 기준): 전담(공유 교사) 먼저 → 제약 큰 순
+    var lessons=[];
+    classes.forEach(function(cl,ci){
+      valid.forEach(function(s){
+        var tid=tidFor(cl,ci,s);
+        for(var k=0;k<s.hours;k++) lessons.push({cl:cl,sub:s,tid:tid,sp:s.type==='sp'});
+      });
+    });
+    lessons.sort(function(a,b){ return (b.sp?1:0)-(a.sp?1:0); });
+    for(var attempt=0; attempt<attempts && !best; attempt++){
+      var order=lessons.slice(); if(attempt>0) shuffle(order);
+      var sl=slots.slice(); shuffle(sl); // 어트템트당 1회만 셔플(노드마다 slice 제거 → 프리즈 방지)
+      var grid={}; classes.forEach(function(c){ grid[c]=new Array(D*P).fill(null); });
+      var tbusy={}; var steps={n:0,cap:capSteps};
+      if(place(order,0,grid,tbusy,D,P,sl,steps)) best=grid;
+    }
   }
   if(!best){
     var diag=[]; valid.forEach(function(s){ if(s.type==='sp'&&spNeed[s.name]>1) diag.push(s.name+' 전담 '+spNeed[s.name]+'명'); });
@@ -374,15 +380,14 @@ function generate(){
   lastGrid=best; lastD=D; lastP=P; if(!weekStart) weekStart=mondayOf(new Date());
   renderResult(best,D,P);
 }
-function place(lessons,i,grid,tbusy,D,P,slots,steps){
+function place(lessons,i,grid,tbusy,D,P,sl,steps){
   if(i>=lessons.length) return true;
   if(steps.n++>(steps.cap||200000)) return false; // 안전 상한
-  var L=lessons[i], cl=L.cl, day, p, sameDay;
-  var cand=slots.slice(); // 후보 슬롯
-  // 같은 과목 같은 날 회피(분산) 우선 정렬 + 랜덤
-  shuffle(cand);
-  for(var c=0;c<cand.length;c++){
-    var slot=cand[c]; day=Math.floor(slot/P);
+  var L=lessons[i], cl=L.cl, day, p;
+  var cand=sl; // 어트템트당 1회 셔플된 슬롯 재사용(노드마다 할당 안 함 → 프리즈 방지)
+  var off=(steps.n*7)%cand.length; // 노드별 시작점만 회전해 다양성 확보
+  for(var cc=0;cc<cand.length;cc++){
+    var slot=cand[(cc+off)%cand.length]; day=Math.floor(slot/P);
     if(grid[cl][slot]!=null) continue;
     if(tbusy[L.tid+'#'+slot]) continue;
     // 같은 날 같은 과목 2회 회피(가능하면)
@@ -390,11 +395,11 @@ function place(lessons,i,grid,tbusy,D,P,slots,steps){
     if(dup && !L._relax) continue;
     grid[cl][slot]={sub:L.sub.name,tid:L.tid,sp:L.sp,teacher:L.sub.teacher||''};
     tbusy[L.tid+'#'+slot]=1;
-    if(place(lessons,i+1,grid,tbusy,D,P,slots,steps)) return true;
+    if(place(lessons,i+1,grid,tbusy,D,P,sl,steps)) return true;
     grid[cl][slot]=null; delete tbusy[L.tid+'#'+slot];
   }
   // 분산 제약 완화 후 재시도
-  if(!L._relax){ L._relax=true; var r=place(lessons,i,grid,tbusy,D,P,slots,steps); L._relax=false; return r; }
+  if(!L._relax){ L._relax=true; var r=place(lessons,i,grid,tbusy,D,P,sl,steps); L._relax=false; return r; }
   return false;
 }
 function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
