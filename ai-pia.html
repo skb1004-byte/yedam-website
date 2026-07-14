@@ -6360,8 +6360,18 @@ async function fillCounselScript(d) {
     if (b) b.addEventListener('click', function(){ card.innerHTML='<div class="text-xs text-amber-900">🗣️ 다시 생성 중…</div>'; fillCounselScript(d); });
   }
   let out = null;
-  try { out = await callLLMFree(buildCounselPrompt(d), '너는 학교 상담교사를 돕는 도우미야. 한국어로만, 따뜻하고 실용적으로.'); } catch(e) { out = null; }
-  if (out && out.trim()) render(out.trim(), 'ai'); else render(counselLocal(d), 'local');
+  try { out = await callLLMFree(buildCounselPrompt(d), '너는 학교 상담교사를 돕는 도우미야. 반드시 한국어로만 작성하고, 중국어·영어·다른 언어나 메타설명을 절대 쓰지 마. 따뜻하고 실용적으로.'); } catch(e) { out = null; }
+  if (out && out.trim() && _counselKoreanOK(out)) render(out.trim(), 'ai'); else render(counselLocal(d), 'local');
+}
+// AI 출력이 한국어로 깨끗한지 검증 — 중국어(한자)·비한국어 혼입 시 거부
+function _counselKoreanOK(t){
+  if(!t) return false;
+  var cjk=(t.match(/[一-鿿]/g)||[]).length;   // 중국어 한자
+  var han=(t.match(/[가-힣]/g)||[]).length;   // 한글 음절
+  if(cjk>2) return false;      // 한자 다수 → 중국어 혼입으로 판단, 거부
+  if(han<30) return false;     // 한글이 지나치게 적음 → 거부
+  if(/[぀-ヿ]/.test(t)) return false; // 일본어 가나 혼입 거부
+  return true;
 }
 
 function renderDetailedResult() {
@@ -7349,7 +7359,7 @@ function renderAccuracyPanel(){
     function band(d){ return d<15?{t:'일치',c:'#15803d'}:d<30?{t:'보통',c:'#b45309'}:{t:'주의',c:'#b91c1c'}; }
     function add(checks,name,v1,v2){ if(typeof v1==='number'&&typeof v2==='number'){ var d=Math.abs(v1-v2); var x=band(d); checks.push({name:name,d:d,t:x.t,c:x.c}); } }
     var checks=[];
-    if(b&&g) add(checks,'성실성 ↔ 끈기(Grit)', b.C, g.overall);
+    if(b&&g) add(checks,'성실성 ↔ 끈기·근면', b.C, g.overall);
     if(b&&ri) add(checks,'외향성 ↔ 진취·사회(RIASEC)', b.E, (ri.E+ri.S)/2);
     if(g&&vi&&vi['끈기']!=null) add(checks,'끈기·근면 ↔ 강점(끈기)', g.overall, vi['끈기']);
     if(b&&ri) add(checks,'개방성 ↔ 예술·탐구(RIASEC)', b.O, (ri.A+ri.I)/2);
@@ -7370,12 +7380,12 @@ function renderAccuracyPanel(){
     var total=sData+sVal+sStyle+sCons+sCn;
     var grade=total>=80?'매우 높음':total>=65?'높음':total>=50?'보통':'보강 필요';
     var gColor=total>=80?'#15803d':total>=65?'#0369a1':total>=50?'#b45309':'#b91c1c';
-    var rows=checks.map(function(c){ return '<div style="display:flex;gap:8px;font-size:12px;padding:3px 0;align-items:center"><span style="flex:1;min-width:180px">'+c.name+'</span><span style="color:'+c.c+';font-weight:700;min-width:40px">'+c.t+'</span><span style="color:#999">차이 '+Math.round(c.d)+'점</span></div>'; }).join('');
-    if(!checks.length) rows='<div style="font-size:12px;color:#888">교차검증할 검사(Big5·Grit·RIASEC·VIA·정서)를 더 완료하면 일관성 점검이 표시됩니다.</div>';
+    var rows=checks.map(function(c){ return '<div style="display:grid;grid-template-columns:1fr 52px 70px;gap:8px;font-size:12px;padding:3px 0;align-items:center"><span>'+c.name+'</span><span style="color:'+c.c+';font-weight:700;text-align:center">'+c.t+'</span><span style="color:#999;text-align:right">'+Math.round(c.d)+'점차</span></div>'; }).join('');
+    if(!checks.length) rows='<div style="font-size:12px;color:#888">교차검증할 검사(Big5·끈기·RIASEC·강점·정서)를 더 완료하면 일관성 점검이 표시됩니다.</div>';
     // 신뢰구간(95% CI) 표 — 핵심 점수
     var ciItems=[];
     if(b){ ciItems.push(['외향성',b.E,'big5','big5.E',false],['성실성',b.C,'big5','big5.C',false],['정서안정',100-b.N,'big5','big5.N',true],['개방성',b.O,'big5','big5.O',false]); }
-    if(g&&typeof g.overall==='number') ciItems.push(['끈기(Grit)',g.overall,'grit','grit.overall',false]);
+    if(g&&typeof g.overall==='number') ciItems.push(['끈기·근면',g.overall,'grit','grit.overall',false]);
     var realOn=!!(_piaRealNorms&&_piaRealNorms.n>=30&&_piaRealNorms.pct);
     var ciRows=ciItems.map(function(it){
       var ts=trueScoreCI(it[1],REL_ALPHA[it[2]]);   // Kelley 진점수 추정 + 추정오차 CI
@@ -7384,7 +7394,7 @@ function renderAccuracyPanel(){
       var pc=(real!=null?real:pctFromScore(ts.t)); var top=100-pc;   // 백분위는 진점수 추정치 기준
       var src=(real!=null?'실제 '+_piaRealNorms.n+'명':'정규분포 가정');
       var shrink=(ts.shrink!==0?' <span style="color:#94a3b8">(관측 '+Math.round(it[1])+')</span>':'');
-      return '<div style="display:flex;gap:8px;font-size:12px;padding:2px 0;flex-wrap:wrap"><span style="flex:1;min-width:70px">'+it[0]+'</span><b>'+ts.t+'점</b>'+shrink+'<span style="color:#64748b">95% 구간 '+ts.lo+'~'+ts.hi+' (±'+ts.se+')</span><span style="color:'+(real!=null?'#15803d':'#7c3aed')+'">추정 '+(top<=50?'상위 '+top:'하위 '+pc)+'% <span style="color:#94a3b8">('+src+')</span></span></div>'; }).join('');
+      return '<div style="display:grid;grid-template-columns:84px auto 1fr auto;gap:8px;font-size:12px;padding:3px 0;align-items:baseline"><span style="font-weight:600">'+it[0]+'</span><span><b>'+ts.t+'점</b>'+shrink+'</span><span style="color:#64748b">95% 구간 '+ts.lo+'~'+ts.hi+' (±'+ts.se+')</span><span style="color:'+(real!=null?'#15803d':'#7c3aed')+';text-align:right;white-space:nowrap">추정 '+(top<=50?'상위 '+top:'하위 '+pc)+'% <span style="color:#94a3b8">('+src+')</span></span></div>'; }).join('');
     // 응답스타일 배지 색
     var rsColor=rs.grade==='양호'?'bg-emerald-100 text-emerald-800':rs.grade==='경미'?'bg-amber-100 text-amber-800':rs.grade==='주의'?'bg-rose-100 text-rose-800':'bg-slate-100 text-slate-500';
     return '<div class="bg-white rounded-2xl border border-slate-200 p-4">'
