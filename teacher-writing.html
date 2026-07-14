@@ -444,6 +444,30 @@ KW.forEach(function(k){
   chipBox.appendChild(c);
 });
 
+/* 검사 결과 → 생기부 강점 자동 불러오기(같은 도메인 localStorage) */
+(function(){
+  var raw=lsGet('pia_rec_bridge'); if(!raw) return;
+  var d; try{ d=JSON.parse(raw); }catch(e){ return; }
+  if(!d || !d.at || (Date.now()-d.at > 86400000)) return; /* 24시간 이내만 */
+  var kws=d.keywords||[];
+  if(d.name && !document.getElementById('recName').value) document.getElementById('recName').value=d.name;
+  var extra=[];
+  kws.forEach(function(k){
+    var matched=false;
+    chipBox.querySelectorAll('.chip').forEach(function(c){ if(c.textContent===k){ if(selectedKW.indexOf(k)<0){selectedKW.push(k); c.classList.add('on');} matched=true; } });
+    if(!matched) extra.push(k);
+  });
+  if(extra.length){ var f=document.getElementById('recFree'); f.value=(f.value?f.value+', ':'')+extra.join(', '); }
+  var card=document.querySelector('#tab-rec .card');
+  if(card){
+    var b=document.createElement('div');
+    b.style.cssText='background:#eef7ee;border:1px solid #cde3cd;border-radius:10px;padding:11px;margin-bottom:12px;font-size:13px;color:#356635';
+    b.innerHTML='✅ 검사 결과에서 강점 '+kws.length+'개를 불러와 자동 선택했어요'+(d.name?(' · '+esc(d.name)):'')+'. 바로 <b>문장 생성</b>을 누르세요.';
+    card.insertBefore(b, card.firstChild);
+  }
+  try{ localStorage.removeItem('pia_rec_bridge'); }catch(e){} /* 1회 소비(중복 방지) */
+})();
+
 var LIMIT={behavior:1500,autonomy:1500,club:1500,career:2100};
 var LIMIT_CHAR={behavior:500,autonomy:500,club:500,career:700};
 
