@@ -455,7 +455,7 @@ function teacherSummary(grid,D,P){
 }
 function ttBlock(title,arr,D,P,id,teacherView,winfo){
   var b=el('div',{class:'ttblock'});
-  var h=el('h3',null,'<span>'+title+'</span>');
+  var h=el('h3',null,'<span>'+esc(title)+'</span>');
   var cp=el('button',{class:'ghost sm noprint'},'📋 복사'); cp.onclick=function(){ copyTT(arr,D,P,teacherView,title); };
   h.appendChild(cp); b.appendChild(h);
   var t=el('table',{class:'tt'});
@@ -527,7 +527,7 @@ function pickCell(slot){
 }
 function printOne(title,arr,D,P,winfo){
   var w=window.open('','_blank'); if(!w){alert('팝업 차단을 해제해 주세요.');return;}
-  var html='<html><head><meta charset=utf-8><title>'+title+'</title><style>body{font-family:sans-serif;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:8px;text-align:center;font-size:13px}h2{font-size:16px}</style></head><body><h2>'+title+'</h2><table><tr><th>교시</th>';
+  var _t=esc(title); var html='<html><head><meta charset=utf-8><title>'+_t+'</title><style>body{font-family:sans-serif;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:8px;text-align:center;font-size:13px}h2{font-size:16px}</style></head><body><h2>'+_t+'</h2><table><tr><th>교시</th>';
   for(var d=0;d<D;d++) html+='<th>'+DOW[d]+'</th>'; html+='</tr>';
   for(var p=0;p<P;p++){ html+='<tr><th>'+(p+1)+'</th>'; for(var d=0;d<D;d++){ var c=arr[d*P+p]; html+='<td>'+(c?c.sub+(c.sp?'(전담)':''):'')+'</td>'; } html+='</tr>'; }
   html+='</table></body></html>'; w.document.write(html); w.document.close(); w.print();

@@ -263,7 +263,8 @@ function esc(s){ return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp
 
 /* ---------- 상태 ---------- */
 var roster = load('ct_roster', []);       // 이름 배열
-var seatLayout = null;                     // {rows,cols,cells:[]}
+var seatLayout = load('ct_seat', null);    // {rows,cols,cells:[]}
+var lastGroups = load('ct_groups', null);  // [[name,...],...]
 var drawnNames = [];                       // 중복 제외 기록
 var board = load('ct_board', []);          // [{name,score}]
 
@@ -318,6 +319,7 @@ function buildSeats(){
   var cells = [];
   for(var i=0;i<r*c;i++) cells.push(names[i] || '');
   seatLayout = {rows:r, cols:c, cells:cells};
+  store('ct_seat', seatLayout);
   renderSeats();
 }
 var selSeat = -1;
@@ -344,6 +346,7 @@ function pickSeat(idx, el){
     var t = seatLayout.cells[selSeat];
     seatLayout.cells[selSeat] = seatLayout.cells[idx];
     seatLayout.cells[idx] = t;
+    store('ct_seat', seatLayout);
     renderSeats();
   }
 }
@@ -399,9 +402,15 @@ function makeGroups(){
   var groups = [];
   for(var i=0;i<numGroups;i++) groups.push([]);
   names.forEach(function(n, i){ groups[i % numGroups].push(n); }); // 라운드로빈 → 인원 차이 최소
+  lastGroups = groups;
+  store('ct_groups', groups);
+  renderGroups(groups);
+}
+function renderGroups(groups){
   var wrap = $('groupWrap');
+  if(!wrap) return;
   wrap.innerHTML = '';
-  groups.forEach(function(g, i){
+  (groups||[]).forEach(function(g, i){
     var d = document.createElement('div');
     d.className = 'group';
     var lis = g.map(function(n){ return '<li>'+esc(n)+'</li>'; }).join('');
@@ -587,6 +596,10 @@ $('resetBoard').addEventListener('click', function(){
   if(confirm('점수판을 전부 지울까요?')){ board = []; renderBoard(); }
 });
 renderBoard();
+
+/* ---------- 저장된 자리배치·모둠 복원 ---------- */
+if(seatLayout && seatLayout.cells){ try{ renderSeats(); }catch(e){} }
+if(lastGroups && lastGroups.length){ try{ renderGroups(lastGroups); }catch(e){} }
 
 /* ---------- 클립보드 ---------- */
 function copyText(text, okMsg){
