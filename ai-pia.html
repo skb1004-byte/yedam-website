@@ -8664,7 +8664,8 @@ function _piaSkipGate(){ try{ var q=new URLSearchParams(location.search); return
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(async () => {
     if (sessionStorage.getItem('pia_v3_dark') === '1') applyDarkMode(true);
-    if(!_piaSkipGate()) await showConsentModalIfNeeded();
+    var _isTeacher=(function(){ try{ return new URLSearchParams(location.search).get('aud')==='teacher'; }catch(e){ return false; } })();
+    if(!_piaSkipGate() && !_isTeacher) await showConsentModalIfNeeded();
     injectGlobalActions();
   }, 100);
 });
