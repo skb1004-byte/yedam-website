@@ -7444,6 +7444,12 @@ window.piaCopyAll=window.piaCopyAll||function(ids,labels,btn){ try{
   var text=parts.join('\n\n');
   navigator.clipboard.writeText(text).then(function(){ if(btn){var o=btn.textContent; btn.textContent='전체 복사됨 ✓'; setTimeout(function(){btn.textContent=o;},1600);} });
 }catch(e){} };
+// NEIS byte(한글 3, 그 외 1) 계산 + 실시간 카운터 + 값 복사
+window.piaNbyte=window.piaNbyte||function(t){ t=String(t||''); var b=0; for(var i=0;i<t.length;i++){ var c=t.charCodeAt(i); b+=((c>=0x1100&&c<=0x11FF)||(c>=0x3130&&c<=0x318F)||(c>=0xAC00&&c<=0xD7A3)||(c>=0x3400&&c<=0x9FFF)||(c>=0xF900&&c<=0xFAFF))?3:1; } return b; };
+window.piaNiceCount=window.piaNiceCount||function(el,maxByte,cntId){ try{ var t=el.value||''; var ch=t.length; var by=window.piaNbyte(t); var over=maxByte&&by>maxByte; var s=document.getElementById(cntId); if(s){ s.innerHTML='('+ch+'자 · '+by+'byte'+(maxByte?' / 최대 '+maxByte+'byte':'')+(over?' · <b>초과!</b>':'')+')'; s.style.color=over?'#b91c1c':'#94a3b8'; } if(el){ el.style.borderColor=over?'#f5a3a3':'#e0e5ff'; } }catch(e){} };
+window.piaCopyVal=window.piaCopyVal||function(id,btn){ try{ var el=document.getElementById(id); var t=(el&&(el.value!=null?el.value:el.innerText))||''; navigator.clipboard.writeText(t).then(function(){ if(btn){var o=btn.textContent; btn.textContent='복사됨 ✓'; setTimeout(function(){btn.textContent=o;},1400);} }); }catch(e){} };
+window.piaCopyAllVal=window.piaCopyAllVal||function(ids,labels,btn){ try{ var parts=[]; for(var i=0;i<ids.length;i++){ var el=document.getElementById(ids[i]); if(!el||el.offsetParent===null)continue; var t=((el.value!=null?el.value:el.innerText)||'').trim(); if(!t)continue; parts.push('■ '+(labels[i]||'')+'\n'+t); } navigator.clipboard.writeText(parts.join('\n\n')).then(function(){ if(btn){var o=btn.textContent; btn.textContent='전체 복사됨 ✓'; setTimeout(function(){btn.textContent=o;},1600);} }); }catch(e){} };
+window.piaNiceGrade=window.piaNiceGrade||function(v){ try{ var don=document.getElementById('nice-fld-dongari'); if(don) don.style.display=(v==='elem')?'none':''; var bong=document.getElementById('nice-fld-bongsa'); if(bong) bong.style.display=(v==='elem'||v==='high1')?'none':''; var jl=document.getElementById('nice-lbl-jayul'); if(jl) jl.textContent=(v==='high1'||v==='high')?'창의적 체험활동 — 자율·자치활동 특기사항':'창의적 체험활동 — 자율활동 특기사항'; }catch(e){} };
 var _RIA={R:'실재형(현장·기술)',I:'탐구형(분석·연구)',A:'예술형(창의·표현)',S:'사회형(대인·협력)',E:'진취형(주도·설득)',C:'관습형(체계·정확)'};
 function _topN(obj,n){ try{ return Object.keys(obj||{}).map(function(k){return [k,Number(obj[k])];}).filter(function(x){return isFinite(x[1]);}).sort(function(a,b){return b[1]-a[1];}).slice(0,n); }catch(e){ return []; } }
 function _band(v,hi,mid){ return v>=hi?'상':v>=mid?'중':'하'; }
@@ -7509,11 +7515,18 @@ function renderCounselReport(){
     // 5. 정서·생활 지도
     if(emo.length) parts.push('<p style="margin-bottom:10px"><b>■ 정서·생활 지도 (관찰 권장)</b><br><span style="color:#9a3412"><b>'+emo.join(' · ')+'</b> 신호가 확인됩니다. 진단이 아닌 <b>선별</b> 결과입니다. 비난·평가보다 <b>공감과 정서적 지지</b>를 먼저 제공하고, 지속·악화 시 보호자 공유 및 <b>Wee클래스·청소년상담 1388</b> 연계를 권장합니다. 자해·위기 신호 감지 시 학교 위기관리 매뉴얼에 따라 즉시 조치하세요.</span></p>');
     else parts.push('<p style="margin-bottom:10px"><b>■ 정서·생활</b><br>정서 선별 지표가 대체로 안정적입니다. 현재의 안정감을 유지하도록 지지적 환경을 이어가 주세요.</p>');
-    // 6. 학부모 상담 시 전달 포인트
-    parts.push('<p style="margin-bottom:4px"><b>■ 학부모 상담 시 전달 포인트</b></p><ul style="margin:0 0 10px 16px;padding:0;font-size:13px;color:#3d3d3a">'
-      +'<li>먼저 <b>강점('+(strengths[0]||'대표 강점')+')</b>을 구체적 사례와 함께 전달해 긍정적으로 시작합니다.</li>'
-      +'<li>가정에서는 '+(rt.length?riLabel.split(' · ')[0]+' 관련 경험을 지지':'관심 분야 탐색을 지지')+'하고, 결정 과정을 존중하도록 안내합니다.</li>'
-      +(emo.length?'<li>정서 신호는 <b>문제가 아닌 도움 요청</b>으로 받아들이도록 안내하고, 필요 시 전문기관 연계를 함께 제안합니다.</li>':'<li>정서·생활은 안정적임을 전하고, 변화 시 학교와 소통하도록 요청합니다.</li>')
+    // 6. 학부모 상담 시 전달 포인트 (교사 전용 · 학부모가 기분좋게 받아들이도록)
+    var _s0=strengths[0]||'아이만의 강점', _s1=strengths[1]||'', _riFirst=(rt.length?riLabel.split(' · ')[0]:'관심 분야');
+    parts.push('<p style="margin-bottom:4px"><b>■ 학부모 상담 시 전달 포인트 <span style="font-size:11px;color:#9a3412">(교사용 · 대외 비공개)</span></b></p>'
+      +'<p style="font-size:12.5px;color:#64748b;margin:0 0 6px">아래 문장은 <b>선생님이 학부모께 말할 때</b> 쓰는 예시입니다. 강점→성장→가정협력 순서로, 아이를 아끼는 마음이 전해지도록 구성했습니다. 그대로 읽어도 좋고 상황에 맞게 다듬어 쓰세요.</p>'
+      +'<div style="background:#f0f7f2;border:1px solid #cfe6d6;border-radius:10px;padding:11px;font-size:13px;color:#2b3b2f;line-height:1.75;margin-bottom:8px">'
+      +'<p style="margin-bottom:6px">“어머니(아버님), <b>OO</b>이는 <b>'+_s0+'</b>'+(_s1?('과 <b>'+_s1+'</b>'):'')+'이 참 돋보이는 아이예요. 학교에서도 '+_riFirst+' 활동을 할 때 눈빛이 달라지고 몰입하는 모습이 인상적입니다.”</p>'
+      +'<p style="margin-bottom:6px">“이 강점을 살려서 앞으로 '+_riFirst+' 쪽 경험을 조금씩 넓혀 주시면, 아이가 자기 색깔을 더 또렷하게 찾아갈 거예요. 가정에서는 결과보다 <b>과정을 함께 기뻐해</b> 주시는 것만으로도 큰 힘이 됩니다.”</p>'
+      +'<p style="margin-bottom:0">“'+(emo.length?'요즘 마음이 조금 무거워 보이는 순간도 있는데, 이건 문제가 아니라 <b>도움을 청하는 신호</b>예요. 학교에서도 따뜻하게 살피겠습니다. 가정에서도 편하게 이야기 들어주시면, 저희가 함께 도울 수 있어요.':'정서·생활도 안정적이고 친구들과도 잘 지냅니다. 지금처럼 아이를 믿고 지지해 주시면 충분합니다. 변화가 보이면 언제든 함께 이야기 나눠요.')+'”</p>'
+      +'</div>'
+      +'<ul style="margin:0 0 6px 16px;padding:0;font-size:12.5px;color:#3d3d3a">'
+      +'<li><b>이렇게</b>: 구체적 장면과 함께 강점을 먼저, 성장 가능성으로 마무리 — 학부모가 안심하고 협력하게 됩니다.</li>'
+      +'<li><b>피하기</b>: “부족하다·못한다·문제가 있다” 같은 단정, 검사 수치·진단명 언급, 다른 아이와 비교. 결핍이 아닌 <b>성장의 언어</b>로 전하세요.</li>'
       +'</ul>');
     // 7. 상담 제언 (구체 액션)
     parts.push('<p style="margin-bottom:2px"><b>■ 상담 제언 (실행 아이디어)</b></p><ul style="margin:0 0 4px 16px;padding:0;font-size:13px;color:#3d3d3a">'
@@ -7554,25 +7567,48 @@ function renderNiceCard(){
     var haeng='성실하고 긍정적인 태도로 학교생활에 충실히 참여함. '+s1+s2+s3+s4+'교우 관계가 원만하고 배려심이 있어 급우들과 협력적으로 지냄. 자신의 강점을 살려 꾸준히 성장하는 모습이 기대되며, 다양한 경험과 도전을 통해 잠재력을 더욱 발휘할 수 있도록 지속적인 관심과 격려가 필요함.';
     var _today=(function(){ try{ var d=new Date(); return d.getFullYear()+'. '+(d.getMonth()+1)+'. '+d.getDate()+'.'; }catch(e){ return ''; } })();
     var _emoNeed=(function(){ try{ var cd=state.results.cesd&&state.results.cesd.scores,pq=state.results.phqa&&state.results.phqa.scores,gd=state.results.gad&&state.results.gad.scores; return [cd,pq,gd].some(function(x){return x&&(x.level==='HIGH'||x.level==='MEDIUM');})||(pq&&pq.selfHarm>0); }catch(e){ return false; } })();
-    // 나이스 상담관리 화면 형식(상담일자/영역/방법/내용/조치)
-    var sang='[상담일자] '+_today+'<br>'
-      +'[상담영역] 성격·진로'+(_emoNeed?'·정서':'')+'<br>'
-      +'[상담방법] 인·적성 검사 결과 기반 개별상담<br>'
-      +'[상담내용] 대표 강점은 '+(vt.join(', ')||'—')+'이며, '+(riTop||'관심')+' 분야에 흥미를 보임. '+(gritBand==='상'?'목표를 향해 끈기 있게 노력하는 편임. ':gritBand==='중'?'과제를 꾸준히 수행하는 태도를 지님. ':'몰입할 활동을 함께 탐색할 필요가 있음. ')+'강점을 활용한 학습·진로 계획 수립을 논의하고, 관심 분야의 체험활동과 독서를 안내함.<br>'
+    // 나이스 상담관리 화면 형식(상담일자/영역/방법/내용/조치) — 줄바꿈 텍스트(붙여넣기용)
+    var sang='[상담일자] '+_today+'\n'
+      +'[상담영역] 성격·진로'+(_emoNeed?'·정서':'')+'\n'
+      +'[상담방법] 인·적성 검사 결과 기반 개별상담\n'
+      +'[상담내용] 대표 강점은 '+(vt.join(', ')||'—')+'이며, '+(riTop||'관심')+' 분야에 흥미를 보임. '+(gritBand==='상'?'목표를 향해 끈기 있게 노력하는 편임. ':gritBand==='중'?'과제를 꾸준히 수행하는 태도를 지님. ':'몰입할 활동을 함께 탐색할 필요가 있음. ')+'강점을 활용한 학습·진로 계획 수립을 논의하고, 관심 분야의 체험활동과 독서를 안내함.\n'
       +'[조치사항] 강점 활용 과제 부여 및 진로 체험 연계. '+(_emoNeed?'정서 영역 주의 관찰, 보호자 안내 및 Wee클래스·청소년상담 1388 연계 예정.':'정서·생활 영역 지속 관찰.');
     var jinro='자신의 흥미와 적성에 대한 이해를 바탕으로 '+(riTop||'관심')+' 분야에 꾸준한 관심을 가지고 관련 직업·학과 정보를 탐색함. '+(vt.length?(vt.join(', ')+' 강점을 진로와 연결하려는 노력이 관찰됨. '):'')+'관심 분야의 체험활동과 독서를 통해 진로 목표를 구체화해 나감.';
     var changche='학급 및 자율 활동에 성실히 참여하며 맡은 역할을 책임감 있게 수행함. '+(vt.length?(vt[0]+' 강점을 발휘하여 모둠 활동에서 협력적인 태도를 보임. '):'')+'규칙을 준수하고 자기 관리에 힘쓰는 모범적인 생활 태도를 보임.';
-    function _len(t){ t=String(t||'').replace(/<[^>]+>/g,''); var b=0; for(var i=0;i<t.length;i++) b+=(t.charCodeAt(i)>127?2:1); return '<span style="color:#94a3b8;font-weight:400">('+t.length+'자 · '+b+'byte)</span>'; }
-    function _fld(id,label,text){ return '<div style="font-size:12px;font-weight:700;color:#3730a3;margin:12px 0 4px">'+label+' '+_len(text)+'</div><div id="'+id+'" style="font-size:13px;line-height:1.7;color:#222;background:#f5f7ff;border:1px solid #e0e5ff;border-radius:10px;padding:11px">'+text+'</div><button onclick="piaCopy(\''+id+'\',this)" class="pill bg-indigo-600 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 복사</button>'; }
+    var dongari=(vt.length?(vt[0]+' 강점을 바탕으로 '):'')+'관심 분야 동아리 활동에 자발적으로 참여하여 맡은 역할을 성실히 수행함. 부원들과 협력하여 활동을 기획·운영하고, 꾸준한 참여로 관련 역량을 신장함.';
+    // 학년 자동 판별: elem(초등)/mid(중)/high1(고1)/high(고2·3)
+    var _g=(function(){ try{ var gr=String((state.profile&&state.profile.grade)||''); if(/초|elem/i.test(gr)) return 'elem'; if(/고\s*1(?!\d)|고1|1학년.*고|high\s*1/i.test(gr)) return 'high1'; if(/고|high/i.test(gr)) return 'high'; if(/중|mid/i.test(gr)) return 'mid'; }catch(e){} return 'mid'; })();
+    var _donHide=(_g==='elem'), _jLbl=(_g==='high1'||_g==='high')?'창의적 체험활동 — 자율·자치활동 특기사항':'창의적 체험활동 — 자율활동 특기사항';
+    function _esc(t){ return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+    function _cnt(t,mx){ var by=(window.piaNbyte?window.piaNbyte(t):0); var over=by>mx; return '<span'+(over?' style="color:#b91c1c"':'')+'>('+String(t).length+'자 · '+by+'byte / 최대 '+mx+'byte'+(over?' · 초과!':'')+')</span>'; }
+    // 편집형 입력칸: textarea + 실시간 글자수/byte + 개별 복사
+    function _fld(id,label,text,mx,wrapId){
+      return '<div'+(wrapId?(' id="'+wrapId+'"'):'')+(wrapId==='nice-fld-dongari'&&_donHide?' style="display:none"':'')+' style="margin-top:13px">'
+        +'<div style="font-size:12px;font-weight:700;color:#3730a3;margin:0 0 4px;display:flex;justify-content:space-between;align-items:center;gap:8px">'
+        +'<span'+(id==='nice-changche'?' id="nice-lbl-jayul"':'')+'>'+label+'</span>'
+        +'<span id="'+id+'-cnt" style="font-weight:400;color:#94a3b8;font-size:11px">'+_cnt(text,mx)+'</span></div>'
+        +'<textarea id="'+id+'" oninput="piaNiceCount(this,'+mx+',\''+id+'-cnt\')" spellcheck="false" style="width:100%;min-height:92px;font-size:13px;line-height:1.7;color:#222;background:#f5f7ff;border:1px solid #e0e5ff;border-radius:10px;padding:11px;resize:vertical;font-family:inherit;box-sizing:border-box">'+_esc(text)+'</textarea>'
+        +'<button onclick="piaCopyVal(\''+id+'\',this)" class="pill bg-indigo-600 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 이 항목 복사</button>'
+        +'</div>';
+    }
+    var gradeSel='<div style="display:flex;align-items:center;gap:8px;margin:6px 0 4px"><span style="font-size:12px;font-weight:700;color:#3730a3">학교급</span>'
+      +'<select onchange="piaNiceGrade(this.value)" style="font:inherit;font-size:12.5px;border:1px solid #e0e5ff;border-radius:8px;padding:5px 8px;background:#fff">'
+      +'<option value="elem"'+(_g==='elem'?' selected':'')+'>초등학교</option>'
+      +'<option value="mid"'+(_g==='mid'?' selected':'')+'>중학교</option>'
+      +'<option value="high1"'+(_g==='high1'?' selected':'')+'>고등학교 1학년</option>'
+      +'<option value="high"'+(_g==='high'?' selected':'')+'>고등학교 2·3학년</option>'
+      +'</select><span style="font-size:11px;color:#94a3b8">선택하면 항목·명칭이 학교급에 맞게 바뀝니다</span></div>';
     return '<div class="bg-white rounded-2xl border border-indigo-200 p-4">'
-      +'<h3 class="font-semibold text-sm mb-1">🏫 나이스(NEIS) 연동 — 담임교사 입력 항목</h3>'
-      +'<p class="text-xs text-slate-500 mb-2">4세대 나이스 화면에 <b>붙여넣어</b> 활용하는 초안으로, <b>담임교사가 입력하는 항목</b>(행동특성 및 종합의견 · 창의적 체험활동 · 상담기록)만 담았습니다. 모두 <b>개조식(명사형 종결)</b>·관찰 기반이며 검사 수치·진단 표현은 넣지 않았습니다. 아래 <b>전체 복사</b> 또는 항목별 복사 후 해당 칸에 붙여넣고, <b>기재요령·분량 제한에 맞게 검토·수정</b>하세요.</p>'
-      +'<button onclick="piaCopyAll([\'nice-haeng\',\'nice-jinro\',\'nice-changche\',\'nice-sang\'],[\'행동특성 및 종합의견\',\'창의적 체험활동 — 진로활동 특기사항\',\'창의적 체험활동 — 자율활동 특기사항\',\'상담기록\'],this)" class="pill bg-indigo-700 text-white font-bold mb-1" style="border:0;cursor:pointer;padding:8px 16px;font-size:13px">📋 전체 문구 복사</button>'
-      +_fld('nice-haeng','행동특성 및 종합의견 (담임 입력)',haeng)
-      +_fld('nice-jinro','창의적 체험활동 — 진로활동 특기사항',jinro)
-      +_fld('nice-changche','창의적 체험활동 — 자율활동 특기사항',changche)
-      +_fld('nice-sang','상담기록 (나이스 상담관리 형식)',sang)
-      +'<p class="text-[11px] text-slate-400 mt-3">※ 나이스 개방 API는 학교정보·학사일정만 제공하며, 학생 생기부·상담기록은 개인정보·보안상 외부 자동 연동이 불가합니다. 본 기능은 규정 준수 하의 <b>문구 생성·복사</b>입니다. (byte는 한글 2 기준 참고값)</p>'
+      +'<h3 class="font-semibold text-sm mb-1">🏫 나이스(NEIS) 입력 도우미 — 담임교사 입력 항목</h3>'
+      +'<p class="text-xs text-slate-500 mb-2">4세대 나이스 화면에 <b>붙여넣는</b> 초안입니다. <b>담임교사 입력 항목</b>(행동특성 및 종합의견 · 창의적 체험활동 · 상담기록)만 담았고, 모두 <b>개조식(명사형 종결)</b>·관찰 기반이며 검사 수치·진단 표현은 넣지 않았습니다. 칸을 <b>직접 수정</b>할 수 있고 글자수·byte가 실시간 표시됩니다(나이스 기준 <b>한글 3byte</b>). 아래 <b>전체 복사</b> 또는 항목별 복사 후 해당 칸에 붙여넣고 기재요령에 맞게 검토하세요.</p>'
+      +gradeSel
+      +'<button onclick="piaCopyAllVal([\'nice-haeng\',\'nice-jinro\',\'nice-changche\',\'nice-dongari\',\'nice-sang\'],[\'행동특성 및 종합의견\',\'진로활동 특기사항\',\'자율(자치)활동 특기사항\',\'동아리활동 특기사항\',\'상담기록\'],this)" class="pill bg-indigo-700 text-white font-bold mb-1" style="border:0;cursor:pointer;padding:9px 16px;font-size:13px">📋 전체 문구 한 번에 복사</button>'
+      +_fld('nice-haeng','행동특성 및 종합의견',haeng,1500)
+      +_fld('nice-jinro','창의적 체험활동 — 진로활동 특기사항',jinro,2100)
+      +_fld('nice-changche',_jLbl,changche,1500)
+      +_fld('nice-dongari','창의적 체험활동 — 동아리활동 특기사항',dongari,1500,'nice-fld-dongari')
+      +_fld('nice-sang','상담기록 (나이스 상담관리 형식)',sang,1500)
+      +'<p class="text-[11px] text-slate-400 mt-3">※ 분량 상한은 기재요령 기준 참고값(행동특성 및 종합의견·자율·동아리 500자, 진로 700자 ≈ 한글 500·700자 × 3byte)입니다. 학년·연도별 기재요령을 우선하세요.<br>※ 나이스 개방 API는 학교정보·학사일정만 제공하며, 학생 생기부·상담기록은 개인정보·보안상 외부 자동 연동이 불가합니다. 본 기능은 규정 준수 하의 <b>문구 생성·복사</b>입니다.</p>'
       +'</div>';
   }catch(e){ return ''; }
 }

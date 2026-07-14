@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>AI PIA · 시간표·학사일정 자동편성</title>
+<link rel="icon" href="images/favicon_256.png">
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--sky:#6a9bcc;--ok:#788c5d;--okbg:#eef3e6;--red:#b91c1c;--redbg:#fdecec}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.6}
+header{background:rgba(250,249,245,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+.brand{font-weight:800;display:flex;align-items:center;gap:8px}
+.brand .dot{width:24px;height:24px;border-radius:7px;background:var(--rust);display:grid;place-items:center;color:#fff;font-size:13px}
+.sp{flex:1}
+a.link{color:var(--rust);font-weight:700;text-decoration:none;font-size:13px}
+.wrap{max-width:1080px;margin:0 auto;padding:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.card h2{font-size:15px;margin-bottom:4px}
+.card .sub{font-size:12px;color:var(--ink2);margin-bottom:12px}
+label{font-size:12.5px;font-weight:700;color:var(--ink2)}
+input,select{font:inherit;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff}
+input[type=number]{width:70px}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;background:var(--ink);color:#fff}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+button.rust{background:var(--rust)}
+button.sm{padding:5px 10px;font-size:12px}
+button:hover{opacity:.93}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center;font-size:12.5px}
+th{background:var(--paper2);font-weight:700;color:var(--ink2)}
+.tt td{height:44px;vertical-align:middle}
+.tt .sub-cell{font-weight:700}
+.tt .tch{display:block;font-size:10.5px;color:var(--ink2);font-weight:400}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.mut{color:var(--ink2);font-size:12px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--paper2);color:var(--ink2)}
+.ok{background:var(--okbg);color:var(--ok)} .bad{background:var(--redbg);color:var(--red)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ttblock{margin-bottom:18px}
+.ttblock h3{font-size:13.5px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.sublist .subrow{display:grid;grid-template-columns:1.4fr 70px 1fr auto;gap:8px;align-items:center;margin-bottom:6px}
+.tag{background:#eef;color:#3730a3}
+.tag.sp{background:#fdeee7;color:var(--rust2)}
+.hint{font-size:11.5px;color:#94a3b8;margin-top:6px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}.sublist .subrow{grid-template-columns:1fr 60px 1fr auto}}
+@media print{header,.noprint{display:none!important}.card{border:0;padding:0}body{background:#fff}.ttblock{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot">P</span>AI PIA · 시간표·학사일정</div>
+  <span class="sp"></span>
+  <a class="link" href="index.html">홈</a>
+  <a class="link" href="pia-admin.html" style="margin-left:12px">통합 관리</a>
+</header>
+
+<div class="wrap">
+  <div class="card noprint">
+    <h2>① 기본 설정</h2>
+    <div class="sub">요일·교시 수를 정하고, 학급을 추가하세요. 초등 담임제를 기본으로, 전담 과목만 별도 교사가 배정됩니다.</div>
+    <div class="row">
+      <label>요일</label>
+      <select id="days">
+        <option value="5">월~금 (5일)</option>
+        <option value="6">월~토 (6일)</option>
+      </select>
+      <label style="margin-left:12px">하루 교시</label>
+      <input type="number" id="periods" min="3" max="8" value="6">
+      <label style="margin-left:12px">학급</label>
+      <input type="text" id="clsInput" placeholder="예: 3-1" style="width:110px">
+      <button class="sm" onclick="addClass()">+ 학급 추가</button>
+      <button class="sm ghost" onclick="quickClasses()">학년 일괄</button>
+    </div>
+    <div id="classList" class="row" style="margin-top:6px"></div>
+  </div>
+
+  <div class="card noprint">
+    <h2>② 과목·시수</h2>
+    <div class="sub">모든 학급 공통 커리큘럼입니다. 전담 과목은 유형을 <b>전담</b>으로 두고 교사명을 적으면, 그 교사가 여러 학급을 오가며 겹치지 않게 배정됩니다.</div>
+    <div class="sublist" id="subList"></div>
+    <div class="row" style="margin-top:8px">
+      <button class="sm ghost" onclick="addSub()">+ 과목 추가</button>
+      <button class="sm ghost" onclick="loadPreset()">초등 기본 과목 불러오기</button>
+      <span class="mut" id="hourSum"></span>
+    </div>
+    <div class="hint">한 학급 주당 총 시수는 <b>요일×교시</b>를 넘을 수 없습니다. 남는 칸은 '재량/자습'으로 비워 둡니다.</div>
+  </div>
+
+  <div class="card noprint">
+    <div class="row">
+      <button class="rust" onclick="generate()">🧩 시간표 자동편성</button>
+      <button class="ghost" onclick="window.print()">🖨️ 인쇄</button>
+      <span id="genMsg" class="mut"></span>
+    </div>
+  </div>
+
+  <div id="result"></div>
+
+  <div class="card noprint">
+    <h2>③ 학사일정 (겹침 확인용)</h2>
+    <div class="sub">학교 행사·휴업일을 입력해 두면, 편성한 시간표와 함께 한 화면에서 확인할 수 있습니다. 대한민국 공휴일은 자동 표시됩니다.</div>
+    <div class="row">
+      <label>연도</label><input type="number" id="calYear" value="2026" style="width:90px">
+      <label style="margin-left:8px">날짜</label><input type="date" id="evDate">
+      <input type="text" id="evName" placeholder="행사명 (예: 개교기념일)" style="flex:1;min-width:160px">
+      <button class="sm" onclick="addEvent()">+ 일정</button>
+    </div>
+    <div id="calList" style="margin-top:8px"></div>
+  </div>
+  <p class="hint noprint" style="text-align:center">※ 나이스 자동 전송은 보안망 특성상 불가합니다. 본 도구는 편성·인쇄·복사를 돕고, 나이스에는 결과를 참고해 입력하세요.</p>
+</div>
+
+<script>
+var DOW=['월','화','수','목','금','토'];
+var classes=[];
+var subs=[]; // {name,hours,type:'hr'|'sp',teacher}
+var events=[]; // {date,name}
+var KR_HOL={ // 2026 대한민국 공휴일(주요)
+ '2026-01-01':'신정','2026-02-16':'설날','2026-02-17':'설날','2026-02-18':'설날',
+ '2026-03-01':'삼일절','2026-03-02':'대체공휴일','2026-05-05':'어린이날','2026-05-24':'부처님오신날','2026-05-25':'대체공휴일',
+ '2026-06-06':'현충일','2026-08-15':'광복절','2026-08-17':'대체공휴일','2026-09-24':'추석','2026-09-25':'추석','2026-09-26':'추석',
+ '2026-10-03':'개천절','2026-10-05':'대체공휴일','2026-10-09':'한글날','2026-12-25':'성탄절'};
+
+function $(s){return document.querySelector(s);}
+function el(t,a,h){var e=document.createElement(t);if(a)for(var k in a)e.setAttribute(k,a[k]);if(h!=null)e.innerHTML=h;return e;}
+
+/* ---- 학사일정 연동(주간) ---- */
+var lastGrid=null,lastD=5,lastP=6,weekStart=null;
+function pad(n){return (n<10?'0':'')+n;}
+function dstr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function mondayOf(d){var x=new Date(d);var w=(x.getDay()+6)%7;x.setDate(x.getDate()-w);x.setHours(0,0,0,0);return x;}
+function dayDate(colIdx){var x=new Date(weekStart);x.setDate(x.getDate()+colIdx);return x;}
+function holName(ds){ if(KR_HOL[ds]) return {name:KR_HOL[ds],hol:true}; var ev=events.filter(function(e){return e.date===ds;}); return ev.length?{name:ev.map(function(e){return e.name;}).join(', '),hol:false}:null; }
+function weekInfo(D){ var arr=[]; for(var d=0;d<D;d++){ var ds=dstr(dayDate(d)); var h=holName(ds); arr.push({ds:ds,md:(dayDate(d).getMonth()+1)+'/'+dayDate(d).getDate(),info:h}); } return arr; }
+
+/* ---- 학급 ---- */
+function addClass(name){
+  var v=name||($('#clsInput').value||'').trim(); if(!v)return;
+  if(classes.indexOf(v)>=0){ $('#clsInput').value=''; return; }
+  classes.push(v); $('#clsInput').value=''; renderClasses();
+}
+function quickClasses(){
+  var g=prompt('몇 학년 몇 반까지? 예) 3학년 1~5반 → "3,5"','3,5'); if(!g)return;
+  var m=g.split(','); var grade=parseInt(m[0],10), n=parseInt(m[1],10);
+  if(!grade||!n)return; for(var i=1;i<=n;i++) if(classes.indexOf(grade+'-'+i)<0) classes.push(grade+'-'+i);
+  renderClasses();
+}
+function renderClasses(){
+  var c=$('#classList'); c.innerHTML='';
+  if(!classes.length){ c.appendChild(el('span',{class:'mut'},'학급을 추가하세요.')); return; }
+  classes.forEach(function(cl,i){
+    var p=el('span',{class:'pill',style:'cursor:pointer'},cl+' ✕');
+    p.onclick=function(){ classes.splice(i,1); renderClasses(); };
+    c.appendChild(p);
+  });
+}
+
+/* ---- 과목 ---- */
+function addSub(name,hours,type,teacher){
+  subs.push({name:name||'',hours:hours||1,type:type||'hr',teacher:teacher||''}); renderSubs();
+}
+function loadPreset(){
+  subs=[];
+  [['국어',5,'hr',''],['수학',4,'hr',''],['사회',3,'hr',''],['과학',3,'hr',''],
+   ['영어',2,'sp','김영어'],['체육',3,'sp','박체육'],['음악',2,'sp','이음악'],['미술',2,'sp','최미술'],
+   ['도덕',1,'hr',''],['창체',2,'hr','']].forEach(function(r){ subs.push({name:r[0],hours:r[1],type:r[2],teacher:r[3]}); });
+  renderSubs();
+}
+function renderSubs(){
+  var host=$('#subList'); host.innerHTML='';
+  subs.forEach(function(s,i){
+    var row=el('div',{class:'subrow'});
+    var n=el('input',{type:'text',value:s.name,placeholder:'과목명'}); n.oninput=function(){s.name=n.value;};
+    var h=el('input',{type:'number',min:'0',max:'20',value:s.hours}); h.oninput=function(){s.hours=parseInt(h.value,10)||0;updateHourSum();};
+    var wrap=el('div',{style:'display:flex;gap:6px;align-items:center'});
+    var t=el('select'); t.innerHTML='<option value="hr">담임</option><option value="sp">전담</option>'; t.value=s.type;
+    var tch=el('input',{type:'text',value:s.teacher,placeholder:'전담 교사명',style:'flex:1;min-width:80px'});
+    tch.style.display=s.type==='sp'?'':'none'; tch.oninput=function(){s.teacher=tch.value;};
+    t.onchange=function(){ s.type=t.value; tch.style.display=s.type==='sp'?'':'none'; };
+    wrap.appendChild(t); wrap.appendChild(tch);
+    var del=el('button',{class:'ghost sm'},'✕'); del.onclick=function(){ subs.splice(i,1); renderSubs(); };
+    row.appendChild(n); row.appendChild(h); row.appendChild(wrap); row.appendChild(del);
+    host.appendChild(row);
+  });
+  updateHourSum();
+}
+function updateHourSum(){
+  var sum=subs.reduce(function(a,s){return a+(s.hours||0);},0);
+  var cap=(parseInt($('#days').value,10))*(parseInt($('#periods').value,10)||0);
+  var over=sum>cap;
+  $('#hourSum').innerHTML='주당 합계 <b'+(over?' style="color:var(--red)"':'')+'>'+sum+'</b> / 최대 '+cap+' 교시'+(over?' · <b style="color:var(--red)">초과!</b>':'');
+}
+
+/* ---- 편성 알고리즘(백트래킹) ---- */
+function teacherId(cl,s){ return s.type==='sp'?('SP:'+(s.teacher||s.name)):('HR:'+cl); }
+function generate(){
+  var D=parseInt($('#days').value,10), P=parseInt($('#periods').value,10)||6;
+  if(!classes.length){ $('#genMsg').innerHTML='<span class="bad pill">학급을 먼저 추가하세요.</span>'; return; }
+  var valid=subs.filter(function(s){return s.name&&s.hours>0;});
+  if(!valid.length){ $('#genMsg').innerHTML='<span class="bad pill">과목을 입력하세요.</span>'; return; }
+  var cap=D*P, sum=valid.reduce(function(a,s){return a+s.hours;},0);
+  if(sum>cap){ $('#genMsg').innerHTML='<span class="bad pill">주당 시수('+sum+')가 최대 교시('+cap+')를 초과합니다.</span>'; return; }
+
+  // 레슨 생성: 전담(공유 교사) 먼저 → 제약 큰 순
+  var lessons=[];
+  classes.forEach(function(cl){
+    valid.forEach(function(s){
+      for(var k=0;k<s.hours;k++) lessons.push({cl:cl,sub:s,tid:teacherId(cl,s),sp:s.type==='sp'});
+    });
+  });
+  lessons.sort(function(a,b){ return (b.sp?1:0)-(a.sp?1:0); });
+
+  var slots=[]; for(var d=0;d<D;d++)for(var p=0;p<P;p++)slots.push(d*P+p);
+  var best=null;
+  for(var attempt=0; attempt<40 && !best; attempt++){
+    var order=lessons.slice(); if(attempt>0) shuffle(order);
+    var grid={}; classes.forEach(function(c){ grid[c]=new Array(D*P).fill(null); });
+    var tbusy={}; var steps={n:0};
+    if(place(order,0,grid,tbusy,D,P,slots,steps)) best=grid;
+  }
+  if(!best){ $('#genMsg').innerHTML='<span class="bad pill">조건을 만족하는 배치를 찾지 못했습니다. 시수/전담 시간을 조정해 보세요.</span>'; $('#result').innerHTML=''; return; }
+  $('#genMsg').innerHTML='<span class="ok pill">편성 완료 · 교사·학급 겹침 없음 ✓</span>';
+  lastGrid=best; lastD=D; lastP=P; if(!weekStart) weekStart=mondayOf(new Date());
+  renderResult(best,D,P);
+}
+function place(lessons,i,grid,tbusy,D,P,slots,steps){
+  if(i>=lessons.length) return true;
+  if(steps.n++>200000) return false; // 안전 상한
+  var L=lessons[i], cl=L.cl, day, p, sameDay;
+  var cand=slots.slice(); // 후보 슬롯
+  // 같은 과목 같은 날 회피(분산) 우선 정렬 + 랜덤
+  shuffle(cand);
+  for(var c=0;c<cand.length;c++){
+    var slot=cand[c]; day=Math.floor(slot/P);
+    if(grid[cl][slot]!=null) continue;
+    if(tbusy[L.tid+'#'+slot]) continue;
+    // 같은 날 같은 과목 2회 회피(가능하면)
+    var dup=false; for(p=0;p<P;p++){ var cell=grid[cl][day*P+p]; if(cell&&cell.sub===L.sub.name){ dup=true; break; } }
+    if(dup && !L._relax) continue;
+    grid[cl][slot]={sub:L.sub.name,tid:L.tid,sp:L.sp,teacher:L.sub.teacher||''};
+    tbusy[L.tid+'#'+slot]=1;
+    if(place(lessons,i+1,grid,tbusy,D,P,slots,steps)) return true;
+    grid[cl][slot]=null; delete tbusy[L.tid+'#'+slot];
+  }
+  // 분산 제약 완화 후 재시도
+  if(!L._relax){ L._relax=true; var r=place(lessons,i,grid,tbusy,D,P,slots,steps); L._relax=false; return r; }
+  return false;
+}
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+
+/* ---- 결과 렌더 ---- */
+function renderResult(grid,D,P){
+  var out=el('div',{class:'card'});
+  // 주간(학사일정 연동) 컨트롤
+  var wk=el('div',{class:'row noprint',style:'margin-bottom:6px'});
+  wk.innerHTML='<label>주간 보기</label>';
+  var wi=el('input',{type:'date',value:dstr(weekStart)});
+  wi.onchange=function(){ weekStart=mondayOf(new Date(wi.value)); renderResult(lastGrid,lastD,lastP); };
+  wk.appendChild(wi);
+  wk.appendChild(el('button',{class:'ghost sm',onclick:''},'')); wk.lastChild.textContent='이번 주'; wk.lastChild.onclick=function(){ weekStart=mondayOf(new Date()); renderResult(lastGrid,lastD,lastP); };
+  var winfo=weekInfo(D); var hols=winfo.filter(function(x){return x.info;});
+  wk.appendChild(el('span',{class:'mut'}, hols.length?('이 주: '+hols.map(function(x){return x.md+' '+x.info.name;}).join(' · ')+' → 해당 요일 회색 표시'):'이 주에는 공휴일·등록 행사가 없습니다.'));
+  out.appendChild(wk);
+  // 교사 배정 요약
+  out.appendChild(teacherSummary(grid,D,P));
+  out.appendChild(el('h2',{style:'margin-top:6px'},'전체 학급 시간표'));
+  var g2=el('div',{class:'grid2'});
+  classes.forEach(function(cl){
+    g2.appendChild(ttBlock(cl+' 반', grid[cl], D,P, 'cls-'+cl, false, winfo));
+  });
+  out.appendChild(g2);
+  // 담임 편집기(자기 반 · 전담 칸 잠금)
+  out.appendChild(classEditor(grid,D,P,winfo));
+  // 전담 교사 시간표
+  var sps={}; classes.forEach(function(cl){ grid[cl].forEach(function(cell,slot){ if(cell&&cell.sp){ var t=cell.tid.slice(3); (sps[t]=sps[t]||{})[slot]={sub:cell.sub,cl:cl}; } }); });
+  var names=Object.keys(sps);
+  if(names.length){
+    out.appendChild(el('h2',{style:'margin-top:18px'},'전담 교사별 시간표'));
+    var g3=el('div',{class:'grid2'});
+    names.forEach(function(t){
+      var arr=new Array(D*P).fill(null);
+      for(var slot in sps[t]) arr[slot]={sub:sps[t][slot].sub,teacher:sps[t][slot].cl,sp:true};
+      g3.appendChild(ttBlock(t+' 선생님', arr, D,P, 'tch-'+t, true, winfo));
+    });
+    out.appendChild(g3);
+  }
+  var host=$('#result'); host.innerHTML=''; host.appendChild(out);
+}
+function teacherSummary(grid,D,P){
+  var box=el('div',{class:'card',style:'background:var(--paper2);margin-bottom:14px;padding:12px'});
+  var hrCnt=classes.length; // 담임 = 학급 수
+  var spLoad={}; classes.forEach(function(cl){ grid[cl].forEach(function(cell){ if(cell&&cell.sp){ var t=cell.tid.slice(3); spLoad[t]=(spLoad[t]||0)+1; } }); });
+  var spNames=Object.keys(spLoad); var cap=D*P;
+  var rows=spNames.map(function(t){ var over=spLoad[t]>cap; return '<tr><td>'+esc(t)+'</td><td>전담</td><td'+(over?' style="color:var(--red);font-weight:700"':'')+'>'+spLoad[t]+'교시'+(over?' · 과부하!':'')+'</td></tr>'; }).join('');
+  box.innerHTML='<h2 style="font-size:14px">교사 배정 요약 <span class="mut" style="font-weight:400">· 학생 수는 시간표 편성에 불필요(학급 단위)</span></h2>'
+    +'<div class="mut" style="margin:2px 0 8px">담임 <b>'+hrCnt+'명</b>(학급당 1명) · 전담 <b>'+spNames.length+'명</b> · 총 교사 <b>'+(hrCnt+spNames.length)+'명</b> (주당 최대 '+cap+'교시)</div>'
+    +(spNames.length?('<table><tr><th>교사</th><th>구분</th><th>주당 배정</th></tr>'+rows+'</table>'):'<div class="mut">전담 과목이 없습니다(전 과목 담임 수업).</div>');
+  return box;
+}
+function ttBlock(title,arr,D,P,id,teacherView,winfo){
+  var b=el('div',{class:'ttblock'});
+  var h=el('h3',null,'<span>'+title+'</span>');
+  var cp=el('button',{class:'ghost sm noprint'},'📋 복사'); cp.onclick=function(){ copyTT(arr,D,P,teacherView,title); };
+  h.appendChild(cp); b.appendChild(h);
+  var t=el('table',{class:'tt'});
+  var thead='<tr><th>교시</th>';
+  for(var d=0;d<D;d++){ var w=winfo&&winfo[d]; var hol=w&&w.info;
+    thead+='<th'+(hol?' style="background:'+(w.info.hol?'#fdecec':'#fff7e6')+';color:'+(w.info.hol?'var(--red)':'#8a6d1a')+'"':'')+'>'+DOW[d]+(w?'<br><span style="font-weight:400;font-size:10px;color:#94a3b8">'+w.md+'</span>':'')+(hol?'<br><span style="font-weight:700;font-size:9.5px">'+esc(w.info.name)+'</span>':'')+'</th>'; }
+  thead+='</tr>';
+  var body='';
+  for(var p=0;p<P;p++){
+    body+='<tr><th>'+(p+1)+'</th>';
+    for(var d=0;d<D;d++){ var cell=arr[d*P+p]; var w=winfo&&winfo[d]; var grey=w&&w.info&&w.info.hol;
+      var bg=grey?' style="background:#f3f1ea;color:#c4c0b4"':'';
+      if(grey) body+='<td'+bg+'>휴업</td>';
+      else if(cell) body+='<td><span class="sub-cell">'+esc(cell.sub)+'</span><span class="tch">'+esc(teacherView?cell.teacher:(cell.teacher||''))+'</span></td>';
+      else body+='<td class="mut">·</td>';
+    }
+    body+='</tr>';
+  }
+  t.innerHTML=thead+body; b.appendChild(t); return b;
+}
+/* ---- 담임 편집기: 자기 반 시간표를 직접 조정(전담 잠금) ---- */
+var _edit={cls:null,arr:null,sel:-1,D:5,P:6,winfo:null};
+function classEditor(grid,D,P,winfo){
+  var box=el('div',{class:'card',id:'clsEditor',style:'background:#fbfaf6;margin-top:16px'});
+  if(!_edit.cls || classes.indexOf(_edit.cls)<0){ _edit.cls=classes[0]; _edit.arr=grid[_edit.cls].slice(); }
+  _edit.D=D;_edit.P=P;_edit.winfo=winfo; _edit.src=grid;
+  drawEditor(box);
+  return box;
+}
+function drawEditor(box){
+  box=box||document.getElementById('clsEditor'); if(!box)return;
+  var D=_edit.D,P=_edit.P,winfo=_edit.winfo,arr=_edit.arr;
+  var head='<h2 style="font-size:15px">담임 편집 <span class="mut" style="font-weight:400">· 자기 반 시간표를 직접 조정 (전담 칸은 🔒 잠금)</span></h2>'
+    +'<div class="sub">담임 과목·빈칸을 <b>클릭 → 옮길 칸 클릭</b>하면 자리가 바뀝니다. 전담 시간은 다른 반과 겹치므로 이동할 수 없습니다.</div>'
+    +'<div class="row noprint"><label>우리 반</label><select id="edCls">'
+    + classes.map(function(c){return '<option'+(c===_edit.cls?' selected':'')+'>'+esc(c)+'</option>';}).join('')
+    +'</select>'
+    +'<button class="sm ghost" id="edReset">↩ 자동편성으로 되돌리기</button>'
+    +'<button class="sm ghost" id="edCopy">📋 복사</button>'
+    +'<button class="sm ghost" id="edPrint">🖨️ 이 표 인쇄</button>'
+    +(_edit.sel>=0?'<span class="pill" style="background:#fdeee7;color:var(--rust2)">선택됨 · 옮길 칸을 클릭</span>':'')
+    +'</div>';
+  var t='<table class="tt" style="margin-top:8px"><tr><th>교시</th>';
+  for(var d=0;d<D;d++){ var w=winfo&&winfo[d]; var hol=w&&w.info;
+    t+='<th'+(hol?' style="background:'+(w.info.hol?'#fdecec':'#fff7e6')+'"':'')+'>'+DOW[d]+(w?'<br><span style="font-weight:400;font-size:10px;color:#94a3b8">'+w.md+'</span>':'')+'</th>'; }
+  t+='</tr>';
+  for(var p=0;p<P;p++){ t+='<tr><th>'+(p+1)+'</th>';
+    for(var d=0;d<D;d++){ var slot=d*P+p; var cell=arr[slot]; var w=winfo&&winfo[d]; var hol=w&&w.info&&w.info.hol;
+      var locked=(cell&&cell.sp)||hol;
+      var selCls=(_edit.sel===slot)?'background:#ffe9de;outline:2px solid var(--rust)':'';
+      if(hol) t+='<td style="background:#f3f1ea;color:#c4c0b4">휴업</td>';
+      else if(cell&&cell.sp) t+='<td style="background:#eef;cursor:not-allowed"><span class="sub-cell">'+esc(cell.sub)+' 🔒</span><span class="tch">전담</span></td>';
+      else t+='<td data-slot="'+slot+'" style="cursor:pointer;'+selCls+'">'+(cell?'<span class="sub-cell">'+esc(cell.sub)+'</span><span class="tch">담임</span>':'<span class="mut">·</span>')+'</td>';
+    }
+    t+='</tr>';
+  }
+  t+='</table>';
+  box.innerHTML=head+t;
+  box.querySelector('#edCls').onchange=function(){ _edit.cls=this.value; _edit.arr=_edit.src[_edit.cls].slice(); _edit.sel=-1; drawEditor(); };
+  box.querySelector('#edReset').onclick=function(){ _edit.arr=_edit.src[_edit.cls].slice(); _edit.sel=-1; drawEditor(); };
+  box.querySelector('#edCopy').onclick=function(){ copyTT(_edit.arr,D,P,false,_edit.cls+' 반 (담임 조정본)'); };
+  box.querySelector('#edPrint').onclick=function(){ printOne(_edit.cls+' 반 시간표', _edit.arr,D,P,winfo); };
+  box.querySelectorAll('[data-slot]').forEach(function(td){ td.onclick=function(){ pickCell(+td.dataset.slot); }; });
+}
+function pickCell(slot){
+  if(_edit.sel<0){ _edit.sel=slot; drawEditor(); return; }
+  if(_edit.sel===slot){ _edit.sel=-1; drawEditor(); return; }
+  var a=_edit.arr; var tmp=a[_edit.sel]; a[_edit.sel]=a[slot]; a[slot]=tmp; _edit.sel=-1; drawEditor();
+}
+function printOne(title,arr,D,P,winfo){
+  var w=window.open('','_blank'); if(!w){alert('팝업 차단을 해제해 주세요.');return;}
+  var html='<html><head><meta charset=utf-8><title>'+title+'</title><style>body{font-family:sans-serif;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:8px;text-align:center;font-size:13px}h2{font-size:16px}</style></head><body><h2>'+title+'</h2><table><tr><th>교시</th>';
+  for(var d=0;d<D;d++) html+='<th>'+DOW[d]+'</th>'; html+='</tr>';
+  for(var p=0;p<P;p++){ html+='<tr><th>'+(p+1)+'</th>'; for(var d=0;d<D;d++){ var c=arr[d*P+p]; html+='<td>'+(c?c.sub+(c.sp?'(전담)':''):'')+'</td>'; } html+='</tr>'; }
+  html+='</table></body></html>'; w.document.write(html); w.document.close(); w.print();
+}
+function copyTT(arr,D,P,teacherView,title){
+  var lines=[title]; var head='교시'; for(var d=0;d<D;d++) head+='\t'+DOW[d]; lines.push(head);
+  for(var p=0;p<P;p++){ var r=(p+1)+'교시'; for(var d=0;d<D;d++){ var c=arr[d*P+p]; r+='\t'+(c?(c.sub+(teacherView?('('+c.teacher+')'):(c.teacher?('('+c.teacher+')'):''))):''); } lines.push(r); }
+  navigator.clipboard.writeText(lines.join('\n')).then(function(){ alert('복사되었습니다. 엑셀·한글에 붙여넣기(탭 구분)됩니다.'); });
+}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+
+/* ---- 학사일정 ---- */
+function addEvent(){ var d=$('#evDate').value, n=($('#evName').value||'').trim(); if(!d||!n)return; events.push({date:d,name:n}); $('#evName').value=''; renderCal(); }
+function renderCal(){
+  var y=parseInt($('#calYear').value,10)||2026;
+  var all=[];
+  for(var k in KR_HOL) if(k.indexOf(y+'-')===0) all.push({date:k,name:KR_HOL[k],hol:true});
+  events.forEach(function(e){ all.push({date:e.date,name:e.name}); });
+  all.sort(function(a,b){ return a.date<b.date?-1:1; });
+  var host=$('#calList'); host.innerHTML='';
+  if(!all.length){ host.appendChild(el('span',{class:'mut'},'등록된 일정이 없습니다.')); return; }
+  var t=el('table'); var body='<tr><th>날짜</th><th>구분</th><th>내용</th><th class="noprint"></th></tr>';
+  all.forEach(function(e,i){
+    var dt=new Date(e.date); var dow=DOW[(dt.getDay()+6)%7];
+    body+='<tr><td>'+e.date+' ('+dow+')</td><td>'+(e.hol?'<span class="pill bad">공휴일</span>':'<span class="pill tag sp">행사</span>')+'</td><td>'+esc(e.name)+'</td>'
+      +'<td class="noprint">'+(e.hol?'':'<button class="ghost sm" data-i="'+i+'">✕</button>')+'</td></tr>';
+  });
+  t.innerHTML=body; host.appendChild(t);
+  host.querySelectorAll('[data-i]').forEach(function(btn){ btn.onclick=function(){ var idx=all[+btn.dataset.i]; events=events.filter(function(x){return !(x.date===idx.date&&x.name===idx.name);}); renderCal(); }; });
+}
+
+/* ---- init ---- */
+$('#days').onchange=updateHourSum; $('#periods').oninput=updateHourSum;
+$('#calYear').oninput=renderCal;
+$('#clsInput').addEventListener('keydown',function(e){ if(e.key==='Enter') addClass(); });
+addClass('3-1'); addClass('3-2'); loadPreset(); renderCal();
+</script>
+</body>
+</html>

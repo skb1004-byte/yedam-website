@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>AI PIA · 선생님도우미</title>
+<link rel="icon" href="images/favicon_256.png">
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--sky:#6a9bcc;--ok:#788c5d;--okbg:#eef3e6;--red:#b91c1c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.6}
+header{background:rgba(250,249,245,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+.brand{font-weight:800;display:flex;align-items:center;gap:8px}
+.brand .dot{width:24px;height:24px;border-radius:7px;background:var(--rust);display:grid;place-items:center;color:#fff;font-size:13px}
+.sp{flex:1}
+a.link{color:var(--rust);font-weight:700;text-decoration:none;font-size:13px;margin-left:12px}
+.wrap{max-width:900px;margin:0 auto;padding:22px 18px}
+.hero{margin-bottom:18px}
+.hero h1{font-size:22px;font-weight:800}
+.hero p{color:var(--ink2);font-size:13.5px;margin-top:4px}
+.who{font-size:12px;color:var(--ink2)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.tile{display:block;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;text-decoration:none;color:inherit;transition:.15s}
+.tile:hover{border-color:var(--rust);box-shadow:0 6px 22px rgba(0,0,0,.06);transform:translateY(-2px)}
+.tile .ic{font-size:26px}
+.tile .t{font-weight:800;font-size:15.5px;margin:8px 0 3px}
+.tile .d{font-size:12.5px;color:var(--ink2)}
+.gate{max-width:420px;margin:64px auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;text-align:center}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--ink);color:#fff}
+.note{font-size:12px;color:var(--ink2)}
+.hide{display:none}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--okbg);color:var(--ok);margin-left:6px}
+.cta{display:flex;align-items:center;gap:16px;text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--rust) 0%,var(--rust2) 100%);border-radius:18px;padding:20px 22px;margin-bottom:18px;box-shadow:0 8px 26px rgba(217,119,87,.28);transition:.15s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(217,119,87,.36)}
+.cta-l{flex:1}
+.cta-badge{display:inline-block;background:rgba(255,255,255,.22);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;margin-bottom:7px}
+.cta-h{font-size:19px;font-weight:800;line-height:1.35}
+.cta-d{font-size:13px;opacity:.96;margin-top:6px;line-height:1.6}
+.cta-d b{background:rgba(255,255,255,.2);padding:0 4px;border-radius:4px}
+.cta-tr{font-size:12px;opacity:.95;margin-top:9px;font-weight:600}
+.cta-btn{flex-shrink:0;background:#fff;color:var(--rust2);font-weight:800;font-size:14.5px;text-align:center;line-height:1.35;padding:14px 18px;border-radius:14px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}.cta{flex-direction:column;align-items:stretch;text-align:center}.cta-btn{margin-top:4px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot">P</span>AI PIA · 선생님도우미</div>
+  <span class="sp"></span>
+  <span class="who" id="who"></span>
+  <a class="link" href="index.html">홈</a>
+  <a class="link" href="#" id="logout">로그아웃</a>
+</header>
+
+<div id="gate" class="gate hide">
+  <p style="font-weight:700;margin-bottom:6px">선생님도우미</p>
+  <p class="note" id="gatemsg" style="margin-bottom:16px">선생님(기관) 계정으로 로그인하면 교사 전용 도구를 이용할 수 있습니다.</p>
+  <button id="login">Google로 로그인</button>
+</div>
+
+<div id="app" class="wrap hide">
+  <div class="hero">
+    <h1>선생님도우미 <span class="tag">교사 전용</span></h1>
+    <p>담임·전담 선생님을 위한 도구 모음입니다. 반 학생 결과 확인부터 나이스 입력, 시간표·학사일정 편성까지 한 곳에서.</p>
+  </div>
+
+  <a class="cta" href="https://www.kb2g.org/auth/" target="_blank" rel="noopener">
+    <div class="cta-l">
+      <div class="cta-badge">공공기관 우선구매 · 조달 등록</div>
+      <div class="cta-h">우리 학교에 AI PIA, 예산 걱정 없이 도입하세요</div>
+      <div class="cta-d">청소년 진로·심리검사부터 나이스 입력·학급 도구까지 — 검증된 <b>공익장터</b> 조달 채널로 투명하고 간편하게. 복잡한 계약 절차 없이 우선구매 대상으로 신청하실 수 있습니다.</div>
+      <div class="cta-tr">✔ 공공기관·사업자 전용 &nbsp; ✔ 청렴 준수 조달 &nbsp; ✔ 우선구매 대상</div>
+    </div>
+    <div class="cta-btn">공익장터에서<br>도입·구매하기 →</div>
+  </a>
+  <div class="grid">
+    <a class="tile" href="teacher.html">
+      <div class="ic">👨‍🏫</div><div class="t">우리 반 학생 결과</div>
+      <div class="d">반 코드로 연결된 학생들의 검사 현황·통합유형·정서 신호를 한눈에 확인하고 개별 결과지로 이동합니다.</div>
+    </a>
+    <a class="tile" href="nice-timetable.html">
+      <div class="ic">🗓️</div><div class="t">시간표·학사일정 자동편성</div>
+      <div class="d">전 학급 과목·시수와 전담을 입력하면 교사·학급이 겹치지 않는 주간 시간표를 자동 편성. 공휴일·행사 연동.</div>
+    </a>
+    <a class="tile" href="class-tools.html">
+      <div class="ic">🎲</div><div class="t">학급 도구 키트</div>
+      <div class="d">자리배치·모둠편성·이름/숫자 뽑기·수업 타이머·점수판을 한 곳에서. 명단 한 번 입력으로 모든 도구가 공유합니다.</div>
+    </a>
+    <a class="tile" href="ai-pia.html?aud=teacher">
+      <div class="ic">🧪</div><div class="t">검사 실행 · 결과지(교사용)</div>
+      <div class="d">학생 검사를 진행하고, 교사 관점의 AI 상담 소견서와 학부모 전달 포인트를 확인합니다.</div>
+    </a>
+    <a class="tile" href="ai-pia.html?aud=teacher#nice">
+      <div class="ic">🏫</div><div class="t">나이스(NEIS) 입력 도우미</div>
+      <div class="d">행동특성·창의적 체험활동·상담기록을 학교급별로 자동 초안 생성. 글자수·byte 확인 후 한 번에 복사.</div>
+    </a>
+    <a class="tile" href="mypage.html">
+      <div class="ic">🔑</div><div class="t">반 코드 관리 · 마이페이지</div>
+      <div class="d">우리 반 코드를 확인해 학생에게 안내하고, 회원 유형·기관 설정을 관리합니다.</div>
+    </a>
+    <a class="tile" href="pia-admin.html">
+      <div class="ic">📊</div><div class="t">통합 관리(기관장)</div>
+      <div class="d">결과 관리·회원/기관·엔진 설정 등 운영 도구입니다. 기관장·운영자 권한에서 열립니다.</div>
+    </a>
+  </div>
+  <p class="note" style="margin-top:16px">※ 나이스 자동 전송은 보안망 특성상 불가하며, 본 도구는 편성·문구 생성·복사를 돕습니다.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var sb=window.supabase.createClient('https://ushtyxnmqclzgdnynusm.supabase.co','sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102');
+function $(s){return document.querySelector(s);}
+function show(id,on){document.getElementById(id).classList[on?'remove':'add']('hide');}
+document.getElementById('login').onclick=function(){ sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}}); };
+document.getElementById('logout').onclick=function(e){ e.preventDefault(); sb.auth.signOut().then(function(){location.reload();}); };
+(async function init(){
+  var s=await sb.auth.getSession();
+  var ses=s&&s.data&&s.data.session;
+  if(!ses){ show('gate',true); show('app',false); return; }
+  $('#who').textContent=ses.user.email||'';
+  var r=await sb.rpc('pia_my_profile');
+  var role=(r&&r.data&&r.data[0]&&r.data[0].role)||'individual';
+  if(['super_admin','org_admin','org_member'].indexOf(role)<0){
+    show('gate',true); show('app',false);
+    $('#gatemsg').innerHTML='<span style="color:var(--red);font-weight:700">교사(기관) 권한이 필요합니다.</span><br>마이페이지에서 회원 유형을 <b>선생님·기관</b>으로 설정하세요.';
+    $('#login').classList.add('hide');
+    return;
+  }
+  show('gate',false); show('app',true);
+})();
+</script>
+<script src="err-cs.js" defer></script>
+</body>
+</html>
