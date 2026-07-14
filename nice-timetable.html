@@ -68,12 +68,26 @@ th{background:var(--paper2);font-weight:700;color:var(--ink2)}
       </select>
       <label style="margin-left:12px">하루 교시</label>
       <input type="number" id="periods" min="3" max="8" value="6">
-      <label style="margin-left:12px">학급</label>
-      <input type="text" id="clsInput" placeholder="예: 3-1" style="width:110px">
-      <button class="sm" onclick="addClass()">+ 학급 추가</button>
-      <button class="sm ghost" onclick="quickClasses()">학년 일괄</button>
+      <label style="margin-left:12px">학급 직접추가</label>
+      <input type="text" id="clsInput" placeholder="예: 3-1" style="width:100px">
+      <button class="sm" onclick="addClass()">+ 추가</button>
     </div>
-    <div id="classList" class="row" style="margin-top:6px"></div>
+    <div class="row" style="margin-top:10px;padding:11px;background:var(--paper2);border-radius:10px;align-items:center">
+      <span style="font-size:12.5px;font-weight:700;color:var(--ink2)">학년별 반 수만 입력하면 전 학급 자동 생성 →</span>
+      <span id="gradeInputs" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"></span>
+      <button class="sm" onclick="buildByGrade()">전 학급 생성</button>
+      <button class="sm ghost" onclick="classes.length=0;renderClasses()">전체 비우기</button>
+    </div>
+    <div class="row" style="margin-top:8px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:12.5px;font-weight:700;color:var(--ink2)">🏫 NEIS 자동</span>
+      <input type="text" id="neisSchool" placeholder="학교명 (예: 서울대도초)" style="width:170px">
+      <input type="text" id="neisKey" placeholder="NEIS 오픈API 키(선택)" style="width:160px">
+      <a href="https://open.neis.go.kr/portal/myPage/actKeyManage/list.do" target="_blank" rel="noopener" style="font-size:11px;color:var(--rust2);font-weight:700;text-decoration:none">키 발급 →</a>
+      <button class="sm" onclick="neisAuto()">학년·학급수 자동</button>
+      <span id="neisMsg" class="mut" style="font-size:11.5px"></span>
+    </div>
+    <div id="classList" class="row" style="margin-top:10px"></div>
+    <div class="hint">학교명으로 NEIS <b>학급현황</b>을 불러와 학년별 반 수를 자동 채웁니다. (개방 API 키 없으면 일부만 조회 · 브라우저 보안(CORS)으로 막히면 위 학년별 반 수를 직접 입력하세요.)</div>
   </div>
 
   <div class="card noprint">
@@ -141,20 +155,63 @@ function addClass(name){
   if(classes.indexOf(v)>=0){ $('#clsInput').value=''; return; }
   classes.push(v); $('#clsInput').value=''; renderClasses();
 }
-function quickClasses(){
-  var g=prompt('몇 학년 몇 반까지? 예) 3학년 1~5반 → "3,5"','3,5'); if(!g)return;
-  var m=g.split(','); var grade=parseInt(m[0],10), n=parseInt(m[1],10);
-  if(!grade||!n)return; for(var i=1;i<=n;i++) if(classes.indexOf(grade+'-'+i)<0) classes.push(grade+'-'+i);
+function initGradeInputs(){
+  var host=$('#gradeInputs'); if(!host||host.children.length) return;
+  for(var g=1; g<=6; g++){
+    var lab=el('label',{style:'font-size:12px;color:var(--ink2);display:inline-flex;align-items:center;gap:3px'});
+    lab.innerHTML=g+'학년';
+    var inp=el('input',{type:'number',min:'0',max:'20',value:'0',id:'gcnt-'+g,style:'width:44px'});
+    lab.appendChild(inp); host.appendChild(lab);
+  }
+}
+function buildByGrade(){
+  var added=0;
+  for(var g=1; g<=6; g++){
+    var el2=document.getElementById('gcnt-'+g); if(!el2) continue;
+    var n=parseInt(el2.value,10)||0;
+    for(var i=1;i<=n;i++){ var nm=g+'-'+i; if(classes.indexOf(nm)<0){ classes.push(nm); added++; } }
+  }
+  classes.sort(function(a,b){ var A=a.split('-').map(Number),B=b.split('-').map(Number); return A[0]-B[0]||A[1]-B[1]; });
   renderClasses();
 }
 function renderClasses(){
   var c=$('#classList'); c.innerHTML='';
-  if(!classes.length){ c.appendChild(el('span',{class:'mut'},'학급을 추가하세요.')); return; }
+  var cnt=el('span',{style:'font-size:12.5px;font-weight:800;color:var(--rust2);margin-right:8px'}, '총 '+classes.length+'학급');
+  c.appendChild(cnt);
+  if(!classes.length){ c.appendChild(el('span',{class:'mut'},'· 학년별 반 수를 입력하거나 학급을 추가하세요.')); return; }
   classes.forEach(function(cl,i){
     var p=el('span',{class:'pill',style:'cursor:pointer'},cl+' ✕');
     p.onclick=function(){ classes.splice(i,1); renderClasses(); };
     c.appendChild(p);
   });
+}
+/* ---- NEIS 학급현황 자동 ---- */
+async function neisJson(url){
+  var r=await fetch(url); var j=await r.json(); return j;
+}
+async function neisAuto(){
+  var nm=($('#neisSchool').value||'').trim(); var key=($('#neisKey').value||'').trim();
+  var msg=$('#neisMsg'); if(!nm){ msg.textContent='학교명을 입력하세요.'; return; }
+  msg.style.color='#94a3b8'; msg.textContent='NEIS 조회 중…';
+  var K=key||'sample'; var base='https://open.neis.go.kr/hub/';
+  try{
+    var si=await neisJson(base+'schoolInfo?Type=json&pIndex=1&pSize=5&KEY='+encodeURIComponent(K)+'&SCHUL_NM='+encodeURIComponent(nm));
+    var rows=(si.schoolInfo&&si.schoolInfo[1]&&si.schoolInfo[1].row)||[];
+    if(!rows.length){ msg.style.color='#b91c1c'; msg.textContent='학교를 찾지 못했습니다. 이름을 정확히 입력하거나 학년별 반 수를 직접 넣으세요.'; return; }
+    var s=rows[0]; var ay=new Date().getFullYear();
+    var ci=await neisJson(base+'classInfo?Type=json&pIndex=1&pSize=1000&KEY='+encodeURIComponent(K)+'&ATPT_OFCDC_SC_CODE='+s.ATPT_OFCDC_SC_CODE+'&SD_SCHUL_CODE='+s.SD_SCHUL_CODE+'&AY='+ay);
+    var crows=(ci.classInfo&&ci.classInfo[1]&&ci.classInfo[1].row)||[];
+    if(!crows.length){ msg.style.color='#b91c1c'; msg.textContent=(key?'학급 정보가 없습니다.':'키가 없어 조회가 제한됩니다. NEIS 오픈API 키를 넣거나 직접 입력하세요.'); return; }
+    var byGrade={};
+    crows.forEach(function(r){ var g=parseInt(r.GRADE,10); if(!g)return; (byGrade[g]=byGrade[g]||new Set()).add(r.CLASS_NM); });
+    for(var g=1;g<=6;g++){ var e=document.getElementById('gcnt-'+g); if(e) e.value=byGrade[g]?byGrade[g].size:0; }
+    buildByGrade();
+    msg.style.color='#788c5d';
+    msg.textContent=(s.SCHUL_NM||nm)+' · '+ay+'학년도 학급현황 반영 완료 (총 '+classes.length+'학급)';
+  }catch(e){
+    msg.style.color='#b91c1c';
+    msg.textContent='자동 조회 실패(브라우저 보안·네트워크). 학년별 반 수를 직접 입력해 주세요.';
+  }
 }
 
 /* ---- 과목 ---- */
@@ -409,6 +466,7 @@ function renderCal(){
 $('#days').onchange=updateHourSum; $('#periods').oninput=updateHourSum;
 $('#calYear').oninput=renderCal;
 $('#clsInput').addEventListener('keydown',function(e){ if(e.key==='Enter') addClass(); });
+initGradeInputs();
 addClass('3-1'); addClass('3-2'); loadPreset(); renderCal();
 </script>
 </body>
