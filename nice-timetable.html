@@ -209,7 +209,7 @@ async function neisAuto(){
     var s=rows[0]; var ay=new Date().getFullYear();
     var ci=await neisJson(base+'classInfo?Type=json&pIndex=1&pSize=1000&KEY='+encodeURIComponent(K)+'&ATPT_OFCDC_SC_CODE='+s.ATPT_OFCDC_SC_CODE+'&SD_SCHUL_CODE='+s.SD_SCHUL_CODE+'&AY='+ay);
     var crows=(ci.classInfo&&ci.classInfo[1]&&ci.classInfo[1].row)||[];
-    if(!crows.length){ msg.style.color='#b91c1c'; msg.textContent=(key?'학급 정보가 없습니다.':'키가 없어 조회가 제한됩니다. NEIS 오픈API 키를 넣거나 직접 입력하세요.'); return; }
+    if(!crows.length){ msg.style.color='#b91c1c'; msg.textContent='학급 정보가 없습니다. 학교명을 정확히 입력하거나 학년별 반 수를 직접 넣으세요.'; return; }
     var byGrade={};
     crows.forEach(function(r){ var g=parseInt(r.GRADE,10); if(!g)return; (byGrade[g]=byGrade[g]||new Set()).add(r.CLASS_NM); });
     for(var g=1;g<=6;g++){ var e=document.getElementById('gcnt-'+g); if(e) e.value=byGrade[g]?byGrade[g].size:0; }
@@ -530,8 +530,10 @@ function printOne(title,arr,D,P,winfo){
 function copyTT(arr,D,P,teacherView,title){
   var lines=[title]; var head='교시'; for(var d=0;d<D;d++) head+='\t'+DOW[d]; lines.push(head);
   for(var p=0;p<P;p++){ var r=(p+1)+'교시'; for(var d=0;d<D;d++){ var c=arr[d*P+p]; r+='\t'+(c?(c.sub+(teacherView?('('+c.teacher+')'):(c.teacher?('('+c.teacher+')'):''))):''); } lines.push(r); }
-  navigator.clipboard.writeText(lines.join('\n')).then(function(){ alert('복사되었습니다. 엑셀·한글에 붙여넣기(탭 구분)됩니다.'); });
+  var _txt=lines.join('\n'), _ok='복사되었습니다. 엑셀·한글에 붙여넣기(탭 구분)됩니다.';
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(_txt).then(function(){alert(_ok);},function(){_legacyCopy(_txt,_ok);}); } else { _legacyCopy(_txt,_ok); } }catch(e){ _legacyCopy(_txt,_ok); }
 }
+function _legacyCopy(t,ok){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert(ok); }catch(e){ alert('복사 실패 — 표를 직접 선택해 복사하세요.'); } }
 function esc(s){return (s==null?'':String(s)).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
 
 /* ---- 학사일정 ---- */
