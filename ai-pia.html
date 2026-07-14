@@ -7974,7 +7974,11 @@ function piaSaveSupabase(rec){
 
 // ---- RBAC: 로그인 역할로 허용 audience 결정 ----
 var PIA_ALLOWED_AUD=['student'];
-function audAllowed(a){ return PIA_ALLOWED_AUD.indexOf(a)>=0; }
+function audAllowed(a){
+  // 미리보기·관리자 진입(sample/record/print)에서는 역할과 무관하게 허용 (데모/교사·관리자 열람용)
+  try{ if(typeof _piaSkipGate==='function' && _piaSkipGate()) return true; }catch(e){}
+  return PIA_ALLOWED_AUD.indexOf(a)>=0;
+}
 function _audKoName(a){ return a==='teacher'?'선생님용':a==='parent'?'학부모용':'본인용'; }
 function piaSyncAudButtons(){
   try{ document.querySelectorAll('.aud-btn').forEach(function(b){
