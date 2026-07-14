@@ -1939,6 +1939,31 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     </div>
     <pre id="careernet-result" class="hidden mt-2 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs overflow-auto max-h-72 whitespace-pre-wrap"></pre>
   </div>
+
+  <div class="border-t border-slate-200 pt-4">
+    <h3 class="font-semibold text-sm mb-2">🤖 Anthropic Claude 키</h3>
+    <p class="text-xs text-slate-500 mb-2">더 정교한 AI 상담·해석을 원하면 위 <b>엔진 모드</b>에서 <b>"Anthropic Claude Haiku 4.5"</b>를 선택하고, <b>API Key</b>칸에 <code class="bg-slate-100 px-1 rounded">sk-ant-...</code> 키를 넣고 저장하세요. 키는 이 브라우저에만 저장됩니다. (console.anthropic.com 에서 발급)</p>
+    <div class="flex flex-wrap gap-2 items-center">
+      <button id="cfg-claude-quick" class="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs">엔진을 Claude로 전환</button>
+      <span id="cfg-claude-status" class="text-[11px] text-slate-500"></span>
+    </div>
+    <p class="text-[11px] text-amber-700 mt-2">⚠ API 키를 브라우저에 두면 노출 위험이 있습니다. 상용 서비스에선 백엔드 프록시 경유를 권장합니다.</p>
+  </div>
+
+  <div class="border-t border-slate-200 pt-4">
+    <h3 class="font-semibold text-sm mb-2">💳 Stripe 결제 연동</h3>
+    <p class="text-xs text-slate-500 mb-3">검사·구독을 유료화할 때 사용합니다. <b>가장 안전·간단한 방법은 Stripe 결제 링크(Payment Link)</b> — Stripe 대시보드에서 상품/가격을 만들고 결제 링크(<code class="bg-slate-100 px-1 rounded">https://buy.stripe.com/...</code>)를 생성해 아래에 붙여넣으면 백엔드 없이 바로 결제받을 수 있습니다.</p>
+    <label class="block mb-2"><span class="text-xs text-slate-600">Stripe 공개키 (Publishable, pk_...)</span>
+      <input id="cfg-stripe-pk" type="text" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="pk_live_... 또는 pk_test_..." /></label>
+    <label class="block mb-2"><span class="text-xs text-slate-600">결제 링크(Payment Link) URL</span>
+      <input id="cfg-stripe-link" type="text" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="https://buy.stripe.com/..." /></label>
+    <div class="flex flex-wrap gap-2 items-center mb-2">
+      <button id="stripe-save" class="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs">저장</button>
+      <button id="stripe-open" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs">결제창 열기(테스트)</button>
+      <span id="stripe-status" class="text-[11px] text-slate-500"></span>
+    </div>
+    <p class="text-[11px] text-rose-700 leading-relaxed">⚠ <b>Stripe 시크릿 키(sk_...)는 절대 이 화면·브라우저에 넣지 마세요.</b> 시크릿 키는 서버(백엔드)에서만 사용합니다. 커스텀 체크아웃이 필요하면 Checkout Session 생성용 백엔드가 별도로 필요합니다. 공개키(pk_)와 결제 링크만 프런트에서 안전하게 사용됩니다.</p>
+  </div>
 </section>
 </div>
 <script>
@@ -4902,6 +4927,29 @@ function initCareernet(){
     if(st) st.textContent='커리어넷 진로심리검사 '+CAREERNET_TESTS.length+'종 — 검사를 선택하세요';
   });
 }
+function initPayEngineKeys(){
+  // Stripe
+  var pk=el('cfg-stripe-pk'), lk=el('cfg-stripe-link'), sst=el('stripe-status');
+  if(pk) pk.value=(state.cfg&&state.cfg.stripePk)||'';
+  if(lk) lk.value=(state.cfg&&state.cfg.stripeLink)||'';
+  var sv=el('stripe-save'); if(sv) sv.addEventListener('click',function(){
+    state.cfg=Object.assign({},state.cfg,{stripePk:(pk&&pk.value||'').trim(),stripeLink:(lk&&lk.value||'').trim()}); save();
+    if((state.cfg.stripePk||'').indexOf('sk_')===0){ if(sst){sst.style.color='#b91c1c';sst.textContent='⚠ 시크릿키(sk_)는 넣지 마세요! 공개키(pk_)만 사용하세요.';} return; }
+    if(sst){sst.style.color='';sst.textContent='✅ 저장됨 (이 브라우저에 보관)';}
+  });
+  var op=el('stripe-open'); if(op) op.addEventListener('click',function(){
+    var url=(state.cfg&&state.cfg.stripeLink)||(lk&&lk.value)||'';
+    if(!/^https:\/\/(buy\.stripe\.com|checkout\.stripe\.com)/.test(url)){ if(sst){sst.style.color='#b91c1c';sst.textContent='⚠ 유효한 Stripe 결제 링크(https://buy.stripe.com/...)를 입력하세요.';} return; }
+    window.open(url,'_blank','noopener');
+  });
+  // Anthropic quick-switch
+  var qc=el('cfg-claude-quick'), cst=el('cfg-claude-status');
+  if(qc) qc.addEventListener('click',function(){
+    var m=el('cfg-mode'); if(m){ m.value='CLAUDE_HAIKU'; try{ m.dispatchEvent(new Event('change')); }catch(_){}}
+    var k=el('cfg-key'); if(k){ k.focus(); }
+    if(cst) cst.textContent='엔진을 Claude로 설정 — API Key 칸에 sk-ant-... 키를 넣고 저장하세요.';
+  });
+}
 function careernetRenderList(box){
   box.innerHTML = CAREERNET_TESTS.map(function(t){
     return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #eee">'
@@ -5138,6 +5186,7 @@ function initSettings() {
   modeSel.value = state.cfg.mode || 'LOCAL';
   try { initHuggingFace(); } catch(e) {}
   try { initCareernet(); } catch(e) {}
+  try { initPayEngineKeys(); } catch(e) {}
   if ((state.cfg.mode||'LOCAL')==='ONDEVICE') { const _cs=el('cfg-status'); if(_cs && !_cs.textContent) _cs.textContent = window._ondeviceReady ? '✅ 온디바이스 AI 자동 활성화됨 — 인터넷·키 없이 대화' : (window._ondeviceLazy ? '🖥 온디바이스 기본 — 첫 대화에서 자동 로드(저사양/모바일 데이터 절약)' : '🖥 온디바이스 AI 자동 기동 중…'); }
   if ((state.cfg.mode||'')==='GITHUB_MODELS') { const _csg=el('cfg-status'); if(_csg) _csg.textContent = (state.cfg.proxy ? '✅ GitHub Models 사용 중 (프록시·서버 키 — API Key 입력 불필요)' : 'ℹ GitHub Models — 프록시 미설정 시 API Key 필요'); }
   const p = PROVIDERS[state.cfg.mode] || PROVIDERS.LOCAL;
@@ -7405,7 +7454,8 @@ function renderNiceCard(){
     var rt=_topN(ri,2), riTop=rt.length?(_RIA[rt[0][0]]||'').replace(/\(.*\)/,''):'';
     var lt=_topN(learn,1);
     var gritBand=g&&typeof g.overall==='number'?_band(g.overall,67,45):null;
-    var s1=vt.length?(vt.join('과(와) ')+' 강점이 돋보이며, '):'';
+    function _bat(w){ if(!w)return false; var c=w.charCodeAt(w.length-1); return c>=44032&&c<=55203?((c-44032)%28!==0):false; }
+    var s1=''; if(vt.length>=2){ s1=vt[0]+(_bat(vt[0])?'과 ':'와 ')+vt[1]+' 강점이 돋보이며, '; } else if(vt.length===1){ s1=vt[0]+' 강점이 돋보이며, '; }
     var s2=riTop?(riTop+' 분야에 흥미와 적성을 보이고, '):'';
     var s3=gritBand==='상'?'목표를 향해 끈기 있게 노력하는 모습이 관찰됨. ':gritBand==='중'?'주어진 과제를 꾸준히 수행하는 태도를 지님. ':'관심 있는 활동에 몰입하는 모습을 보임. ';
     var s4=lt.length?(lt[0][0]+' 역량이 우수하여 관련 활동에서 두각을 나타냄. '):'';
