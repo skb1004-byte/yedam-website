@@ -7347,6 +7347,85 @@ function renderCareernetCard(){
     +rows
     +'<p class="text-[11px] text-indigo-700 mt-2">✓ 공인검사 '+arr.length+'건 반영 — AI 추정과 표준화 점수를 함께 보면 해석이 더 정확합니다.</p></div>';
 }
+// ===== AI 상담 결과지 + 나이스(NEIS) 연동 =====
+window.piaCopy=window.piaCopy||function(id,btn){ try{ var el=document.getElementById(id); var t=el.innerText||el.textContent||''; navigator.clipboard.writeText(t).then(function(){ if(btn){var o=btn.textContent; btn.textContent='복사됨 ✓'; setTimeout(function(){btn.textContent=o;},1500);} }); }catch(e){} };
+var _RIA={R:'실재형(현장·기술)',I:'탐구형(분석·연구)',A:'예술형(창의·표현)',S:'사회형(대인·협력)',E:'진취형(주도·설득)',C:'관습형(체계·정확)'};
+function _topN(obj,n){ try{ return Object.keys(obj||{}).map(function(k){return [k,Number(obj[k])];}).filter(function(x){return isFinite(x[1]);}).sort(function(a,b){return b[1]-a[1];}).slice(0,n); }catch(e){ return []; } }
+function _band(v,hi,mid){ return v>=hi?'상':v>=mid?'중':'하'; }
+function _emotionNote(){ var R=state.results, flags=[]; try{
+  if(R.cesd.scores&&R.cesd.scores.level&&R.cesd.scores.level!=='LOW') flags.push('우울 선별');
+  if(R.gad.scores&&R.gad.scores.level&&/HIGH|MEDIUM/.test(R.gad.scores.level)) flags.push('불안 선별');
+  if(R.phqa.scores&&R.phqa.scores.level&&/HIGH|MEDIUM/.test(R.phqa.scores.level)) flags.push('우울(PHQ)');
+  if(R.who5.scores&&R.who5.scores.pct!=null&&R.who5.scores.pct<50) flags.push('정서적 웰빙 낮음');
+}catch(e){}
+  return flags; }
+function renderCounselReport(){
+  try{
+    var R=state.results, b=R.big5.scores, vi=R.via.scores, ri=R.riasec.scores, g=R.grit.scores;
+    var learn=R.learn.scores, mi=R.mi.scores;
+    var type=null; try{ type=inferIntegratedType(); }catch(e){}
+    var adult=(typeof selfIsAdult==='function'&&selfIsAdult());
+    var who=adult?'회원님':'학생';
+    var parts=[];
+    // 강점
+    var strengths=[];
+    var vt=_topN(vi,3); if(vt.length) strengths=vt.map(function(x){return x[0];});
+    else if(b){ var bt=[['외향성',b.E],['개방성',b.O],['성실성',b.C],['친화성',b.A]].sort(function(a,c){return c[1]-a[1];}); strengths=[bt[0][0],bt[1][0]]; }
+    // 흥미·진로
+    var rt=_topN(ri,2), riLabel=rt.map(function(x){return _RIA[x[0]]||x[0];}).join(' · ');
+    // 학습
+    var lt=_topN(learn,1), lw=learn?_topN(learn,99):[]; var learnLow=lw.length?lw[lw.length-1]:null;
+    var gritBand = g&&typeof g.overall==='number'? _band(g.overall,67,45):null;
+    var gritTxt = gritBand==='상'?'목표를 향해 끈기 있게 노력하는':gritBand==='중'?'꾸준함을 갖춘':'관심 분야에서 몰입할 때 집중하는';
+    var emo=_emotionNote();
+
+    parts.push('<div style="font-size:13.5px;line-height:1.7;color:#2b2b28">');
+    parts.push('<p style="margin-bottom:8px"><b>■ 종합 소견</b><br>'+who+'은(는) '+(type&&type.name?('<b>'+type.name+'</b> 유형으로, '+(type.desc||'')):'검사 결과를 종합할 때')+'</p>');
+    if(strengths.length) parts.push('<p style="margin-bottom:8px"><b>■ 강점</b><br>'+strengths.join(' · ')+' 영역에서 두드러진 강점을 보입니다. 이러한 강점은 협업·과제 수행·진로 탐색에서 긍정적으로 발휘될 수 있습니다.</p>');
+    if(rt.length) parts.push('<p style="margin-bottom:8px"><b>■ 흥미·진로</b><br>'+riLabel+' 성향이 뚜렷하여 관련 분야에 관심과 적성을 나타냅니다. 관심 직업·학과를 함께 탐색하며 구체적 경험(동아리·체험·독서)을 연결하면 좋습니다.</p>');
+    var lline=''; if(lt.length) lline+=lt[0][0]+' 역량이 우수합니다. '; if(learnLow&&learnLow[1]<55) lline+=learnLow[0]+'은(는) 격려와 단계적 지도를 통한 성장이 기대됩니다.';
+    parts.push('<p style="margin-bottom:8px"><b>■ 학습·태도</b><br>'+gritTxt+' 모습이 관찰됩니다. '+(lline||'전반적으로 균형 잡힌 학습 태도를 보입니다.')+'</p>');
+    if(emo.length) parts.push('<p style="margin-bottom:8px"><b>■ 정서·생활 (관찰 권장)</b><br><span style="color:#9a3412">'+emo.join(' · ')+' 신호가 확인됩니다. 진단이 아닌 <b>선별</b> 결과이므로, 따뜻한 정서적 지지와 함께 필요 시 전문 상담(Wee클래스·1388)을 연계해 주세요.</span></p>');
+    else parts.push('<p style="margin-bottom:8px"><b>■ 정서·생활</b><br>정서 선별 지표가 대체로 안정적입니다.</p>');
+    parts.push('<p style="margin-bottom:2px"><b>■ 상담 제언</b></p><ul style="margin:0 0 4px 16px;padding:0;font-size:13px;color:#3d3d3a"><li>강점('+(strengths[0]||'대표 강점')+')을 활용한 역할·과제 부여로 자기효능감 강화</li><li>'+(rt.length?riLabel.split(' · ')[0]+' 관련 진로 체험 연계':'관심 분야 탐색 지원')+'</li><li>'+(emo.length?'정서적 지지 및 정기 관찰, 필요 시 전문 상담 연계':'현재의 긍정적 태도를 지지·격려')+'</li></ul>');
+    parts.push('</div>');
+
+    return '<div class="bg-white rounded-2xl border border-violet-200 p-4">'
+      +'<h3 class="font-semibold text-sm mb-1">🧑‍🏫 AI 상담 소견서 (교사·상담용)</h3>'
+      +'<p class="text-xs text-slate-500 mb-3">검사 결과를 종합해 자동 생성한 <b>상담 참고용 소견</b>입니다. 최종 판단·기록은 교사가 관찰과 함께 검토·수정하세요.</p>'
+      +'<div id="counsel-body">'+parts.join('')+'</div>'
+      +'<div class="mt-3"><button onclick="piaCopy(\'counsel-body\',this)" class="pill bg-violet-600 text-white font-bold" style="border:0;cursor:pointer;padding:6px 14px">📋 소견 복사</button></div>'
+      +'</div>';
+  }catch(e){ return ''; }
+}
+function renderNiceCard(){
+  try{
+    var R=state.results, b=R.big5.scores, vi=R.via.scores, ri=R.riasec.scores, g=R.grit.scores, learn=R.learn.scores;
+    var vt=_topN(vi,2).map(function(x){return x[0];});
+    var rt=_topN(ri,2), riTop=rt.length?(_RIA[rt[0][0]]||'').replace(/\(.*\)/,''):'';
+    var lt=_topN(learn,1);
+    var gritBand=g&&typeof g.overall==='number'?_band(g.overall,67,45):null;
+    var s1=vt.length?(vt.join('과(와) ')+' 강점이 돋보이며, '):'';
+    var s2=riTop?(riTop+' 분야에 흥미와 적성을 보이고, '):'';
+    var s3=gritBand==='상'?'목표를 향해 끈기 있게 노력하는 모습이 관찰됨. ':gritBand==='중'?'주어진 과제를 꾸준히 수행하는 태도를 지님. ':'관심 있는 활동에 몰입하는 모습을 보임. ';
+    var s4=lt.length?(lt[0][0]+' 역량이 우수하여 관련 활동에서 두각을 나타냄. '):'';
+    // 행동특성 및 종합의견(행발) 초안 — 긍정·구체·관찰 기반, 진단 표현 배제
+    var haeng='평소 성실하고 긍정적인 태도로 학교생활에 임함. '+s1+s2+s3+s4+'교우 관계가 원만하며, 자신의 강점을 살려 꾸준히 성장할 것으로 기대됨. 앞으로 다양한 경험과 도전을 통해 잠재력을 더욱 발휘할 수 있도록 지속적인 격려가 필요함.';
+    // 상담기록 요약
+    var sang='[검사 기반 상담 요약] 강점: '+(vt.join(', ')||'—')+' / 흥미·진로: '+(riTop||'—')+' / 학습 우수: '+(lt.length?lt[0][0]:'—')+' / 끈기: '+(gritBand||'—')+'. 강점 활용 과제 부여 및 진로 체험 연계 권장.';
+    return '<div class="bg-white rounded-2xl border border-indigo-200 p-4">'
+      +'<h3 class="font-semibold text-sm mb-1">🏫 나이스(NEIS) 연동 — 생기부·상담기록 문구</h3>'
+      +'<p class="text-xs text-slate-500 mb-3">4세대 나이스에 <b>붙여넣어</b> 활용하는 초안입니다. 나이스는 보안망이라 자동 전송은 불가하며, 아래 문구를 복사해 <b>행동특성 및 종합의견</b>·<b>상담기록</b>에 입력하세요. <b>기재요령에 맞게 교사 검토·수정 필수</b>(진단·민감정보 표현 금지).</p>'
+      +'<div style="font-size:12px;font-weight:700;color:#3730a3;margin-bottom:4px">행동특성 및 종합의견(행발) 초안 <span style="color:#94a3b8;font-weight:400">('+haeng.length+'자)</span></div>'
+      +'<div id="nice-haeng" style="font-size:13px;line-height:1.7;color:#222;background:#f5f7ff;border:1px solid #e0e5ff;border-radius:10px;padding:11px">'+haeng+'</div>'
+      +'<button onclick="piaCopy(\'nice-haeng\',this)" class="pill bg-indigo-600 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 행발 복사</button>'
+      +'<div style="font-size:12px;font-weight:700;color:#3730a3;margin:12px 0 4px">상담기록 요약</div>'
+      +'<div id="nice-sang" style="font-size:12.5px;line-height:1.6;color:#222;background:#f5f7ff;border:1px solid #e0e5ff;border-radius:10px;padding:11px">'+sang+'</div>'
+      +'<button onclick="piaCopy(\'nice-sang\',this)" class="pill bg-indigo-600 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 상담기록 복사</button>'
+      +'<p class="text-[11px] text-slate-400 mt-3">※ 나이스 교육정보 개방 API는 학교정보·학사일정만 제공하며, 학생 생기부·상담기록은 개인정보·보안상 외부 자동 연동이 불가합니다. 본 기능은 규정 준수 하의 <b>문구 생성·복사</b> 방식입니다.</p>'
+      +'</div>';
+  }catch(e){ return ''; }
+}
 function renderExtendedSections() {
   const big5 = state.results.big5.scores;
   const via = state.results.via.scores;
@@ -7378,6 +7457,8 @@ function renderExtendedSections() {
     ${renderRoadmap()}
     ${currentAudience === 'parent' ? renderParent14Day() : ''}
     ${currentAudience === 'teacher' ? renderTeacher12Wk() + renderCrisisSOP() : ''}
+    ${renderCounselReport()}
+    ${renderNiceCard()}
     ${renderAccuracyPanel()}
     ${renderCareernetCard()}
     ${renderResultUsageGuide(currentAudience)}
