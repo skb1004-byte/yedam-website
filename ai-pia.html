@@ -485,7 +485,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       <span style="display:inline-flex;align-items:center;"><img src="images/logo_yedam.png?v=2" alt="㈜예담정보통신" style="height:28px;width:auto;display:block;" onerror="this.outerHTML='<span style=\'color:#141413;font-weight:800;font-size:14px\'>YEDAM</span>'"></span>
     </div>
     <h1 class="text-xl font-bold mt-1">학술 검증된 7개 검사 통합</h1>
-    <p class="text-xs text-slate-500 mt-0.5">IPIP Big5 · RIASEC · VIA · Grit · SJT · CES-D · PHQ-A · GAD-7 + 자유대화</p>
+    <p class="text-xs text-slate-500 mt-0.5">IPIP Big5 · RIASEC(O*NET) · 강점(IPIP-VIA) · 끈기(IPIP) · SJT · CES-D · PHQ-A · GAD-7 + 자유대화</p>
   </div>
   <nav id="topNav" class="flex flex-wrap gap-2">
     <button class="px-3 py-2 rounded-lg bg-slate-200 text-slate-900 text-sm font-semibold" data-go="home" aria-pressed="true">검사 메뉴</button>
@@ -500,7 +500,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 <section data-view="home" class="space-y-4">
   <div class="bg-violet-50 border border-violet-200 rounded-2xl p-4 text-sm text-violet-900">
     <strong class="block mb-1">검사 선택 가이드</strong>
-    <strong>① AI 자유대화(필수)로 시작</strong> → <strong>② Big5</strong> → <strong>③ RIASEC</strong> 순으로 <strong>필수 3종</strong>을 마치면 결과지가 열립니다(약 25분). 이후 VIA·Grit·학습역량·다중지능·자존감·SJT·정서 스크리닝은 <strong>선택</strong>이며, 많이 할수록 분석이 정확해집니다.
+    <strong>① AI 자유대화(필수)로 시작</strong> → <strong>② Big5</strong> → <strong>③ RIASEC</strong> 순으로 <strong>필수 3종</strong>을 마치면 결과지가 열립니다(약 25분). 이후 강점·끈기·학습역량·다중지능·자존감·SJT·정서 스크리닝은 <strong>선택</strong>이며, 많이 할수록 분석이 정확해집니다.
   </div>
   <div id="home-content" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
 </section>
@@ -524,7 +524,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 
 <section data-view="via" class="hidden bg-white rounded-2xl border border-slate-200 p-5">
   <div class="flex justify-between items-baseline mb-4">
-    <h2 class="text-lg font-bold">VIA Youth 24 강점</h2>
+    <h2 class="text-lg font-bold">24 강점 프로파일</h2>
     <button onclick="showView('home')" class="text-xs text-slate-500">← 메뉴</button>
   </div>
   <div id="via-content"></div>
@@ -532,7 +532,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 
 <section data-view="grit" class="hidden bg-white rounded-2xl border border-slate-200 p-5">
   <div class="flex justify-between items-baseline mb-4">
-    <h2 class="text-lg font-bold">Grit-S 끈기 척도</h2>
+    <h2 class="text-lg font-bold">끈기·근면 척도</h2>
     <button onclick="showView('home')" class="text-xs text-slate-500">← 메뉴</button>
   </div>
   <div id="grit-content"></div>
@@ -745,8 +745,8 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       </div>
     </div>
     <div id="dc-via-bar-wrap" class="mt-5 hidden">
-      <div class="text-xs font-semibold text-slate-600 mb-2" data-en="Top 8 VIA Strengths (Bar)">VIA 강점 상위 8 (막대)</div>
-      <div class="h-[300px] relative"><canvas id="dc-via-bar" role="img" aria-label="VIA 강점 상위 8 막대 차트"></canvas></div>
+      <div class="text-xs font-semibold text-slate-600 mb-2" data-en="Top 8 Character Strengths (Bar)">강점 상위 8 (막대)</div>
+      <div class="h-[300px] relative"><canvas id="dc-via-bar" role="img" aria-label="강점 상위 8 막대 차트"></canvas></div>
     </div>
     <div id="dc-big5-bar-wrap" class="mt-5 hidden">
       <div class="text-xs font-semibold text-slate-600 mb-2" data-en="Big Five — You vs. Peer Norms (Bar)">Big5 — 나 vs 또래 규준(예시) (막대)</div>
@@ -755,12 +755,12 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
   </div>
 
   <div id="via-wrap" class="bg-white rounded-2xl border border-slate-200 p-4 hidden">
-    <h3 class="font-semibold text-sm mb-3" data-en="VIA 24 Strengths — Top 5">VIA 24 강점 — 상위 5개</h3>
+    <h3 class="font-semibold text-sm mb-3" data-en="24 Character Strengths — Top 5">24 강점 — 상위 5개</h3>
     <div id="via-top5"></div>
   </div>
 
   <div id="grit-wrap" class="bg-white rounded-2xl border border-slate-200 p-4 hidden">
-    <h3 class="font-semibold text-sm mb-3" data-en="Grit-S Perseverance Scale">Grit-S 끈기 척도</h3>
+    <h3 class="font-semibold text-sm mb-3" data-en="Perseverance & Industriousness Scale">끈기·근면 척도</h3>
     <div class="grid grid-cols-3 gap-3">
       <div class="bg-emerald-50 rounded-lg p-3 text-center">
         <div class="text-xs text-emerald-900" data-en="Overall">전체</div>
@@ -807,16 +807,17 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
   </div>
 
   <div class="bg-slate-50 rounded-2xl p-4 text-xs text-slate-600">
-    <strong data-en="Assessment tools used (all public-domain or permitted for non-profit academic use)">사용된 검사 도구 (모두 공유저작 또는 비영리 학술 사용 허용)</strong>
-    <ul class="mt-2 space-y-1">
-      <li>· IPIP Big-Five-50 (Goldberg, public domain — ipip.ori.org)</li>
-      <li>· Holland RIASEC 30 (이론 공개)</li>
-      <li>· VIA Youth Character Strengths (viacharacter.org — open access)</li>
-      <li>· Grit-S (Duckworth — 비영리 교육 사용 허용)</li>
-      <li>· SJT 30 시나리오 (자체 개발)</li>
-      <li>· CES-D-10 (public domain)</li>
-      <li>· PHQ-A / GAD-7 (free for use)</li>
+    <strong data-en="Assessment tool sources &amp; copyright (public-domain / freely licensed scales)">검사 도구 출처 및 저작권</strong>
+    <div class="mt-1 mb-2" style="color:#64748b">본 검사는 공신력 있는 공개·자유이용 표준 척도를 기반으로 구성한 자체 문항입니다.</div>
+    <ul class="mt-1 space-y-1">
+      <li>· 성격: IPIP Big-Five Markers (Goldberg) — Public Domain, ipip.ori.org</li>
+      <li>· 흥미·진로: Holland RIASEC 모델 · O*NET Interest Profiler 기반 (U.S. DOL/ETA, CC BY 4.0)</li>
+      <li>· 강점(24): IPIP-VIA Character Scales — Public Domain (IPIP)</li>
+      <li>· 끈기·근면: IPIP Industriousness/Perseverance 기반 — Public Domain</li>
+      <li>· 정서 선별: PHQ-A · GAD-7 (© Pfizer, 2010 무료 공개·허가 불필요) · CES-D (NIMH)</li>
+      <li>· 상황판단(SJT)·통합유형 해석: 예담정보통신 자체 개발 © 예담정보통신</li>
     </ul>
+    <div class="mt-2" style="color:#94a3b8">본 결과지는 선별·참고용이며 임상 진단이 아닙니다. 교육·상담 목적으로만 사용합니다.</div>
   </div>
 </section>
 
@@ -1689,7 +1690,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       <td style="text-align:left;font-size:10px;">학습 계획 루틴화 권장</td>
     </tr>
   </table>
-  <p style="font-size:9px;color:#999;margin-top:4px;">※ 세부 역량 점수는 성격(Big5)·끈기(Grit)·다중지능 검사를 바탕으로 추정한 값이며, '평균' 칼럼은 참고용 표준 기준치입니다.</p>
+  <p style="font-size:9px;color:#999;margin-top:4px;">※ 세부 역량 점수는 성격(Big5)·끈기·다중지능 검사를 바탕으로 추정한 값이며, '평균' 칼럼은 참고용 표준 기준치입니다.</p>
 
   <div class="section-title" data-en="■ Learning Competency — Overall Comments"><span class="section-icon">■</span> 학습역량 종합 의견</div>
   <p class="desc-para" data-desc="concl">결과를 바탕으로 학습·진로 방향을 정리합니다.</p>
@@ -2067,8 +2068,8 @@ const RIASEC_30 = [
 ];
 
 // -----------------------------------------------------------------
-// 3. VIA Youth Short (24 character strengths, 1 item each)
-//    출처: viacharacter.org (open-access 청소년 24 강점)
+// 3. 24 character strengths (1 item each) — IPIP-VIA 기반(Public Domain)
+//    자체 작성 한국어 문항 · 출처 표기: IPIP-VIA Character Scales (ipip.ori.org)
 // -----------------------------------------------------------------
 const VIA_YOUTH = [
   { f:'창의', t:'나는 새로운 아이디어를 잘 떠올린다.' },
@@ -2098,8 +2099,8 @@ const VIA_YOUTH = [
 ];
 
 // -----------------------------------------------------------------
-// 4. Grit-S 8 items (Duckworth, 비영리 교육용 무료)
-//    Perseverance(끈기, P) / Passion(열정 일관성, C)
+// 4. 끈기·근면 8문항 — IPIP Industriousness/Perseverance 기반(Public Domain)
+//    자체 작성 한국어 문항 · Perseverance(끈기, P) / Consistency(일관성, C)
 // -----------------------------------------------------------------
 const GRIT_S = [
   { f:'C', s:-1, t:'새로운 아이디어와 프로젝트로 인해 이전 것에 대한 관심이 흐트러질 때가 있다.' },
@@ -3029,7 +3030,7 @@ const FREE_API_CATALOG = [
   { category:'검증된 검사 (이미 v3 내장)', items:[
     { name:'IPIP Big5-50', url:'https://ipip.ori.org/', limit:'공유저작', models:'50문항', notes:'v3 내장 완료' },
     { name:'openpsychometrics RIASEC', url:'https://openpsychometrics.org/tests/RIASEC/', limit:'무료', models:'30문항', notes:'v3 내장 완료' },
-    { name:'VIA Youth Strengths', url:'https://www.viacharacter.org/', limit:'무료 등록', models:'24강점', notes:'v3 내장 완료' }
+    { name:'IPIP-VIA 강점척도', url:'https://ipip.ori.org/', limit:'퍼블릭 도메인', models:'24강점', notes:'v3 내장 · 상업 자유이용(공개)' }
   ]},
   { category:'해외 LLM (무료 티어·트라이얼)', items:[
     { name:'Mistral La Plateforme', url:'https://console.mistral.ai/', limit:'무료 티어', models:'Mistral Small/Large, Nemo', notes:'OpenAI 호환 · 일부 CORS 제약' },
@@ -4189,10 +4190,10 @@ function renderHome() {
       detail:'현실·탐구·예술·사회·진취·관습 6유형. 워크넷·커리어넷 표준 진로 모델.',
       dur:'7~8분', items:30, key:'riasec', track:'A (진로/적성)', priority:'필수', color:'amber' },
     // ===== 선택 (정확도·정서 보강) — 많이 할수록 분석이 정확해집니다 =====
-    { id:'via', step:4, title:'VIA Youth 24 강점', icon:'⭐', desc:'24가지 성격 강점을 발견합니다.',
-      detail:'학생의 가장 빛나는 강점 5개를 우선 도출합니다. 긍정심리학 기반.',
+    { id:'via', step:4, title:'24 강점 프로파일', icon:'⭐', desc:'24가지 성격 강점을 발견합니다.',
+      detail:'학생의 가장 빛나는 강점 5개를 우선 도출합니다. 긍정심리학 기반(IPIP-VIA 공개 척도).',
       dur:'5분', items:24, key:'via', track:'P (인성)', priority:'선택', color:'emerald' },
-    { id:'grit', step:5, title:'Grit-S 끈기 척도', icon:'🔥', desc:'성취·동기 단축형 (Duckworth).',
+    { id:'grit', step:5, title:'끈기·근면 척도', icon:'🔥', desc:'성취·동기 단축형 (IPIP 공개 척도).',
       detail:'장기 목표 추구 능력 + 열정의 일관성. 학업·진로 성공의 핵심 비인지 역량.',
       dur:'2분', items:8, key:'grit', track:'P (인성)', priority:'선택', color:'orange' },
     { id:'learn', step:6, title:'과목별 학습 역량', icon:'📚', desc:'언어·수리·외국어·사회·과학·예술·신체 자가평가.',
@@ -5360,8 +5361,8 @@ function piaPaperScan(){
     var TESTS=[
       {k:'big5',n:50,scale:'1~5',lo:1,hi:5,fn:'scoreBig5',label:'IPIP Big5-50'},
       {k:'riasec',n:30,scale:'1~5',lo:1,hi:5,fn:'scoreRiasec',label:'RIASEC-30'},
-      {k:'via',n:24,scale:'1~5',lo:1,hi:5,fn:'scoreVia',label:'VIA 24강점'},
-      {k:'grit',n:8,scale:'1~5',lo:1,hi:5,fn:'scoreGrit',label:'Grit-S'},
+      {k:'via',n:24,scale:'1~5',lo:1,hi:5,fn:'scoreVia',label:'24 강점'},
+      {k:'grit',n:8,scale:'1~5',lo:1,hi:5,fn:'scoreGrit',label:'끈기·근면'},
       {k:'who5',n:5,scale:'1~6',lo:1,hi:6,fn:'scoreWho5',label:'WHO-5'},
       {k:'rses',n:10,scale:'1~4',lo:1,hi:4,fn:'scoreRses',label:'RSES 자존감'},
       {k:'learn',n:14,scale:'1~5',lo:1,hi:5,fn:'scoreLearn',label:'학습역량'},
@@ -5522,8 +5523,8 @@ function piaPrintItems(){
       +'<p style="font-size:12.5px;color:#555;margin:0 0 12px;line-height:1.6">각 문항을 읽고, 자신과 가장 가까운 번호의 ○에 색칠하거나 ∨ 표시하세요.</p>'
       +tbl('IPIP Big5-50 (성격 5요인)',(typeof IPIP_BIG5_50!=='undefined'?IPIP_BIG5_50:[]),{scale:'1~5'})
       +tbl('RIASEC-30 (진로 흥미)',(typeof RIASEC_30!=='undefined'?RIASEC_30:[]),{scale:'1~5'})
-      +tbl('VIA Youth 24 (성격강점)',(typeof VIA_YOUTH!=='undefined'?VIA_YOUTH:[]),{scale:'1~5'})
-      +tbl('Grit-S (끈기 척도)',(typeof GRIT_S!=='undefined'?GRIT_S:[]),{scale:'1~5'})
+      +tbl('24 강점 (성격강점)',(typeof VIA_YOUTH!=='undefined'?VIA_YOUTH:[]),{scale:'1~5'})
+      +tbl('끈기·근면 척도',(typeof GRIT_S!=='undefined'?GRIT_S:[]),{scale:'1~5'})
       +tbl('WHO-5 (정서 웰빙)',(typeof WHO5!=='undefined'?WHO5:[]),{scale:'1~6'})
       +tbl('RSES (자존감)',(typeof RSES!=='undefined'?RSES:[]),{scale:'1~4'})
       +tbl('학습역량 (과목별)',(typeof LEARN_ITEMS!=='undefined'?LEARN_ITEMS:[]),{scale:'1~5'})
@@ -5666,7 +5667,7 @@ var OFFLINE_ITEMS = [
   'IPIP Item Pool','Open Source Psychometrics','openpsychometrics 데이터셋','five-factor-e (IPIP-NEO)',
   'Big Five Aspect Scales (BFAS)','HEXACO-PI-R 공개 문항','PHQ / GAD 스크리너','CES-D 우울 척도',
   'AI Hub 청소년 감정 데이터','MeloTTS Korean','Kokoro Web TTS',
-  'IPIP Big5-50','openpsychometrics RIASEC','VIA Youth Strengths',
+  'IPIP Big5-50','O*NET Interest Profiler(RIASEC)','IPIP-VIA 강점척도(공개)',
   'LG EXAONE (오픈웨이트)','NCSOFT VARCO','KoBERT / KoELECTRA'
 ];
 function isOfflineItem(item){
@@ -5998,7 +5999,7 @@ function renderVIADetailed(via) {
   const sorted = Object.entries(via).sort((a,b)=>b[1]-a[1]);
   return `
     <div class="bg-white rounded-2xl border border-slate-200 p-4">
-      <h3 class="font-semibold text-sm mb-3">VIA 24 강점 전체 순위</h3>
+      <h3 class="font-semibold text-sm mb-3">24 강점 전체 순위</h3>
       <div class="grid sm:grid-cols-2 gap-2 text-sm">
         ${sorted.map((e, i) => `
           <div class="flex items-center gap-2 py-1.5 ${i<5?'bg-emerald-50':''} rounded px-2">
@@ -6262,7 +6263,7 @@ function buildSummaryPrompt(audience, d){
   lines.push(`통합유형: ${(t&&t.name)||''} (${(t&&t.code)||''})`);
   if(b) lines.push(`Big5 — 외향 ${b.E}, 우호 ${b.A}, 성실 ${b.C}, 정서안정 ${100-b.N}, 개방 ${b.O}`);
   if(rtop) lines.push(`흥미(RIASEC) 상위: ${rtop}`);
-  if(vtop) lines.push(`대표 강점(VIA): ${vtop}`);
+  if(vtop) lines.push(`대표 강점: ${vtop}`);
   var _ab=(state.results&&state.results.conv&&state.results.conv.abuse)||0;
   if(_ab>0) lines.push(`대화 태도: 자유대화 중 부적절·공격적 표현이 ${_ab}회 감지됨(지도 시 참고).`);
   const who = audience==='parent'?'학부모':audience==='teacher'?'교사':(selfIsAdult()?'본인':'학생 본인');
@@ -6488,12 +6489,12 @@ function buildResultText() {
   }
   if (via) {
     const sorted = Object.entries(via).sort((a,b)=>b[1]-a[1]);
-    lines.push('■ VIA 24 강점 (상위 10)');
+    lines.push('■ 24 강점 (상위 10)');
     sorted.slice(0,10).forEach((e, i) => lines.push(`  ${String(i+1).padStart(2,'0')}. ${e[0]} (${Math.round(e[1])})`));
     lines.push('');
   }
   if (grit) {
-    lines.push(`■ Grit-S 끈기 척도`);
+    lines.push(`■ 끈기·근면 척도`);
     lines.push(`  전체: ${grit.overall} / 끈기: ${grit.perseverance} / 열정 일관성: ${grit.passion}`);
     lines.push('');
   }
@@ -7172,8 +7173,8 @@ function renderReliabilityStats() {
   const all = [
     { name:'IPIP Big5-50', done:!!state.results.big5.scores, alpha:'.85', validity:'IPIP 학술 검증' },
     { name:'RIASEC 30', done:!!state.results.riasec.scores, alpha:'.82', validity:'Holland 이론 기반' },
-    { name:'VIA Youth 24', done:!!state.results.via.scores, alpha:'.78', validity:'VIA 24강점' },
-    { name:'Grit-S 8', done:!!state.results.grit.scores, alpha:'.84', validity:'Duckworth Grit Scale' },
+    { name:'24 강점', done:!!state.results.via.scores, alpha:'.78', validity:'IPIP-VIA 24강점(공개)' },
+    { name:'끈기·근면 8', done:!!state.results.grit.scores, alpha:'.84', validity:'IPIP Industriousness(공개)' },
     { name:'SJT 30', done:state.results.sjt.answers.length>=15, alpha:'.76', validity:'행동 예측 검사' },
     { name:'자유대화', done:state.results.conv.turns>=8, alpha:'정성평가', validity:'질적 자료 — 신뢰도계수(α) 미산출' },
     { name:'CES-D-10', done:!!state.results.cesd.scores, alpha:'.85', validity:'정서 스크리닝' },
@@ -7248,9 +7249,9 @@ function renderSourcesAppendix() {
       <h3 class="font-semibold text-sm mb-2 text-slate-800">검사 도구 출처 및 저작권</h3>
       <ul class="text-xs text-slate-600 space-y-1.5 ml-4 list-disc">
         <li><strong>IPIP Big5-50</strong>: International Personality Item Pool (ipip.ori.org) — public domain, Goldberg 1992</li>
-        <li><strong>RIASEC</strong>: Holland's Self-Directed Search 이론 기반, openpsychometrics 변형</li>
-        <li><strong>VIA Youth 24</strong>: VIA Institute on Character (viacharacter.org) — open access</li>
-        <li><strong>Grit-S</strong>: Angela Duckworth (Penn) — 비영리 교육 사용 허용</li>
+        <li><strong>RIASEC</strong>: Holland RIASEC 모델 · O*NET Interest Profiler (U.S. DOL, CC BY 4.0) 기반</li>
+        <li><strong>24 강점</strong>: IPIP-VIA Character Scales — Public Domain (ipip.ori.org)</li>
+        <li><strong>끈기·근면</strong>: IPIP Industriousness/Perseverance — Public Domain</li>
         <li><strong>SJT</strong>: AI PIA 자체 개발 30 시나리오</li>
         <li><strong>CES-D-10</strong>: Center for Epidemiologic Studies Depression Scale — public domain</li>
         <li><strong>PHQ-A</strong>: Patient Health Questionnaire for Adolescents — free for use</li>
@@ -7350,7 +7351,7 @@ function renderAccuracyPanel(){
     var checks=[];
     if(b&&g) add(checks,'성실성 ↔ 끈기(Grit)', b.C, g.overall);
     if(b&&ri) add(checks,'외향성 ↔ 진취·사회(RIASEC)', b.E, (ri.E+ri.S)/2);
-    if(g&&vi&&vi['끈기']!=null) add(checks,'Grit ↔ VIA 끈기 강점', g.overall, vi['끈기']);
+    if(g&&vi&&vi['끈기']!=null) add(checks,'끈기·근면 ↔ 강점(끈기)', g.overall, vi['끈기']);
     if(b&&ri) add(checks,'개방성 ↔ 예술·탐구(RIASEC)', b.O, (ri.A+ri.I)/2);
     if(b&&ri) add(checks,'친화성 ↔ 사회형(RIASEC)', b.A, ri.S);
     var esi=emotionStabilityIndex();
@@ -7717,7 +7718,7 @@ function showMiniInterpretation(testKey) {
     big5: (s) => s ? `검사 완료! 가장 높은 차원: ${getTopBig5(s)}. 5개 차원이 모두 측정되었습니다.` : '',
     riasec: (s) => s ? `Holland 코드: ${getRiasecCode(s)} — 진로 흥미가 명확히 파악되었습니다.` : '',
     via: (s) => s ? `당신의 상위 강점 3개: ${getTopVIA(s).join(', ')}.` : '',
-    grit: (s) => s ? `Grit 종합: ${s.overall}점 — ${s.overall>=70?'장기 목표 추구 강함':s.overall>=50?'균형 잡힌 끈기':'단기 흥미가 다양함'}` : '',
+    grit: (s) => s ? `끈기·근면 종합: ${s.overall}점 — ${s.overall>=70?'장기 목표 추구 강함':s.overall>=50?'균형 잡힌 끈기':'단기 흥미가 다양함'}` : '',
     sjt: () => 'SJT 30 시나리오 완료! 행동 예측 데이터를 통합 분석에 반영합니다.',
     cesd: (s) => s ? `우울 스크리닝: ${s.level} (${s.total}/30). ${s.level==='HIGH'?'전문가 상담 권장.':'특별한 신호 없음.'}` : '',
     phqa: (s) => s ? `청소년 우울 ${s.level}. ${s.selfHarm>0?'⚠ 즉시 1577-0199 또는 1388 연락.':'안전 신호 없음.'}` : '',
@@ -8429,7 +8430,7 @@ function renderNextRecommendation() {
       <button onclick="showView('result')" class="mt-3 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">결과 보기 →</button>
     </div>`;
   }
-  const names = { chat:'자유대화', via:'VIA Youth 24 강점', big5:'IPIP Big5-50', grit:'Grit-S 끈기', riasec:'RIASEC 진로 흥미', sjt:'SJT 상황 판단', cesd:'CES-D-10 우울', phqa:'PHQ-A 청소년 우울', gad:'GAD-7 불안' };
+  const names = { chat:'자유대화', via:'24 강점', big5:'IPIP Big5-50', grit:'끈기·근면', riasec:'RIASEC 진로 흥미', sjt:'SJT 상황 판단', cesd:'CES-D-10 우울', phqa:'PHQ-A 청소년 우울', gad:'GAD-7 불안' };
   return `<div class="bg-sky-50 border border-sky-200 rounded-2xl p-4">
     <div class="text-xs text-sky-700 mb-1">다음 추천 검사</div>
     <div class="flex items-center justify-between">
