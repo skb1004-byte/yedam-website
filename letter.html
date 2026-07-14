@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>AI PIA · 가정통신문 도우미</title>
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--sky:#6a9bcc;--ok:#788c5d;--okbg:#eef3e6;--red:#b91c1c}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;font-size:15px}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px 60px}
+header.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 14px}
+.logo{width:38px;height:38px;border-radius:10px;background:var(--rust);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:0 0 auto}
+.brand h1{font-size:17px;margin:0;font-weight:700}
+.brand .nav{margin-left:auto;display:flex;gap:14px;font-size:14px}
+.brand .nav a{color:var(--ink2);text-decoration:none;padding:6px 10px;border-radius:8px}
+.brand .nav a:hover{background:var(--paper2)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.card h2{font-size:16px;margin:0 0 4px}
+.card .desc{color:var(--ink2);font-size:13px;margin:0 0 14px}
+label.fld{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin:12px 0 6px}
+select,input[type=text],input[type=date],input[type=number],textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);font-family:inherit;font-size:14px;color:var(--ink)}
+textarea{resize:vertical;line-height:1.7}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--sky);outline-offset:0;border-color:var(--sky)}
+.row2{display:flex;gap:12px;flex-wrap:wrap}
+.row2>div{flex:1 1 160px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+button.act{padding:10px 18px;border:none;border-radius:10px;background:var(--rust);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+button.act:hover{background:var(--rust2)}
+button.gho{padding:10px 16px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink2);font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+button.gho:hover{background:var(--paper2)}
+a.gho{padding:10px 16px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink2);font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+a.gho:hover{background:var(--paper2)}
+.hint{font-size:12px;color:var(--ink2);margin-top:4px}
+.preview{white-space:pre-wrap;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px;font-size:14px;line-height:1.9;min-height:200px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50}
+.toast.show{opacity:1}
+.foot{font-size:12.5px;color:var(--ink2);border-top:1px solid var(--line);margin-top:24px;padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="brand">
+<div class="logo">P</div>
+<h1>AI PIA · 가정통신문 도우미</h1>
+<nav class="nav">
+<a href="index.html">홈</a>
+<a href="teacher-hub.html">선생님도우미</a>
+</nav>
+</header>
+
+<div class="grid">
+<!-- 입력 -->
+<div>
+<div class="card">
+<h2>내용 입력</h2>
+<p class="desc">유형을 고르고 항목을 채우면 격식 있는 가정통신문 초안을 만들어 줍니다. 빈 항목은 자동으로 생략됩니다.</p>
+
+<label class="fld" for="lType">유형</label>
+<select id="lType">
+<option value="event">행사 안내</option>
+<option value="trip">현장체험학습 안내</option>
+<option value="supply">준비물 안내</option>
+<option value="vacation">방학 안내</option>
+<option value="counsel">상담 주간 안내</option>
+<option value="safety">안전·생활 안내</option>
+<option value="general">일반 안내</option>
+</select>
+
+<div class="row2">
+<div>
+<label class="fld" for="lSchool">학교명</label>
+<input type="text" id="lSchool" placeholder="○○초등학교">
+</div>
+<div>
+<label class="fld" for="lTarget">대상</label>
+<input type="text" id="lTarget" placeholder="예: 3학년 학부모님, 전교생">
+</div>
+</div>
+
+<label class="fld" for="lTitle">제목</label>
+<input type="text" id="lTitle" placeholder="예: 가을 현장체험학습 안내">
+
+<label class="fld" for="lBody">주요 내용 (한두 문장)</label>
+<textarea id="lBody" rows="3" placeholder="예: 가을을 맞아 학생들의 체험 중심 교육을 위해 현장체험학습을 실시합니다."></textarea>
+
+<div class="row2">
+<div>
+<label class="fld" for="lDate">일시</label>
+<input type="text" id="lDate" placeholder="예: 2026. 10. 15.(수) 09:00~15:00">
+</div>
+<div>
+<label class="fld" for="lPlace">장소</label>
+<input type="text" id="lPlace" placeholder="예: 국립과천과학관">
+</div>
+</div>
+
+<div class="row2">
+<div>
+<label class="fld" for="lSupply">준비물</label>
+<input type="text" id="lSupply" placeholder="예: 도시락, 물, 편한 복장">
+</div>
+<div>
+<label class="fld" for="lCost">비용</label>
+<input type="text" id="lCost" placeholder="예: 12,000원 (스쿨뱅킹 자동이체)">
+</div>
+</div>
+
+<div class="row2">
+<div>
+<label class="fld" for="lReply">회신·마감</label>
+<input type="text" id="lReply" placeholder="예: 10. 10.(금)까지 참가 동의서 제출">
+</div>
+<div>
+<label class="fld" for="lContact">담당·연락처</label>
+<input type="text" id="lContact" placeholder="예: 3학년 담임 (02-000-0000)">
+</div>
+</div>
+
+<label class="fld" for="lNote">추가 당부 (선택)</label>
+<textarea id="lNote" rows="2" placeholder="예: 알레르기 등 특이사항은 담임에게 미리 알려 주세요."></textarea>
+
+<div class="row2">
+<div>
+<label class="fld" for="lSigner">발신 명의</label>
+<input type="text" id="lSigner" placeholder="예: ○○초등학교장">
+</div>
+<div>
+<label class="fld" for="lSendDate">발신 일자</label>
+<input type="date" id="lSendDate">
+</div>
+</div>
+
+<div class="btns">
+<button class="act" id="lGen">통신문 생성</button>
+<button class="gho" id="lSaveSchool">학교명 저장</button>
+</div>
+</div>
+</div>
+
+<!-- 결과 -->
+<div>
+<div class="card">
+<h2>초안 (직접 수정 가능)</h2>
+<p class="desc">생성 후 자유롭게 다듬어 복사·인쇄하거나, 미리캔버스에서 예쁘게 꾸며 발송하세요.</p>
+<div class="btns" style="margin-top:0;margin-bottom:12px">
+<button class="gho" id="lCopy">📋 복사</button>
+<button class="gho" id="lPrint">🖨 인쇄</button>
+<a class="gho" href="https://www.miricanvas.com/edu/main" target="_blank" rel="noopener">🎨 미리캔버스로 꾸미기</a>
+</div>
+<div id="lPreview" class="preview" contenteditable="true" spellcheck="false">왼쪽에서 항목을 채우고 <b>통신문 생성</b>을 누르세요.</div>
+<div class="hint">※ 초안은 참고용입니다. 학교 양식·개인정보 보호 지침에 맞게 검토 후 발송하세요.</div>
+</div>
+</div>
+</div>
+
+<div class="foot">
+AI PIA 선생님도우미 · 가정통신문 초안은 오프라인(브라우저 내)에서 생성되며 서버로 전송되지 않습니다.
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+(function(){
+var $=function(id){return document.getElementById(id);};
+var toastT;
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},1600);}
+
+/* 학교명 공유(pia_school) */
+(function(){
+  try{ var s=JSON.parse(localStorage.getItem('pia_school')||'{}')||{}; if(s.nm) $('lSchool').value=s.nm; }catch(e){}
+})();
+$('lSaveSchool').addEventListener('click',function(){
+  var nm=($('lSchool').value||'').trim(); if(!nm){toast('학교명을 입력하세요');return;}
+  var o={}; try{ o=JSON.parse(localStorage.getItem('pia_school')||'{}')||{}; }catch(e){}
+  o.nm=nm; try{ localStorage.setItem('pia_school',JSON.stringify(o)); }catch(e){}
+  toast('학교명을 저장했습니다 (다른 도구와 공유)');
+});
+
+/* 발신일 기본값 = 오늘 */
+(function(){ var d=new Date(); var s=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); $('lSendDate').value=s; })();
+
+/* 받침 조사 */
+function josa(w,type){ if(!w)return''; var c=w.charCodeAt(w.length-1); var j=(c>=0xAC00&&c<=0xD7A3)?((c-0xAC00)%28!==0):false; var m={eunneun:['은','는'],eulreul:['을','를'],iga:['이','가'],gwawa:['과','와'],euro:['으로','로']}; var p=m[type]||m.eunneun; return w+(j?p[0]:p[1]); }
+
+var GREET={
+  event:'학부모님의 가정에 늘 건강과 행복이 함께하길 바랍니다.',
+  trip:'학부모님의 가정에 늘 평안이 함께하길 바랍니다. 학생들의 배움과 성장을 위해 아래와 같이 현장체험학습을 실시하고자 안내드립니다.',
+  supply:'학부모님의 가정에 건강과 행복이 가득하길 바랍니다. 원활한 수업 진행을 위해 준비물을 아래와 같이 안내드립니다.',
+  vacation:'한 학기 동안 우리 학교 교육에 보내 주신 관심과 협조에 깊이 감사드립니다.',
+  counsel:'학부모님의 가정에 늘 평안이 함께하길 바랍니다. 학생 이해와 교육적 협력을 위해 상담 주간을 아래와 같이 운영합니다.',
+  safety:'학부모님의 가정에 건강과 평안이 함께하길 바랍니다. 학생들의 안전한 생활을 위해 아래 내용을 안내드립니다.',
+  general:'학부모님의 가정에 늘 건강과 행복이 함께하길 바랍니다.'
+};
+var CLOSE={
+  event:'학생들이 뜻깊은 시간을 보낼 수 있도록 가정에서도 관심과 격려 부탁드립니다.',
+  trip:'안전하고 유익한 체험학습이 되도록 최선을 다하겠습니다. 가정의 관심과 협조를 부탁드립니다.',
+  supply:'준비물 준비에 협조해 주셔서 감사합니다. 자녀의 원활한 학습을 위해 살펴봐 주시기 바랍니다.',
+  vacation:'알찬 방학을 보내고 건강한 모습으로 다시 만나기를 바랍니다. 늘 감사드립니다.',
+  counsel:'자녀의 성장을 위한 소중한 만남이 되도록 많은 참여 부탁드립니다.',
+  safety:'가정에서도 자녀와 함께 안전 수칙을 지켜 주시기를 부탁드립니다.',
+  general:'가정의 관심과 협조에 진심으로 감사드립니다.'
+};
+
+function fmtSendDate(v){ if(!v) return ''; var p=v.split('-'); if(p.length!==3) return v; return p[0]+'. '+(+p[1])+'. '+(+p[2])+'.'; }
+
+function buildLetter(){
+  var type=$('lType').value;
+  var school=($('lSchool').value||'').trim();
+  var target=($('lTarget').value||'').trim()||'학부모님';
+  var title=($('lTitle').value||'').trim();
+  var body=($('lBody').value||'').trim();
+  var rows=[
+    ['일시', $('lDate').value],
+    ['장소', $('lPlace').value],
+    ['대상', ($('lTarget').value||'').trim()],
+    ['준비물', $('lSupply').value],
+    ['비용', $('lCost').value],
+    ['회신·마감', $('lReply').value],
+    ['담당·연락처', $('lContact').value]
+  ].filter(function(r){return (r[1]||'').trim();});
+  var note=($('lNote').value||'').trim();
+  var signer=($('lSigner').value||'').trim()||(school?(school+'장'):'학교장');
+  var sendDate=fmtSendDate($('lSendDate').value);
+
+  var L=[];
+  if(school) L.push('［'+school+'］');
+  if(title) L.push('◈ '+title+' ◈');
+  L.push('');
+  // 호칭
+  var greetTarget=target.indexOf('학부모')>=0?target:(target+' 학부모님');
+  L.push('존경하는 '+greetTarget+'께');
+  L.push('');
+  L.push('  '+ (GREET[type]||GREET.general));
+  if(body) L.push('  '+body);
+  L.push('');
+  if(rows.length){
+    L.push('― 아 래 ―');
+    L.push('');
+    rows.forEach(function(r){ L.push('  • '+r[0]+' : '+r[1].trim()); });
+    L.push('');
+  }
+  if(note){ L.push('  ※ '+note); L.push(''); }
+  L.push('  '+(CLOSE[type]||CLOSE.general));
+  L.push('');
+  if(sendDate){ L.push(''); L.push('                                   '+sendDate); }
+  L.push('');
+  L.push('                              '+signer+' 드림');
+
+  return L.join('\n');
+}
+
+function render(){
+  var txt=buildLetter();
+  var pv=$('lPreview');
+  pv.textContent=txt;
+  return txt;
+}
+
+$('lGen').addEventListener('click',function(){
+  if(!($('lTitle').value||'').trim() && !($('lBody').value||'').trim()){ toast('제목 또는 주요 내용을 입력하세요'); return; }
+  render(); toast('초안을 생성했습니다');
+});
+
+$('lCopy').addEventListener('click',function(){
+  var txt=$('lPreview').innerText||$('lPreview').textContent||'';
+  if(!txt.trim()||txt.indexOf('왼쪽에서')>=0){ toast('먼저 통신문을 생성하세요'); return; }
+  function fb(){ var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');toast('복사되었습니다');}catch(e){toast('복사 실패 — 직접 선택하세요');} document.body.removeChild(ta); }
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('복사되었습니다');},fb); } else { fb(); }
+});
+
+$('lPrint').addEventListener('click',function(){
+  var txt=$('lPreview').innerText||$('lPreview').textContent||'';
+  if(!txt.trim()||txt.indexOf('왼쪽에서')>=0){ toast('먼저 통신문을 생성하세요'); return; }
+  var esc=function(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});};
+  var w=window.open('','_blank'); if(!w){ toast('팝업이 차단되었습니다'); return; }
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>가정통신문</title>'+
+   '<style>body{font-family:\'Noto Sans KR\',sans-serif;padding:40px 48px;color:#141413;line-height:1.9}'+
+   '.doc{white-space:pre-wrap;font-size:15px;max-width:720px;margin:0 auto}</style></head><body>'+
+   '<div class="doc">'+esc(txt)+'</div>'+
+   '<script>window.onload=function(){window.print();}<\/script></body></html>');
+  w.document.close();
+});
+
+})();
+</script>
+<script src="err-cs.js" defer></script>
+</body>
+</html>

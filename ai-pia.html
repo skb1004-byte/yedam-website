@@ -8193,7 +8193,7 @@ window.addEventListener("DOMContentLoaded", () => {
     addBackupRestoreUI();
     renderHeaderProgress();
     if (state.profile) renderProfileBar();
-    else if(!_piaSkipGate()) ensureStudentProfile();
+    else if(!_piaSkipGate() && !_piaIsStaffSync()) ensureStudentProfile();
   }, 200);
 });
 
@@ -8675,6 +8675,17 @@ function injectGlobalActions() {
 }
 
 function _piaSkipGate(){ try{ var q=new URLSearchParams(location.search); return q.get('print')==='items' || q.get('paper')==='1' || q.get('sample')==='1' || q.get('view')==='record' || location.hash==='#sample'; }catch(e){ return false; } }
+function _piaIsStaffSync(){
+  // 동기 신호만으로 교사 판정(모달 즉시 억제용): URL 파라미터·기기 플래그·역할
+  try{
+    var q=new URLSearchParams(location.search);
+    if(q.get('aud')==='teacher' || q.get('staff')==='1') return true;
+    if(localStorage.getItem('pia_aud_teacher')==='1') return true;
+    var STAFF=['org_member','org_admin','super_admin'];
+    if(window.PIA_ROLE && STAFF.indexOf(window.PIA_ROLE)>=0) return true;
+  }catch(e){}
+  return false;
+}
 async function _piaIsStaff(){
   // 교사/기관/운영자(선생님도우미 전체)는 개인정보 동의 불필요
   try{
