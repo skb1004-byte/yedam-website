@@ -3906,7 +3906,8 @@ async function aiSimplify(viewId){
   const sys = '너는 검사 문항을 더 쉬운 한국어로 바꿔주는 도우미야. 뜻은 그대로 유지하고 어려운 단어만 쉬운 말로 바꿔. 따옴표·설명 없이 바뀐 문장만 한국어로 한 줄로.';
   let out = null;
   try { out = await callLLMFree(orig + '\n\n위 문장을 ' + gradeWord + '도 바로 이해할 수 있게 아주 쉬운 말로 바꿔줘.', sys); } catch(e){ out = null; }
-  qel.textContent = (out && out.trim()) ? out.trim().replace(/^["'\s]+|["'\s]+$/g,'') : prev;
+  var _ok = out && out.trim() && (typeof _isKoreanReply!=='function' || _isKoreanReply(out.trim()));
+  qel.textContent = _ok ? out.trim().replace(/^["'\s]+|["'\s]+$/g,'') : prev;
 }
 
 function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
