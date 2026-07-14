@@ -608,6 +608,7 @@ function suggestUnits(){
   });
 }
 function saveGrade(){ try{ localStorage.setItem('pia_teacher_grade', document.getElementById('gGrade').value); }catch(e){} }
+try{ window.suggestUnits=suggestUnits; window.saveGrade=saveGrade; }catch(e){}
 /* 담임 학년 자동 불러오기 + 단원 자동 추천(로드 시) */
 (function(){
   try{ var g=localStorage.getItem('pia_teacher_grade'); var el=document.getElementById('gGrade'); if(g&&el) el.value=g; }catch(e){}
