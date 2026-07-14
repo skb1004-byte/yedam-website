@@ -8677,7 +8677,9 @@ async function _piaIsStaff(){
   // 교사/기관/운영자(선생님도우미 전체)는 개인정보 동의 불필요
   try{
     var q=new URLSearchParams(location.search);
-    if(q.get('aud')==='teacher' || q.get('staff')==='1') return true;
+    // 선생님도우미로 한 번 진입하면 이 기기에서 계속 동의 생략(파라미터 유실·새로고침 대비)
+    if(q.get('aud')==='teacher' || q.get('staff')==='1'){ try{ localStorage.setItem('pia_aud_teacher','1'); }catch(e){} return true; }
+    try{ if(localStorage.getItem('pia_aud_teacher')==='1') return true; }catch(e){}
     var STAFF=['org_member','org_admin','super_admin'];
     if(window.PIA_ROLE) return STAFF.indexOf(window.PIA_ROLE)>=0;
     var sb=await _piaEnsureSB(); if(!sb) return false;
