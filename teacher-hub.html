@@ -73,6 +73,18 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
     </div>
     <div class="cta-btn">공익장터에서<br>도입·구매하기 →</div>
   </a>
+
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:18px">
+    <span style="font-size:20px">🏫</span>
+    <div style="flex:1;min-width:180px">
+      <div style="font-weight:800;font-size:14px">우리 학교</div>
+      <div style="font-size:12px;color:var(--ink2)">한 번 저장하면 시간표·나이스 입력 등 모든 도구가 이 학교 NEIS를 자동으로 씁니다.</div>
+    </div>
+    <input type="text" id="schoolName" placeholder="학교명 (예: 서울대도초등학교)" style="font:inherit;border:1px solid var(--line);border-radius:9px;padding:8px 11px;min-width:200px">
+    <button id="schoolSave" style="background:var(--rust);color:#fff;font-weight:700;border:0;border-radius:9px;padding:9px 16px;cursor:pointer">저장</button>
+    <span id="schoolMsg" style="font-size:12px;color:var(--ok)"></span>
+  </div>
+
   <div class="grid">
     <a class="tile" href="teacher.html">
       <div class="ic">👨‍🏫</div><div class="t">우리 반 학생 결과</div>
@@ -127,6 +139,20 @@ document.getElementById('logout').onclick=function(e){ e.preventDefault(); sb.au
     return;
   }
   show('gate',false); show('app',true);
+})();
+// 우리 학교(공유 설정) — 저장 시 모든 도구가 이 학교 NEIS를 자동 사용
+(function(){
+  var f=document.getElementById('schoolName'), b=document.getElementById('schoolSave'), m=document.getElementById('schoolMsg');
+  var cur={}; try{ cur=JSON.parse(localStorage.getItem('pia_school')||'{}')||{}; }catch(e){}
+  if(cur&&cur.nm&&f) f.value=cur.nm;
+  if(b) b.onclick=function(){
+    var nm=(f.value||'').trim();
+    if(!nm){ if(m){m.style.color='var(--red)';m.textContent='학교명을 입력하세요.';} return; }
+    var o={}; try{ o=JSON.parse(localStorage.getItem('pia_school')||'{}')||{}; }catch(e){}
+    o.nm=nm;
+    try{ localStorage.setItem('pia_school', JSON.stringify(o)); }catch(e){}
+    if(m){ m.style.color='var(--ok)'; m.textContent='저장됨 · 시간표·나이스 도구에 자동 반영됩니다'; }
+  };
 })();
 </script>
 <script src="err-cs.js" defer></script>

@@ -95,11 +95,13 @@ th{background:var(--paper2);font-weight:700;color:var(--ink2)}
     <div class="sub">모든 학급 공통 커리큘럼입니다. 전담 과목은 유형을 <b>전담</b>으로 두고 교사명을 적으면, 그 교사가 여러 학급을 오가며 겹치지 않게 배정됩니다.</div>
     <div class="sublist" id="subList"></div>
     <div class="row" style="margin-top:8px">
+      <button class="sm" onclick="neisSubjects()">🏫 NEIS 과목·시수 자동</button>
       <button class="sm ghost" onclick="addSub()">+ 과목 추가</button>
       <button class="sm ghost" onclick="loadPreset()">초등 기본 과목 불러오기</button>
       <span class="mut" id="hourSum"></span>
     </div>
-    <div class="hint">한 학급 주당 총 시수는 <b>요일×교시</b>를 넘을 수 없습니다. 남는 칸은 '재량/자습'으로 비워 둡니다.</div>
+    <div id="subMsg" class="mut" style="font-size:11.5px;margin-top:4px"></div>
+    <div class="hint">🏫 NEIS 과목·시수 자동은 ① 에서 학교명을 넣은 뒤 눌러 주세요. 이번 주 시간표를 읽어 <b>과목·주당 시수·교시·요일</b>을 채우고 전담 과목을 추정합니다(영어·체육·음악·미술 등). 한 학급 주당 총 시수는 요일×교시를 넘을 수 없습니다.</div>
   </div>
 
   <div class="card noprint">
@@ -119,8 +121,10 @@ th{background:var(--paper2);font-weight:700;color:var(--ink2)}
       <label>연도</label><input type="number" id="calYear" value="2026" style="width:90px">
       <label style="margin-left:8px">날짜</label><input type="date" id="evDate">
       <input type="text" id="evName" placeholder="행사명 (예: 개교기념일)" style="flex:1;min-width:160px">
-      <button class="sm" onclick="addEvent()">+ 일정</button>
+      <button class="sm ghost" onclick="addEvent()">+ 일정</button>
+      <button class="sm" onclick="neisSchedule()">🏫 NEIS 학사일정 자동</button>
     </div>
+    <div id="calMsg" class="mut" style="font-size:11.5px;margin:4px 0"></div>
     <div id="calList" style="margin-top:8px"></div>
   </div>
   <p class="hint noprint" style="text-align:center">※ 나이스 자동 전송은 보안망 특성상 불가합니다. 본 도구는 편성·인쇄·복사를 돕고, 나이스에는 결과를 참고해 입력하세요.</p>
@@ -146,7 +150,7 @@ function pad(n){return (n<10?'0':'')+n;}
 function dstr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function mondayOf(d){var x=new Date(d);var w=(x.getDay()+6)%7;x.setDate(x.getDate()-w);x.setHours(0,0,0,0);return x;}
 function dayDate(colIdx){var x=new Date(weekStart);x.setDate(x.getDate()+colIdx);return x;}
-function holName(ds){ if(KR_HOL[ds]) return {name:KR_HOL[ds],hol:true}; var ev=events.filter(function(e){return e.date===ds;}); return ev.length?{name:ev.map(function(e){return e.name;}).join(', '),hol:false}:null; }
+function holName(ds){ if(KR_HOL[ds]) return {name:KR_HOL[ds],hol:true}; var ev=events.filter(function(e){return e.date===ds;}); return ev.length?{name:ev.map(function(e){return e.name;}).join(', '),hol:ev.some(function(e){return e.hol;})}:null; }
 function weekInfo(D){ var arr=[]; for(var d=0;d<D;d++){ var ds=dstr(dayDate(d)); var h=holName(ds); arr.push({ds:ds,md:(dayDate(d).getMonth()+1)+'/'+dayDate(d).getDate(),info:h}); } return arr; }
 
 /* ---- 학급 ---- */
@@ -187,6 +191,8 @@ function renderClasses(){
 }
 /* ---- NEIS 학급현황 자동 ---- */
 var NEIS_KEY='6a290550fd57438f8374bc8ed7feabfd'; // 서버 내장 개방 API 키
+function saveSchool(o){ try{ localStorage.setItem('pia_school', JSON.stringify(o)); }catch(e){} }
+function loadSchool(){ try{ var v=localStorage.getItem('pia_school'); return v?JSON.parse(v):null; }catch(e){ return null; } }
 async function neisJson(url){
   var r=await fetch(url); var j=await r.json(); return j;
 }
@@ -206,15 +212,77 @@ async function neisAuto(){
     var byGrade={};
     crows.forEach(function(r){ var g=parseInt(r.GRADE,10); if(!g)return; (byGrade[g]=byGrade[g]||new Set()).add(r.CLASS_NM); });
     for(var g=1;g<=6;g++){ var e=document.getElementById('gcnt-'+g); if(e) e.value=byGrade[g]?byGrade[g].size:0; }
+    var gk=Object.keys(byGrade).sort(function(a,b){return a-b;}); var fg=gk[0]||'1';
+    window._neisSchool={A:s.ATPT_OFCDC_SC_CODE,S:s.SD_SCHUL_CODE,kind:s.SCHUL_KND_SC_NM||'',nm:s.SCHUL_NM||nm,ay:ay,fg:fg,fc:(byGrade[fg]?[].concat(Array.from(byGrade[fg]))[0]:'1')};
+    saveSchool(window._neisSchool);
     buildByGrade();
     msg.style.color='#788c5d';
-    msg.textContent=(s.SCHUL_NM||nm)+' · '+ay+'학년도 학급현황 반영 완료 (총 '+classes.length+'학급)';
+    msg.textContent=(s.SCHUL_NM||nm)+' · '+ay+'학년도 학급현황 반영 완료 (총 '+classes.length+'학급) — 이제 "NEIS 과목·시수 자동"도 쓸 수 있어요';
   }catch(e){
     msg.style.color='#b91c1c';
     msg.textContent='자동 조회 실패(브라우저 보안·네트워크). 학년별 반 수를 직접 입력해 주세요.';
   }
 }
 
+async function neisResolveSchool(){
+  if(window._neisSchool) return window._neisSchool;
+  var nm=($('#neisSchool').value||'').trim(); if(!nm) return null;
+  var K=($('#neisKey').value||'').trim()||NEIS_KEY;
+  var si=await neisJson('https://open.neis.go.kr/hub/schoolInfo?Type=json&pIndex=1&pSize=5&KEY='+encodeURIComponent(K)+'&SCHUL_NM='+encodeURIComponent(nm));
+  var rows=(si.schoolInfo&&si.schoolInfo[1]&&si.schoolInfo[1].row)||[]; if(!rows.length) return null;
+  var s=rows[0]; window._neisSchool={A:s.ATPT_OFCDC_SC_CODE,S:s.SD_SCHUL_CODE,kind:s.SCHUL_KND_SC_NM||'',nm:s.SCHUL_NM,ay:new Date().getFullYear(),fg:'1',fc:'1'};
+  saveSchool(window._neisSchool);
+  return window._neisSchool;
+}
+function _ttEp(kind){ if(/고/.test(kind))return 'hisTimetable'; if(/중/.test(kind))return 'misTimetable'; return 'elsTimetable'; }
+var NEIS_SP=['영어','체육','음악','미술','과학','실과','정보','컴퓨터','한문','외국어'];
+function _ymd(d){return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());}
+/* 과목·시수 + 전담 자동 (NEIS 시간표) */
+async function neisSubjects(){
+  var msg=$('#subMsg'); function M(c,t){ if(msg){msg.style.color=c;msg.textContent=t;} }
+  M('#94a3b8','NEIS 시간표 조회 중…');
+  try{
+    var sc=await neisResolveSchool(); if(!sc){ M('#b91c1c','먼저 ① 에서 학교명을 입력하세요.'); return; }
+    var K=($('#neisKey').value||'').trim()||NEIS_KEY; var ep=_ttEp(sc.kind);
+    var mon=mondayOf(new Date()); var fri=new Date(mon); fri.setDate(fri.getDate()+4);
+    var sem=(function(){var m=new Date().getMonth()+1;return (m>=3&&m<=7)?'1':'2';})();
+    async function pull(SEM){
+      var u='https://open.neis.go.kr/hub/'+ep+'?Type=json&pIndex=1&pSize=300&KEY='+encodeURIComponent(K)+'&ATPT_OFCDC_SC_CODE='+sc.A+'&SD_SCHUL_CODE='+sc.S+'&AY='+sc.ay+'&SEM='+SEM+'&GRADE='+sc.fg+'&CLASS_NM='+encodeURIComponent(sc.fc)+'&TI_FROM_YMD='+_ymd(mon)+'&TI_TO_YMD='+_ymd(fri);
+      var j=await neisJson(u); return (j[ep]&&j[ep][1]&&j[ep][1].row)||[];
+    }
+    var rows=await pull(sem); if(!rows.length) rows=await pull(sem==='1'?'2':'1');
+    if(!rows.length){ M('#b91c1c','이 학교의 시간표 데이터가 없어 과목 자동이 어렵습니다. 직접 입력하세요.'); return; }
+    // ① 기본 설정(교시·요일)도 NEIS 시간표에서 반영
+    var maxP=0, hasSat=false;
+    rows.forEach(function(r){ var p=parseInt(r.PERIO,10); if(p>maxP)maxP=p; var dd=(r.ALL_TI_YMD||'').replace(/(\d{4})(\d{2})(\d{2})/,'$1-$2-$3'); if(dd&&new Date(dd).getDay()===6) hasSat=true; });
+    if(maxP>=3&&maxP<=8){ var pe=$('#periods'); if(pe){ pe.value=maxP; } }
+    if(hasSat){ var ds=$('#days'); if(ds) ds.value='6'; }
+    try{ updateHourSum(); }catch(e){}
+    var cnt={};
+    rows.forEach(function(r){ var c=(r.ITRT_CNTNT||'').trim(); if(!c)return; c=c.replace(/\s+/g,'').replace(/\([^)]*\)/g,''); if(!c||c.length>6)return; cnt[c]=(cnt[c]||0)+1; });
+    var arr=Object.keys(cnt).map(function(k){return {name:k,hours:cnt[k]};}).sort(function(a,b){return b.hours-a.hours;});
+    if(!arr.length){ M('#b91c1c','과목 정보를 해석하지 못했습니다. 직접 입력하세요.'); return; }
+    subs=arr.map(function(x){ var sp=NEIS_SP.some(function(k){return x.name.indexOf(k)>=0;}); return {name:x.name,hours:x.hours,type:sp?'sp':'hr',teacher:sp?(x.name+' 전담'):''}; });
+    renderSubs();
+    M('#788c5d',sc.nm+' '+sc.fg+'학년 '+sc.fc+'반 기준 '+subs.length+'과목·시수 + 교시/요일 자동(전담 추정 포함) — 검토·수정하세요');
+  }catch(e){ M('#b91c1c','자동 조회 실패(보안·네트워크). 과목·시수를 직접 입력하세요.'); }
+}
+/* 학사일정 자동 (NEIS 학사일정) */
+async function neisSchedule(){
+  var msg=$('#calMsg'); function M(c,t){ if(msg){msg.style.color=c;msg.textContent=t;} }
+  M('#94a3b8','NEIS 학사일정 조회 중…');
+  try{
+    var sc=await neisResolveSchool(); if(!sc){ M('#b91c1c','먼저 ① 에서 학교명을 입력하세요.'); return; }
+    var K=($('#neisKey').value||'').trim()||NEIS_KEY; var y=parseInt($('#calYear').value,10)||sc.ay;
+    var u='https://open.neis.go.kr/hub/SchoolSchedule?Type=json&pIndex=1&pSize=1000&KEY='+encodeURIComponent(K)+'&ATPT_OFCDC_SC_CODE='+sc.A+'&SD_SCHUL_CODE='+sc.S+'&AA_FROM_YMD='+y+'0101&AA_TO_YMD='+y+'1231';
+    var j=await neisJson(u); var rows=(j.SchoolSchedule&&j.SchoolSchedule[1]&&j.SchoolSchedule[1].row)||[];
+    if(!rows.length){ M('#b91c1c','학사일정 데이터가 없습니다. 직접 추가하세요.'); return; }
+    var added=0;
+    rows.forEach(function(r){ var d=(r.AA_YMD||'').replace(/(\d{4})(\d{2})(\d{2})/,'$1-$2-$3'); var nmv=(r.EVENT_NM||'').trim(); if(!d||!nmv)return; var hol=/휴업|방학|재량휴업/.test((r.SBTR_DD_SC_NM||'')+nmv); if(!events.some(function(e){return e.date===d&&e.name===nmv;})){ events.push({date:d,name:nmv,hol:hol}); added++; } });
+    renderCal(); if(window.lastGrid) renderResult(lastGrid,lastD,lastP);
+    M('#788c5d',sc.nm+' '+y+'년 학사일정 '+added+'건 반영');
+  }catch(e){ M('#b91c1c','자동 조회 실패(보안·네트워크). 직접 추가하세요.'); }
+}
 /* ---- 과목 ---- */
 function addSub(name,hours,type,teacher){
   subs.push({name:name||'',hours:hours||1,type:type||'hr',teacher:teacher||''}); renderSubs();
@@ -448,15 +516,15 @@ function addEvent(){ var d=$('#evDate').value, n=($('#evName').value||'').trim()
 function renderCal(){
   var y=parseInt($('#calYear').value,10)||2026;
   var all=[];
-  for(var k in KR_HOL) if(k.indexOf(y+'-')===0) all.push({date:k,name:KR_HOL[k],hol:true});
-  events.forEach(function(e){ all.push({date:e.date,name:e.name}); });
+  for(var k in KR_HOL) if(k.indexOf(y+'-')===0) all.push({date:k,name:KR_HOL[k],hol:true,pub:true});
+  events.forEach(function(e){ all.push({date:e.date,name:e.name,hol:!!e.hol}); });
   all.sort(function(a,b){ return a.date<b.date?-1:1; });
   var host=$('#calList'); host.innerHTML='';
   if(!all.length){ host.appendChild(el('span',{class:'mut'},'등록된 일정이 없습니다.')); return; }
   var t=el('table'); var body='<tr><th>날짜</th><th>구분</th><th>내용</th><th class="noprint"></th></tr>';
   all.forEach(function(e,i){
     var dt=new Date(e.date); var dow=DOW[(dt.getDay()+6)%7];
-    body+='<tr><td>'+e.date+' ('+dow+')</td><td>'+(e.hol?'<span class="pill bad">공휴일</span>':'<span class="pill tag sp">행사</span>')+'</td><td>'+esc(e.name)+'</td>'
+    body+='<tr><td>'+e.date+' ('+dow+')</td><td>'+(e.pub?'<span class="pill bad">공휴일</span>':(e.hol?'<span class="pill bad">휴업</span>':'<span class="pill tag sp">행사</span>'))+'</td><td>'+esc(e.name)+'</td>'
       +'<td class="noprint">'+(e.hol?'':'<button class="ghost sm" data-i="'+i+'">✕</button>')+'</td></tr>';
   });
   t.innerHTML=body; host.appendChild(t);
@@ -468,6 +536,7 @@ $('#days').onchange=updateHourSum; $('#periods').oninput=updateHourSum;
 $('#calYear').oninput=renderCal;
 $('#clsInput').addEventListener('keydown',function(e){ if(e.key==='Enter') addClass(); });
 initGradeInputs();
+(function(){ var sc=loadSchool(); if(sc&&sc.nm){ var f=$('#neisSchool'); if(f) f.value=sc.nm; if(sc.A&&sc.S) window._neisSchool=sc; var m=$('#neisMsg'); if(m){ m.style.color='#788c5d'; m.textContent='저장된 학교: '+sc.nm+' — 버튼을 누르면 바로 반영됩니다'; } } })();
 addClass('3-1'); addClass('3-2'); loadPreset(); renderCal();
 </script>
 </body>

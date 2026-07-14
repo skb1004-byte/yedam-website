@@ -61,6 +61,14 @@ button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;font:inherit
         </div>
         <div id="roleMsg" class="muted" style="margin-top:10px"></div>
       </div>
+      <div id="schoolBox" style="margin-top:14px;padding-top:14px;border-top:1px solid #f0ede4">
+        <div class="muted" style="margin-bottom:8px">🏫 <b>우리 학교</b> — 한 번 저장하면 시간표·나이스 입력 등 선생님도우미 도구가 이 학교 NEIS를 자동으로 사용합니다.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          <input type="text" id="m-school" placeholder="학교명 (예: 서울대도초등학교)" style="flex:1;min-width:200px;font:inherit;border:1px solid #e3e0d6;border-radius:9px;padding:8px 11px">
+          <button class="btn-rust" id="schoolSave">저장</button>
+          <span class="muted" id="schoolMsg"></span>
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -178,6 +186,20 @@ else {
     };
 
     $('#logout').onclick=async function(e){ e.preventDefault(); await sb.auth.signOut(); location.replace('index.html'); };
+
+    // 우리 학교(공유 설정) — 저장 시 시간표·나이스 도구가 자동 사용
+    (function(){
+      var f=$('#m-school'), b=$('#schoolSave'), m=$('#schoolMsg');
+      var cur={}; try{ cur=JSON.parse(localStorage.getItem('pia_school')||'{}')||{}; }catch(e){}
+      if(cur&&cur.nm&&f) f.value=cur.nm;
+      if(b) b.onclick=function(){
+        var nm=(f.value||'').trim();
+        if(!nm){ if(m){m.style.color='var(--warn)';m.textContent='학교명을 입력하세요.';} return; }
+        var o={}; try{ o=JSON.parse(localStorage.getItem('pia_school')||'{}')||{}; }catch(e){}
+        o.nm=nm; try{ localStorage.setItem('pia_school', JSON.stringify(o)); }catch(e){}
+        if(m){ m.style.color='var(--ok,#788c5d)'; m.textContent='저장됨 · 선생님도우미 도구에 자동 반영'; }
+      };
+    })();
   })();
 }
 </script>
