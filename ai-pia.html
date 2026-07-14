@@ -7568,9 +7568,9 @@ function renderExtendedSections() {
     ${renderRoadmap()}
     ${currentAudience === 'parent' ? renderParent14Day() : ''}
     ${currentAudience === 'teacher' ? renderTeacher12Wk() + renderCrisisSOP() : ''}
-    ${renderCounselReport()}
-    ${renderTeacherToolkit()}
-    ${renderNiceCard()}
+    ${(currentAudience==='teacher'||currentAudience==='parent')?renderCounselReport():''}
+    ${currentAudience==='teacher'?renderTeacherToolkit():''}
+    ${currentAudience==='teacher'?renderNiceCard():''}
     ${renderAccuracyPanel()}
     ${renderCareernetCard()}
     ${renderResultUsageGuide(currentAudience)}
