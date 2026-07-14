@@ -7585,6 +7585,7 @@ const _origDet2 = renderDetailedResult;
 renderDetailedResult = function() {
   _origDet2();
   try { renderExtendedSections(); } catch(e) { console.warn('확장 섹션 렌더 실패:', e); }
+  try { if(typeof piaSyncAudButtons==='function') piaSyncAudButtons(); } catch(e){}
 };
 
 // =================================================================
@@ -7985,6 +7986,8 @@ function piaSyncAudButtons(){
     var a=b.dataset.audience; var ok=audAllowed(a);
     b.disabled=!ok; b.style.opacity=ok?'':'0.45'; b.style.cursor=ok?'':'not-allowed';
     b.title=ok?'':(_audKoName(a)+' 화면은 해당 역할로 로그인해야 볼 수 있습니다');
+    // 현재 시점과 하이라이트 동기화
+    b.setAttribute('aria-selected', (a===currentAudience)?'true':'false');
   }); }catch(e){}
 }
 function piaLoadRole(){
