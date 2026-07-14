@@ -203,6 +203,15 @@ function toast(msg){
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function byteLen(s){var n=0;for(var i=0;i<s.length;i++){n+=s.charCodeAt(i)>127?3:1;}return n;}
+/* 받침 판정 조사: (코드포인트-0xAC00)%28===0 이면 받침 없음 */
+function josa(w,type){
+  if(!w) return '';
+  var c=w.charCodeAt(w.length-1);
+  var hasJong=(c>=0xAC00&&c<=0xD7A3)?((c-0xAC00)%28!==0):false;
+  var m={eunneun:['은','는'],eulreul:['을','를'],iga:['이','가'],gwawa:['과','와']};
+  var p=m[type]||m.eunneun;
+  return w+(hasJong?p[0]:p[1]);
+}
 function copyText(txt){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(txt).then(function(){toast('복사되었습니다');},function(){legacyCopy(txt);});
@@ -364,8 +373,8 @@ var AREA_OUTRO={
 
 /* 문장 뒤 종결 다양화(개조식 유지) */
 function toEnding(sent,i){
-  /* 뱅크 문장은 이미 '~함/~음/~됨/~보임' 종결. 마침표만 부여 */
-  return sent+'.';
+  /* 뱅크 문장은 이미 '~함/~음/~됨/~보임' 종결. 문장부호로 안 끝났을 때만 마침표 부여(이중 마침표 방지) */
+  return /[.!?…]$/.test(sent)?sent:sent+'.';
 }
 
 /* 칩 렌더 */
@@ -389,7 +398,7 @@ var LIMIT_CHAR={behavior:500,autonomy:500,club:500,career:700};
 var AREA_FILL={
   behavior:['교우 관계가 원만하고 배려심이 있어 친구들과 협력적으로 지냄.','정해진 규칙과 약속을 잘 지키며 자기 관리에 힘쓰는 모범적인 생활 태도를 보임.','수업 시간에 집중하여 참여하고 자신의 생각을 적극적으로 표현함.','맡은 역할과 과제를 끝까지 책임감 있게 완수하는 성실한 자세를 지님.','어려움을 겪는 친구를 먼저 돕고 배려하는 따뜻한 마음이 돋보임.','새로운 활동과 도전에 긍정적으로 임하며 즐겁게 참여함.','자신의 감정을 조절하고 상황에 맞게 행동하는 성숙한 태도를 보임.'],
   autonomy:['학급 회의와 자치 활동에 적극적으로 참여하여 의견을 제안함.','1인 1역할을 성실히 수행하며 학급 공동체에 기여함.','학급 규칙을 함께 정하고 지키려는 책임감 있는 태도를 보임.','친구들의 의견을 존중하며 합의점을 찾아가는 민주적 태도가 돋보임.','학급 행사와 봉사 활동에 자발적으로 참여하여 협력함.','공동의 문제를 함께 해결하려는 자치 역량을 발휘함.'],
-  career:['자신의 흥미와 적성을 이해하고 관련 직업과 학과 정보를 탐색함.','진로 체험과 독서를 통해 관심 분야에 대한 이해를 넓혀 감.','자신의 강점을 진로와 연결하려는 노력이 관찰됨.','진로 목표를 세우고 이를 이루기 위한 계획을 구체화해 나감.','다양한 직업 세계를 탐구하며 자신의 미래를 능동적으로 설계함.','진로 활동에서 배운 점을 자신의 생활과 학습에 적용하려 노력함.'],
+  career:['자신의 흥미와 적성을 이해하고 관련 직업과 학과 정보를 탐색함.','진로 체험과 독서를 통해 관심 분야에 대한 이해를 넓혀 감.','자신의 강점을 진로와 연결하려는 노력이 관찰됨.','진로 목표를 세우고 이를 이루기 위한 계획을 구체화해 나감.','다양한 직업 세계를 탐구하며 자신의 미래를 능동적으로 설계함.','진로 활동에서 배운 점을 자신의 생활과 학습에 적용하려 노력함.','진로 상담과 검사 결과를 바탕으로 자신을 객관적으로 이해하려 노력함.','관심 직업인의 삶과 가치를 탐구하며 진로에 대한 안목을 넓힘.','목표 달성을 위해 필요한 역량이 무엇인지 스스로 점검하고 준비함.','진로 포트폴리오를 꾸준히 정리하며 성장 과정을 기록함.','변화하는 사회와 직업 환경에 관심을 가지고 유연하게 사고함.'],
   club:['동아리 활동에 자발적으로 참여하여 맡은 역할을 성실히 수행함.','부원들과 협력하여 활동을 기획하고 운영하는 데 기여함.','꾸준한 참여로 관련 지식과 기능을 신장함.','동아리 발표와 전시 준비 과정에서 책임감 있게 임함.','관심 분야에 대한 열정을 바탕으로 적극적으로 활동함.','부원 간 소통을 도우며 협력적인 분위기를 이끔.']
 };
 var GROWTH_FILL=['자신의 강점을 살려 꾸준히 성장하는 모습이 기대됨.','다양한 경험과 도전을 통해 잠재력을 더욱 발휘할 것으로 기대됨.','배운 것을 실천하려는 태도가 인상적이며 지속적인 발전이 기대됨.','작은 일에도 최선을 다하는 성실함이 앞으로의 성장 밑거름이 됨.','스스로 목표를 세우고 실천하는 자기주도적 태도가 돋보임.'];
@@ -408,7 +417,7 @@ function buildRec(){
   /* 1) 선택 키워드 대표 문장 */
   shuffle(keys).forEach(function(k){ if(BANK[k]) addUniq(pick(BANK[k])); });
   /* 2) 자유 키워드 */
-  free.forEach(function(f){ addUniq(pick([f+' 활동에 적극적으로 참여하여 자신의 역량을 발휘함.', f+'에서 맡은 역할을 성실히 수행하는 모습이 돋보임.', f+'을(를) 통해 배우고 성장하는 태도가 인상적임.'])); });
+  free.forEach(function(f){ addUniq(pick([f+' 활동에 적극적으로 참여하여 자신의 역량을 발휘함.', f+'에서 맡은 역할을 성실히 수행하는 모습이 돋보임.', josa(f,'eulreul')+' 통해 배우고 성장하는 태도가 인상적임.'])); });
   /* 3) 권장 분량(약 92%)까지 확장 — 키워드 추가 변형 + 영역 서술 + 성장 문장 */
   var target=Math.round(LIMIT_CHAR[area]*0.95);
   var pool=[];
@@ -418,7 +427,7 @@ function buildRec(){
   pool=shuffle(pool);
   function curChars(){ return (intro+' '+body.join(' ')).length; }
   for(var i=0;i<pool.length && curChars()<target; i++){ addUniq(pool[i]); }
-  var head=name?(name+'은(는) '+intro):intro;
+  var head=name?(josa(name,'eunneun')+' '+intro):intro;
   var text=(head+' '+body.join(' ')).replace(/\s+/g,' ').trim();
   text+=' '+pick(AREA_OUTRO[area]);
   text=text.replace(/\s+/g,' ').trim();
@@ -426,7 +435,7 @@ function buildRec(){
   var guard=0;
   while(byteLen(text)>LIMIT[area] && body.length>1 && guard++<50){
     body.pop();
-    text=((name?(name+'은(는) '+intro):intro)+' '+body.join(' ')+' '+pick(AREA_OUTRO[area])).replace(/\s+/g,' ').trim();
+    text=((name?(josa(name,'eunneun')+' '+intro):intro)+' '+body.join(' ')+' '+pick(AREA_OUTRO[area])).replace(/\s+/g,' ').trim();
   }
   return text.trim();
 }
@@ -659,10 +668,11 @@ function genGrade(){
       /* 단원·영역: 직접 입력값(이 과목)이 있으면 고정, 없으면 학생마다 랜덤 영역 */
       var kw=(scope==='one'&&key)?key:(areas.length?areas[Math.floor(Math.random()*areas.length)]:'');
       var text;
+      var _end=/[.!?…]$/.test(sent)?sent:sent+'.';
       if(kw){
-        var pre=pick(['{K} 단원에서 ','{K} 영역에서 ','{K}을(를) 학습하며 ']).replace('{K}',kw);
-        text=pre+sent+'.';
-      }else{ text=sent+'.'; }
+        var pre=pick([kw+' 단원에서 ', kw+' 영역에서 ', josa(kw,'eulreul')+' 학습하며 ']);
+        text=pre+_end;
+      }else{ text=_end; }
       rows.push({name:raw[i], subj:(scope==='all'?subj:''), text:text});
     }
   });

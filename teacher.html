@@ -87,6 +87,12 @@ tr:hover td{background:#fcfbf7}
 <script>
 var SB_URL='https://ushtyxnmqclzgdnynusm.supabase.co';
 var SB_KEY='sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
+if(!window.supabase||!window.supabase.createClient){
+  document.addEventListener('DOMContentLoaded',function(){
+    document.body.insertAdjacentHTML('afterbegin','<div style="background:#fef2f2;color:#b91c1c;padding:12px 16px;font-size:14px;text-align:center;border-bottom:1px solid #fecaca">네트워크 문제로 로그인 모듈을 불러오지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.</div>');
+  });
+  throw new Error('Supabase CDN load failed');
+}
 var sb=window.supabase.createClient(SB_URL,SB_KEY);
 var _rows=[];
 function $(s){return document.querySelector(s);}
@@ -142,7 +148,10 @@ async function load(){
   document.getElementById('empty').textContent='불러오는 중…';
   var r=await sb.rpc('pia_class_results');
   if(r.error){
-    if((r.error.message||'').indexOf('권한')>=0 || (r.error.message||'').indexOf('교사')>=0){
+    // 권한 오류는 PostgREST 오류코드로 우선 판정(문구 변경에 견고), 문자열은 보조
+    var _c=r.error.code||'', _m=(r.error.message||'');
+    var _perm=(_c==='42501'||_c==='PGRST301'||_c==='PGRST302'||r.error.status===401||r.error.status===403|| _m.indexOf('권한')>=0 || _m.indexOf('교사')>=0 || /permission|not authorized|forbidden|RLS/i.test(_m));
+    if(_perm){
       document.getElementById('empty').innerHTML='<span style="color:var(--red);font-weight:700">교사(기관) 권한이 필요합니다.</span><div class="note" style="margin-top:6px">마이페이지에서 회원 유형을 <b>선생님·기관</b>으로 설정하세요. 기관장은 운영자 승인 후 이용할 수 있습니다.</div>';
     } else {
       document.getElementById('empty').innerHTML='<span style="color:var(--red)">불러오기 오류: '+esc(r.error.message)+'</span>';

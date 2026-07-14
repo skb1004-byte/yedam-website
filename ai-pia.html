@@ -7803,6 +7803,8 @@ function newStudent() {
   state.profile = null;
   state.studentId = 'S001';
   currentAudience = 'student';
+  // 공용 기기 보호: 새 학생 시작 시 교사 동의생략 플래그 해제 → 학생 동의 절차 정상 복원
+  try { localStorage.removeItem('pia_aud_teacher'); sessionStorage.removeItem('pia_v3_consent'); } catch(e) {}
   try { _aiSumCache = {}; _aiSumSig = null; } catch(e) {}
   save();
   // 결과 화면 잔여 컨테이너 정리

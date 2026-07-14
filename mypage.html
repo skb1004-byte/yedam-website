@@ -93,6 +93,11 @@ var SUPABASE_ANON_KEY = 'sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
 // ============================================================
 var ready = SUPABASE_URL.indexOf('http')===0 && SUPABASE_ANON_KEY.length>20;
 var $=function(s){return document.querySelector(s);};
+if(ready && (!window.supabase || !window.supabase.createClient)){
+  $('#cfgwarn').textContent='네트워크 문제로 로그인 모듈을 불러오지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.';
+  $('#cfgwarn').style.display='block';
+  ready=false;
+}
 if(!ready){ $('#cfgwarn').style.display='block'; }
 else {
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

@@ -132,6 +132,10 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+if(!window.supabase||!window.supabase.createClient){
+  document.body.insertAdjacentHTML('afterbegin','<div style="background:#fef2f2;color:#b91c1c;padding:12px 16px;font-size:14px;text-align:center;border-bottom:1px solid #fecaca">네트워크 문제로 로그인 모듈을 불러오지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.</div>');
+  throw new Error('Supabase CDN load failed');
+}
 var sb=window.supabase.createClient('https://ushtyxnmqclzgdnynusm.supabase.co','sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102');
 function $(s){return document.querySelector(s);}
 function show(id,on){document.getElementById(id).classList[on?'remove':'add']('hide');}
