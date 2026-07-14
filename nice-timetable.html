@@ -58,36 +58,34 @@ th{background:var(--paper2);font-weight:700;color:var(--ink2)}
 
 <div class="wrap">
   <div class="card noprint">
-    <h2>① 기본 설정</h2>
-    <div class="sub">요일·교시 수를 정하고, 학급을 추가하세요. 초등 담임제를 기본으로, 전담 과목만 별도 교사가 배정됩니다.</div>
-    <div class="row">
-      <label>요일</label>
-      <select id="days">
-        <option value="5">월~금 (5일)</option>
-        <option value="6">월~토 (6일)</option>
-      </select>
-      <label style="margin-left:12px">하루 교시</label>
-      <input type="number" id="periods" min="3" max="8" value="6">
-      <label style="margin-left:12px">학급 직접추가</label>
-      <input type="text" id="clsInput" placeholder="예: 3-1" style="width:100px">
-      <button class="sm" onclick="addClass()">+ 추가</button>
-    </div>
-    <div class="row" style="margin-top:10px;padding:11px;background:var(--paper2);border-radius:10px;align-items:center">
-      <span style="font-size:12.5px;font-weight:700;color:var(--ink2)">학년별 반 수만 입력하면 전 학급 자동 생성 →</span>
-      <span id="gradeInputs" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"></span>
-      <button class="sm" onclick="buildByGrade()">전 학급 생성</button>
-      <button class="sm ghost" onclick="classes.length=0;renderClasses()">전체 비우기</button>
-    </div>
-    <div class="row" style="margin-top:8px;align-items:center;flex-wrap:wrap">
-      <span style="font-size:12.5px;font-weight:700;color:var(--ink2)">🏫 NEIS 자동</span>
-      <input type="text" id="neisSchool" placeholder="학교명 (예: 서울대도초)" style="width:170px">
-      <input type="text" id="neisKey" placeholder="NEIS 키 (내장됨·변경 시만)" style="width:170px">
-      <a href="https://open.neis.go.kr/portal/myPage/actKeyManage/list.do" target="_blank" rel="noopener" style="font-size:11px;color:var(--rust2);font-weight:700;text-decoration:none">키 발급 →</a>
-      <button class="sm" onclick="neisAuto()">학년·학급수 자동</button>
-      <span id="neisMsg" class="mut" style="font-size:11.5px"></span>
+    <h2>① 학교 설정 <span class="mut" style="font-weight:400;font-size:12.5px">— 학교명만 넣으면 학급·과목·시수·학사일정이 모두 자동</span></h2>
+    <div class="row" style="align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px">
+      <span style="font-size:22px">🏫</span>
+      <input type="text" id="neisSchool" placeholder="학교명 (예: 서울대도초등학교)" style="flex:1;min-width:220px;font-size:15px;padding:9px 12px">
+      <button class="rust" onclick="neisAll()">전체 자동 불러오기</button>
+      <button class="sm ghost" onclick="neisAuto()">학급만</button>
+      <span id="neisMsg" class="mut" style="font-size:12px;flex-basis:100%"></span>
     </div>
     <div id="classList" class="row" style="margin-top:10px"></div>
-    <div class="hint">학교명만 입력하면 NEIS <b>학급현황</b>으로 학년별 반 수를 자동으로 채웁니다(개방 API 키 내장). 브라우저 보안(CORS)·네트워크로 조회가 막히면 위 학년별 반 수를 직접 입력하세요.</div>
+    <details style="margin-top:12px">
+      <summary style="cursor:pointer;font-size:12.5px;color:var(--ink2);font-weight:700">직접 입력 (고급) — 요일·교시·학급 수동 조정</summary>
+      <div class="row" style="margin-top:8px">
+        <label>요일</label>
+        <select id="days"><option value="5">월~금 (5일)</option><option value="6">월~토 (6일)</option></select>
+        <label style="margin-left:12px">하루 교시</label>
+        <input type="number" id="periods" min="3" max="8" value="6">
+        <label style="margin-left:12px">학급</label>
+        <input type="text" id="clsInput" placeholder="예: 3-1" style="width:100px">
+        <button class="sm" onclick="addClass()">+ 추가</button>
+      </div>
+      <div class="row" style="margin-top:10px;padding:11px;background:var(--paper2);border-radius:10px;align-items:center">
+        <span style="font-size:12.5px;font-weight:700;color:var(--ink2)">학년별 반 수 →</span>
+        <span id="gradeInputs" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"></span>
+        <button class="sm" onclick="buildByGrade()">전 학급 생성</button>
+        <button class="sm ghost" onclick="classes.length=0;renderClasses()">비우기</button>
+      </div>
+    </details>
+    <div class="hint">학교명 입력 후 <b>전체 자동 불러오기</b>를 누르면 NEIS에서 학급현황·시간표·학사일정을 한 번에 반영합니다(개방 API 키 내장). 조회가 막히면 위 <b>직접 입력(고급)</b>에서 손으로 넣을 수 있습니다.</div>
   </div>
 
   <div class="card noprint">
@@ -197,10 +195,10 @@ async function neisJson(url){
   var r=await fetch(url); var j=await r.json(); return j;
 }
 async function neisAuto(){
-  var nm=($('#neisSchool').value||'').trim(); var key=($('#neisKey').value||'').trim();
+  var nm=($('#neisSchool').value||'').trim();
   var msg=$('#neisMsg'); if(!nm){ msg.textContent='학교명을 입력하세요.'; return; }
   msg.style.color='#94a3b8'; msg.textContent='NEIS 조회 중…';
-  var K=key||NEIS_KEY; var base='https://open.neis.go.kr/hub/';
+  var K=NEIS_KEY; var base='https://open.neis.go.kr/hub/';
   try{
     var si=await neisJson(base+'schoolInfo?Type=json&pIndex=1&pSize=5&KEY='+encodeURIComponent(K)+'&SCHUL_NM='+encodeURIComponent(nm));
     var rows=(si.schoolInfo&&si.schoolInfo[1]&&si.schoolInfo[1].row)||[];
@@ -228,7 +226,7 @@ async function neisAuto(){
 async function neisResolveSchool(){
   if(window._neisSchool) return window._neisSchool;
   var nm=($('#neisSchool').value||'').trim(); if(!nm) return null;
-  var K=($('#neisKey').value||'').trim()||NEIS_KEY;
+  var K=NEIS_KEY;
   var si=await neisJson('https://open.neis.go.kr/hub/schoolInfo?Type=json&pIndex=1&pSize=5&KEY='+encodeURIComponent(K)+'&SCHUL_NM='+encodeURIComponent(nm));
   var rows=(si.schoolInfo&&si.schoolInfo[1]&&si.schoolInfo[1].row)||[]; if(!rows.length) return null;
   var s=rows[0]; window._neisSchool={A:s.ATPT_OFCDC_SC_CODE,S:s.SD_SCHUL_CODE,kind:s.SCHUL_KND_SC_NM||'',nm:s.SCHUL_NM,ay:new Date().getFullYear(),fg:'1',fc:'1'};
@@ -244,7 +242,7 @@ async function neisSubjects(){
   M('#94a3b8','NEIS 시간표 조회 중…');
   try{
     var sc=await neisResolveSchool(); if(!sc){ M('#b91c1c','먼저 ① 에서 학교명을 입력하세요.'); return; }
-    var K=($('#neisKey').value||'').trim()||NEIS_KEY; var ep=_ttEp(sc.kind);
+    var K=NEIS_KEY; var ep=_ttEp(sc.kind);
     var mon=mondayOf(new Date()); var fri=new Date(mon); fri.setDate(fri.getDate()+4);
     var sem=(function(){var m=new Date().getMonth()+1;return (m>=3&&m<=7)?'1':'2';})();
     async function pull(SEM){
@@ -274,7 +272,7 @@ async function neisSchedule(){
   M('#94a3b8','NEIS 학사일정 조회 중…');
   try{
     var sc=await neisResolveSchool(); if(!sc){ M('#b91c1c','먼저 ① 에서 학교명을 입력하세요.'); return; }
-    var K=($('#neisKey').value||'').trim()||NEIS_KEY; var y=parseInt($('#calYear').value,10)||sc.ay;
+    var K=NEIS_KEY; var y=parseInt($('#calYear').value,10)||sc.ay;
     var u='https://open.neis.go.kr/hub/SchoolSchedule?Type=json&pIndex=1&pSize=1000&KEY='+encodeURIComponent(K)+'&ATPT_OFCDC_SC_CODE='+sc.A+'&SD_SCHUL_CODE='+sc.S+'&AA_FROM_YMD='+y+'0101&AA_TO_YMD='+y+'1231';
     var j=await neisJson(u); var rows=(j.SchoolSchedule&&j.SchoolSchedule[1]&&j.SchoolSchedule[1].row)||[];
     if(!rows.length){ M('#b91c1c','학사일정 데이터가 없습니다. 직접 추가하세요.'); return; }
@@ -283,6 +281,15 @@ async function neisSchedule(){
     renderCal(); if(window.lastGrid) renderResult(lastGrid,lastD,lastP);
     M('#788c5d',sc.nm+' '+y+'년 학사일정 '+added+'건 반영');
   }catch(e){ M('#b91c1c','자동 조회 실패(보안·네트워크). 직접 추가하세요.'); }
+}
+/* 학교명 → 전체 자동(학급·과목·시수·학사일정) */
+async function neisAll(){
+  var m=$('#neisMsg');
+  await neisAuto();
+  if(!window._neisSchool) return;
+  await neisSubjects();
+  await neisSchedule();
+  if(m){ m.style.color='#788c5d'; m.innerHTML='<b>'+(window._neisSchool.nm||'')+'</b> 전체 자동 완료 — 아래 ②과목·③학사일정을 확인하고 <b>🧩 시간표 자동편성</b>을 누르세요'; }
 }
 /* ---- 과목 ---- */
 function addSub(name,hours,type,teacher){
@@ -330,31 +337,42 @@ function generate(){
   var cap=D*P, sum=valid.reduce(function(a,s){return a+s.hours;},0);
   if(sum>cap){ $('#genMsg').innerHTML='<span class="bad pill">주당 시수('+sum+')가 최대 교시('+cap+')를 초과합니다.</span>'; return; }
 
+  // 전담 교사 자동 증원: 한 전담이 전 학급을 못 맡는 규모면 교사 수를 자동으로 늘림
+  var spNeed={};
+  valid.forEach(function(s){ if(s.type==='sp'){ spNeed[s.name]=Math.max(1, Math.ceil((classes.length*s.hours)/cap)); } });
+  function tidFor(cl,ci,s){ if(s.type!=='sp') return 'HR:'+cl; var need=spNeed[s.name]||1; var base=s.teacher||s.name; return 'SP:'+(need>1?(base+'('+((ci%need)+1)+')'):base); }
   // 레슨 생성: 전담(공유 교사) 먼저 → 제약 큰 순
   var lessons=[];
-  classes.forEach(function(cl){
+  classes.forEach(function(cl,ci){
     valid.forEach(function(s){
-      for(var k=0;k<s.hours;k++) lessons.push({cl:cl,sub:s,tid:teacherId(cl,s),sp:s.type==='sp'});
+      var tid=tidFor(cl,ci,s);
+      for(var k=0;k<s.hours;k++) lessons.push({cl:cl,sub:s,tid:tid,sp:s.type==='sp'});
     });
   });
   lessons.sort(function(a,b){ return (b.sp?1:0)-(a.sp?1:0); });
 
   var slots=[]; for(var d=0;d<D;d++)for(var p=0;p<P;p++)slots.push(d*P+p);
-  var best=null;
-  for(var attempt=0; attempt<40 && !best; attempt++){
+  var big=classes.length>16;
+  var best=null, attempts=big?10:40, capSteps=big?2000000:400000;
+  for(var attempt=0; attempt<attempts && !best; attempt++){
     var order=lessons.slice(); if(attempt>0) shuffle(order);
     var grid={}; classes.forEach(function(c){ grid[c]=new Array(D*P).fill(null); });
-    var tbusy={}; var steps={n:0};
+    var tbusy={}; var steps={n:0,cap:capSteps};
     if(place(order,0,grid,tbusy,D,P,slots,steps)) best=grid;
   }
-  if(!best){ $('#genMsg').innerHTML='<span class="bad pill">조건을 만족하는 배치를 찾지 못했습니다. 시수/전담 시간을 조정해 보세요.</span>'; $('#result').innerHTML=''; return; }
-  $('#genMsg').innerHTML='<span class="ok pill">편성 완료 · 교사·학급 겹침 없음 ✓</span>';
+  if(!best){
+    var diag=[]; valid.forEach(function(s){ if(s.type==='sp'&&spNeed[s.name]>1) diag.push(s.name+' 전담 '+spNeed[s.name]+'명'); });
+    $('#genMsg').innerHTML='<span class="bad pill">자동 편성 실패</span> <span class="mut" style="font-size:11.5px">학급 수가 많거나 전담 시수가 큽니다'+(diag.length?(' (필요: '+diag.join(', ')+')'):'')+'. <b>학년 단위</b>로 나눠 편성하거나 교시 수를 늘려 보세요.</span>';
+    $('#result').innerHTML=''; return;
+  }
+  var spCnt=Object.keys(spNeed).reduce(function(a,k){return a+spNeed[k];},0);
+  $('#genMsg').innerHTML='<span class="ok pill">편성 완료 · 겹침 없음 ✓</span>'+(spCnt?' <span class="mut" style="font-size:11.5px">전담 교사 '+spCnt+'명 자동 배정</span>':'');
   lastGrid=best; lastD=D; lastP=P; if(!weekStart) weekStart=mondayOf(new Date());
   renderResult(best,D,P);
 }
 function place(lessons,i,grid,tbusy,D,P,slots,steps){
   if(i>=lessons.length) return true;
-  if(steps.n++>200000) return false; // 안전 상한
+  if(steps.n++>(steps.cap||200000)) return false; // 안전 상한
   var L=lessons[i], cl=L.cl, day, p, sameDay;
   var cand=slots.slice(); // 후보 슬롯
   // 같은 과목 같은 날 회피(분산) 우선 정렬 + 랜덤
