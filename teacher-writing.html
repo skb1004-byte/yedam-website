@@ -168,9 +168,14 @@ td.op button:hover{background:var(--paper2)}
 <button class="gho" id="gLoad">명단 불러오기</button>
 </div>
 
+<label class="fld" for="gScope">생성 범위</label>
+<select id="gScope">
+<option value="one">이 과목 · 전체 학생</option>
+<option value="all">전 과목 · 전체 학생 (일괄 생성)</option>
+</select>
 <div class="btns">
 <button class="act" id="gGen">학급 평어 생성</button>
-<button class="gho" id="gCopyAll">전체 엑셀 복사</button>
+<button class="gho" id="gCopyAll">📋 전체 복사 (나이스 양식)</button>
 <button class="gho" id="gPrint">인쇄</button>
 </div>
 
@@ -635,29 +640,32 @@ window.fillRoster=function(mode){
   try{ var g=localStorage.getItem('pia_teacher_grade'); var el=document.getElementById('gGrade'); if(g&&el) el.value=g; }catch(e){}
   try{ suggestUnits(); }catch(e){}
 })();
+var ALL_SUBJECTS=['국어','수학','사회','과학','영어','체육','음악','미술','도덕','실과','창의적체험활동'];
 function genGrade(){
-  var subj=document.getElementById('gSubj').value;
+  var scope=(document.getElementById('gScope')||{}).value||'one';
   var level=document.getElementById('gLevel').value;
   var key=document.getElementById('gKey').value.trim();
   var raw=document.getElementById('gRoster').value.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean);
   if(raw.length===0) raw=['홍길동'];
-  var pool=bankFor(subj,level);
-  /* 셔플된 풀을 순환 배정 — 반복 최소화 */
-  var bag=shuffle(pool);
+  var subjects=(scope==='all')?ALL_SUBJECTS.slice():[document.getElementById('gSubj').value];
   var rows=[];
-  for(var i=0;i<raw.length;i++){
-    if(i%bag.length===0) bag=shuffle(pool);
-    var sent=bag[i%bag.length];
-    /* 단원 키워드 삽입(선택) */
-    var text;
-    if(key){
-      var pre=pick(['{K} 단원에서 ','{K} 영역에서 ','{K}을(를) 학습하며 ']).replace('{K}',key);
-      text=pre+sent+'.';
-    }else{
-      text=sent+'.';
+  subjects.forEach(function(subj){
+    var pool=bankFor(subj,level);
+    var areas=(SUBJECT_AREAS[subj]||[]).slice();
+    var bag=shuffle(pool);
+    for(var i=0;i<raw.length;i++){
+      if(i%bag.length===0) bag=shuffle(pool);
+      var sent=bag[i%bag.length];
+      /* 단원·영역: 직접 입력값(이 과목)이 있으면 고정, 없으면 학생마다 랜덤 영역 */
+      var kw=(scope==='one'&&key)?key:(areas.length?areas[Math.floor(Math.random()*areas.length)]:'');
+      var text;
+      if(kw){
+        var pre=pick(['{K} 단원에서 ','{K} 영역에서 ','{K}을(를) 학습하며 ']).replace('{K}',kw);
+        text=pre+sent+'.';
+      }else{ text=sent+'.'; }
+      rows.push({name:raw[i], subj:(scope==='all'?subj:''), text:text});
     }
-    rows.push({name:raw[i],text:text});
-  }
+  });
   lastRows=rows;
   renderGradeTable(rows);
 }
@@ -665,9 +673,10 @@ function genGrade(){
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function renderGradeTable(rows){
-  var html='<div class="tblwrap"><table><thead><tr><th>이름</th><th>평어</th><th>복사</th></tr></thead><tbody>';
+  var hasSubj=rows.some(function(r){return r.subj;});
+  var html='<div class="tblwrap"><table><thead><tr><th>이름</th>'+(hasSubj?'<th>과목</th>':'')+'<th>평어</th><th>복사</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
-    html+='<tr><td class="nm">'+esc(r.name)+'</td><td>'+esc(r.text)+'</td>'+
+    html+='<tr><td class="nm">'+esc(r.name)+'</td>'+(hasSubj?('<td class="nm">'+esc(r.subj)+'</td>'):'')+'<td>'+esc(r.text)+'</td>'+
           '<td class="op"><button data-i="'+i+'">복사</button></td></tr>';
   });
   html+='</tbody></table></div>';
@@ -676,7 +685,7 @@ function renderGradeTable(rows){
   box.querySelectorAll('td.op button').forEach(function(b){
     b.addEventListener('click',function(){
       var i=+b.getAttribute('data-i');
-      copyText(lastRows[i].text);
+      copyText(lastRows[i].text); /* 개별 복사 = 평어 문장만(나이스 특기사항 칸에 바로 붙여넣기) */
     });
   });
 }
@@ -684,14 +693,18 @@ function renderGradeTable(rows){
 document.getElementById('gGen').addEventListener('click',genGrade);
 document.getElementById('gCopyAll').addEventListener('click',function(){
   if(lastRows.length===0){toast('먼저 평어를 생성하세요');return;}
-  var tsv=lastRows.map(function(r){return r.name+'\t'+r.text;}).join('\n');
+  /* 나이스 양식: 이름[\t과목]\t평어 — 나이스/엑셀 그리드에 그대로 붙여넣기 */
+  var hasSubj=lastRows.some(function(r){return r.subj;});
+  var tsv=lastRows.map(function(r){return hasSubj?(r.name+'\t'+r.subj+'\t'+r.text):(r.name+'\t'+r.text);}).join('\n');
   copyText(tsv);
+  toast('나이스 양식으로 복사됨('+(hasSubj?'이름·과목·평어':'이름·평어')+')');
 });
 document.getElementById('gPrint').addEventListener('click',function(){
   if(lastRows.length===0){toast('먼저 평어를 생성하세요');return;}
   var subj=document.getElementById('gSubj').value;
   var lv=document.getElementById('gLevel').options[document.getElementById('gLevel').selectedIndex].text;
-  var rows=lastRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td>'+esc(r.text)+'</td></tr>';}).join('');
+  var hasSubj=lastRows.some(function(r){return r.subj;});
+  var rows=lastRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td>'+(hasSubj?('<td>'+esc(r.subj)+'</td>'):'')+'<td>'+esc(r.text)+'</td></tr>';}).join('');
   var w=window.open('','_blank');
   if(!w){toast('팝업이 차단되었습니다');return;}
   w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>'+esc(subj)+' 평어</title>'+
@@ -699,7 +712,7 @@ document.getElementById('gPrint').addEventListener('click',function(){
    'table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #999;padding:8px;font-size:13px;text-align:left;vertical-align:top}'+
    'th{background:#eee}td:first-child{white-space:nowrap;font-weight:bold}</style></head><body>'+
    '<h2>'+esc(subj)+' · '+esc(lv)+' 교과 평어</h2>'+
-   '<table><thead><tr><th>이름</th><th>평어</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+   '<table><thead><tr><th>이름</th>'+(hasSubj?'<th>과목</th>':'')+'<th>평어</th></tr></thead><tbody>'+rows+'</tbody></table>'+
    '<script>window.onload=function(){window.print();}<\/script></body></html>');
   w.document.close();
 });
