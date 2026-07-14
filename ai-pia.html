@@ -8660,12 +8660,26 @@ function injectGlobalActions() {
 }
 
 function _piaSkipGate(){ try{ var q=new URLSearchParams(location.search); return q.get('print')==='items' || q.get('paper')==='1' || q.get('sample')==='1' || q.get('view')==='record' || location.hash==='#sample'; }catch(e){ return false; } }
+async function _piaIsStaff(){
+  // 교사/기관/운영자(선생님도우미 전체)는 개인정보 동의 불필요
+  try{
+    var q=new URLSearchParams(location.search);
+    if(q.get('aud')==='teacher' || q.get('staff')==='1') return true;
+    var STAFF=['org_member','org_admin','super_admin'];
+    if(window.PIA_ROLE) return STAFF.indexOf(window.PIA_ROLE)>=0;
+    var sb=await _piaEnsureSB(); if(!sb) return false;
+    var s=await sb.auth.getSession(); if(!(s&&s.data&&s.data.session)) return false;
+    var res=await sb.rpc('pia_my_profile'); var d=res&&res.data&&res.data[0];
+    window.PIA_ROLE=d?d.role:window.PIA_ROLE;
+    return d && STAFF.indexOf(d.role)>=0;
+  }catch(e){ return false; }
+}
 // ---- 초기화 ----
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(async () => {
     if (sessionStorage.getItem('pia_v3_dark') === '1') applyDarkMode(true);
-    var _isTeacher=(function(){ try{ return new URLSearchParams(location.search).get('aud')==='teacher'; }catch(e){ return false; } })();
-    if(!_piaSkipGate() && !_isTeacher) await showConsentModalIfNeeded();
+    var _isStaff=false; try{ _isStaff=await _piaIsStaff(); }catch(e){}
+    if(!_piaSkipGate() && !_isStaff) await showConsentModalIfNeeded();
     injectGlobalActions();
   }, 100);
 });
