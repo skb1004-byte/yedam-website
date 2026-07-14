@@ -212,7 +212,8 @@ async function neisAuto(){
     var byGrade={};
     crows.forEach(function(r){ var g=parseInt(r.GRADE,10); if(!g)return; (byGrade[g]=byGrade[g]||new Set()).add(r.CLASS_NM); });
     for(var g=1;g<=6;g++){ var e=document.getElementById('gcnt-'+g); if(e) e.value=byGrade[g]?byGrade[g].size:0; }
-    var gk=Object.keys(byGrade).sort(function(a,b){return a-b;}); var fg=gk[0]||'1';
+    var gk=Object.keys(byGrade).sort(function(a,b){return a-b;});
+    var fg=(byGrade[5]?'5':(byGrade[4]?'4':(byGrade[6]?'6':(gk[gk.length-1]||'1')))); // 전담 많은 상위 학년을 과목 표본으로
     window._neisSchool={A:s.ATPT_OFCDC_SC_CODE,S:s.SD_SCHUL_CODE,kind:s.SCHUL_KND_SC_NM||'',nm:s.SCHUL_NM||nm,ay:ay,fg:fg,fc:(byGrade[fg]?[].concat(Array.from(byGrade[fg]))[0]:'1')};
     saveSchool(window._neisSchool);
     buildByGrade();
