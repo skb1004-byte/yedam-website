@@ -7065,25 +7065,48 @@ function renderTeacher12Wk() {
     </div>`;
 }
 
+function _rmCard(grade, actions){
+  return `<div class="bg-violet-50 rounded-lg p-3">
+    <strong class="text-sm text-violet-900">${grade}</strong>
+    <ul class="text-xs text-violet-900 mt-1 space-y-0.5 ml-4 list-disc">
+      ${actions.map(a => `<li>${a}</li>`).join('')}
+    </ul></div>`;
+}
 function renderRoadmap() {
   var adult = (typeof selfIsAdult==='function' && selfIsAdult());
-  var data = adult ? ROADMAP_ADULT : ROADMAP_BY_GRADE;
-  var rmTitle = adult ? '진로·커리어 단계 로드맵' : '학년별 진학·진로 로드맵';
-  var rmSub = adult ? '현재 점검부터 장기 목표까지, 성인·대학생을 위한 커리어 단계 로드맵입니다.' : '중학교 1학년부터 고등학교 3학년까지의 단계적 목표입니다.';
-  return `
-    <div class="bg-white rounded-2xl border border-slate-200 p-4">
-      <h3 class="font-semibold text-sm mb-1">${rmTitle}</h3>
-      <p class="text-xs text-slate-500 mb-4">${rmSub}</p>
-      <div class="space-y-2">
-        ${Object.entries(data).map(([grade, actions]) => `
-          <div class="bg-violet-50 rounded-lg p-3">
-            <strong class="text-sm text-violet-900">${grade}</strong>
-            <ul class="text-xs text-violet-900 mt-1 space-y-0.5 ml-4 list-disc">
-              ${actions.map(a => `<li>${a}</li>`).join('')}
-            </ul>
-          </div>`).join('')}
-      </div>
-    </div>`;
+  if (adult) {
+    return `<div class="bg-white rounded-2xl border border-slate-200 p-4">
+      <h3 class="font-semibold text-sm mb-1">진로·커리어 단계 로드맵</h3>
+      <p class="text-xs text-slate-500 mb-4">현재 점검부터 장기 목표까지, 성인·대학생을 위한 커리어 단계 로드맵입니다.</p>
+      <div class="space-y-2">${Object.entries(ROADMAP_ADULT).map(([k,a])=>_rmCard(k,a)).join('')}</div></div>`;
+  }
+  var g = String((state.profile && state.profile.grade) || '').trim();
+  var keys = Object.keys(ROADMAP_BY_GRADE); // 중1..고3
+  var cur = keys.indexOf(g) >= 0 ? g : (/초/.test(g) ? '중1' : null);
+  // 학년 정보 없으면 전체 표시(폴백)
+  if (!cur) {
+    return `<div class="bg-white rounded-2xl border border-slate-200 p-4">
+      <h3 class="font-semibold text-sm mb-1">학년별 진학·진로 로드맵</h3>
+      <p class="text-xs text-slate-500 mb-4">학년 정보가 없어 전체 단계를 표시합니다. (학년을 입력하면 본인 학년만 표시됩니다)</p>
+      <div class="space-y-2">${Object.entries(ROADMAP_BY_GRADE).map(([k,a])=>_rmCard(k,a)).join('')}</div></div>`;
+  }
+  var idx = keys.indexOf(cur);
+  var next = idx+1 < keys.length ? keys[idx+1] : null;
+  var isElem = /초/.test(g);
+  var curLabel = isElem ? (g + ' → 다가올 ' + cur + ' 준비') : (cur + ' · 현재 학년');
+  var nextBlock = next
+    ? `<div class="mt-3"><p class="text-[11px] text-slate-400 mb-1">다음 단계 미리보기 · ${next}</p>
+        <div class="bg-slate-50 rounded-lg p-3"><ul class="text-xs text-slate-600 ml-4 list-disc space-y-0.5">${ROADMAP_BY_GRADE[next].map(a=>`<li>${a}</li>`).join('')}</ul></div></div>`
+    : `<div class="mt-3"><p class="text-[11px] text-slate-400">다음 단계 · 고3 이후는 대학 진학·전공 심화 로드맵으로 이어집니다.</p></div>`;
+  return `<div class="bg-white rounded-2xl border border-violet-200 p-4">
+    <h3 class="font-semibold text-sm mb-1">🧭 나의 진학·진로 로드맵</h3>
+    <p class="text-xs text-slate-500 mb-3">본인 학년(<b>${g||cur}</b>)에 맞춘 지금 할 일입니다.</p>
+    <div class="bg-violet-100 rounded-lg p-3 border border-violet-200">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="pill bg-violet-600 text-white text-[11px] font-bold">현재</span><strong class="text-sm text-violet-900">${curLabel}</strong></div>
+      <ul class="text-xs text-violet-900 mt-1 space-y-0.5 ml-4 list-disc">${ROADMAP_BY_GRADE[cur].map(a=>`<li>${a}</li>`).join('')}</ul>
+    </div>
+    ${nextBlock}
+  </div>`;
 }
 
 function renderRecommendations(typeCode) {
