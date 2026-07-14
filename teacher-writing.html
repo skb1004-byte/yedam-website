@@ -155,6 +155,13 @@ td.op button:hover{background:var(--paper2)}
 <div id="gKeySugg" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
 
 <label class="fld" for="gRoster">명단 (한 줄에 1명)</label>
+<div class="btns" style="margin:2px 0 6px;align-items:center">
+<span style="font-size:12.5px;color:var(--ink2)">우리 반</span>
+<input type="number" id="gCount" min="1" max="45" value="25" style="width:64px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font:inherit">
+<span style="font-size:12.5px;color:var(--ink2)">명</span>
+<button class="gho" type="button" onclick="fillRoster('num')"># 번호로 채우기</button>
+<button class="gho" type="button" onclick="fillRoster('rand')">🎲 랜덤 이름</button>
+</div>
 <textarea id="gRoster" rows="6" placeholder="김하늘&#10;이서준&#10;박지우"></textarea>
 <div class="btns" style="margin-top:8px">
 <button class="gho" id="gSave">명단 저장</button>
@@ -609,6 +616,20 @@ function suggestUnits(){
 }
 function saveGrade(){ try{ localStorage.setItem('pia_teacher_grade', document.getElementById('gGrade').value); }catch(e){} }
 try{ window.suggestUnits=suggestUnits; window.saveGrade=saveGrade; }catch(e){}
+/* 명단 자동 채우기: 번호 또는 랜덤 이름 (NEIS로 실명은 불가 → 자리표·평어용 임시 명단) */
+window.fillRoster=function(mode){
+  var n=parseInt(document.getElementById('gCount').value,10)||0; if(n<1||n>60){ toast('인원수를 1~60으로'); return; }
+  var lines=[];
+  if(mode==='num'){ for(var i=1;i<=n;i++) lines.push(i+'번'); }
+  else{
+    var S=['김','이','박','최','정','강','조','윤','장','임','한','오','서','신','권','황','안','송','류','전','홍','고','문','양','손','배','백','허','남','심'];
+    var G=['민준','서연','도윤','하은','시우','지우','예준','수아','지호','채원','준우','다은','건우','유나','이준','서윤','현우','지안','우진','하윤','선우','예은','유준','서아','지훈','민서','정우','예린','승현','수빈','재윤','다인','태윤','유주','시윤','아린','주원','소율','도현','채은','민재','가은','현준','나윤','지원','서준','예나','준서','수현','윤아'];
+    var used={};
+    for(var i=0;i<n;i++){ var nm,g=0; do{ nm=S[Math.floor(Math.random()*S.length)]+G[Math.floor(Math.random()*G.length)]; g++; }while(used[nm]&&g<80); used[nm]=1; lines.push(nm); }
+  }
+  var ta=document.getElementById('gRoster'); ta.value=lines.join('\n'); ta.dispatchEvent(new Event('input',{bubbles:true}));
+  toast(n+'명 명단을 채웠습니다');
+};
 /* 담임 학년 자동 불러오기 + 단원 자동 추천(로드 시) */
 (function(){
   try{ var g=localStorage.getItem('pia_teacher_grade'); var el=document.getElementById('gGrade'); if(g&&el) el.value=g; }catch(e){}
