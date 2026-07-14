@@ -7461,19 +7461,54 @@ function renderNiceCard(){
     var s4=lt.length?(lt[0][0]+' 역량이 우수하여 관련 활동에서 두각을 나타냄. '):'';
     // 행동특성 및 종합의견(행발) 초안 — 긍정·구체·관찰 기반, 진단 표현 배제
     var haeng='평소 성실하고 긍정적인 태도로 학교생활에 임함. '+s1+s2+s3+s4+'교우 관계가 원만하며, 자신의 강점을 살려 꾸준히 성장할 것으로 기대됨. 앞으로 다양한 경험과 도전을 통해 잠재력을 더욱 발휘할 수 있도록 지속적인 격려가 필요함.';
-    // 상담기록 요약
     var sang='[검사 기반 상담 요약] 강점: '+(vt.join(', ')||'—')+' / 흥미·진로: '+(riTop||'—')+' / 학습 우수: '+(lt.length?lt[0][0]:'—')+' / 끈기: '+(gritBand||'—')+'. 강점 활용 과제 부여 및 진로 체험 연계 권장.';
+    var jinro='자신의 흥미·적성에 대한 이해를 바탕으로 '+(riTop||'관심')+' 분야에 지속적인 관심을 보이며 관련 직업·학과 정보를 탐색함. '+(vt.length?(vt.join(', ')+' 강점을 진로와 연결하려는 노력이 관찰됨. '):'')+'관심 분야의 체험활동과 독서를 통해 진로 목표를 구체화할 것으로 기대됨.';
+    var changche='진로탐색 활동에 적극적으로 참여하여 자기이해와 진로설계 역량을 기름. '+(vt.length?(vt[0]+' 강점을 발휘하여 모둠 활동에서 협력적인 태도를 보임. '):'')+'자신의 진로에 대해 진지하게 고민하며 실천 계획을 세우는 모습을 나타냄.';
+    function _len(t){ var b=0; for(var i=0;i<t.length;i++) b+=(t.charCodeAt(i)>127?2:1); return '<span style="color:#94a3b8;font-weight:400">('+t.length+'자 · '+b+'byte)</span>'; }
+    function _fld(id,label,text){ return '<div style="font-size:12px;font-weight:700;color:#3730a3;margin:12px 0 4px">'+label+' '+_len(text)+'</div><div id="'+id+'" style="font-size:13px;line-height:1.7;color:#222;background:#f5f7ff;border:1px solid #e0e5ff;border-radius:10px;padding:11px">'+text+'</div><button onclick="piaCopy(\''+id+'\',this)" class="pill bg-indigo-600 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 복사</button>'; }
     return '<div class="bg-white rounded-2xl border border-indigo-200 p-4">'
       +'<h3 class="font-semibold text-sm mb-1">🏫 나이스(NEIS) 연동 — 생기부·상담기록 문구</h3>'
-      +'<p class="text-xs text-slate-500 mb-3">4세대 나이스에 <b>붙여넣어</b> 활용하는 초안입니다. 나이스는 보안망이라 자동 전송은 불가하며, 아래 문구를 복사해 <b>행동특성 및 종합의견</b>·<b>상담기록</b>에 입력하세요. <b>기재요령에 맞게 교사 검토·수정 필수</b>(진단·민감정보 표현 금지).</p>'
-      +'<div style="font-size:12px;font-weight:700;color:#3730a3;margin-bottom:4px">행동특성 및 종합의견(행발) 초안 <span style="color:#94a3b8;font-weight:400">('+haeng.length+'자)</span></div>'
-      +'<div id="nice-haeng" style="font-size:13px;line-height:1.7;color:#222;background:#f5f7ff;border:1px solid #e0e5ff;border-radius:10px;padding:11px">'+haeng+'</div>'
-      +'<button onclick="piaCopy(\'nice-haeng\',this)" class="pill bg-indigo-600 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 행발 복사</button>'
-      +'<div style="font-size:12px;font-weight:700;color:#3730a3;margin:12px 0 4px">상담기록 요약</div>'
-      +'<div id="nice-sang" style="font-size:12.5px;line-height:1.6;color:#222;background:#f5f7ff;border:1px solid #e0e5ff;border-radius:10px;padding:11px">'+sang+'</div>'
-      +'<button onclick="piaCopy(\'nice-sang\',this)" class="pill bg-indigo-600 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 상담기록 복사</button>'
-      +'<p class="text-[11px] text-slate-400 mt-3">※ 나이스 교육정보 개방 API는 학교정보·학사일정만 제공하며, 학생 생기부·상담기록은 개인정보·보안상 외부 자동 연동이 불가합니다. 본 기능은 규정 준수 하의 <b>문구 생성·복사</b> 방식입니다.</p>'
+      +'<p class="text-xs text-slate-500 mb-3">4세대 나이스에 <b>붙여넣어</b> 활용하는 초안입니다. 자동 전송은 불가하며, 복사해 해당 항목에 입력하세요. 글자수·byte 표시를 참고해 규격에 맞추고, <b>기재요령에 맞게 교사 검토·수정 필수</b>(진단·민감정보 표현 금지).</p>'
+      +_fld('nice-haeng','행동특성 및 종합의견(행발) 초안',haeng)
+      +_fld('nice-sang','상담기록 요약',sang)
+      +_fld('nice-jinro','진로활동 특기사항 초안',jinro)
+      +_fld('nice-changche','창의적 체험활동(진로) 특기사항 초안',changche)
+      +'<p class="text-[11px] text-slate-400 mt-3">※ 나이스 개방 API는 학교정보·학사일정만 제공하며, 학생 생기부·상담기록은 개인정보·보안상 외부 자동 연동이 불가합니다. 본 기능은 규정 준수 하의 <b>문구 생성·복사</b>입니다. (byte는 한글 2 기준 참고값)</p>'
       +'</div>';
+  }catch(e){ return ''; }
+}
+function renderTeacherToolkit(){
+  try{
+    var R=state.results, b=R.big5.scores, vi=R.via.scores, ri=R.riasec.scores, g=R.grit.scores;
+    var vt=_topN(vi,2).map(function(x){return x[0];});
+    var rt=_topN(ri,1), riTop=rt.length?(_RIA[rt[0][0]]||'').replace(/\(.*\)/,''):'';
+    var emo=_emotionNote();
+    var out='<div class="bg-white rounded-2xl border border-slate-200 p-4">';
+    out+='<h3 class="font-semibold text-sm mb-1">🧰 교사 도구모음 (담임·상담용)</h3>';
+    out+='<p class="text-xs text-slate-500 mb-3">검사 결과 기반으로 상담·기록·학부모 대응을 돕는 즉시 활용 도구입니다.</p>';
+    if(emo.length){ out+='<div style="background:#fdecec;border:1px solid #f5b5b5;border-radius:10px;padding:11px;margin-bottom:10px"><b style="color:#b91c1c">🚨 정서 관찰 권장 — '+emo.join(' · ')+'</b><div style="font-size:12.5px;color:#7a3b1a;margin-top:6px;line-height:1.65"><b>대응 절차(SOP)</b><br>1) 비공개·안전한 공간에서 라포 형성 후 안부·감정 확인<br>2) 자·타해 위험 신호 시 즉시 관리자·보호자 보고<br>3) Wee클래스(학교)·청소년 1388·정신건강 1577-0199 연계<br>4) 정기 관찰·후속 면담 기록. ※ 본 결과는 진단이 아닌 <b>선별</b>입니다.</div></div>'; }
+    else { out+='<div style="background:#eef7ee;border:1px solid #cde3cd;border-radius:10px;padding:9px;margin-bottom:10px;font-size:12.5px;color:#356635">✔ 정서 선별 지표 안정적 — 정기 관찰 유지</div>'; }
+    var qs=[];
+    if(vt.length) qs.push('"'+vt[0]+'" 강점을 최근 언제 발휘했나요? 그때 기분은 어땠나요?');
+    if(riTop) qs.push(riTop+' 분야에 끌리는 이유를 이야기해줄래요?');
+    qs.push('요즘 학교생활에서 가장 즐거운 일과 힘든 일은 무엇인가요?');
+    qs.push('1년 뒤·3년 뒤 어떤 모습이면 좋겠어요?');
+    qs.push(emo.length?'마음이 힘들 때 누구에게 이야기하나요? 도움이 필요하면 언제든 선생님에게 말해도 돼요.':'스스로 더 성장하고 싶은 부분이 있다면요?');
+    out+='<div id="tt-q" style="font-size:13px;line-height:1.75;color:#222"><b>■ 맞춤 상담 질문</b><br>'+qs.map(function(q,i){return (i+1)+'. '+q;}).join('<br>')+'</div>';
+    out+='<button onclick="piaCopy(\'tt-q\',this)" class="pill bg-slate-800 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 질문 복사</button>';
+    var parent='[학부모 상담 참고자료]\n○ 자녀 강점: '+(vt.join(', ')||'—')+'\n○ 관심·진로: '+(riTop||'—')+'\n○ 가정 코칭: 강점을 인정·격려하고, 관심 분야의 경험(체험·독서)을 함께 찾아보세요.'+(emo.length?'\n○ 정서: 따뜻한 지지가 필요한 시기입니다. 필요 시 전문 상담(청소년 1388)을 함께 고려해 주세요.':'');
+    out+='<div style="font-size:12px;font-weight:700;color:#333;margin:12px 0 4px">학부모 상담 자료</div>';
+    out+='<div id="tt-parent" style="white-space:pre-line;font-size:12.5px;line-height:1.6;color:#222;background:#faf9f5;border:1px solid #eee;border-radius:10px;padding:11px">'+parent+'</div>';
+    out+='<button onclick="piaCopy(\'tt-parent\',this)" class="pill bg-slate-800 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 자료 복사</button>';
+    var tr=(R.conv&&R.conv.transcript)||[];
+    if(tr.length){ var d=''; try{ d=new Date().toLocaleDateString('ko-KR'); }catch(_){} var topics=(R.conv&&R.conv.topics&&Object.keys(R.conv.topics))||[];
+      var log='[상담일지] '+d+'\n○ 방식: AI 자유대화 '+((R.conv&&R.conv.turns)||0)+'회'+(topics.length?('\n○ 주요 화제: '+topics.slice(0,5).join(', ')):'')+'\n○ 소견: 대화에 성실히 참여함. 위 AI 상담 소견서 참조.';
+      out+='<div style="font-size:12px;font-weight:700;color:#333;margin:12px 0 4px">상담일지 초안 (자유대화 기반)</div>';
+      out+='<div id="tt-log" style="white-space:pre-line;font-size:12.5px;line-height:1.6;color:#222;background:#faf9f5;border:1px solid #eee;border-radius:10px;padding:11px">'+log+'</div>';
+      out+='<button onclick="piaCopy(\'tt-log\',this)" class="pill bg-slate-800 text-white font-bold mt-2" style="border:0;cursor:pointer;padding:6px 14px">📋 일지 복사</button>'; }
+    out+='<div class="mt-3"><button onclick="try{window.print()}catch(e){}" class="pill bg-white text-slate-700 font-bold" style="border:1px solid #ccc;cursor:pointer;padding:6px 14px">🖨 결과지 인쇄·PDF 저장</button></div>';
+    out+='</div>';
+    return out;
   }catch(e){ return ''; }
 }
 function renderExtendedSections() {
@@ -7508,6 +7543,7 @@ function renderExtendedSections() {
     ${currentAudience === 'parent' ? renderParent14Day() : ''}
     ${currentAudience === 'teacher' ? renderTeacher12Wk() + renderCrisisSOP() : ''}
     ${renderCounselReport()}
+    ${renderTeacherToolkit()}
     ${renderNiceCard()}
     ${renderAccuracyPanel()}
     ${renderCareernetCard()}
