@@ -7626,12 +7626,17 @@ function ensureStudentProfile() {
             <span class="text-xs text-slate-600">학교/기관 <span style="color:#dc2626">*</span></span>
             <input id="pf-school" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="예: 샛별중학교" />
           </label>
+          <label class="block">
+            <span class="text-xs text-slate-600">반 코드 (선택)</span>
+            <input id="pf-orgcode" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="선생님이 준 6자리 코드 (있으면 입력)" />
+            <span class="text-[11px] text-slate-400">입력 시 담당 선생님 반에 결과가 자동 연결됩니다.</span>
+          </label>
         </div>
         <div class="flex gap-2 mt-4">
           <button id="pf-skip" class="flex-1 bg-slate-100 py-2 rounded-lg text-sm">익명으로 시작</button>
           <button id="pf-save" class="flex-1 bg-slate-900 text-white py-2 rounded-lg text-sm font-semibold">시작</button>
         </div>
-        <p class="text-xs text-slate-400 mt-3 text-center">입력 정보는 로컬에만 저장되며 외부로 전송되지 않습니다.</p>
+        <p class="text-xs text-slate-400 mt-3 text-center">로그인 시 결과는 보안 서버에 저장됩니다. 자세한 내용은 동의 화면을 참고하세요.</p>
       </div>`;
     document.body.appendChild(modal);
     const close = (anon=false) => {
@@ -7643,6 +7648,17 @@ function ensureStudentProfile() {
         createdAt: Date.now()
       };
       state.studentId = state.profile.name;
+      // 반 코드 → org_id 연결(있으면)
+      try{
+        var _oc=(el('pf-orgcode')&&el('pf-orgcode').value||'').trim();
+        if(_oc && typeof _piaEnsureSB==='function'){
+          _piaEnsureSB().then(function(sb){ if(!sb||!sb.rpc) return;
+            sb.rpc('pia_org_by_code',{p_code:_oc}).then(function(r){
+              try{ var d=r&&r.data&&r.data[0]; if(d&&d.org_id){ window._piaClassOrgId=d.org_id; state.profile.orgCode=_oc; state.profile.orgName=d.org_name||''; if(typeof save==='function')save(); } }catch(e){}
+            });
+          });
+        }
+      }catch(e){}
       save();
       modal.remove();
       renderProfileBar();
@@ -7914,7 +7930,14 @@ function buildAdminRecord(){
   return { id, name:p.name||'익명', grade:p.grade||'', klass:p.class||'', school:p.school||'',
     type, reliability:rel, validity:validity, validityDetail:(_relObj&&_relObj.validity)||null, doneCount:_piaDoneCount(),
     version:'v3.7', exportedAt:new Date().toISOString(), pairCode:getPairCode(),
-    results:state.results, meta:state.meta, profile:p };
+    results:state.results, meta:state.meta, profile:p,
+    summary:(function(){ var s={}; try{ var t=inferIntegratedType(); s.type=t&&t.name||''; }catch(e){}
+      try{ var rl=calcReliability(); s.reliability=rl&&rl.grade||''; }catch(e){}
+      try{ var cd=state.results.cesd&&state.results.cesd.scores, pq=state.results.phqa&&state.results.phqa.scores, gd=state.results.gad&&state.results.gad.scores;
+        var warn=false; [cd,pq,gd].forEach(function(x){ if(x&&(x.level==='HIGH'||x.level==='MEDIUM'))warn=true; });
+        if(pq&&pq.selfHarm>0)warn=true;
+        s.emotion = (cd||pq||gd)?(warn?'주의':'정상'):''; }catch(e){}
+      return s; })() };
 }
 
 // ---- Supabase 회원 결과 자동 저장(로그인 시) ----
@@ -7936,6 +7959,7 @@ function piaSaveSupabase(rec){
       var uid=ses.user.id;
       var map={}; try{ map=JSON.parse(localStorage.getItem('pia_sb_rows')||'{}'); }catch(e){}
       var row={ user_id:uid, pair_code:(rec.pairCode||null), data:rec };
+      try{ if(window._piaClassOrgId) row.org_id=window._piaClassOrgId; }catch(e){}
       var rowId=map[rec.id];
       if(rowId){
         sb.from('results').update(row).eq('id',rowId).then(function(u){ if(u&&u.error){ delete map[rec.id]; try{localStorage.setItem('pia_sb_rows',JSON.stringify(map));}catch(e){} } });
