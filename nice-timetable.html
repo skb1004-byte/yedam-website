@@ -177,6 +177,7 @@ function buildByGrade(){
   renderClasses();
 }
 function renderClasses(){
+  try{saveState();}catch(e){}
   var c=$('#classList'); c.innerHTML='';
   var cnt=el('span',{style:'font-size:12.5px;font-weight:800;color:var(--rust2);margin-right:8px'}, '총 '+classes.length+'학급');
   c.appendChild(cnt);
@@ -191,6 +192,8 @@ function renderClasses(){
 var NEIS_KEY='6a290550fd57438f8374bc8ed7feabfd'; // 서버 내장 개방 API 키
 function saveSchool(o){ try{ localStorage.setItem('pia_school', JSON.stringify(o)); }catch(e){} }
 function loadSchool(){ try{ var v=localStorage.getItem('pia_school'); return v?JSON.parse(v):null; }catch(e){ return null; } }
+function saveState(){ try{ localStorage.setItem('pia_tt', JSON.stringify({classes:classes, subs:subs, events:events, D:($('#days')||{}).value, P:($('#periods')||{}).value})); }catch(e){} }
+function loadState(){ try{ var v=localStorage.getItem('pia_tt'); return v?JSON.parse(v):null; }catch(e){ return null; } }
 async function neisJson(url){
   var r=await fetch(url); var j=await r.json(); return j;
 }
@@ -303,6 +306,7 @@ function loadPreset(){
   renderSubs();
 }
 function renderSubs(){
+  try{saveState();}catch(e){}
   var host=$('#subList'); host.innerHTML='';
   subs.forEach(function(s,i){
     var row=el('div',{class:'subrow'});
@@ -533,6 +537,7 @@ function esc(s){return (s==null?'':String(s)).replace(/[&<>]/g,function(c){retur
 /* ---- 학사일정 ---- */
 function addEvent(){ var d=$('#evDate').value, n=($('#evName').value||'').trim(); if(!d||!n)return; events.push({date:d,name:n}); $('#evName').value=''; renderCal(); }
 function renderCal(){
+  try{saveState();}catch(e){}
   var y=parseInt($('#calYear').value,10)||2026;
   var all=[];
   for(var k in KR_HOL) if(k.indexOf(y+'-')===0) all.push({date:k,name:KR_HOL[k],hol:true,pub:true});
@@ -556,7 +561,16 @@ $('#calYear').oninput=renderCal;
 $('#clsInput').addEventListener('keydown',function(e){ if(e.key==='Enter') addClass(); });
 initGradeInputs();
 (function(){ var sc=loadSchool(); if(sc&&sc.nm){ var f=$('#neisSchool'); if(f) f.value=sc.nm; if(sc.A&&sc.S) window._neisSchool=sc; var m=$('#neisMsg'); if(m){ m.style.color='#788c5d'; m.textContent='저장된 학교: '+sc.nm+' — 버튼을 누르면 바로 반영됩니다'; } } })();
-addClass('3-1'); addClass('3-2'); loadPreset(); renderCal();
+(function(){
+  var st=loadState();
+  if(st && ((st.classes&&st.classes.length)||(st.subs&&st.subs.length))){
+    classes=st.classes||[]; subs=st.subs||[]; events=st.events||[];
+    if(st.D&&$('#days')) $('#days').value=st.D; if(st.P&&$('#periods')) $('#periods').value=st.P;
+    renderClasses(); renderSubs(); renderCal();
+  } else {
+    addClass('3-1'); addClass('3-2'); loadPreset(); renderCal();
+  }
+})();
 </script>
 </body>
 </html>

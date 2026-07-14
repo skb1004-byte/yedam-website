@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>AI PIA · 생기부·평어 도우미</title>
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--sky:#6a9bcc;--ok:#788c5d;--okbg:#eef3e6;--red:#b91c1c}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;font-size:15px}
+a{color:inherit}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px 60px}
+header.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 14px}
+.logo{width:38px;height:38px;border-radius:10px;background:var(--rust);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:0 0 auto}
+.brand h1{font-size:17px;margin:0;font-weight:700}
+.brand .nav{margin-left:auto;display:flex;gap:14px;font-size:14px}
+.brand .nav a{color:var(--ink2);text-decoration:none;padding:6px 10px;border-radius:8px}
+.brand .nav a:hover{background:var(--paper2)}
+.tabs{display:flex;gap:8px;margin:6px 0 18px;flex-wrap:wrap}
+.tab{flex:1 1 160px;min-width:140px;padding:12px 14px;border:1px solid var(--line);background:#fff;border-radius:12px;cursor:pointer;font-size:15px;font-weight:600;color:var(--ink2);text-align:center;transition:.15s}
+.tab.active{background:var(--rust);color:#fff;border-color:var(--rust)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.card h2{font-size:16px;margin:0 0 4px}
+.card .desc{color:var(--ink2);font-size:13px;margin:0 0 14px}
+label.fld{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin:12px 0 6px}
+select,input[type=text],textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);font-family:inherit;font-size:14px;color:var(--ink)}
+textarea{resize:vertical;line-height:1.7}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--sky);outline-offset:0;border-color:var(--sky)}
+.row2{display:flex;gap:12px;flex-wrap:wrap}
+.row2>div{flex:1 1 200px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:var(--paper);cursor:pointer;font-size:13.5px;color:var(--ink2);user-select:none;transition:.12s}
+.chip.on{background:var(--okbg);border-color:var(--ok);color:#465232;font-weight:600}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+button.act{padding:10px 18px;border:none;border-radius:10px;background:var(--rust);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+button.act:hover{background:var(--rust2)}
+button.gho{padding:10px 16px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink2);font-weight:600;font-size:14px;cursor:pointer}
+button.gho:hover{background:var(--paper2)}
+.meta{font-size:12.5px;color:var(--ink2);margin-top:8px}
+.meta b{color:var(--ink)}
+.meta.over b,.meta.over{color:var(--red)}
+.hint{font-size:12px;color:var(--ink2);margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:var(--paper2);font-weight:700;font-size:13px;white-space:nowrap}
+td.nm{white-space:nowrap;font-weight:600;width:1%}
+td.op{white-space:nowrap;width:1%}
+td.op button{padding:5px 10px;font-size:12px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer}
+td.op button:hover{background:var(--paper2)}
+.foot{font-size:12.5px;color:var(--ink2);border-top:1px solid var(--line);margin-top:24px;padding-top:14px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50}
+.toast.show{opacity:1}
+.hidden{display:none}
+@media(max-width:520px){.brand .nav{width:100%;margin-left:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="brand">
+<div class="logo">P</div>
+<h1>AI PIA · 생기부·평어 도우미</h1>
+<nav class="nav">
+<a href="index.html">홈</a>
+<a href="teacher-hub.html">선생님도우미</a>
+</nav>
+</header>
+
+<div class="tabs">
+<div class="tab active" data-tab="rec">① 생기부 문장</div>
+<div class="tab" data-tab="grade">② 교과 평어</div>
+</div>
+
+<!-- ===================== 탭 ① 생기부 문장 ===================== -->
+<section id="tab-rec">
+<div class="card">
+<h2>생기부 문장 생성</h2>
+<p class="desc">관찰한 강점 키워드를 고르면 개조식(명사형 종결) 초안을 만들어 줍니다.</p>
+
+<label class="fld" for="recArea">영역</label>
+<select id="recArea">
+<option value="behavior">행동특성 및 종합의견</option>
+<option value="autonomy">자율·자치활동 특기사항</option>
+<option value="career">진로활동 특기사항</option>
+<option value="club">동아리활동 특기사항</option>
+</select>
+
+<label class="fld">강점 키워드 (여러 개 선택)</label>
+<div class="chips" id="recChips"></div>
+
+<div class="row2" style="margin-top:4px">
+<div>
+<label class="fld" for="recFree">자유 키워드 (쉼표 구분, 선택)</label>
+<input type="text" id="recFree" placeholder="예: 학급 게시판 관리, 모둠 발표 주도">
+</div>
+<div>
+<label class="fld" for="recName">학생 이름 (선택)</label>
+<input type="text" id="recName" placeholder="비우면 이름 생략">
+</div>
+</div>
+
+<div class="btns">
+<button class="act" id="recGen">문장 생성</button>
+<button class="gho" id="recRe">다시 생성</button>
+<button class="gho" id="recCopy">복사</button>
+</div>
+
+<label class="fld" for="recOut" style="margin-top:18px">결과 (직접 수정 가능)</label>
+<textarea id="recOut" rows="7" placeholder="키워드를 선택하고 ‘문장 생성’을 누르세요."></textarea>
+<div class="meta" id="recMeta">글자수 <b>0</b>자 · <b>0</b>byte</div>
+<div class="hint" id="recLimit"></div>
+</div>
+</section>
+
+<!-- ===================== 탭 ② 교과 평어 ===================== -->
+<section id="tab-grade" class="hidden">
+<div class="card">
+<h2>학급 교과 평어 생성</h2>
+<p class="desc">과목·성취수준을 정하고 명단을 넣으면 학생마다 서로 다른 문형으로 평어를 배정합니다.</p>
+
+<div class="row2">
+<div>
+<label class="fld" for="gSubj">과목</label>
+<select id="gSubj">
+<option>국어</option><option>수학</option><option>사회</option><option>과학</option>
+<option>영어</option><option>체육</option><option>음악</option><option>미술</option>
+<option>도덕</option><option>실과</option><option>창의적체험활동</option>
+</select>
+</div>
+<div>
+<label class="fld" for="gLevel">성취수준</label>
+<select id="gLevel">
+<option value="A">매우 잘함</option>
+<option value="B">잘함</option>
+<option value="C">보통</option>
+<option value="D">노력 요함</option>
+</select>
+</div>
+</div>
+
+<label class="fld" for="gKey">영역·단원 키워드 (선택)</label>
+<input type="text" id="gKey" placeholder="예: 분수의 덧셈, 글쓰기">
+
+<label class="fld" for="gRoster">명단 (한 줄에 1명)</label>
+<textarea id="gRoster" rows="6" placeholder="김하늘&#10;이서준&#10;박지우"></textarea>
+<div class="btns" style="margin-top:8px">
+<button class="gho" id="gSave">명단 저장</button>
+<button class="gho" id="gLoad">명단 불러오기</button>
+</div>
+
+<div class="btns">
+<button class="act" id="gGen">학급 평어 생성</button>
+<button class="gho" id="gCopyAll">전체 엑셀 복사</button>
+<button class="gho" id="gPrint">인쇄</button>
+</div>
+
+<div id="gResult" style="margin-top:18px"></div>
+</div>
+</section>
+
+<div class="foot">
+생성 문구는 초안이며, 실제 관찰 근거로 교사가 검토·수정하고 학년도 기재요령·분량을 준수하세요.
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+(function(){
+/* ---------- 공통 유틸 ---------- */
+var toastT;
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},1600);
+}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function byteLen(s){var n=0;for(var i=0;i<s.length;i++){n+=s.charCodeAt(i)>127?3:1;}return n;}
+function copyText(txt){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){toast('복사되었습니다');},function(){legacyCopy(txt);});
+  }else{legacyCopy(txt);}
+}
+function legacyCopy(txt){
+  var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.left='-9999px';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');toast('복사되었습니다');}catch(e){toast('복사 실패 — 직접 선택하세요');}
+  document.body.removeChild(ta);
+}
+var mem={};
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){mem[k]=v;}}
+function lsGet(k){try{var v=localStorage.getItem(k);return v===null?(k in mem?mem[k]:null):v;}catch(e){return k in mem?mem[k]:null;}}
+
+/* ---------- 탭 전환 ---------- */
+var tabs=document.querySelectorAll('.tab');
+tabs.forEach(function(tb){
+  tb.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('active');});
+    tb.classList.add('active');
+    var t=tb.getAttribute('data-tab');
+    document.getElementById('tab-rec').classList.toggle('hidden',t!=='rec');
+    document.getElementById('tab-grade').classList.toggle('hidden',t!=='grade');
+  });
+});
+
+/* =====================================================================
+   생기부 문장 뱅크 — 키워드별 개조식 변형 (각 3~4개)
+   ===================================================================== */
+var KW=[
+ '성실','책임감','리더십','배려','협력','창의성','탐구심','발표력','끈기',
+ '자기주도','정직','긍정적태도','문제해결력','의사소통','예술성','운동능력','독서','봉사'
+];
+var BANK={
+ '성실':[
+  '맡은 일을 끝까지 책임감 있게 완수하는 성실한 태도가 돋보임',
+  '매사에 꾸준하고 성실하게 임하며 주어진 과제를 성의껏 해결함',
+  '작은 일도 소홀히 하지 않고 정성을 다하는 성실함이 몸에 배어 있음',
+  '수업과 활동에 늘 바른 자세로 참여하며 성실한 생활 태도를 유지함'
+ ],
+ '책임감':[
+  '자신이 맡은 역할을 끝까지 책임지고 마무리하는 자세가 뛰어남',
+  '주어진 임무를 소홀히 하지 않고 책임감 있게 완수하려는 의지가 강함',
+  '맡은 바 소임을 다하며 결과에 책임지는 성숙한 태도를 보임',
+  '약속한 일을 반드시 지키려 노력하는 책임감이 돋보임'
+ ],
+ '리더십':[
+  '모둠 활동에서 구성원의 의견을 모아 방향을 이끄는 리더십을 발휘함',
+  '앞장서서 솔선수범하며 친구들을 자연스럽게 이끄는 지도력이 우수함',
+  '갈등 상황에서 중재하고 협의를 끌어내는 조율 능력이 뛰어남',
+  '역할을 나누고 활동을 조직적으로 이끌어 좋은 결과를 만들어 냄'
+ ],
+ '배려':[
+  '어려움을 겪는 친구를 먼저 살피고 도와주는 따뜻한 배려심이 돋보임',
+  '상대의 입장을 헤아려 말과 행동에 조심하는 배려가 몸에 배어 있음',
+  '주변을 세심하게 살피며 소외되는 친구가 없도록 마음을 씀',
+  '친구의 감정을 존중하고 양보하는 배려 깊은 태도를 보임'
+ ],
+ '협력':[
+  '모둠원과 역할을 나누어 힘을 모으는 협동 능력이 뛰어남',
+  '공동의 목표를 위해 서로 도우며 함께 문제를 해결해 나감',
+  '다른 사람의 의견을 존중하며 조화롭게 협력하는 태도가 돋보임',
+  '팀 활동에서 자신의 몫을 다하며 협력하여 좋은 성과를 이룸'
+ ],
+ '창의성':[
+  '기존 방식에 얽매이지 않고 새로운 아이디어를 떠올리는 창의성이 뛰어남',
+  '주어진 문제를 남다른 시각으로 바라보며 참신한 해결책을 제시함',
+  '다양한 생각을 자유롭게 표현하며 독창적인 결과물을 만들어 냄',
+  '호기심을 바탕으로 엉뚱하면서도 기발한 발상을 자주 보여 줌'
+ ],
+ '탐구심':[
+  '궁금한 점을 스스로 찾아보고 끝까지 알아내려는 탐구심이 강함',
+  '현상의 원리를 깊이 파고들어 이해하려는 탐구 자세가 돋보임',
+  '자료를 꼼꼼히 조사하고 분석하며 배움을 넓혀 감',
+  '질문을 두려워하지 않고 원인을 탐색하는 학구적 태도를 보임'
+ ],
+ '발표력':[
+  '자신의 생각을 논리적으로 정리하여 또렷하게 발표하는 능력이 우수함',
+  '많은 사람 앞에서도 당당하고 자신 있게 의견을 전달함',
+  '내용을 알기 쉽게 구성하여 설득력 있게 발표함',
+  '적절한 자료와 예시를 들어 이해하기 쉽게 발표하는 힘이 돋보임'
+ ],
+ '끈기':[
+  '어려운 과제도 포기하지 않고 끝까지 해내는 끈기가 돋보임',
+  '한 번 시작한 일은 꾸준히 이어 가며 목표를 이루어 냄',
+  '실패해도 다시 도전하며 인내심 있게 노력하는 태도가 강함',
+  '반복되는 어려움 속에서도 흔들리지 않고 꾸준히 정진함'
+ ],
+ '자기주도':[
+  '스스로 계획을 세우고 실천하는 자기주도적 학습 태도가 뛰어남',
+  '해야 할 일을 스스로 찾아 챙기며 자율적으로 활동함',
+  '누가 시키지 않아도 목표를 정해 주도적으로 학습을 이끌어 감',
+  '자신의 학습 과정을 점검하고 개선하려는 자기 관리 능력이 우수함'
+ ],
+ '정직':[
+  '자신의 잘못을 솔직하게 인정하고 바로잡으려는 정직함이 돋보임',
+  '규칙을 지키고 거짓 없이 행동하는 바른 인성을 지님',
+  '어떤 상황에서도 정직하게 말하고 신뢰를 주는 태도를 보임',
+  '양심에 따라 행동하며 정직하고 성실한 생활 자세를 유지함'
+ ],
+ '긍정적태도':[
+  '어려운 상황에서도 밝고 긍정적인 자세로 이겨 내려 노력함',
+  '매사에 적극적이고 긍정적인 마음가짐으로 활동에 임함',
+  '주변에 밝은 기운을 전하며 긍정적인 학급 분위기를 만드는 데 기여함',
+  '실수를 성장의 기회로 받아들이는 긍정적 태도가 돋보임'
+ ],
+ '문제해결력':[
+  '문제 상황의 원인을 파악하고 합리적인 해결 방법을 찾아내는 능력이 우수함',
+  '여러 방법을 비교하여 가장 적절한 해결책을 스스로 선택함',
+  '주어진 조건을 분석하여 논리적으로 문제를 풀어 나감',
+  '예상치 못한 상황에서도 침착하게 대안을 찾아 해결함'
+ ],
+ '의사소통':[
+  '자신의 생각을 분명하게 전달하고 상대의 말을 경청하는 소통 능력이 뛰어남',
+  '대화 속에서 서로의 의견을 조율하며 원활하게 소통함',
+  '상황에 맞게 말과 글로 생각을 효과적으로 표현함',
+  '친구들과 의견을 나누며 협의를 이끌어 내는 소통 태도가 돋보임'
+ ],
+ '예술성':[
+  '색과 형태를 감각적으로 표현하며 풍부한 예술적 감성을 지님',
+  '자신의 느낌을 작품과 표현 활동으로 개성 있게 드러냄',
+  '아름다움을 느끼고 표현하는 예술적 감수성이 뛰어남',
+  '창작 활동에 몰입하며 독창적인 예술 표현을 보여 줌'
+ ],
+ '운동능력':[
+  '기초 체력이 튼튼하고 몸을 조절하는 운동 능력이 우수함',
+  '규칙을 지키며 신체 활동에 즐겁고 적극적으로 참여함',
+  '동작을 빠르게 익히고 정확하게 수행하는 운동 감각이 뛰어남',
+  '경기와 활동에서 협동하며 스포츠 정신을 실천함'
+ ],
+ '독서':[
+  '다양한 분야의 책을 꾸준히 읽으며 폭넓은 지식을 쌓아 감',
+  '책을 읽고 자신의 생각을 정리하여 표현하는 습관이 잘 형성됨',
+  '독서를 통해 배경지식을 넓히고 사고의 깊이를 더해 감',
+  '책 속 내용을 생활과 연결하여 생각하는 독서 태도가 돋보임'
+ ],
+ '봉사':[
+  '학급과 이웃을 위해 자신의 시간을 기꺼이 나누는 봉사 정신이 돋보임',
+  '주변의 궂은일을 마다하지 않고 스스로 나서서 도움',
+  '도움이 필요한 곳을 살펴 실천으로 옮기는 나눔의 태도가 우수함',
+  '공동체를 위해 헌신하며 봉사하는 마음이 몸에 배어 있음'
+ ]
+};
+
+/* 영역별 도입/마무리 톤 */
+var AREA_INTRO={
+ behavior:['','평소 생활 속에서 ','한 학기 동안 꾸준히 관찰한 결과 '],
+ autonomy:['학급 자치 활동에 적극 참여하여 ','자율 활동에서 자신의 역할을 다하며 ','학급 규칙을 함께 정하는 과정에 참여하여 '],
+ career:['자신의 진로를 탐색하는 과정에서 ','진로 활동에 관심을 가지고 참여하며 ','미래의 꿈을 구체화해 가는 과정에서 '],
+ club:['동아리 활동에 열정적으로 참여하며 ','동아리 활동을 통해 ','관심 분야의 동아리 활동에 몰입하여 ']
+};
+var AREA_OUTRO={
+ behavior:['전반적으로 바른 인성과 태도를 지닌 학생으로 성장이 기대됨.','앞으로의 발전 가능성이 큰 학생임.','원만한 교우 관계 속에서 건강하게 성장하고 있음.'],
+ autonomy:['공동체 구성원으로서의 책임과 역할을 성실히 실천함.','학급 발전에 기여하는 자율적 참여 태도가 돋보임.','함께 만들어 가는 공동체의 가치를 몸소 실천함.'],
+ career:['자신의 진로 목표를 향해 꾸준히 나아가는 모습이 기대됨.','관심 분야에 대한 탐색을 이어 가며 진로 역량을 키워 감.','진로에 대한 이해를 넓히며 미래를 준비하는 자세가 돋보임.'],
+ club:['활동을 통해 관심 분야의 역량을 꾸준히 키워 나감.','동아리 안에서 자신의 재능을 발휘하며 성장함.','활동 경험을 바탕으로 흥미와 소질을 넓혀 감.']
+};
+
+/* 문장 뒤 종결 다양화(개조식 유지) */
+function toEnding(sent,i){
+  /* 뱅크 문장은 이미 '~함/~음/~됨/~보임' 종결. 마침표만 부여 */
+  return sent+'.';
+}
+
+/* 칩 렌더 */
+var chipBox=document.getElementById('recChips');
+var selectedKW=[];
+KW.forEach(function(k){
+  var c=document.createElement('span');
+  c.className='chip';c.textContent=k;
+  c.addEventListener('click',function(){
+    var idx=selectedKW.indexOf(k);
+    if(idx>=0){selectedKW.splice(idx,1);c.classList.remove('on');}
+    else{selectedKW.push(k);c.classList.add('on');}
+  });
+  chipBox.appendChild(c);
+});
+
+var LIMIT={behavior:1500,autonomy:1500,club:1500,career:2100};
+var LIMIT_CHAR={behavior:500,autonomy:500,club:500,career:700};
+
+function buildRec(){
+  var area=document.getElementById('recArea').value;
+  var name=document.getElementById('recName').value.trim();
+  var free=document.getElementById('recFree').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
+  var keys=selectedKW.slice();
+  if(keys.length===0&&free.length===0){
+    toast('키워드를 하나 이상 선택하세요');return null;
+  }
+  var parts=[];
+  /* 도입 */
+  var intro=pick(AREA_INTRO[area]);
+  /* 키워드 문장들 */
+  var order=shuffle(keys);
+  order.forEach(function(k){
+    if(BANK[k]) parts.push(toEnding(pick(BANK[k])));
+  });
+  /* 자유 키워드 → 간단 개조식 문장 */
+  free.forEach(function(f){
+    var tpl=[
+      f+' 활동에 적극적으로 참여하여 자신의 역량을 발휘함.',
+      f+'에서 맡은 역할을 성실히 수행하는 모습이 돋보임.',
+      f+'을(를) 통해 배우고 성장하는 태도가 인상적임.'
+    ];
+    parts.push(pick(tpl));
+  });
+  var body=parts.join(' ');
+  /* 이름/도입 결합 */
+  var head='';
+  if(name){
+    head=name+'은(는) '+intro;
+  }else{
+    head=intro;
+  }
+  /* 첫 글자 대문자화 불필요(한글). 도입이 비면 그냥 body */
+  var text=(head+body).replace(/\s+/g,' ').trim();
+  /* 마무리 */
+  text+=' '+pick(AREA_OUTRO[area]);
+  return text.trim();
+}
+
+function renderRecMeta(){
+  var v=document.getElementById('recOut').value;
+  var chars=v.length;var bytes=byteLen(v);
+  var area=document.getElementById('recArea').value;
+  var m=document.getElementById('recMeta');
+  m.innerHTML='글자수 <b>'+chars+'</b>자 · <b>'+bytes+'</b>byte';
+  var over=bytes>LIMIT[area];
+  m.classList.toggle('over',over);
+  var lim=document.getElementById('recLimit');
+  lim.textContent='권장 상한: '+LIMIT_CHAR[area]+'자 ≈ '+LIMIT[area]+'byte'+(over?' (초과)':'');
+  lim.style.color=over?'var(--red)':'var(--ink2)';
+}
+
+document.getElementById('recGen').addEventListener('click',function(){
+  var t=buildRec();if(t===null)return;
+  document.getElementById('recOut').value=t;renderRecMeta();
+});
+document.getElementById('recRe').addEventListener('click',function(){
+  var t=buildRec();if(t===null)return;
+  document.getElementById('recOut').value=t;renderRecMeta();
+});
+document.getElementById('recCopy').addEventListener('click',function(){
+  var v=document.getElementById('recOut').value;
+  if(!v.trim()){toast('복사할 내용이 없습니다');return;}
+  copyText(v);
+});
+document.getElementById('recOut').addEventListener('input',renderRecMeta);
+document.getElementById('recArea').addEventListener('change',renderRecMeta);
+renderRecMeta();
+
+/* =====================================================================
+   교과 평어 뱅크 — 과목 × 성취수준(A/B/C/D), 각 3개 이상, 개조식
+   대표 과목: 국어·수학·과학·영어·체육 (특화)
+   나머지: 공통 뱅크에 과목명 삽입
+   ===================================================================== */
+var SUBJ_BANK={
+ '국어':{
+  A:['글의 중심 생각을 정확히 파악하고 자신의 생각을 논리적으로 표현하는 능력이 매우 뛰어남',
+     '다양한 글을 깊이 있게 읽고 근거를 들어 자신의 의견을 설득력 있게 전달함',
+     '상황에 맞는 어휘를 풍부하게 활용하여 완성도 높은 글을 쓰는 능력이 우수함',
+     '이야기의 흐름과 인물의 마음을 섬세하게 이해하고 실감 나게 표현함'],
+  B:['글의 내용을 잘 이해하고 자신의 생각을 조리 있게 정리하여 표현함',
+     '중심 문장과 뒷받침 문장을 구분하여 짜임새 있는 글을 씀',
+     '바른 태도로 경청하고 자신의 의견을 또렷하게 말할 수 있음',
+     '읽은 글의 주제를 파악하고 요점을 잘 간추림'],
+  C:['글의 대략적인 내용을 이해하고 간단한 생각을 표현할 수 있음',
+     '기본적인 문장을 바르게 쓰며 꾸준히 연습하면 표현이 나아짐',
+     '주어진 글을 읽고 중심 내용을 찾으려 노력하는 모습이 보임',
+     '자신의 생각을 짧은 글로 나타내며 점차 자신감을 키워 감'],
+  D:['글을 읽고 내용을 이해하는 데 교사의 도움이 필요함',
+     '문장을 완성하여 쓰는 연습을 꾸준히 하면 향상이 기대됨',
+     '자신의 생각을 말로 표현하도록 격려와 지도가 필요함',
+     '기초적인 읽기와 쓰기 활동에 관심을 갖도록 지도가 요구됨']
+ },
+ '수학':{
+  A:['수와 연산의 원리를 이해하고 다양한 문제 해결에 적용하는 능력이 우수함',
+     '도형과 측정의 개념을 정확히 이해하고 실생활 문제에 능숙하게 활용함',
+     '문제의 조건을 분석하여 여러 방법으로 해결하는 사고력이 뛰어남',
+     '규칙과 관계를 스스로 발견하고 논리적으로 설명하는 능력이 돋보임'],
+  B:['기본 연산을 정확하게 수행하고 배운 개념을 문제에 잘 적용함',
+     '도형의 성질과 계산 방법을 이해하고 바르게 풀이함',
+     '문제 해결 과정을 순서대로 정리하여 답을 구할 수 있음',
+     '수학적 개념을 이해하고 유사한 문제에 스스로 적용함'],
+  C:['기본적인 계산을 할 수 있으며 반복 연습을 통해 정확성이 향상됨',
+     '배운 개념을 간단한 문제에 적용하려 노력하는 모습이 보임',
+     '문제의 뜻을 파악하고 풀이 방법을 찾으려 시도함',
+     '기초 연산 능력을 꾸준히 다지며 자신감을 키워 감'],
+  D:['기초 연산 개념을 익히는 데 반복 학습과 지도가 필요함',
+     '문제의 뜻을 파악하는 데 교사의 도움이 요구됨',
+     '수와 도형의 기본 개념을 다지도록 꾸준한 지도가 필요함',
+     '단계적인 연습을 통해 기초를 다질 필요가 있음']
+ },
+ '과학':{
+  A:['자연 현상을 관찰하고 원리를 탐구하여 논리적으로 설명하는 능력이 우수함',
+     '실험 과정을 정확히 수행하고 결과를 분석하여 결론을 이끌어 냄',
+     '호기심을 바탕으로 궁금한 점을 스스로 탐구하고 확장하여 이해함',
+     '과학 개념을 실생활 현상과 연결하여 깊이 있게 사고함'],
+  B:['관찰과 실험에 적극 참여하고 배운 과학 개념을 잘 이해함',
+     '실험 순서를 지키며 결과를 바르게 기록하고 정리함',
+     '자연 현상에 관심을 가지고 원리를 이해하려 노력함',
+     '탐구 활동에서 자신의 생각을 정리하여 표현할 수 있음'],
+  C:['실험과 관찰 활동에 참여하며 기본 개념을 이해하려 노력함',
+     '안내에 따라 실험을 수행하고 결과를 확인할 수 있음',
+     '자연 현상에 대한 호기심을 키우며 배움에 흥미를 보임',
+     '기본적인 과학 용어와 개념을 익혀 감'],
+  D:['실험 과정을 이해하고 참여하는 데 교사의 안내가 필요함',
+     '기초적인 과학 개념을 익히도록 반복 지도가 요구됨',
+     '관찰 활동에 관심을 갖도록 격려와 지도가 필요함',
+     '탐구 활동의 기초를 다지도록 꾸준한 지원이 필요함']
+ },
+ '영어':{
+  A:['영어로 자신의 생각을 자신 있게 표현하고 의사소통하는 능력이 매우 우수함',
+     '다양한 표현과 어휘를 정확하게 이해하고 상황에 맞게 활용함',
+     '듣고 읽은 내용을 정확히 파악하고 유창하게 말하고 씀',
+     '기본 문장 구조를 이해하고 새로운 표현을 능숙하게 응용함'],
+  B:['배운 표현을 활용하여 간단한 대화와 문장을 바르게 구사함',
+     '듣기와 읽기 활동에서 핵심 내용을 잘 이해함',
+     '기본 어휘와 문장을 익혀 상황에 맞게 표현함',
+     '영어 활동에 적극 참여하며 자신감 있게 말함'],
+  C:['기본 어휘와 인사 표현을 익히고 간단히 사용할 수 있음',
+     '반복 연습을 통해 듣기와 말하기 능력이 향상됨',
+     '배운 표현을 따라 하며 영어에 흥미를 키워 감',
+     '쉬운 문장을 이해하고 표현하려 노력하는 모습이 보임'],
+  D:['기초 어휘와 표현을 익히도록 반복 학습과 지도가 필요함',
+     '영어 활동에 흥미를 갖도록 격려와 지원이 요구됨',
+     '알파벳과 기본 단어를 익히는 데 꾸준한 지도가 필요함',
+     '듣고 따라 말하는 기초 활동에 관심을 갖도록 지도가 필요함']
+ },
+ '체육':{
+  A:['기초 체력이 우수하고 다양한 운동 기능을 정확하게 수행함',
+     '경기 규칙을 이해하고 협동하며 스포츠 정신을 훌륭히 실천함',
+     '신체 활동에 자신감 있게 참여하며 뛰어난 운동 감각을 보임',
+     '동작을 빠르게 익히고 상황에 맞게 능숙하게 조절함'],
+  B:['운동 기능을 바르게 익히고 신체 활동에 적극 참여함',
+     '규칙을 지키며 친구들과 협력하여 경기에 임함',
+     '기본 동작을 이해하고 꾸준히 연습하여 향상됨',
+     '체육 활동에 즐겁게 참여하며 바른 태도를 보임'],
+  C:['신체 활동에 참여하며 기본 동작을 익히려 노력함',
+     '규칙을 지키며 활동에 성실히 임하는 태도를 보임',
+     '반복 연습을 통해 운동 기능이 조금씩 향상됨',
+     '체육 활동에 흥미를 가지고 참여하려 노력함'],
+  D:['기본 운동 기능을 익히도록 꾸준한 연습과 지도가 필요함',
+     '신체 활동에 자신감을 갖도록 격려와 지원이 요구됨',
+     '규칙을 이해하고 활동에 참여하도록 안내가 필요함',
+     '기초 체력을 기르도록 지속적인 관심과 지도가 필요함']
+ }
+};
+/* 공통(대표 과목 외) — {S}에 과목명 삽입 */
+var COMMON_BANK={
+ A:['{S} 학습에 깊은 관심을 가지고 배운 내용을 완벽하게 이해하여 적용하는 능력이 우수함',
+    '{S} 활동에 적극 참여하여 창의적이고 완성도 높은 결과를 보여 줌',
+    '{S}의 핵심 개념을 정확히 이해하고 스스로 확장하여 사고하는 힘이 뛰어남',
+    '{S} 수업에서 뛰어난 집중력과 표현력으로 우수한 성취를 보임'],
+ B:['{S} 학습 내용을 잘 이해하고 배운 것을 바르게 적용함',
+    '{S} 활동에 성실히 참여하며 자신의 생각을 정리하여 표현함',
+    '{S}의 기본 개념을 이해하고 과제를 꾸준히 수행함',
+    '{S} 수업에 바른 태도로 참여하며 안정된 성취를 보임'],
+ C:['{S} 학습에 참여하며 기본 개념을 이해하려 노력하는 모습이 보임',
+    '{S} 활동에 성실히 임하며 반복을 통해 이해가 향상됨',
+    '{S}의 기초 내용을 익히며 배움에 흥미를 키워 감',
+    '{S} 수업에 관심을 가지고 참여하려 노력함'],
+ D:['{S}의 기초 개념을 익히도록 반복 학습과 지도가 필요함',
+    '{S} 활동에 관심과 자신감을 갖도록 격려가 요구됨',
+    '{S} 학습의 기본을 다지도록 꾸준한 지원이 필요함',
+    '{S} 수업에 적극 참여하도록 지속적인 지도가 필요함']
+};
+
+function bankFor(subj,level){
+  if(SUBJ_BANK[subj]) return SUBJ_BANK[subj][level].slice();
+  return COMMON_BANK[level].map(function(s){return s.replace(/\{S\}/g,subj);});
+}
+
+var lastRows=[]; /* {name, text} */
+
+function genGrade(){
+  var subj=document.getElementById('gSubj').value;
+  var level=document.getElementById('gLevel').value;
+  var key=document.getElementById('gKey').value.trim();
+  var raw=document.getElementById('gRoster').value.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean);
+  if(raw.length===0) raw=['홍길동'];
+  var pool=bankFor(subj,level);
+  /* 셔플된 풀을 순환 배정 — 반복 최소화 */
+  var bag=shuffle(pool);
+  var rows=[];
+  for(var i=0;i<raw.length;i++){
+    if(i%bag.length===0) bag=shuffle(pool);
+    var sent=bag[i%bag.length];
+    /* 단원 키워드 삽입(선택) */
+    var text;
+    if(key){
+      var pre=pick(['{K} 단원에서 ','{K} 영역에서 ','{K}을(를) 학습하며 ']).replace('{K}',key);
+      text=pre+sent+'.';
+    }else{
+      text=sent+'.';
+    }
+    rows.push({name:raw[i],text:text});
+  }
+  lastRows=rows;
+  renderGradeTable(rows);
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderGradeTable(rows){
+  var html='<div class="tblwrap"><table><thead><tr><th>이름</th><th>평어</th><th>복사</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    html+='<tr><td class="nm">'+esc(r.name)+'</td><td>'+esc(r.text)+'</td>'+
+          '<td class="op"><button data-i="'+i+'">복사</button></td></tr>';
+  });
+  html+='</tbody></table></div>';
+  var box=document.getElementById('gResult');
+  box.innerHTML=html;
+  box.querySelectorAll('td.op button').forEach(function(b){
+    b.addEventListener('click',function(){
+      var i=+b.getAttribute('data-i');
+      copyText(lastRows[i].text);
+    });
+  });
+}
+
+document.getElementById('gGen').addEventListener('click',genGrade);
+document.getElementById('gCopyAll').addEventListener('click',function(){
+  if(lastRows.length===0){toast('먼저 평어를 생성하세요');return;}
+  var tsv=lastRows.map(function(r){return r.name+'\t'+r.text;}).join('\n');
+  copyText(tsv);
+});
+document.getElementById('gPrint').addEventListener('click',function(){
+  if(lastRows.length===0){toast('먼저 평어를 생성하세요');return;}
+  var subj=document.getElementById('gSubj').value;
+  var lv=document.getElementById('gLevel').options[document.getElementById('gLevel').selectedIndex].text;
+  var rows=lastRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td>'+esc(r.text)+'</td></tr>';}).join('');
+  var w=window.open('','_blank');
+  if(!w){toast('팝업이 차단되었습니다');return;}
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>'+esc(subj)+' 평어</title>'+
+   '<style>body{font-family:sans-serif;padding:24px;color:#141413}h2{font-size:18px}'+
+   'table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #999;padding:8px;font-size:13px;text-align:left;vertical-align:top}'+
+   'th{background:#eee}td:first-child{white-space:nowrap;font-weight:bold}</style></head><body>'+
+   '<h2>'+esc(subj)+' · '+esc(lv)+' 교과 평어</h2>'+
+   '<table><thead><tr><th>이름</th><th>평어</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+   '<script>window.onload=function(){window.print();}<\/script></body></html>');
+  w.document.close();
+});
+
+/* 명단 저장/불러오기 */
+var ROSTER_KEY='aipia_grade_roster';
+document.getElementById('gSave').addEventListener('click',function(){
+  lsSet(ROSTER_KEY,document.getElementById('gRoster').value);
+  toast('명단을 저장했습니다');
+});
+document.getElementById('gLoad').addEventListener('click',function(){
+  var v=lsGet(ROSTER_KEY);
+  if(v===null){toast('저장된 명단이 없습니다');return;}
+  document.getElementById('gRoster').value=v;
+  toast('명단을 불러왔습니다');
+});
+/* 시작 시 저장 명단 있으면 자동 채움 */
+(function(){var v=lsGet(ROSTER_KEY);if(v){document.getElementById('gRoster').value=v;}})();
+
+})();
+</script>
+</body>
+</html>
