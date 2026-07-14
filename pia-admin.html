@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>AI PIA · 통합 관리</title>
+<link rel="icon" href="images/favicon_256.png">
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--sky:#6a9bcc;--red:#b91c1c;}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--paper);color:var(--ink);font-size:14px;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);background:rgba(250,249,245,.95)}
+.brand{font-weight:800;display:flex;align-items:center;gap:8px}
+.brand .dot{width:24px;height:24px;border-radius:7px;background:var(--rust);display:grid;place-items:center;color:#fff;font-size:13px}
+.sp{flex:1}
+.who{font-size:12px;color:var(--ink2)}
+a.link{color:var(--rust);font-weight:700;text-decoration:none;font-size:13px}
+.shell{flex:1;display:flex;min-height:0}
+aside{width:210px;flex-shrink:0;background:#fff;border-right:1px solid var(--line);padding:12px 8px;overflow-y:auto}
+.grp{font-size:11px;font-weight:800;color:#a8a396;padding:12px 12px 4px;letter-spacing:.5px}
+.nav a{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;color:var(--ink2);text-decoration:none;font-size:13.5px;font-weight:600;cursor:pointer}
+.nav a:hover{background:var(--paper2)}
+.nav a.on{background:#f6e9e2;color:var(--rust2)}
+.nav a .ic{width:18px;text-align:center}
+main{flex:1;min-width:0;position:relative;background:#fff}
+iframe{width:100%;height:100%;border:0;display:block}
+.gate{max-width:420px;margin:70px auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;text-align:center}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--ink);color:#fff}
+.note{font-size:12px;color:var(--ink2)}
+.hide{display:none}
+.mtoggle{display:none;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-weight:700}
+@media(max-width:760px){
+  aside{position:fixed;left:0;top:49px;bottom:0;z-index:20;transform:translateX(-100%);transition:.2s;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+  aside.open{transform:translateX(0)}
+  .mtoggle{display:inline-block}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <button class="mtoggle" id="mtoggle" aria-label="메뉴">☰</button>
+  <div class="brand"><span class="dot">P</span>AI PIA · 통합 관리</div>
+  <span class="sp"></span>
+  <span class="who" id="who"></span>
+  <a class="link" href="index.html" style="margin-left:12px">홈</a>
+  <a class="link" href="#" id="logout" style="margin-left:12px">로그아웃</a>
+</div>
+
+<div id="gate" class="gate hide">
+  <p style="font-weight:700;margin-bottom:6px">관리자 로그인</p>
+  <p class="note" id="gatemsg" style="margin-bottom:16px">운영자 계정으로 로그인해야 통합 관리에 접근할 수 있습니다.</p>
+  <button id="login">Google로 로그인</button>
+</div>
+
+<div class="shell hide" id="shell">
+  <aside id="aside">
+    <div class="grp">현황</div>
+    <div class="nav">
+      <a data-src="results-admin.html" class="on"><span class="ic">📊</span>결과 관리</a>
+      <a data-src="teacher.html"><span class="ic">👨‍🏫</span>교사 대시보드</a>
+    </div>
+    <div class="grp">운영</div>
+    <div class="nav">
+      <a data-src="errors-admin.html"><span class="ic">🐞</span>오류·문의</a>
+      <a data-src="manage.html"><span class="ic">👥</span>회원·기관</a>
+      <a data-src="pia-engine.html"><span class="ic">⚙️</span>엔진·키</a>
+    </div>
+    <div class="grp">콘텐츠·실행</div>
+    <div class="nav">
+      <a data-src="ai-pia.html"><span class="ic">🧪</span>검사 실행</a>
+      <a data-src="ai-pia.html?print=items"><span class="ic">🖨️</span>문항 인쇄</a>
+    </div>
+    <div class="grp">회사</div>
+    <div class="nav">
+      <a data-src="admin.html"><span class="ic">🏢</span>사업 포털</a>
+    </div>
+  </aside>
+  <main><iframe id="frame" src="results-admin.html" title="관리 도구"></iframe></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var sb=window.supabase.createClient('https://ushtyxnmqclzgdnynusm.supabase.co','sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102');
+function $(s){return document.querySelector(s);}
+function show(id,on){document.getElementById(id).classList[on?'remove':'add']('hide');}
+
+document.querySelectorAll('.nav a').forEach(function(a){
+  a.addEventListener('click',function(){
+    document.querySelectorAll('.nav a').forEach(function(x){x.classList.remove('on');});
+    a.classList.add('on');
+    document.getElementById('frame').src=a.dataset.src;
+    document.getElementById('aside').classList.remove('open');
+  });
+});
+document.getElementById('mtoggle').onclick=function(){ document.getElementById('aside').classList.toggle('open'); };
+document.getElementById('login').onclick=function(){ sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}}); };
+document.getElementById('logout').onclick=function(e){ e.preventDefault(); sb.auth.signOut().then(function(){location.reload();}); };
+
+(async function init(){
+  var s=await sb.auth.getSession();
+  var ses=s&&s.data&&s.data.session;
+  if(!ses){ show('gate',true); show('shell',false); return; }
+  $('#who').textContent=ses.user.email||'';
+  // 역할 확인 — 운영자/기관만
+  var r=await sb.rpc('pia_my_profile');
+  var role=(r&&r.data&&r.data[0]&&r.data[0].role)||'individual';
+  if(['super_admin','org_admin','org_member'].indexOf(role)<0){
+    show('gate',true); show('shell',false);
+    $('#gatemsg').innerHTML='<span style="color:var(--red);font-weight:700">관리 권한이 없습니다.</span><br>운영자 또는 기관(교사) 계정으로 로그인하세요.';
+    $('#login').classList.add('hide');
+    return;
+  }
+  show('gate',false); show('shell',true);
+})();
+</script>
+</body>
+</html>
