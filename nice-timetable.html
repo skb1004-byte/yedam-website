@@ -81,13 +81,13 @@ th{background:var(--paper2);font-weight:700;color:var(--ink2)}
     <div class="row" style="margin-top:8px;align-items:center;flex-wrap:wrap">
       <span style="font-size:12.5px;font-weight:700;color:var(--ink2)">🏫 NEIS 자동</span>
       <input type="text" id="neisSchool" placeholder="학교명 (예: 서울대도초)" style="width:170px">
-      <input type="text" id="neisKey" placeholder="NEIS 오픈API 키(선택)" style="width:160px">
+      <input type="text" id="neisKey" placeholder="NEIS 키 (내장됨·변경 시만)" style="width:170px">
       <a href="https://open.neis.go.kr/portal/myPage/actKeyManage/list.do" target="_blank" rel="noopener" style="font-size:11px;color:var(--rust2);font-weight:700;text-decoration:none">키 발급 →</a>
       <button class="sm" onclick="neisAuto()">학년·학급수 자동</button>
       <span id="neisMsg" class="mut" style="font-size:11.5px"></span>
     </div>
     <div id="classList" class="row" style="margin-top:10px"></div>
-    <div class="hint">학교명으로 NEIS <b>학급현황</b>을 불러와 학년별 반 수를 자동 채웁니다. (개방 API 키 없으면 일부만 조회 · 브라우저 보안(CORS)으로 막히면 위 학년별 반 수를 직접 입력하세요.)</div>
+    <div class="hint">학교명만 입력하면 NEIS <b>학급현황</b>으로 학년별 반 수를 자동으로 채웁니다(개방 API 키 내장). 브라우저 보안(CORS)·네트워크로 조회가 막히면 위 학년별 반 수를 직접 입력하세요.</div>
   </div>
 
   <div class="card noprint">
@@ -186,6 +186,7 @@ function renderClasses(){
   });
 }
 /* ---- NEIS 학급현황 자동 ---- */
+var NEIS_KEY='6a290550fd57438f8374bc8ed7feabfd'; // 서버 내장 개방 API 키
 async function neisJson(url){
   var r=await fetch(url); var j=await r.json(); return j;
 }
@@ -193,7 +194,7 @@ async function neisAuto(){
   var nm=($('#neisSchool').value||'').trim(); var key=($('#neisKey').value||'').trim();
   var msg=$('#neisMsg'); if(!nm){ msg.textContent='학교명을 입력하세요.'; return; }
   msg.style.color='#94a3b8'; msg.textContent='NEIS 조회 중…';
-  var K=key||'sample'; var base='https://open.neis.go.kr/hub/';
+  var K=key||NEIS_KEY; var base='https://open.neis.go.kr/hub/';
   try{
     var si=await neisJson(base+'schoolInfo?Type=json&pIndex=1&pSize=5&KEY='+encodeURIComponent(K)+'&SCHUL_NM='+encodeURIComponent(nm));
     var rows=(si.schoolInfo&&si.schoolInfo[1]&&si.schoolInfo[1].row)||[];
