@@ -71,6 +71,7 @@ td.op button:hover{background:var(--paper2)}
 <div class="tabs">
 <div class="tab active" data-tab="rec">① 생기부 문장</div>
 <div class="tab" data-tab="grade">② 교과 평어</div>
+<div class="tab" data-tab="perf">③ 수행평가 피드백</div>
 </div>
 
 <!-- ===================== 탭 ① 생기부 문장 ===================== -->
@@ -183,6 +184,57 @@ td.op button:hover{background:var(--paper2)}
 </div>
 </section>
 
+<!-- ===================== 탭 ③ 수행평가 피드백 ===================== -->
+<section id="tab-perf" class="hidden">
+<div class="card">
+<h2>수행평가 점수 → 학생별 피드백</h2>
+<p class="desc">점수만 넣으면 성취수준을 자동 판정하고 학생마다 서로 다른 피드백 문장을 배정합니다. 나이스 세부능력·특기사항이나 가정통신용으로 그대로 복사할 수 있습니다.</p>
+
+<div class="row2">
+<div>
+<label class="fld" for="fSubj">과목</label>
+<select id="fSubj">
+<option>국어</option><option>수학</option><option>사회</option><option>과학</option>
+<option>영어</option><option>체육</option><option>음악</option><option>미술</option>
+<option>도덕</option><option>실과</option><option>창의적체험활동</option>
+</select>
+</div>
+<div>
+<label class="fld" for="fTask">평가 과제·영역명 (선택)</label>
+<input type="text" id="fTask" placeholder="예: 분수의 덧셈 문제 해결, 글쓰기 수행평가">
+</div>
+</div>
+
+<label class="fld">점수 → 수준 기준 <span style="font-weight:400;color:#94a3b8;font-size:11px">(경계 점수, 100점 만점)</span></label>
+<div class="row2">
+<div><label class="hint">매우 잘함 ≥</label><input type="number" id="fThA" min="0" max="100" value="90"></div>
+<div><label class="hint">잘함 ≥</label><input type="number" id="fThB" min="0" max="100" value="75"></div>
+<div><label class="hint">보통 ≥</label><input type="number" id="fThC" min="0" max="100" value="60"></div>
+</div>
+<div class="hint">기준 미만은 ‘노력 요함’으로 판정됩니다.</div>
+
+<label class="fld" for="fRoster">명단 (한 줄에 1명)</label>
+<div class="btns" style="margin:2px 0 6px;align-items:center">
+<span style="font-size:12.5px;color:var(--ink2)">우리 반</span>
+<input type="number" id="fCount" min="1" max="45" value="25" style="width:64px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font:inherit">
+<span style="font-size:12.5px;color:var(--ink2)">명</span>
+<button class="gho" type="button" onclick="fFill('num')"># 번호로 채우기</button>
+<button class="gho" type="button" onclick="fFill('rand')">🎲 랜덤 이름</button>
+<button class="gho" type="button" onclick="fFromGrade()">평어 명단 가져오기</button>
+</div>
+<textarea id="fRoster" rows="5" placeholder="김하늘&#10;이서준&#10;박지우"></textarea>
+
+<div class="btns">
+<button class="act" id="fBuild">표 만들기 · 점수 입력</button>
+<button class="gho" id="fRegen">문장 다시 배정</button>
+<button class="gho" id="fCopyAll">📋 전체 복사 (나이스 양식)</button>
+<button class="gho" id="fPrint">인쇄</button>
+</div>
+
+<div id="fResult" style="margin-top:18px"></div>
+</div>
+</section>
+
 <div class="foot">
 생성 문구는 초안이며, 실제 관찰 근거로 교사가 검토·수정하고 학년도 기재요령·분량을 준수하세요.
 </div>
@@ -236,6 +288,7 @@ tabs.forEach(function(tb){
     var t=tb.getAttribute('data-tab');
     document.getElementById('tab-rec').classList.toggle('hidden',t!=='rec');
     document.getElementById('tab-grade').classList.toggle('hidden',t!=='grade');
+    document.getElementById('tab-perf').classList.toggle('hidden',t!=='perf');
   });
 });
 
@@ -741,6 +794,117 @@ document.getElementById('gLoad').addEventListener('click',function(){
 });
 /* 시작 시 저장 명단 있으면 자동 채움 */
 (function(){var v=lsGet(ROSTER_KEY);if(v){document.getElementById('gRoster').value=v;}})();
+
+/* =====================================================================
+   탭 ③ 수행평가 점수 → 학생별 피드백
+   ===================================================================== */
+var FB={
+ A:['핵심 원리를 정확히 이해하고 새로운 상황에도 능숙하게 적용함','과제의 요구를 충실히 충족하며 창의적으로 문제를 해결함','정확성과 완성도가 매우 높아 우수한 성취를 보임','스스로 계획을 세워 완성도 높게 수행하는 힘이 돋보임','배운 개념을 자신의 방식으로 확장하여 뛰어난 결과를 보여 줌'],
+ B:['주요 내용을 잘 이해하고 대체로 정확하게 수행함','핵심 요구를 충족하며 안정적으로 과제를 해결함','성실하게 참여하여 무리 없이 과제를 완수함','배운 내용을 바르게 적용하며 꾸준한 성취를 보임'],
+ C:['기본 개념을 이해하고 주어진 과제를 수행함','핵심 요소를 파악하나 세부 완성도를 높일 필요가 있음','반복 연습을 통해 이해가 조금씩 향상되고 있음','과제에 성실히 참여하며 기초를 다져 감'],
+ D:['기초 개념을 다지기 위한 꾸준한 연습이 필요함','과제 해결 과정에서 교사의 안내와 지원이 필요함','기본 요구를 이해하도록 추가 지도가 요구됨','자신감을 갖고 참여하도록 격려와 관심이 필요함']
+};
+var LEVEL_KO={A:'매우 잘함',B:'잘함',C:'보통',D:'노력 요함'};
+var fRows=[]; /* {name,score,level,text} */
+function fThresholds(){
+  var a=parseInt(document.getElementById('fThA').value,10); if(isNaN(a))a=90;
+  var b=parseInt(document.getElementById('fThB').value,10); if(isNaN(b))b=75;
+  var c=parseInt(document.getElementById('fThC').value,10); if(isNaN(c))c=60;
+  return {A:a,B:b,C:c};
+}
+function fLevelFor(score){
+  if(score===''||score===null||isNaN(score)) return '';
+  var t=fThresholds(); var s=+score;
+  if(s>=t.A) return 'A'; if(s>=t.B) return 'B'; if(s>=t.C) return 'C'; return 'D';
+}
+function fMakeText(level){
+  if(!level) return '';
+  var task=document.getElementById('fTask').value.trim();
+  var s=pick(FB[level]);
+  var pre=task?(task+'에서 '):'';
+  return pre+s+'.';
+}
+window.fFill=function(mode){
+  var n=parseInt(document.getElementById('fCount').value,10)||0; if(n<1||n>60){toast('인원수를 1~60으로');return;}
+  var lines=[];
+  if(mode==='num'){ for(var i=1;i<=n;i++) lines.push(i+'번'); }
+  else{
+    var S=['김','이','박','최','정','강','조','윤','장','임','한','오','서','신','권','황','안','송','류','전','홍','고','문','양','손','배','백','허','남','심'];
+    var G=['민준','서연','도윤','하은','시우','지우','예준','수아','지호','채원','준우','다은','건우','유나','이준','서윤','현우','지안','우진','하윤','선우','예은','유준','서아','지훈','민서','정우','예린','승현','수빈','재윤','다인','태윤','유주','시윤','아린','주원','소율','도현','채은'];
+    var used={};
+    for(var i=0;i<n;i++){ var nm,g=0; do{ nm=S[Math.floor(Math.random()*S.length)]+G[Math.floor(Math.random()*G.length)]; g++; }while(used[nm]&&g<80); used[nm]=1; lines.push(nm); }
+  }
+  document.getElementById('fRoster').value=lines.join('\n');
+  toast(n+'명 명단을 채웠습니다');
+};
+window.fFromGrade=function(){
+  var v=document.getElementById('gRoster').value||lsGet(ROSTER_KEY)||'';
+  if(!v.trim()){toast('평어 탭 명단이 비어 있습니다');return;}
+  document.getElementById('fRoster').value=v;
+  toast('평어 탭 명단을 가져왔습니다');
+};
+function fBuild(regen){
+  var raw=document.getElementById('fRoster').value.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean);
+  if(raw.length===0){toast('명단을 먼저 입력하세요');return;}
+  var prev={}; if(regen){ /* 점수 유지 */ fRows.forEach(function(r){prev[r.name]=r.score;}); }
+  fRows=raw.map(function(nm){
+    var sc=(regen&&prev[nm]!==undefined)?prev[nm]:'';
+    var lv=fLevelFor(sc);
+    return {name:nm,score:sc,level:lv,text:fMakeText(lv)};
+  });
+  fRender();
+}
+function fRender(){
+  var html='<div class="tblwrap"><table><thead><tr><th>이름</th><th>점수</th><th>수준</th><th>피드백</th><th>복사</th></tr></thead><tbody>';
+  fRows.forEach(function(r,i){
+    html+='<tr>'+
+      '<td class="nm">'+esc(r.name)+'</td>'+
+      '<td class="op"><input type="number" min="0" max="100" value="'+(r.score===''?'':esc(String(r.score)))+'" data-i="'+i+'" class="fScore" style="width:70px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font:inherit"></td>'+
+      '<td class="nm fLv">'+(r.level?esc(LEVEL_KO[r.level]):'—')+'</td>'+
+      '<td>'+esc(r.text)+'</td>'+
+      '<td class="op"><button data-i="'+i+'">복사</button></td></tr>';
+  });
+  html+='</tbody></table></div>';
+  var box=document.getElementById('fResult'); box.innerHTML=html;
+  box.querySelectorAll('input.fScore').forEach(function(inp){
+    inp.addEventListener('input',function(){
+      var i=+inp.getAttribute('data-i');
+      var v=inp.value.trim(); fRows[i].score=(v===''?'':(+v));
+      fRows[i].level=fLevelFor(fRows[i].score);
+      fRows[i].text=fMakeText(fRows[i].level);
+      var tr=inp.closest('tr');
+      tr.querySelector('.fLv').textContent=fRows[i].level?LEVEL_KO[fRows[i].level]:'—';
+      tr.querySelector('td:nth-child(4)').textContent=fRows[i].text;
+    });
+  });
+  box.querySelectorAll('td.op button').forEach(function(b){
+    b.addEventListener('click',function(){ var i=+b.getAttribute('data-i'); if(fRows[i].text){copyText(fRows[i].text);}else{toast('점수를 먼저 입력하세요');} });
+  });
+}
+document.getElementById('fBuild').addEventListener('click',function(){fBuild(false);});
+document.getElementById('fRegen').addEventListener('click',function(){ if(!fRows.length){toast('먼저 표를 만드세요');return;} fBuild(true); });
+document.getElementById('fCopyAll').addEventListener('click',function(){
+  if(!fRows.length){toast('먼저 표를 만드세요');return;}
+  var done=fRows.filter(function(r){return r.text;});
+  if(!done.length){toast('점수를 입력하세요');return;}
+  /* 나이스 양식: 이름\t점수\t피드백 */
+  var tsv=done.map(function(r){return r.name+'\t'+(r.score===''?'':r.score)+'\t'+r.text;}).join('\n');
+  copyText(tsv); toast('나이스 양식으로 복사됨(이름·점수·피드백)');
+});
+document.getElementById('fPrint').addEventListener('click',function(){
+  if(!fRows.length){toast('먼저 표를 만드세요');return;}
+  var subj=document.getElementById('fSubj').value, task=document.getElementById('fTask').value.trim();
+  var rows=fRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td>'+(r.score===''?'':esc(String(r.score)))+'</td><td>'+(r.level?esc(LEVEL_KO[r.level]):'')+'</td><td>'+esc(r.text)+'</td></tr>';}).join('');
+  var w=window.open('','_blank'); if(!w){toast('팝업이 차단되었습니다');return;}
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>'+esc(subj)+' 수행평가 피드백</title>'+
+   '<style>body{font-family:sans-serif;padding:24px;color:#141413}h2{font-size:18px}'+
+   'table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #999;padding:8px;font-size:13px;text-align:left;vertical-align:top}'+
+   'th{background:#eee}td:first-child{white-space:nowrap;font-weight:bold}</style></head><body>'+
+   '<h2>'+esc(subj)+(task?(' · '+esc(task)):'')+' 수행평가 피드백</h2>'+
+   '<table><thead><tr><th>이름</th><th>점수</th><th>수준</th><th>피드백</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+   '<script>window.onload=function(){window.print();}<\/script></body></html>');
+  w.document.close();
+});
 
 })();
 </script>
