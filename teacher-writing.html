@@ -122,8 +122,15 @@ td.op button:hover{background:var(--paper2)}
 
 <div class="row2">
 <div>
+<label class="fld" for="gGrade">학년 <span style="font-weight:400;color:#94a3b8;font-size:11px">(저장되어 자동 불러옴)</span></label>
+<select id="gGrade" onchange="saveGrade();suggestUnits()">
+<option value="1">1학년</option><option value="2">2학년</option><option value="3" selected>3학년</option>
+<option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option>
+</select>
+</div>
+<div>
 <label class="fld" for="gSubj">과목</label>
-<select id="gSubj">
+<select id="gSubj" onchange="suggestUnits()">
 <option>국어</option><option>수학</option><option>사회</option><option>과학</option>
 <option>영어</option><option>체육</option><option>음악</option><option>미술</option>
 <option>도덕</option><option>실과</option><option>창의적체험활동</option>
@@ -141,7 +148,11 @@ td.op button:hover{background:var(--paper2)}
 </div>
 
 <label class="fld" for="gKey">영역·단원 키워드 (선택)</label>
-<input type="text" id="gKey" placeholder="예: 분수의 덧셈, 글쓰기">
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+<input type="text" id="gKey" placeholder="예: 분수의 덧셈, 글쓰기" style="flex:1;min-width:160px">
+<button class="gho" id="gSuggest" type="button" onclick="suggestUnits()">🔎 단원·영역 자동</button>
+</div>
+<div id="gKeySugg" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
 
 <label class="fld" for="gRoster">명단 (한 줄에 1명)</label>
 <textarea id="gRoster" rows="6" placeholder="김하늘&#10;이서준&#10;박지우"></textarea>
@@ -362,6 +373,15 @@ KW.forEach(function(k){
 var LIMIT={behavior:1500,autonomy:1500,club:1500,career:2100};
 var LIMIT_CHAR={behavior:500,autonomy:500,club:500,career:700};
 
+/* 영역별 서술 확장 문장(개조식·관찰 기반) — 권장 분량까지 채우기 위한 풀 */
+var AREA_FILL={
+  behavior:['교우 관계가 원만하고 배려심이 있어 친구들과 협력적으로 지냄.','정해진 규칙과 약속을 잘 지키며 자기 관리에 힘쓰는 모범적인 생활 태도를 보임.','수업 시간에 집중하여 참여하고 자신의 생각을 적극적으로 표현함.','맡은 역할과 과제를 끝까지 책임감 있게 완수하는 성실한 자세를 지님.','어려움을 겪는 친구를 먼저 돕고 배려하는 따뜻한 마음이 돋보임.','새로운 활동과 도전에 긍정적으로 임하며 즐겁게 참여함.','자신의 감정을 조절하고 상황에 맞게 행동하는 성숙한 태도를 보임.'],
+  autonomy:['학급 회의와 자치 활동에 적극적으로 참여하여 의견을 제안함.','1인 1역할을 성실히 수행하며 학급 공동체에 기여함.','학급 규칙을 함께 정하고 지키려는 책임감 있는 태도를 보임.','친구들의 의견을 존중하며 합의점을 찾아가는 민주적 태도가 돋보임.','학급 행사와 봉사 활동에 자발적으로 참여하여 협력함.','공동의 문제를 함께 해결하려는 자치 역량을 발휘함.'],
+  career:['자신의 흥미와 적성을 이해하고 관련 직업과 학과 정보를 탐색함.','진로 체험과 독서를 통해 관심 분야에 대한 이해를 넓혀 감.','자신의 강점을 진로와 연결하려는 노력이 관찰됨.','진로 목표를 세우고 이를 이루기 위한 계획을 구체화해 나감.','다양한 직업 세계를 탐구하며 자신의 미래를 능동적으로 설계함.','진로 활동에서 배운 점을 자신의 생활과 학습에 적용하려 노력함.'],
+  club:['동아리 활동에 자발적으로 참여하여 맡은 역할을 성실히 수행함.','부원들과 협력하여 활동을 기획하고 운영하는 데 기여함.','꾸준한 참여로 관련 지식과 기능을 신장함.','동아리 발표와 전시 준비 과정에서 책임감 있게 임함.','관심 분야에 대한 열정을 바탕으로 적극적으로 활동함.','부원 간 소통을 도우며 협력적인 분위기를 이끔.']
+};
+var GROWTH_FILL=['자신의 강점을 살려 꾸준히 성장하는 모습이 기대됨.','다양한 경험과 도전을 통해 잠재력을 더욱 발휘할 것으로 기대됨.','배운 것을 실천하려는 태도가 인상적이며 지속적인 발전이 기대됨.','작은 일에도 최선을 다하는 성실함이 앞으로의 성장 밑거름이 됨.','스스로 목표를 세우고 실천하는 자기주도적 태도가 돋보임.'];
+
 function buildRec(){
   var area=document.getElementById('recArea').value;
   var name=document.getElementById('recName').value.trim();
@@ -370,35 +390,32 @@ function buildRec(){
   if(keys.length===0&&free.length===0){
     toast('키워드를 하나 이상 선택하세요');return null;
   }
-  var parts=[];
-  /* 도입 */
   var intro=pick(AREA_INTRO[area]);
-  /* 키워드 문장들 */
-  var order=shuffle(keys);
-  order.forEach(function(k){
-    if(BANK[k]) parts.push(toEnding(pick(BANK[k])));
-  });
-  /* 자유 키워드 → 간단 개조식 문장 */
-  free.forEach(function(f){
-    var tpl=[
-      f+' 활동에 적극적으로 참여하여 자신의 역량을 발휘함.',
-      f+'에서 맡은 역할을 성실히 수행하는 모습이 돋보임.',
-      f+'을(를) 통해 배우고 성장하는 태도가 인상적임.'
-    ];
-    parts.push(pick(tpl));
-  });
-  var body=parts.join(' ');
-  /* 이름/도입 결합 */
-  var head='';
-  if(name){
-    head=name+'은(는) '+intro;
-  }else{
-    head=intro;
-  }
-  /* 첫 글자 대문자화 불필요(한글). 도입이 비면 그냥 body */
-  var text=(head+body).replace(/\s+/g,' ').trim();
-  /* 마무리 */
+  var body=[]; var used={};
+  function addUniq(s){ if(!s)return false; s=toEnding(s); var k=s.replace(/\s/g,''); if(used[k])return false; used[k]=1; body.push(s); return true; }
+  /* 1) 선택 키워드 대표 문장 */
+  shuffle(keys).forEach(function(k){ if(BANK[k]) addUniq(pick(BANK[k])); });
+  /* 2) 자유 키워드 */
+  free.forEach(function(f){ addUniq(pick([f+' 활동에 적극적으로 참여하여 자신의 역량을 발휘함.', f+'에서 맡은 역할을 성실히 수행하는 모습이 돋보임.', f+'을(를) 통해 배우고 성장하는 태도가 인상적임.'])); });
+  /* 3) 권장 분량(약 92%)까지 확장 — 키워드 추가 변형 + 영역 서술 + 성장 문장 */
+  var target=Math.round(LIMIT_CHAR[area]*0.90);
+  var pool=[];
+  keys.forEach(function(k){ if(BANK[k]) BANK[k].forEach(function(s){ pool.push(s); }); });
+  (AREA_FILL[area]||[]).forEach(function(s){ pool.push(s); });
+  GROWTH_FILL.forEach(function(s){ pool.push(s); });
+  pool=shuffle(pool);
+  function curChars(){ return (intro+' '+body.join(' ')).length; }
+  for(var i=0;i<pool.length && curChars()<target; i++){ addUniq(pool[i]); }
+  var head=name?(name+'은(는) '+intro):intro;
+  var text=(head+' '+body.join(' ')).replace(/\s+/g,' ').trim();
   text+=' '+pick(AREA_OUTRO[area]);
+  text=text.replace(/\s+/g,' ').trim();
+  /* 상한 초과 방지: 초과 시 마무리 앞 문장부터 제거 */
+  var guard=0;
+  while(byteLen(text)>LIMIT[area] && body.length>1 && guard++<50){
+    body.pop();
+    text=((name?(name+'은(는) '+intro):intro)+' '+body.join(' ')+' '+pick(AREA_OUTRO[area])).replace(/\s+/g,' ').trim();
+  }
   return text.trim();
 }
 
@@ -556,6 +573,46 @@ function bankFor(subj,level){
 
 var lastRows=[]; /* {name, text} */
 
+/* 과목별 내용영역(2022 개정) — 출판사 무관 정확한 영역, 시기 반영해 추천 */
+var SUBJECT_AREAS={
+  '국어':['듣기·말하기','읽기','쓰기','문법','문학','매체'],
+  '수학':['수와 연산','변화와 관계','도형과 측정','자료와 가능성'],
+  '사회':['지리 인식','자연환경과 인간생활','정치와 시민','경제생활','역사','지속가능한 세계'],
+  '과학':['운동과 에너지','물질','생명','지구와 우주'],
+  '영어':['듣기','말하기','읽기','쓰기'],
+  '체육':['운동과 건강','스포츠','표현 활동','안전'],
+  '음악':['연주','감상','창작'],
+  '미술':['체험','표현','감상'],
+  '도덕':['자신과의 관계','타인과의 관계','사회·공동체와의 관계','자연과의 관계'],
+  '실과':['생활문화','생명기술','수송기술','정보·소프트웨어'],
+  '창의적체험활동':['자율·자치 활동','동아리 활동','진로 활동']
+};
+function suggestUnits(){
+  var subj=document.getElementById('gSubj').value;
+  var grade=document.getElementById('gGrade').value;
+  var areas=SUBJECT_AREAS[subj]||[];
+  var host=document.getElementById('gKeySugg'); host.innerHTML='';
+  if(!areas.length){ return; }
+  // 시기 반영: 상반기(3~7월)는 앞 영역, 하반기(8~2월)는 뒤 영역을 먼저 노출
+  var m=new Date().getMonth()+1; var firstHalf=(m>=3&&m<=7);
+  var ordered=firstHalf?areas.slice():areas.slice().reverse();
+  // 기본값: 첫 추천을 입력창에 자동 배치
+  var key=document.getElementById('gKey'); if(key && !key.value.trim()){ key.value=ordered[0]; }
+  var hint=document.createElement('span'); hint.style.cssText='font-size:11.5px;color:#94a3b8;margin-right:4px'; hint.textContent=grade+'학년 '+subj+' ('+(firstHalf?'1학기':'2학기')+') 추천 — 클릭해 입력:';
+  host.appendChild(hint);
+  ordered.forEach(function(a){
+    var c=document.createElement('button'); c.type='button'; c.textContent=a;
+    c.style.cssText='font:inherit;font-size:12px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 11px;cursor:pointer';
+    c.onclick=function(){ var k=document.getElementById('gKey'); k.value=a; c.style.background='#f6e9e2'; };
+    host.appendChild(c);
+  });
+}
+function saveGrade(){ try{ localStorage.setItem('pia_teacher_grade', document.getElementById('gGrade').value); }catch(e){} }
+/* 담임 학년 자동 불러오기 + 단원 자동 추천(로드 시) */
+(function(){
+  try{ var g=localStorage.getItem('pia_teacher_grade'); var el=document.getElementById('gGrade'); if(g&&el) el.value=g; }catch(e){}
+  try{ suggestUnits(); }catch(e){}
+})();
 function genGrade(){
   var subj=document.getElementById('gSubj').value;
   var level=document.getElementById('gLevel').value;
