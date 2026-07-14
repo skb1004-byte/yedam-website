@@ -8260,36 +8260,42 @@ function showConsentModalIfNeeded() {
     const modal = document.createElement('div');
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1001;padding:20px;';
     modal.innerHTML = `
-      <div class="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-        <h2 class="text-lg font-bold mb-3">📜 서비스 이용 동의</h2>
-        <p class="text-sm text-slate-700 mb-4">AI PIA 검사 서비스를 이용하시려면 아래 항목에 동의해주세요.</p>
+      <div class="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[86vh] overflow-y-auto">
+        <h2 class="text-lg font-bold mb-1">📜 서비스 이용 및 개인정보 수집·이용 동의</h2>
+        <p class="text-xs text-slate-600 mb-4">AI PIA 검사를 시작하려면 아래 필수 항목에 동의해 주세요. 동의하지 않을 권리가 있으나, 필수 항목 미동의 시 서비스 이용이 제한됩니다.</p>
         <div class="space-y-3 text-sm">
           <label class="flex items-start gap-2 cursor-pointer">
-            <input type="checkbox" id="c-terms" class="mt-1" />
-            <span><strong>이용약관 동의</strong> (필수)<br><span class="text-xs text-slate-500">본 서비스는 교육·자기이해 목적이며 의료 진단이 아닙니다.</span></span>
+            <input type="checkbox" id="c-privacy" class="mt-1" />
+            <span><strong>[필수] 개인정보 수집·이용 동의</strong>
+              <details class="text-xs text-slate-500 mt-1"><summary class="cursor-pointer text-sky-600">수집 항목·목적·보유기간 보기</summary>
+                <div class="mt-1 leading-relaxed">· <b>수집 항목</b>: 이름(또는 별명), 학년, 학교/기관, 검사 응답·결과<br>· <b>수집·이용 목적</b>: 검사 결과 제공·해석, 진로·상담 지원, 서비스 개선·통계<br>· <b>보유·이용 기간</b>: 회원 탈퇴 시 또는 목적 달성 시까지(관련 법령에 따른 보존 예외)<br>· <b>저장 위치</b>: 로그인 이용 시 결과가 <b>보안 서버(Supabase)</b>에 저장됩니다. 비로그인 시 기기에만 임시 저장됩니다.<br>· <b>제3자 제공</b>: 원칙적으로 제공하지 않으며, 법령상 의무 또는 이용자 동의가 있는 경우에 한합니다.</div></details></span>
           </label>
           <label class="flex items-start gap-2 cursor-pointer">
-            <input type="checkbox" id="c-privacy" class="mt-1" />
-            <span><strong>개인정보 처리방침 동의</strong> (필수)<br><span class="text-xs text-slate-500">모든 데이터는 브라우저 로컬에만 저장되며 외부로 전송되지 않습니다.</span></span>
+            <input type="checkbox" id="c-sensitive" class="mt-1" />
+            <span><strong>[필수] 민감정보(정서 선별) 처리 동의</strong><br><span class="text-xs text-slate-500">정서 선별(CES-D·PHQ-A·GAD-7)은 <b>선택 참여</b>이며, 참여 시 관련 응답이 위 목적으로 처리됩니다. 의료·임상 진단이 아닙니다.</span></span>
           </label>
           <label class="flex items-start gap-2 cursor-pointer">
             <input type="checkbox" id="c-minor" class="mt-1" />
-            <span><strong>만 14세 미만 보호자 동의</strong> (해당 시)<br><span class="text-xs text-slate-500">미성년자의 경우 보호자 동의가 필요합니다.</span></span>
+            <span><strong>[필수] 연령·법정대리인 확인</strong><br><span class="text-xs text-slate-500">본인은 <b>만 14세 이상</b>이거나, 만 14세 미만인 경우 <b>법정대리인(보호자)의 동의</b>를 받았음을 확인합니다.</span></span>
+          </label>
+          <label class="flex items-start gap-2 cursor-pointer">
+            <input type="checkbox" id="c-terms" class="mt-1" />
+            <span><strong>[필수] 이용약관 동의</strong><br><span class="text-xs text-slate-500">본 서비스는 교육·자기이해 목적이며 의료 진단이 아닙니다. 결과는 참고용입니다.</span></span>
           </label>
           <label class="flex items-start gap-2 cursor-pointer">
             <input type="checkbox" id="c-safety" class="mt-1" />
-            <span><strong>안전 신호 시 자동 안내 동의</strong> (필수)<br><span class="text-xs text-slate-500">자해·자살 신호 감지 시 1388·1577-0199·109 채널을 자동 안내합니다.</span></span>
+            <span><strong>[필수] 안전 신호 자동 안내 동의</strong><br><span class="text-xs text-slate-500">자해·자살 등 위기 신호 감지 시 1388·1577-0199·109 채널을 자동 안내합니다.</span></span>
           </label>
-          <label class="flex items-start gap-2 cursor-pointer">
+          <label class="flex items-start gap-2 cursor-pointer border-t border-slate-200 pt-2">
             <input type="checkbox" id="c-all" class="mt-1" />
-            <span><strong>전체 동의</strong></span>
+            <span><strong>전체 동의</strong> <span class="text-xs text-slate-500">(위 필수 항목 모두 동의)</span></span>
           </label>
         </div>
         <button id="consent-confirm" class="w-full mt-4 bg-slate-900 text-white py-3 rounded-lg text-sm font-semibold opacity-50 cursor-not-allowed" disabled>동의하고 시작하기</button>
       </div>`;
     document.body.appendChild(modal);
 
-    const reqs = ['c-terms','c-privacy','c-safety'];
+    const reqs = ['c-privacy','c-sensitive','c-minor','c-terms','c-safety'];
     const update = () => {
       const ok = reqs.every(id => document.getElementById(id).checked);
       const btn = document.getElementById('consent-confirm');
@@ -8298,11 +8304,17 @@ function showConsentModalIfNeeded() {
     };
     document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', update));
     document.getElementById('c-all').addEventListener('change', e => {
-      ['c-terms','c-privacy','c-minor','c-safety'].forEach(id => document.getElementById(id).checked = e.target.checked);
+      reqs.forEach(id => document.getElementById(id).checked = e.target.checked);
       update();
     });
     document.getElementById('consent-confirm').addEventListener('click', () => {
       sessionStorage.setItem('pia_v3_consent', '1');
+      try{
+        var rec = { at:new Date().toISOString(), v:'consent-2026-07', items:{privacy:true,sensitive:true,minorOrGuardian:true,terms:true,safety:true} };
+        localStorage.setItem('pia_consent', JSON.stringify(rec));
+        // 로그인 시 서버에도 동의 이력 기록(있으면)
+        if(typeof _piaEnsureSB==='function'){ _piaEnsureSB().then(function(sb){ if(sb&&sb.rpc){ try{ sb.rpc('pia_log_consent',{ payload: rec }); }catch(e){} } }); }
+      }catch(e){}
       modal.remove();
       resolve();
     });
