@@ -500,7 +500,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 <section data-view="home" class="space-y-4">
   <div class="bg-violet-50 border border-violet-200 rounded-2xl p-4 text-sm text-violet-900">
     <strong class="block mb-1">검사 선택 가이드</strong>
-    정확한 통합 분석을 위해 <strong>Big5 + RIASEC + SJT + VIA</strong> 4개를 우선 권장합니다 (총 약 35분). Grit·CES-D·PHQ-A·GAD-7은 선택사항입니다. <strong>필수 검사(자유대화·Big5·RIASEC)를 모두 마치면 결과지가 열립니다.</strong>
+    <strong>① AI 자유대화(필수)로 시작</strong> → <strong>② Big5</strong> → <strong>③ RIASEC</strong> 순으로 <strong>필수 3종</strong>을 마치면 결과지가 열립니다(약 25분). 이후 VIA·Grit·학습역량·다중지능·자존감·SJT·정서 스크리닝은 <strong>선택</strong>이며, 많이 할수록 분석이 정확해집니다.
   </div>
   <div id="home-content" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
 </section>
@@ -4180,45 +4180,47 @@ function renderHome() {
   // 권장 순서: 자유대화 → VIA(강점) → Big5 → Grit → RIASEC → SJT → 정서 스크리닝 3종
   // 흐름: 라포 형성 → 강점 발견 → 성격 정밀 → 동기 → 진로 → 행동 검증 → 정서
   const cards = [
-    { id:'chat', step:1, title:'자유대화 (라포 형성)', icon:'💬', desc:'AI 피아와 자연스러운 대화로 시작합니다.',
-      detail:'편안한 대화로 시작하며, 분석은 다음 검사들의 결과와 통합됩니다.',
+    // ===== 필수 (먼저 진행) — 통합 결과지 열람에 필요 =====
+    { id:'chat', step:1, title:'AI 자유대화 (필수·먼저)', icon:'💬', desc:'AI 피아와 자연스러운 대화로 시작합니다.',
+      detail:'가장 먼저 진행하는 필수 단계입니다. 편안한 대화로 라포를 형성하고, 분석은 다음 검사 결과와 통합됩니다.',
       dur:'5~8분', items:'10턴', key:'conv', track:'P+I+A', priority:'필수', color:'violet' },
-    { id:'via', step:2, title:'VIA Youth 24 강점', icon:'⭐', desc:'24가지 성격 강점을 발견합니다.',
-      detail:'학생의 가장 빛나는 강점 5개를 우선 도출합니다. 긍정심리학 기반.',
-      dur:'5분', items:24, key:'via', track:'P (인성)', priority:'권장', color:'emerald' },
-    { id:'big5', step:3, title:'IPIP Big5-50 (성격 5요인)', icon:'🧠', desc:'학술 검증된 성격 정밀 검사 (공유저작).',
+    { id:'big5', step:2, title:'IPIP Big5-50 (성격 5요인)', icon:'🧠', desc:'학술 검증된 성격 정밀 검사 (공유저작).',
       detail:'외향·우호·성실·정서안정·개방의 5요인 + 30개 하위 차원. 약 30년간 가장 표준화된 성격 모델.',
       dur:'10~12분', items:50, key:'big5', track:'P (인성)', priority:'필수', color:'indigo' },
-    { id:'grit', step:4, title:'Grit-S 끈기 척도', icon:'🔥', desc:'성취·동기 단축형 (Duckworth).',
-      detail:'장기 목표 추구 능력 + 열정의 일관성. 학업·진로 성공의 핵심 비인지 역량.',
-      dur:'2분', items:8, key:'grit', track:'P (인성)', priority:'권장', color:'orange' },
-    { id:'riasec', step:5, title:'RIASEC 진로 흥미 (Holland)', icon:'🧭', desc:'직업적 흥미 6유형 분석.',
+    { id:'riasec', step:3, title:'RIASEC 진로 흥미 (Holland)', icon:'🧭', desc:'직업적 흥미 6유형 분석.',
       detail:'현실·탐구·예술·사회·진취·관습 6유형. 워크넷·커리어넷 표준 진로 모델.',
       dur:'7~8분', items:30, key:'riasec', track:'A (진로/적성)', priority:'필수', color:'amber' },
-    { id:'sjt', step:6, title:'SJT 상황 판단 검사', icon:'🎬', desc:'행동 예측 시나리오 30개.',
+    // ===== 선택 (정확도·정서 보강) — 많이 할수록 분석이 정확해집니다 =====
+    { id:'via', step:4, title:'VIA Youth 24 강점', icon:'⭐', desc:'24가지 성격 강점을 발견합니다.',
+      detail:'학생의 가장 빛나는 강점 5개를 우선 도출합니다. 긍정심리학 기반.',
+      dur:'5분', items:24, key:'via', track:'P (인성)', priority:'선택', color:'emerald' },
+    { id:'grit', step:5, title:'Grit-S 끈기 척도', icon:'🔥', desc:'성취·동기 단축형 (Duckworth).',
+      detail:'장기 목표 추구 능력 + 열정의 일관성. 학업·진로 성공의 핵심 비인지 역량.',
+      dur:'2분', items:8, key:'grit', track:'P (인성)', priority:'선택', color:'orange' },
+    { id:'learn', step:6, title:'과목별 학습 역량', icon:'📚', desc:'언어·수리·외국어·사회·과학·예술·신체 자가평가.',
+      detail:'과목별 흥미·자신감을 스스로 평가합니다. 결과지의 학습역량 페이지에 실측값으로 반영됩니다.',
+      dur:'2분', items:14, key:'learn', track:'I (학습)', priority:'선택', color:'indigo' },
+    { id:'mi', step:7, title:'다중지능(MI) 8지능', icon:'🧩', desc:'가드너 8가지 지능 자가검사.',
+      detail:'언어·논리수학·공간·음악·신체·대인·자기성찰·자연 8지능을 스스로 평가합니다. 결과지의 지능 페이지에 실측값으로 반영됩니다.',
+      dur:'2분', items:16, key:'mi', track:'I (지능)', priority:'선택', color:'orange' },
+    { id:'rses', step:8, title:'Rosenberg 자존감(RSES)', icon:'💎', desc:'자아존중감 10문항 (공개 척도).',
+      detail:'전반적 자아존중감 수준. 강점 기반 코칭과 자기이해의 출발점입니다.',
+      dur:'2분', items:10, key:'rses', track:'P (인성)', priority:'선택', color:'indigo' },
+    { id:'sjt', step:9, title:'SJT 상황 판단 검사', icon:'🎬', desc:'행동 예측 시나리오 30개.',
       detail:'실제 학교 상황에서 어떻게 행동할지 묻는 검사. 응답 위장이 어려워 행동 예측 신뢰도 높음.',
-      dur:'10~12분', items:30, key:'sjt', track:'P+A 검증', priority:'권장', color:'sky' },
-    { id:'cesd', step:7, title:'CES-D-10 정서 스크리닝', icon:'🩺', desc:'우울 증상 1주 빈도 (Public domain).',
+      dur:'10~12분', items:30, key:'sjt', track:'P+A 검증', priority:'선택', color:'sky' },
+    { id:'cesd', step:10, title:'CES-D-10 정서 스크리닝', icon:'🩺', desc:'우울 증상 1주 빈도 (Public domain).',
       detail:'지난 1주일 정서 상태 자가 진단. 안전 모니터링용이며 의료 진단 아님.',
       dur:'2분', items:10, key:'cesd', track:'정서 안전', priority:'선택', color:'rose', sensitive:true },
-    { id:'phqa', step:8, title:'PHQ-A 청소년 우울', icon:'🫥', desc:'9문항 청소년 우울 평가.',
+    { id:'phqa', step:11, title:'PHQ-A 청소년 우울', icon:'🫥', desc:'9문항 청소년 우울 평가.',
       detail:'지난 2주 청소년 우울 자가 진단. 자해 신호 9번 문항 별도 추적.',
       dur:'2분', items:9, key:'phqa', track:'정서 안전', priority:'선택', color:'pink', sensitive:true },
-    { id:'gad', step:9, title:'GAD-7 불안 스크리닝', icon:'😰', desc:'7문항 불안 자가 평가.',
+    { id:'gad', step:12, title:'GAD-7 불안 스크리닝', icon:'😰', desc:'7문항 불안 자가 평가.',
       detail:'지난 2주 불안 증상 자가 진단. 청소년 정신건강 모니터링.',
       dur:'2분', items:7, key:'gad', track:'정서 안전', priority:'선택', color:'red', sensitive:true },
-    { id:'rses', step:10, title:'Rosenberg 자존감(RSES)', icon:'💎', desc:'자아존중감 10문항 (공개 척도).',
-      detail:'전반적 자아존중감 수준. 강점 기반 코칭과 자기이해의 출발점입니다.',
-      dur:'2분', items:10, key:'rses', track:'P (인성)', priority:'권장', color:'indigo' },
-    { id:'who5', step:11, title:'WHO-5 웰빙 지수', icon:'🌤️', desc:'정서적 웰빙 5문항 (WHO).',
+    { id:'who5', step:13, title:'WHO-5 웰빙 지수', icon:'🌤️', desc:'정서적 웰빙 5문항 (WHO).',
       detail:'지난 2주 정서적 웰빙. 점수가 낮으면 마음 돌봄이 필요하다는 신호이며 진단이 아닙니다.',
-      dur:'1분', items:5, key:'who5', track:'정서 안전', priority:'선택', color:'sky', sensitive:true },
-    { id:'learn', step:12, title:'과목별 학습 역량', icon:'📚', desc:'언어·수리·외국어·사회·과학·예술·신체 자가평가.',
-      detail:'과목별 흥미·자신감을 스스로 평가합니다. 결과지의 학습역량 페이지에 실측값으로 반영됩니다.',
-      dur:'2분', items:14, key:'learn', track:'I (학습)', priority:'권장', color:'indigo' },
-    { id:'mi', step:13, title:'다중지능(MI) 8지능', icon:'🧩', desc:'가드너 8가지 지능 자가검사.',
-      detail:'언어·논리수학·공간·음악·신체·대인·자기성찰·자연 8지능을 스스로 평가합니다. 결과지의 지능 페이지에 실측값으로 반영됩니다.',
-      dur:'2분', items:16, key:'mi', track:'I (지능)', priority:'권장', color:'orange' }
+      dur:'1분', items:5, key:'who5', track:'정서 안전', priority:'선택', color:'sky', sensitive:true }
   ];
 
   // 전체 완료율
@@ -4230,6 +4232,8 @@ function renderHome() {
     return _likertDoneCount(c.key) >= expected;
   }).length;
   const progress = Math.round(done/total*100);
+  const _reqKeys=['conv','big5','riasec'];
+  const reqDone = cards.filter(c=>_reqKeys.indexOf(c.key)>=0 && (c.key==='conv'?state.results.conv.turns>=8:_likertDoneCount(c.key)>=(c.id==='big5'?50:30))).length;
 
   // 색상 매핑
   const colorMap = {
@@ -4254,22 +4258,21 @@ function renderHome() {
       <div class="bg-gradient-to-r from-violet-100 via-indigo-50 to-emerald-50 rounded-2xl p-5 border border-slate-200">
         <div class="flex items-center justify-between mb-3 flex-wrap gap-3">
           <div>
-            <h2 class="text-lg font-bold text-slate-900">권장 검사 순서</h2>
-            <p class="text-xs text-slate-600 mt-1">아래 순서대로 진행하면 가장 정확한 통합 분석을 받을 수 있습니다. 총 13개 검사 — 많이 완료할수록 분석이 정확해집니다.</p>
+            <h2 class="text-lg font-bold text-slate-900">검사 순서 — 필수 먼저, 선택은 추가</h2>
+            <p class="text-xs text-slate-600 mt-1"><b>AI 자유대화는 필수</b>이며 가장 먼저 진행합니다. <b>필수 3종(자유대화·Big5·RIASEC)</b>을 마치면 결과지가 열리고, <b>선택</b> 검사를 더할수록 분석이 정확해집니다.</p>
           </div>
           <div class="text-right">
-            <div class="text-xs text-slate-500">전체 진행</div>
+            <div class="text-xs text-rose-600 font-bold">필수 ${reqDone} / 3 ${reqDone>=3?'✓':''}</div>
             <div class="text-2xl font-bold text-violet-700">${done} / ${total}</div>
-            <div class="text-xs text-slate-500">${progress}% 완료</div>
+            <div class="text-xs text-slate-500">전체 ${progress}%</div>
           </div>
         </div>
         <div class="w-full bg-white rounded-full h-2 overflow-hidden">
           <div class="bg-gradient-to-r from-violet-500 to-emerald-500 h-2 transition-all" style="width:${progress}%"></div>
         </div>
         <div class="flex gap-3 mt-3 text-xs text-slate-600 flex-wrap">
-          <span><span class="pill bg-rose-100 text-rose-800">필수</span> = 통합 16유형 추론에 필요</span>
-          <span><span class="pill bg-amber-100 text-amber-800">권장</span> = 정확도 향상</span>
-          <span><span class="pill bg-slate-200 text-slate-700">선택</span> = 정서 안전 모니터링</span>
+          <span><span class="pill bg-rose-100 text-rose-800">필수</span> = 결과지 열람에 필요 (자유대화·Big5·RIASEC)</span>
+          <span><span class="pill bg-slate-200 text-slate-700">선택</span> = 정확도·정서 보강 (많이 할수록 정확)</span>
         </div>
       </div>
     </div>
