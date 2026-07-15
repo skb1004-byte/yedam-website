@@ -844,7 +844,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 <div class="toolbar no-print">
   <span data-en="📋 AI PIA Assessment Report">📋 AI PIA 검사 결과지</span>
   <button id="btn-back-student" style="display:none;" onclick="window.close()" data-en="← Back to student page">← 학생 페이지로</button>
-  <button onclick="window.open('AI_PIA_관리자.html','_blank')" data-en="🏫 Admin page">🏫 관리자 페이지</button>
+  <button id="btn-admin" style="display:none;" onclick="window.open('pia-admin.html','_blank')" data-en="🏫 Admin page">🏫 통합 관리</button>
   <button onclick="piaPrintAsk()" data-en="🖨️ Print / Save PDF">🖨️ 인쇄 / PDF 저장</button>
   <button onclick="document.querySelectorAll('.page').forEach((p,i)=>p.style.display=i==0?'':'none')" data-en="Cover only">표지만</button>
   <button onclick="document.querySelectorAll('.page').forEach(p=>p.style.display='')" data-en="View all">전체 보기</button>
@@ -8145,6 +8145,8 @@ function piaLoadRole(){
           var d=res&&res.data&&res.data[0];
           if(d&&d.allowed&&d.allowed.length){ PIA_ALLOWED_AUD=d.allowed; }
           window.PIA_ROLE=d?d.role:'individual'; window.PIA_ROLE_STATUS=d?d.role_status:'active';
+          // 통합 관리 버튼은 운영자·기관장에게만 노출
+          try{ var _ab=document.getElementById('btn-admin'); if(_ab && (window.PIA_ROLE==='super_admin'||window.PIA_ROLE==='org_admin')) _ab.style.display=''; }catch(e){}
         }catch(e){}
         if(!audAllowed(currentAudience)){ currentAudience='student'; }
         piaSyncAudButtons();

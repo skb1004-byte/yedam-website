@@ -126,7 +126,7 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
       <div class="ic">🔑</div><div class="t">반 코드 관리 · 마이페이지</div>
       <div class="d">우리 반 코드를 확인해 학생에게 안내하고, 회원 유형·기관 설정을 관리합니다.</div>
     </a>
-    <a class="tile" href="pia-admin.html">
+    <a class="tile hide" id="tile-admin" href="pia-admin.html">
       <div class="ic">📊</div><div class="t">통합 관리(기관장)</div>
       <div class="d">결과 관리·회원/기관·엔진 설정 등 운영 도구입니다. 기관장·운영자 권한에서 열립니다.</div>
     </a>
@@ -159,6 +159,8 @@ document.getElementById('logout').onclick=function(e){ e.preventDefault(); sb.au
     return;
   }
   show('gate',false); show('app',true);
+  // 통합 관리 타일은 기관장·운영자에게만 노출(중복·오접근 방지)
+  if(role==='super_admin'||role==='org_admin'){ var ta=document.getElementById('tile-admin'); if(ta) ta.classList.remove('hide'); }
 })();
 // 우리 학교(공유 설정) — 저장 시 모든 도구가 이 학교 NEIS를 자동 사용
 (function(){
