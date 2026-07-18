@@ -120,7 +120,41 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
 var $=function(s){return document.querySelector(s);};
 function esc(s){return (s==null?'':String(s)).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
-function say(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=.72;speechSynthesis.speak(u);}catch(e){}}
+/* 기기에서 가장 자연스러운 한국어 목소리 자동 선택 */
+var _voice=null,_voiceNatural=false;
+function _scoreVoice(v){
+  if(!v||(v.lang||'').toLowerCase().indexOf('ko')!==0)return -1;
+  var n=v.name||'';
+  if(/SunHi|InJoon/i.test(n))return 100;
+  if(/Yuna/i.test(n))return 95;
+  if(/Natural|Neural/i.test(n))return 90;
+  if(/Google/i.test(n))return 85;
+  if(v.localService===false)return 75;
+  return 50;
+}
+function _pickVoice(){
+  try{
+    var best=null,bs=-1;
+    speechSynthesis.getVoices().forEach(function(v){var s=_scoreVoice(v);if(s>bs){bs=s;best=v;}});
+    _voice=best;_voiceNatural=bs>=75;
+  }catch(e){}
+}
+try{_pickVoice();speechSynthesis.onvoiceschanged=_pickVoice;}catch(e){}
+function say(t){
+  try{
+    speechSynthesis.cancel();
+    if(!_voice)_pickVoice();
+    var parts=String(t).replace(/([.!?…])\s*/g,"$1||CUT||").split("||CUT||").filter(function(s){return s.trim();});
+    if(!parts.length)parts=[String(t)];
+    parts.forEach(function(p){
+      var u=new SpeechSynthesisUtterance(p.trim());
+      u.lang='ko-KR';u.pitch=1;
+      u.rate=_voiceNatural?0.85:0.7;
+      if(_voice)u.voice=_voice;
+      speechSynthesis.speak(u);
+    });
+  }catch(e){}
+}
 var PRAISE=['참 잘하셨어요!','정답이에요, 대단해요!','맞았어요! 최고예요!','우와, 실력이 좋으시네요!','정확해요! 멋져요!'];
 var CHEER=['괜찮아요, 다시 해 봐요!','아깝네요! 한 번 더!','천천히 해도 돼요!'];
 

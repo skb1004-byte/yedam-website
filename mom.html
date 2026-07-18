@@ -316,15 +316,41 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
 var $=function(s){return document.querySelector(s);};
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
-/* ---------- 음성(TTS) ---------- */
-var voiceOn=true;
+/* ---------- 음성(TTS) — 기기에서 가장 자연스러운 한국어 목소리 자동 선택 ---------- */
+var voiceOn=true, _voice=null, _voiceNatural=false;
+function _scoreVoice(v){
+  if(!v || (v.lang||'').toLowerCase().indexOf('ko')!==0) return -1;
+  var n=v.name||'';
+  if(/SunHi|InJoon/i.test(n)) return 100;              /* 엣지 신경망(매우 자연) */
+  if(/Yuna|유나/i.test(n)) return 95;                   /* 애플 */
+  if(/Natural|Neural/i.test(n)) return 90;              /* 기타 신경망 */
+  if(/Google/i.test(n)) return 85;                      /* 크롬 구글 한국어 */
+  if(v.localService===false) return 75;                 /* 온라인 음성(대체로 자연) */
+  return 50;                                            /* 로컬 기본(기계음) */
+}
+function _pickVoice(){
+  try{
+    var best=null,bs=-1;
+    speechSynthesis.getVoices().forEach(function(v){ var s=_scoreVoice(v); if(s>bs){bs=s;best=v;} });
+    _voice=best; _voiceNatural=bs>=75;
+  }catch(e){}
+}
+try{ _pickVoice(); speechSynthesis.onvoiceschanged=_pickVoice; }catch(e){}
 function say(t){
   if(!voiceOn) return;
   try{
     speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(t);
-    u.lang='ko-KR'; u.rate=.72; u.pitch=1;
-    speechSynthesis.speak(u);
+    if(!_voice) _pickVoice();
+    /* 문장 단위로 끊어 읽기: 더 자연스럽고, 긴 문장 끊김 버그도 방지 */
+    var parts=String(t).replace(/([.!?…])\s*/g,"$1||CUT||").split("||CUT||").filter(function(s){return s.trim();});
+    if(!parts.length) parts=[String(t)];
+    parts.forEach(function(p){
+      var u=new SpeechSynthesisUtterance(p.trim());
+      u.lang='ko-KR'; u.pitch=1;
+      u.rate=_voiceNatural?0.85:0.7;   /* 자연 음성은 살짝만, 기계음은 더 느리게 */
+      if(_voice) u.voice=_voice;
+      speechSynthesis.speak(u);
+    });
   }catch(e){}
 }
 function toggleVoice(){
