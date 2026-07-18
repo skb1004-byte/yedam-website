@@ -133,6 +133,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
     <p class="q-help" style="margin-top:14px">약 15분 걸립니다. 어렵지 않으니<br>편안한 마음으로 하시면 됩니다.</p>
     <button class="btn btn-main" onclick="startConsent()">시작하기</button>
     <button class="btn btn-ok" id="resumeBtn" style="display:none" onclick="resumeSess()">▶ 하던 검사 이어하기</button>
+    <button class="btn btn-line" onclick="location.href='noeul-play.html'">🎮 두뇌 놀이터 (게임)</button>
     <button class="btn btn-line" onclick="showHistory()">지난 기록 보기</button>
   </div>
   <div class="notice">※ 이 검사는 <b>건강 확인(선별) 참고용</b>이며 의학적 진단이 아닙니다. 정확한 진단은 가까운 치매안심센터나 병원에서 받으실 수 있습니다.</div>
@@ -877,6 +878,7 @@ function renderResult(aud){
      +'<div class="q-text" style="font-size:1.3rem;text-align:left">이렇게 해 보세요</div>'
      +'<ul class="tip-list" style="text-align:left">'+TIPS[J.level].map(function(t){return '<li>🌿 '+t+'</li>';}).join('')+'</ul>'
      +(J.level==='high'?'<div class="center-box" style="text-align:left"><b>치매안심센터</b>에서 무료로 자세히 검사받을 수 있어요.<div class="tel">☎ 1899-9988</div>보건소에 물어보셔도 됩니다.</div>':'')
+     +'<button class="btn btn-ok no-print" onclick="location.href=\'noeul-play.html\'">🎮 나에게 맞는 두뇌 놀이 하러 가기</button>'
      +'</div>'
      +'<div class="notice">이 결과는 건강 확인 참고용이며 의학적 진단이 아닙니다.</div>';
     host.innerHTML=h;
