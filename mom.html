@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="robots" content="noindex,nofollow">
+<title>맘(MOM) · 인지건강 선별검사</title>
+<style>
+:root{
+  --ink:#141413;--ink2:#4a463f;--paper:#faf9f5;--paper2:#f1eee6;--line:#ddd8cb;
+  --rust:#d97757;--rust2:#c4623f;--ok:#5c7a4a;--okbg:#eef4e7;--warn:#b7791f;--warnbg:#fdf3e2;
+  --red:#b3372c;--redbg:#fbeceb;--sky:#4f7dab;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:17px}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-system,'Malgun Gothic',sans-serif;line-height:1.6;min-height:100vh}
+.app{max-width:760px;margin:0 auto;padding:0 18px 40px}
+/* 헤더 */
+.top{display:flex;align-items:center;gap:12px;padding:16px 0 10px}
+.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#e8926f,#c4623f);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;flex:0 0 auto}
+.top h1{font-size:1.25rem;font-weight:800}
+.top .sub{font-size:.82rem;color:var(--ink2)}
+.sp{flex:1}
+.voice-btn{border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 14px;font-size:.95rem;font-weight:700;color:var(--ink2);cursor:pointer}
+.voice-btn.on{border-color:var(--rust);color:var(--rust2)}
+/* 진행바 */
+.prog{height:10px;background:var(--paper2);border-radius:6px;overflow:hidden;margin:4px 0 18px}
+.prog>i{display:block;height:100%;background:linear-gradient(90deg,#e8926f,#c4623f);border-radius:6px;transition:width .4s;width:0}
+/* 화면 */
+.scr{display:none}
+.scr.on{display:block;animation:fade .35s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px 24px;box-shadow:0 3px 14px rgba(20,20,19,.05);margin-bottom:16px}
+.q-num{font-size:1rem;font-weight:800;color:var(--rust2);margin-bottom:8px}
+.q-text{font-size:1.65rem;font-weight:800;line-height:1.5;word-break:keep-all}
+.q-help{font-size:1.05rem;color:var(--ink2);margin-top:10px;word-break:keep-all}
+/* 버튼 */
+.btn{display:block;width:100%;border:none;border-radius:16px;padding:20px;font-size:1.35rem;font-weight:800;cursor:pointer;font-family:inherit;margin-top:14px;min-height:68px;word-break:keep-all}
+.btn-main{background:var(--rust);color:#fff}
+.btn-main:active{background:var(--rust2)}
+.btn-line{background:#fff;color:var(--ink2);border:2px solid var(--line)}
+.btn-line:active{background:var(--paper2)}
+.btn-ok{background:var(--ok);color:#fff}
+.btn.sel{outline:5px solid #e8926f;outline-offset:-2px;background:#fdf0ea;color:var(--rust2)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{border:2px solid var(--line);background:#fff;border-radius:16px;padding:18px 10px;font-size:1.3rem;font-weight:800;cursor:pointer;font-family:inherit;min-height:66px;color:var(--ink)}
+.choice.sel{border-color:var(--rust);background:#fdf0ea;color:var(--rust2)}
+.hear{border:none;background:var(--paper2);color:var(--ink2);border-radius:12px;padding:10px 16px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px}
+.notice{background:var(--warnbg);border:1px solid #ecd9b4;border-radius:14px;padding:14px 16px;font-size:.98rem;color:#7a5b16;margin-top:14px;word-break:keep-all}
+.footer-note{font-size:.85rem;color:var(--ink2);text-align:center;margin-top:20px;word-break:keep-all}
+/* 단어 카드 */
+.words{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:20px 0}
+.wcard{background:#fdf0ea;border:2px solid #eac3ae;border-radius:18px;padding:26px 6px;text-align:center;font-size:1.7rem;font-weight:900;color:var(--rust2)}
+/* 숫자 잇기 */
+#nc-area{position:relative;height:400px;background:#fff;border:2px solid var(--line);border-radius:20px;margin-top:14px;touch-action:manipulation}
+.nc-dot{position:absolute;width:72px;height:72px;border-radius:50%;background:#fff;border:3px solid var(--rust);color:var(--rust2);font-size:1.7rem;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+.nc-dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.nc-dot.shake{animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+/* 시계 캔버스 */
+#cdt-wrap{background:#fff;border:2px solid var(--line);border-radius:20px;padding:10px;margin-top:14px}
+#cdt{width:100%;height:auto;display:block;border-radius:12px;touch-action:none;background:#fffdf9}
+/* 유창성 */
+.flu-count{font-size:4.4rem;font-weight:900;text-align:center;color:var(--rust2);margin:6px 0}
+.flu-timer{font-size:1.6rem;font-weight:800;text-align:center;color:var(--ink2)}
+.flu-timer.hot{color:var(--red)}
+/* 결과 */
+.aud-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.aud-tabs button{border:2px solid var(--line);background:#fff;border-radius:14px;padding:13px 4px;font-size:1.02rem;font-weight:800;color:var(--ink2);cursor:pointer;font-family:inherit}
+.aud-tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.level-box{border-radius:20px;padding:26px 20px;text-align:center;margin-bottom:16px}
+.level-box .lv{font-size:2.2rem;font-weight:900}
+.level-box .ds{font-size:1.15rem;margin-top:8px;word-break:keep-all}
+.lv-good{background:var(--okbg);color:var(--ok)}
+.lv-mid{background:var(--warnbg);color:var(--warn)}
+.lv-high{background:var(--redbg);color:var(--red)}
+.dom-table{width:100%;border-collapse:collapse;font-size:1rem;margin-top:8px}
+.dom-table th,.dom-table td{border:1px solid var(--line);padding:10px;text-align:center}
+.dom-table th{background:var(--paper2);font-size:.92rem}
+.tip-list{list-style:none;margin-top:10px}
+.tip-list li{padding:12px 14px;background:var(--paper2);border-radius:12px;margin-bottom:9px;font-size:1.12rem;font-weight:600;word-break:keep-all}
+.center-box{background:#eef3f8;border:1px solid #c9d8e6;border-radius:16px;padding:18px;margin-top:14px;word-break:keep-all}
+.center-box b{color:var(--sky)}
+.center-box .tel{font-size:1.7rem;font-weight:900;color:var(--sky);letter-spacing:1px}
+#radar{display:block;margin:0 auto}
+.raw-kv{display:flex;justify-content:space-between;padding:9px 4px;border-bottom:1px dashed var(--line);font-size:1rem}
+.raw-kv b{font-weight:800}
+.flag{display:inline-block;background:var(--redbg);color:var(--red);border-radius:8px;padding:2px 9px;font-size:.85rem;font-weight:800;margin-left:6px}
+/* 평가자 확인 오버레이 */
+.ovl{position:fixed;inset:0;background:rgba(20,20,19,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.ovl.on{display:flex}
+.ovl .box{background:#fff;border-radius:20px;padding:24px;max-width:560px;width:100%;max-height:92vh;overflow:auto}
+.chk{display:flex;align-items:center;gap:12px;border:2px solid var(--line);border-radius:14px;padding:14px;margin-top:10px;font-size:1.12rem;font-weight:700;cursor:pointer;user-select:none}
+.chk.sel{border-color:var(--ok);background:var(--okbg);color:var(--ok)}
+.chk .bx{width:30px;height:30px;border-radius:8px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:900;flex:0 0 auto}
+.chk.sel .bx{background:var(--ok);border-color:var(--ok);color:#fff}
+/* 인쇄 */
+@media print{
+  body{background:#fff}
+  .no-print{display:none!important}
+  .card{box-shadow:none;border-color:#bbb}
+  .app{max-width:100%}
+}
+@media(max-width:480px){
+  html{font-size:15.5px}
+  .words{gap:8px}.wcard{font-size:1.35rem;padding:20px 4px}
+  #nc-area{height:340px}.nc-dot{width:62px;height:62px;font-size:1.4rem}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="top no-print">
+  <div class="logo">맘</div>
+  <div>
+    <h1>맘(MOM) · 인지건강 확인</h1>
+    <div class="sub">경로당·노인정 두뇌건강 선별 도우미</div>
+  </div>
+  <span class="sp"></span>
+  <button class="voice-btn" id="fontBtn" onclick="toggleFont()">가A 크게</button>
+  <button class="voice-btn on" id="voiceBtn" onclick="toggleVoice()">🔊 음성 켬</button>
+</header>
+<div class="prog no-print"><i id="progBar"></i></div>
+
+<!-- ⓪ 시작 -->
+<section class="scr on" id="s-home">
+  <div class="card" style="text-align:center">
+    <div style="font-size:3.6rem;margin-bottom:6px">🌅</div>
+    <div class="q-text">어르신의 두뇌 건강을<br>천천히 확인해 보겠습니다</div>
+    <p class="q-help" style="margin-top:14px">약 15분 걸립니다. 어렵지 않으니<br>편안한 마음으로 하시면 됩니다.</p>
+    <button class="btn btn-main" onclick="startConsent()">시작하기</button>
+    <button class="btn btn-ok" id="resumeBtn" style="display:none" onclick="resumeSess()">▶ 하던 검사 이어하기</button>
+    <button class="btn btn-line" onclick="location.href='mom-play.html'">🎮 두뇌 놀이터 (게임)</button>
+    <button class="btn btn-line" onclick="showHistory()">지난 기록 보기</button>
+  </div>
+  <div class="notice">※ 이 검사는 <b>건강 확인(선별) 참고용</b>이며 의학적 진단이 아닙니다. 정확한 진단은 가까운 치매안심센터나 병원에서 받으실 수 있습니다.</div>
+  <p class="footer-note">맘(MOM) v1.1 · 모든 정보는 이 기기에만 저장되며 외부로 전송되지 않습니다.</p>
+</section>
+
+<!-- ① 동의 -->
+<section class="scr" id="s-consent">
+  <div class="card">
+    <div class="q-text">확인해 주세요</div>
+    <p class="q-help" style="font-size:1.15rem;margin-top:14px">
+      · 이 검사는 두뇌 건강을 <b>미리 살펴보는 참고용</b>입니다.<br><br>
+      · 결과는 <b>이 기기에만</b> 저장되고 외부로 보내지 않습니다.<br><br>
+      · 결과가 걱정되시면 <b>치매안심센터(전화 1899-9988)</b>에서 무료 정밀검사를 받으실 수 있습니다.
+    </p>
+    <button class="hear" onclick="say(C_TEXT)">🔊 다시 듣기</button>
+    <button class="btn btn-main" onclick="go('s-info')">네, 알겠습니다</button>
+    <button class="btn btn-line" onclick="go('s-home')">그만두기</button>
+  </div>
+</section>
+
+<!-- ② 기본 정보 -->
+<section class="scr" id="s-info">
+  <div class="card">
+    <div class="q-num">기본 정보</div>
+    <div class="q-text">어떻게 불러 드릴까요?</div>
+    <input id="pName" placeholder="예: 김 어르신 (별명도 좋아요)" style="width:100%;margin-top:14px;padding:18px;font-size:1.3rem;border:2px solid var(--line);border-radius:14px;font-family:inherit;background:var(--paper)">
+    <div class="q-text" style="margin-top:26px;font-size:1.35rem">연세가 어떻게 되세요?</div>
+    <div class="two" style="margin-top:12px">
+      <button class="choice" data-g="age" data-v="60">60대</button>
+      <button class="choice" data-g="age" data-v="70">70대</button>
+      <button class="choice" data-g="age" data-v="80">80대</button>
+      <button class="choice" data-g="age" data-v="90">90세 이상</button>
+    </div>
+    <div class="q-text" style="margin-top:26px;font-size:1.35rem">학교는 어디까지 다니셨어요?</div>
+    <div class="three" style="margin-top:12px">
+      <button class="choice" data-g="edu" data-v="0">안 다님</button>
+      <button class="choice" data-g="edu" data-v="1">초등학교</button>
+      <button class="choice" data-g="edu" data-v="2">중학교 이상</button>
+    </div>
+    <button class="btn btn-main" onclick="infoNext()">다음으로</button>
+  </div>
+</section>
+
+<!-- ③ 단어 기억(제시) -->
+<section class="scr" id="s-words">
+  <div class="card" style="text-align:center">
+    <div class="q-num">기억력 준비</div>
+    <div class="q-text">지금 보여드리는 <b style="color:var(--rust2)">세 단어</b>를<br>꼭 기억해 주세요</div>
+    <div class="words">
+      <div class="wcard">나무</div><div class="wcard">자동차</div><div class="wcard">모자</div>
+    </div>
+    <p class="q-help">잠시 후에 다시 여쭤보겠습니다.</p>
+    <button class="hear" onclick="say('세 단어를 기억해 주세요. 나무. 자동차. 모자. 잠시 후에 다시 여쭤보겠습니다.')">🔊 다시 듣기</button>
+    <button class="btn btn-main" onclick="go('s-orient')">기억했어요, 다음</button>
+  </div>
+</section>
+
+<!-- ④ 지남력 -->
+<section class="scr" id="s-orient"><div id="orientHost"></div></section>
+
+<!-- ④-2 이름대기 -->
+<section class="scr" id="s-naming"><div id="namingHost"></div></section>
+
+<!-- ④-3 계산 -->
+<section class="scr" id="s-calc"><div id="calcHost"></div></section>
+
+<!-- ⑤ 자가 설문 (SMCQ 방식) -->
+<section class="scr" id="s-smcq"><div id="smcqHost"></div></section>
+
+<!-- ⑥ 보호자 관찰(선택 분기) -->
+<section class="scr" id="s-obs-ask">
+  <div class="card" style="text-align:center">
+    <div class="q-num">함께 오신 분께</div>
+    <div class="q-text">보호자나 도우미가<br>함께 계신가요?</div>
+    <p class="q-help">함께 계시면 옆에서 본 모습을 몇 가지 여쭤봅니다. (더 정확해집니다)</p>
+    <div class="two" style="margin-top:16px">
+      <button class="choice" onclick="startObs()">네, 있어요</button>
+      <button class="choice" onclick="skipObs()">아니요, 없어요</button>
+    </div>
+  </div>
+</section>
+<section class="scr" id="s-obs"><div id="obsHost"></div></section>
+
+<!-- ⑦ 숫자 잇기 -->
+<section class="scr" id="s-nc">
+  <div class="card">
+    <div class="q-num">집중력 놀이</div>
+    <div class="q-text">1부터 8까지 <b style="color:var(--rust2)">순서대로</b> 눌러 주세요</div>
+    <div id="nc-area"></div>
+    <p class="q-help" style="text-align:center" id="nc-msg">1번부터 눌러 주세요</p>
+  </div>
+</section>
+
+<!-- ⑧ 시계 그리기 -->
+<section class="scr" id="s-cdt">
+  <div class="card">
+    <div class="q-num">시계 그리기</div>
+    <div class="q-text" style="font-size:1.4rem">동그란 시계를 그리고, 숫자를 넣고,<br><b style="color:var(--rust2)">11시 10분</b>이 되게 바늘을 그려 주세요</div>
+    <div id="cdt-wrap"><canvas id="cdt"></canvas></div>
+    <div class="two" style="margin-top:12px">
+      <button class="btn btn-line" style="margin-top:0" onclick="cdtClear()">지우고 다시</button>
+      <button class="btn btn-main" style="margin-top:0" onclick="cdtDone()">다 그렸어요</button>
+    </div>
+  </div>
+</section>
+
+<!-- 시계 평가자 확인 오버레이 -->
+<div class="ovl" id="cdt-ovl">
+  <div class="box">
+    <div class="q-num">도우미 확인 (그림을 보고 눌러 주세요)</div>
+    <img id="cdt-thumb" style="width:100%;border:1px solid var(--line);border-radius:12px;margin-top:8px" alt="그린 시계">
+    <div class="chk" data-k="circle"><span class="bx">✓</span>동그라미(시계 테두리)가 있다</div>
+    <div class="chk" data-k="nums"><span class="bx">✓</span>숫자가 대체로 제자리에 있다</div>
+    <div class="chk" data-k="hands"><span class="bx">✓</span>바늘이 11시 10분에 가깝다</div>
+    <button class="btn btn-main" onclick="cdtConfirm()">확인 완료</button>
+  </div>
+</div>
+
+<!-- ⑨ 지연 회상 -->
+<section class="scr" id="s-recall">
+  <div class="card">
+    <div class="q-num">기억력 확인</div>
+    <div class="q-text">아까 기억해 달라고 한<br><b style="color:var(--rust2)">세 단어</b>는 무엇이었나요?</div>
+    <p class="q-help">아래에서 세 개를 골라 주세요.</p>
+    <div class="grid2" id="recallBox" style="margin-top:14px"></div>
+    <button class="btn btn-main" onclick="recallDone()">다 골랐어요</button>
+  </div>
+</section>
+
+<!-- ⑩ 언어 유창성 -->
+<section class="scr" id="s-flu">
+  <div class="card" style="text-align:center">
+    <div class="q-num">말하기 놀이</div>
+    <div class="q-text">1분 동안 <b style="color:var(--rust2)">동물 이름</b>을<br>아는 대로 말씀해 주세요</div>
+    <p class="q-help" id="fluHelp">🎤 <b>음성으로 시작</b>을 누르면 어르신 말씀을 알아듣고 자동으로 세어 줍니다.<br>마이크가 안 되면 <b>손으로 세기</b>로 시작하세요.</p>
+    <div class="flu-timer" id="fluTimer">60초</div>
+    <div class="flu-count" id="fluCount">0</div>
+    <div id="fluWords" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:30px;margin-bottom:6px"></div>
+    <button class="btn btn-main" id="fluBtn" onclick="fluTap()" style="min-height:96px;font-size:1.5rem">동물 이름 하나! +1<br><span style="font-size:.85rem;font-weight:500">(못 알아들었을 때 눌러 주세요)</span></button>
+    <div class="two">
+      <button class="btn btn-ok" id="fluStartMic" onclick="fluStart('mic')" style="margin-top:14px">🎤 음성으로 시작</button>
+      <button class="btn btn-line" id="fluStart" onclick="fluStart('hand')" style="margin-top:14px">👆 손으로 세기 시작</button>
+    </div>
+    <button class="btn btn-ok" id="fluDone" onclick="fluFinish()" style="display:none">끝내기 → 결과 보기</button>
+    <p class="footer-note" id="fluPriv" style="display:none">※ 음성 세기는 브라우저의 인터넷 음성인식을 사용합니다(동물 이름만 인식·저장 안 함).</p>
+  </div>
+</section>
+
+<!-- ⑪ 결과 -->
+<section class="scr" id="s-result">
+  <div class="aud-tabs no-print">
+    <button id="tab-self" class="on" onclick="renderResult('self')">👴 본인용</button>
+    <button id="tab-family" onclick="renderResult('family')">👪 보호자용</button>
+    <button id="tab-staff" onclick="renderResult('staff')">🧑‍⚕️ 복지사용</button>
+  </div>
+  <div id="resultHost"></div>
+  <div class="two no-print" style="margin-top:6px">
+    <button class="btn btn-line" style="margin-top:0" onclick="window.print()">🖨 인쇄</button>
+    <button class="btn btn-main" style="margin-top:0" onclick="location.reload()">처음으로</button>
+  </div>
+</section>
+
+<!-- 기록 -->
+<section class="scr" id="s-history">
+  <div class="card">
+    <div class="q-text">지난 기록</div>
+    <div id="histHost" style="margin-top:12px"></div>
+    <button class="btn btn-line" onclick="go('s-home')">돌아가기</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+"use strict";
+/* =====================================================
+   맘(MOM) v1.1 — 오프라인 인지건강 선별 (외부 전송 없음)
+   ===================================================== */
+var $=function(s){return document.querySelector(s);};
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+/* ---------- 음성(TTS) ---------- */
+var voiceOn=true;
+function say(t){
+  if(!voiceOn) return;
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(t);
+    u.lang='ko-KR'; u.rate=.72; u.pitch=1;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function toggleVoice(){
+  voiceOn=!voiceOn;
+  var b=$('#voiceBtn');
+  b.classList.toggle('on',voiceOn);
+  b.textContent=voiceOn?'🔊 음성 켬':'🔇 음성 끔';
+  if(!voiceOn){ try{speechSynthesis.cancel();}catch(e){} }
+}
+
+/* ---------- 화면 전환 ---------- */
+var FLOW=['s-home','s-consent','s-info','s-words','s-orient','s-naming','s-calc','s-smcq','s-obs-ask','s-nc','s-cdt','s-recall','s-flu','s-result'];
+var SAY_ON_SHOW={
+ 's-consent':'검사를 시작하기 전에 안내드립니다. 이 검사는 두뇌 건강을 미리 살펴보는 참고용입니다. 결과는 이 기기에만 저장됩니다.',
+ 's-info':'어떻게 불러드릴까요? 이름이나 별명을 적고, 연세와 학력을 골라 주세요.',
+ 's-words':'지금 보여드리는 세 단어를 꼭 기억해 주세요. 나무. 자동차. 모자.',
+ 's-nc':'집중력 놀이입니다. 일부터 팔까지 순서대로 눌러 주세요.',
+ 's-cdt':'시계 그리기입니다. 동그란 시계를 그리고 숫자를 넣은 다음, 열한시 십분이 되게 바늘을 그려 주세요.',
+ 's-recall':'아까 기억해 달라고 한 세 단어는 무엇이었나요? 아래에서 세 개를 골라 주세요.',
+ 's-flu':'일 분 동안 동물 이름을 아는 대로 말씀해 주세요. 준비되면 시작 단추를 눌러 주세요.'
+};
+var C_TEXT='이 검사는 두뇌 건강을 미리 살펴보는 참고용입니다. 결과는 이 기기에만 저장되고 외부로 보내지 않습니다. 결과가 걱정되시면 치매안심센터 전화 일팔구구 구구팔팔에서 무료 정밀검사를 받으실 수 있습니다.';
+function go(id){
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});
+  var el=document.getElementById(id); if(el) el.classList.add('on');
+  var i=FLOW.indexOf(id);
+  $('#progBar').style.width=(i<=0?0:Math.round(i/(FLOW.length-1)*100))+'%';
+  window.scrollTo(0,0);
+  if(SAY_ON_SHOW[id]) say(SAY_ON_SHOW[id]);
+  if(id==='s-nc') ncInit();
+  if(id==='s-cdt') cdtInit();
+  if(id==='s-recall') recallInit();
+}
+function startConsent(){ go('s-consent'); }
+
+/* ---------- 상태 ---------- */
+var R={ name:'', age:70, edu:1,
+        orient:0, orientMax:4,
+        naming:0, calc:0,
+        smcq:0, obs:null,          /* obs: null=미실시, 숫자=KDSQ식 점수 */
+        ncTime:null, ncErr:0,
+        cdtAuto:0, cdtEval:0,      /* 자동 0-3 + 확인 0-3 = 0-6 */
+        recall:0, flu:0 };
+/* ---------- 이어하기(자동 저장) ---------- */
+function saveSess(stage){
+  try{ localStorage.setItem('mom_sess', JSON.stringify({R:R, stage:stage, oIdx:oIdx,oScore:oScore, nmIdx:nmIdx,nmScore:nmScore, ccIdx:ccIdx,ccScore:ccScore, sIdx:sIdx,sScore:sScore, obIdx:obIdx,obScore:obScore, t:Date.now()})); }catch(e){}
+}
+function clearSess(){ try{ localStorage.removeItem('mom_sess'); }catch(e){} }
+function resumeSess(){
+  var s=null; try{ s=JSON.parse(localStorage.getItem('mom_sess')||'null'); }catch(e){}
+  if(!s||!s.stage){ go('s-home'); return; }
+  Object.assign(R,s.R||{});
+  oIdx=s.oIdx||0; oScore=s.oScore||0; nmIdx=s.nmIdx||0; nmScore=s.nmScore||0;
+  ccIdx=s.ccIdx||0; ccScore=s.ccScore||0; sIdx=s.sIdx||0; sScore=s.sScore||0;
+  obIdx=s.obIdx||0; obScore=s.obScore||0;
+  var st=s.stage;
+  if(st==='s-orient'){ window._keepIdx=true; go('s-orient'); return; }
+  if(st==='s-naming'){ goRaw('s-naming'); drawNaming(); return; }
+  if(st==='s-calc'){ goRaw('s-calc'); drawCalc(); return; }
+  if(st==='s-smcq'){ goRaw('s-smcq'); drawSmcq(); return; }
+  if(st==='s-obs'){ goRaw('s-obs'); drawObs(); return; }
+  go(st);
+}
+
+/* ---------- 기본 정보 ---------- */
+document.querySelectorAll('.choice[data-g]').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.choice[data-g="'+b.dataset.g+'"]').forEach(function(x){x.classList.remove('sel');});
+    b.classList.add('sel');
+  });
+});
+function infoNext(){
+  var a=document.querySelector('.choice[data-g="age"].sel');
+  var e=document.querySelector('.choice[data-g="edu"].sel');
+  if(!a||!e){ alert('연세와 학력을 골라 주세요.'); return; }
+  R.name=($('#pName').value||'').trim()||'어르신';
+  R.age=parseInt(a.dataset.v,10); R.edu=parseInt(e.dataset.v,10);
+  go('s-words');
+}
+
+/* ---------- ④ 지남력 (연도·월·요일·계절) ---------- */
+var oIdx=0,oScore=0,oQs=[];
+function buildOrient(keep){
+  var now=new Date();
+  var y=now.getFullYear(), m=now.getMonth()+1, d=now.getDay();
+  var days=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+  var season=(m>=3&&m<=5)?'봄':(m>=6&&m<=8)?'여름':(m>=9&&m<=11)?'가을':'겨울';
+  function shuffle(arr){arr=arr.slice();for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t;}return arr;}
+  oQs=[
+    {q:'올해는 몇 년도인가요?', a:String(y), c:shuffle([String(y-2),String(y-1),String(y),String(y+1)])},
+    {q:'지금은 몇 월인가요?', a:m+'월', c:shuffle([((m+10)%12+1)+'월', ((m+11)%12+1)+'월', m+'월', (m%12+1)+'월'])},
+    {q:'오늘은 무슨 요일인가요?', a:days[d], c:shuffle([days[d],days[(d+2)%7],days[(d+4)%7],days[(d+5)%7]])},
+    {q:'지금 계절은 무엇인가요?', a:season, c:shuffle(['봄','여름','가을','겨울'])}
+  ];
+  if(!keep){ oIdx=0; oScore=0; }
+  drawOrient();
+}
+function drawOrient(){
+  var host=$('#orientHost');
+  saveSess('s-orient');
+  if(oIdx>=oQs.length){ R.orient=oScore; goRaw('s-naming'); drawNaming(); return; }
+  var q=oQs[oIdx];
+  var h='<div class="card"><div class="q-num">날짜 확인 '+(oIdx+1)+' / '+oQs.length+'</div>'
+    +'<div class="q-text">'+esc(q.q)+'</div><div class="two" style="margin-top:16px">';
+  q.c.forEach(function(c){ h+='<button class="choice" data-a="'+esc(c)+'">'+esc(c)+'</button>'; });
+  h+='</div><button class="hear" onclick="say(\''+q.q.replace(/'/g,'')+'\')">🔊 다시 듣기</button></div>';
+  host.innerHTML=h;
+  say(q.q);
+  host.querySelectorAll('.choice').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(b.dataset.a===q.a) oScore++;
+      oIdx++; drawOrient();
+    });
+  });
+}
+
+/* ---------- ④-2 이름대기 (명명 · 4문항) ---------- */
+var NAMING=[
+ {e:'☂️', a:'우산', c:['우산','장화','부채','지팡이']},
+ {e:'✂️', a:'가위', c:['칼','가위','바늘','빗']},
+ {e:'👓', a:'안경', c:['거울','컵','안경','단추']},
+ {e:'🍉', a:'수박', c:['호박','참외','사과','수박']}
+];
+var nmIdx=0,nmScore=0;
+function drawNaming(){
+  var host=$('#namingHost');
+  saveSess('s-naming');
+  if(nmIdx>=NAMING.length){ R.naming=nmScore; goRaw('s-calc'); drawCalc(); return; }
+  var q=NAMING[nmIdx];
+  var h='<div class="card" style="text-align:center"><div class="q-num">이름 맞히기 '+(nmIdx+1)+' / '+NAMING.length+'</div>'
+    +'<div style="font-size:6rem;line-height:1.2;margin:10px 0">'+q.e+'</div>'
+    +'<div class="q-text" style="font-size:1.35rem">이것의 이름은 무엇인가요?</div>'
+    +'<div class="two" style="margin-top:16px">';
+  q.c.forEach(function(c){ h+='<button class="choice" data-a="'+esc(c)+'">'+esc(c)+'</button>'; });
+  h+='</div></div>';
+  host.innerHTML=h;
+  say('이것의 이름은 무엇인가요?');
+  host.querySelectorAll('.choice').forEach(function(b){
+    b.addEventListener('click',function(){ if(b.dataset.a===q.a) nmScore++; nmIdx++; drawNaming(); });
+  });
+}
+
+/* ---------- ④-3 계산 (일상 잔돈 · 3문항) ---------- */
+var CALCQ=[
+ {q:'1,000원을 내고 700원짜리 물건을 사면\n거스름돈은 얼마인가요?', a:'300원', c:['200원','300원','400원','700원']},
+ {q:'500원짜리 동전 두 개는\n모두 얼마인가요?', a:'1,000원', c:['500원','1,000원','1,500원','2,000원']},
+ {q:'1,000원짜리 지폐 세 장은\n모두 얼마인가요?', a:'3,000원', c:['2,000원','3,000원','4,000원','5,000원']}
+];
+var ccIdx=0,ccScore=0;
+function drawCalc(){
+  var host=$('#calcHost');
+  saveSess('s-calc');
+  if(ccIdx>=CALCQ.length){ R.calc=ccScore; goRaw('s-smcq'); drawSmcq(); return; }
+  var q=CALCQ[ccIdx];
+  var h='<div class="card"><div class="q-num">돈 계산 '+(ccIdx+1)+' / '+CALCQ.length+'</div>'
+    +'<div class="q-text" style="font-size:1.4rem;white-space:pre-line">'+esc(q.q)+'</div>'
+    +'<div class="two" style="margin-top:16px">';
+  q.c.forEach(function(c){ h+='<button class="choice" data-a="'+esc(c)+'">'+esc(c)+'</button>'; });
+  h+='</div><button class="hear" onclick="say(CALCQ[ccIdx].q.replace(/\\n/g,\' \'))">🔊 다시 듣기</button></div>';
+  host.innerHTML=h;
+  say(q.q.replace(/\n/g,' '));
+  host.querySelectorAll('.choice').forEach(function(b){
+    b.addEventListener('click',function(){ if(b.dataset.a===q.a) ccScore++; ccIdx++; drawCalc(); });
+  });
+}
+
+/* ---------- ⑤ 자가 설문 (SMCQ 방식 · 자체 문구 14문항) ---------- */
+var SMCQ=[
+ '요즘 기억력이 예전보다 나빠졌다고 느끼십니까?',
+ '기억력이 같은 나이 다른 분들보다 나쁘다고 느끼십니까?',
+ '기억이 나빠져서 일상생활이 불편하십니까?',
+ '최근에 있었던 일을 잊어버릴 때가 있습니까?',
+ '며칠 전에 나눈 대화 내용을 잊을 때가 있습니까?',
+ '며칠 전에 한 약속을 잊을 때가 있습니까?',
+ '친한 사람의 이름이 금방 떠오르지 않을 때가 있습니까?',
+ '물건 둔 곳을 몰라서 찾아다닐 때가 있습니까?',
+ '하려던 말이 금방 생각나지 않을 때가 있습니까?',
+ '물건이나 사람 이름이 금방 떠오르지 않아 답답할 때가 있습니까?',
+ '가스불이나 전깃불 끄는 것을 잊을 때가 있습니까?',
+ '자주 쓰는 전화번호(가족 번호)를 잊을 때가 있습니까?',
+ '같은 이야기를 반복한다는 말을 들은 적이 있습니까?',
+ '길을 잃거나 헤맨 적이 있습니까?'
+];
+var sIdx=0,sScore=0;
+function drawSmcq(){
+  var host=$('#smcqHost');
+  saveSess('s-smcq');
+  if(sIdx>=SMCQ.length){ R.smcq=sScore; go('s-obs-ask'); say('보호자나 도우미가 함께 계신가요?'); return; }
+  var q=SMCQ[sIdx];
+  host.innerHTML='<div class="card"><div class="q-num">여쭤봅니다 '+(sIdx+1)+' / '+SMCQ.length+'</div>'
+    +'<div class="q-text" style="font-size:1.45rem">'+esc(q)+'</div>'
+    +'<div class="two" style="margin-top:18px">'
+    +'<button class="choice" id="smY">예</button>'
+    +'<button class="choice" id="smN">아니요</button></div>'
+    +'<button class="hear" onclick="say(SMCQ[sIdx])">🔊 다시 듣기</button></div>';
+  say(q);
+  $('#smY').onclick=function(){ sScore++; sIdx++; drawSmcq(); };
+  $('#smN').onclick=function(){ sIdx++; drawSmcq(); };
+}
+
+/* ---------- ⑥ 보호자 관찰 (KDSQ 방식 · 자체 문구 10문항 · 3점 척도) ---------- */
+var OBS=[
+ '오늘이 몇 월 며칠인지 잘 모르십니다',
+ '자기가 놓아둔 물건을 찾지 못하십니다',
+ '같은 질문을 반복해서 하십니다',
+ '약속을 하고 잊어버리십니다',
+ '물건이나 사람 이름을 대기 힘들어 말이 막히십니다',
+ '대화 중 내용을 이해하지 못해 되물으십니다',
+ '길을 잃거나 헤맨 적이 있습니다',
+ '예전보다 계산 능력이 떨어졌습니다(돈 관리·거스름돈)',
+ '예전에 잘 다루던 기구(전화기·리모컨) 사용이 서투르십니다',
+ '옷 입기·씻기 등 몸단장이 예전보다 서투르십니다'
+];
+var obIdx=0,obScore=0;
+function startObs(){ obIdx=0; obScore=0; go('s-obs'); drawObs(); }
+function skipObs(){ R.obs=null; go('s-nc'); }
+function drawObs(){
+  var host=$('#obsHost');
+  saveSess('s-obs');
+  if(obIdx>=OBS.length){ R.obs=obScore; go('s-nc'); return; }
+  var q=OBS[obIdx];
+  host.innerHTML='<div class="card"><div class="q-num">보호자 관찰 '+(obIdx+1)+' / '+OBS.length+' <span style="color:var(--ink2);font-weight:400">(최근 6개월 기준)</span></div>'
+    +'<div class="q-text" style="font-size:1.35rem">'+esc(q)+'</div>'
+    +'<div class="three" style="margin-top:18px">'
+    +'<button class="choice" data-p="0">아니다</button>'
+    +'<button class="choice" data-p="1">가끔<br>그렇다</button>'
+    +'<button class="choice" data-p="2">자주<br>그렇다</button></div></div>';
+  host.querySelectorAll('.choice').forEach(function(b){
+    b.addEventListener('click',function(){ obScore+=parseInt(b.dataset.p,10); obIdx++; drawObs(); });
+  });
+}
+
+/* ---------- ⑦ 숫자 잇기 ---------- */
+var ncNext=1,ncStart=0,ncPhase='prac';
+function ncLayout(count){
+  var area=$('#nc-area'); area.innerHTML='';
+  var cells=[]; for(var r=0;r<2;r++)for(var c=0;c<4;c++)cells.push([r,c]);
+  for(var i=cells.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=cells[i];cells[i]=cells[j];cells[j]=t;}
+  var W=area.clientWidth||600, H=area.clientHeight||400;
+  var cw=W/4, ch=H/2, dot=72;
+  for(var n=1;n<=count;n++){
+    var cell=cells[n-1];
+    var x=cell[1]*cw+(cw-dot)/2+(Math.random()*24-12);
+    var y=cell[0]*ch+(ch-dot)/2+(Math.random()*24-12);
+    x=Math.max(4,Math.min(W-dot-4,x)); y=Math.max(4,Math.min(H-dot-4,y));
+    var d=document.createElement('div');
+    d.className='nc-dot'; d.textContent=n; d.style.left=x+'px'; d.style.top=y+'px';
+    d.dataset.n=n;
+    d.addEventListener('click',ncTap);
+    area.appendChild(d);
+  }
+}
+function ncInit(){
+  saveSess('s-nc');
+  ncPhase='prac'; ncNext=1;
+  ncLayout(3);
+  $('#nc-msg').textContent='연습이에요! 1, 2, 3을 차례로 눌러 보세요';
+  say('먼저 연습이에요. 일, 이, 삼을 차례로 눌러 보세요.');
+}
+function ncStartMain(){
+  ncPhase='main'; ncNext=1; R.ncErr=0; ncStart=Date.now();
+  ncLayout(8);
+  $('#nc-msg').textContent='이제 진짜예요! 1번부터 8번까지';
+  say('잘하셨어요. 이제 진짜예요. 일부터 팔까지 순서대로 눌러 주세요.');
+}
+function ncTap(e){
+  var d=e.currentTarget, n=parseInt(d.dataset.n,10);
+  var last=(ncPhase==='prac')?3:8;
+  if(n===ncNext){
+    d.classList.add('done'); d.style.pointerEvents='none';
+    ncNext++;
+    if(ncNext>last){
+      if(ncPhase==='prac'){ setTimeout(ncStartMain,700); return; }
+      R.ncTime=Math.round((Date.now()-ncStart)/100)/10;
+      $('#nc-msg').textContent='잘하셨습니다! ('+R.ncTime+'초)';
+      say('잘하셨습니다');
+      setTimeout(function(){ go('s-cdt'); },900);
+    } else { $('#nc-msg').textContent=ncNext+'번을 눌러 주세요'; }
+  } else {
+    if(ncPhase==='main') R.ncErr++;
+    d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
+    $('#nc-msg').textContent='앗, '+ncNext+'번부터예요!';
+  }
+}
+
+/* ---------- ⑧ 시계 그리기 ---------- */
+var cdtCv,cdtCx,cdtStrokes=[],cdtCur=null,cdtInited=false;
+function cdtInit(){
+  cdtCv=$('#cdt');
+  var w=cdtCv.parentElement.clientWidth-20; if(w<280)w=280; if(w>640)w=640;
+  cdtCv.width=w; cdtCv.height=w; cdtCv.style.width=w+'px'; cdtCv.style.height=w+'px';
+  cdtCx=cdtCv.getContext('2d');
+  cdtClear();
+  if(cdtInited) return; cdtInited=true;
+  cdtCv.addEventListener('pointerdown',function(e){
+    e.preventDefault(); cdtCv.setPointerCapture(e.pointerId);
+    cdtCur=[pt(e)];
+  });
+  cdtCv.addEventListener('pointermove',function(e){
+    if(!cdtCur) return;
+    var p=pt(e); cdtCur.push(p);
+    var n=cdtCur.length;
+    cdtCx.strokeStyle='#2b2b28'; cdtCx.lineWidth=3.5; cdtCx.lineCap='round';
+    cdtCx.beginPath(); cdtCx.moveTo(cdtCur[n-2].x,cdtCur[n-2].y); cdtCx.lineTo(p.x,p.y); cdtCx.stroke();
+  });
+  function up(){ if(cdtCur&&cdtCur.length>1) cdtStrokes.push(cdtCur); cdtCur=null; }
+  cdtCv.addEventListener('pointerup',up);
+  cdtCv.addEventListener('pointercancel',up);
+  function pt(e){ var r=cdtCv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+}
+function cdtClear(){
+  cdtStrokes=[]; cdtCur=null;
+  cdtCx.fillStyle='#fffdf9'; cdtCx.fillRect(0,0,cdtCv.width,cdtCv.height);
+}
+/* 자동 채점(보조 지표 0-3): ①그림 있음 ②테두리 원형성 ③중심 바늘 후보 2개 */
+function cdtAutoScore(){
+  var pts=[]; cdtStrokes.forEach(function(s){ s.forEach(function(p){pts.push(p);}); });
+  if(pts.length<12) return {score:0, cov:0, hands:0};
+  var cx=0,cy=0; pts.forEach(function(p){cx+=p.x;cy+=p.y;}); cx/=pts.length; cy/=pts.length;
+  var maxR=0; pts.forEach(function(p){ var r=Math.hypot(p.x-cx,p.y-cy); if(r>maxR)maxR=r; });
+  if(maxR<30) return {score:1, cov:0, hands:0};
+  /* 바깥 테두리 각도 커버리지(24구간) */
+  var sect=new Array(24).fill(0);
+  pts.forEach(function(p){
+    var r=Math.hypot(p.x-cx,p.y-cy);
+    if(r>maxR*0.62){ var a=Math.atan2(p.y-cy,p.x-cx); var k=Math.floor(((a+Math.PI)/(2*Math.PI))*24)%24; sect[k]=1; }
+  });
+  var cov=sect.reduce(function(a,b){return a+b;},0)/24;
+  /* 바늘 후보: 중심 근처(<0.3R)에서 시작·통과하고 0.45R 이상 뻗는 선 */
+  var hands=0;
+  cdtStrokes.forEach(function(s){
+    var nearC=false,far=false;
+    s.forEach(function(p){ var r=Math.hypot(p.x-cx,p.y-cy); if(r<maxR*0.3)nearC=true; if(r>maxR*0.45)far=true; });
+    if(nearC&&far&&s.length<200) hands++;
+  });
+  var score=1+(cov>=0.72?1:0)+(hands>=2?1:0);
+  return {score:score, cov:Math.round(cov*100), hands:hands};
+}
+var cdtAutoDetail={score:0,cov:0,hands:0};
+function cdtDone(){
+  if(cdtStrokes.length===0){ alert('시계를 그려 주세요.'); return; }
+  cdtAutoDetail=cdtAutoScore();
+  R.cdtAuto=cdtAutoDetail.score;
+  $('#cdt-thumb').src=cdtCv.toDataURL('image/png');
+  document.querySelectorAll('#cdt-ovl .chk').forEach(function(c){c.classList.remove('sel');});
+  $('#cdt-ovl').classList.add('on');
+}
+document.querySelectorAll('#cdt-ovl .chk').forEach(function(c){
+  c.addEventListener('click',function(){ c.classList.toggle('sel'); });
+});
+function cdtConfirm(){
+  R.cdtEval=document.querySelectorAll('#cdt-ovl .chk.sel').length;
+  $('#cdt-ovl').classList.remove('on');
+  go('s-recall');
+}
+
+/* ---------- ⑨ 지연 회상 ---------- */
+var RC_T=['나무','자동차','모자'], RC_D=['바다','연필','시계'];
+var rcSel=[];
+function recallInit(){
+  rcSel=[];
+  var all=RC_T.concat(RC_D);
+  for(var i=all.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=all[i];all[i]=all[j];all[j]=t;}
+  var h=''; all.forEach(function(w){ h+='<button class="choice" data-w="'+w+'" style="font-size:1.45rem;padding:22px 6px">'+w+'</button>'; });
+  $('#recallBox').innerHTML=h;
+  document.querySelectorAll('#recallBox .choice').forEach(function(b){
+    b.addEventListener('click',function(){
+      var w=b.dataset.w, i=rcSel.indexOf(w);
+      if(i>=0){ rcSel.splice(i,1); b.classList.remove('sel'); }
+      else { if(rcSel.length>=3){ say('세 개까지만 고를 수 있어요'); return; } rcSel.push(w); b.classList.add('sel'); }
+    });
+  });
+}
+function recallDone(){
+  if(rcSel.length===0){ alert('생각나는 단어를 골라 주세요. 모르시면 아무거나 골라도 됩니다.'); return; }
+  var s=0; rcSel.forEach(function(w){ if(RC_T.indexOf(w)>=0)s++; });
+  R.recall=s;
+  go('s-flu');
+}
+
+/* ---------- ⑩ 언어 유창성 (음성 자동 세기 + 손 세기 폴백) ---------- */
+var fluManual=0,fluLeft=60,fluTimer=null,fluRun=false,fluRecog=null,fluMode='hand';
+var fluHeard={}; /* 음성으로 인식한 동물(중복 제거) */
+/* 한국어 동물 사전 — 2글자 이상은 포함 매칭, 1글자(개·소·양·말·곰·닭·쥐·게·매·학·꿩)는 단독 단어만 */
+var ANIMALS2=['강아지','고양이','돼지','오리','토끼','호랑이','사자','코끼리','기린','원숭이','여우','늑대','사슴','염소','다람쥐','개구리','거북이','거북','물고기','고래','상어','문어','오징어','새우','참새','비둘기','까치','까마귀','독수리','부엉이','올빼미','제비','두루미','갈매기','펭귄','타조','낙타','하마','코뿔소','악어','판다','고릴라','침팬지','캥거루','코알라','박쥐','고슴도치','두더지','너구리','오소리','멧돼지','노루','표범','치타','얼룩말','당나귀','물소','순록','붕어','잉어','메기','장어','연어','고등어','갈치','멸치','나비','꿀벌','개미','잠자리','메뚜기','귀뚜라미','매미','거미','지렁이','달팽이','병아리','송아지','망아지','앵무새','공작','백조','거위','칠면조','족제비','수달','물개','바다표범','돌고래','북극곰','반달곰','살쾡이','스라소니','두꺼비','도마뱀','이구아나','전갈','불가사리','해파리','소라','조개','가재','도롱뇽','두더쥐','참치','꽁치','명태','도미','광어','우럭'];
+var ANIMALS1=['개','소','양','말','곰','닭','쥐','게','매','학','꿩','벌','뱀'];
+function fluMatch(text){
+  var found=[];
+  var norm=text.replace(/\s+/g,' ').trim();
+  ANIMALS2.forEach(function(a){ if(norm.indexOf(a)>=0 && !fluHeard[a]){ fluHeard[a]=1; found.push(a); } });
+  norm.split(/[ ,.!?]+/).forEach(function(tok){ if(ANIMALS1.indexOf(tok)>=0 && !fluHeard[tok]){ fluHeard[tok]=1; found.push(tok); } });
+  return found;
+}
+function fluTotal(){ return Object.keys(fluHeard).length + fluManual; }
+function fluAddChip(w){
+  var box=$('#fluWords'); var c=document.createElement('span');
+  c.style.cssText='background:var(--okbg);color:var(--ok);border-radius:999px;padding:4px 12px;font-size:1rem;font-weight:800';
+  c.textContent=w; box.appendChild(c);
+}
+function fluStart(mode){
+  if(fluRun) return;
+  fluMode=mode||'hand';
+  fluRun=true; fluManual=0; fluHeard={}; fluLeft=60;
+  $('#fluCount').textContent='0'; $('#fluWords').innerHTML='';
+  $('#fluStart').style.display='none'; $('#fluStartMic').style.display='none'; $('#fluDone').style.display='none';
+  if(fluMode==='mic'){
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){
+      alert('이 브라우저는 음성 인식을 지원하지 않아 손으로 세기로 진행합니다.\n(크롬 브라우저 권장)');
+      fluMode='hand';
+    } else {
+      try{
+        fluRecog=new SR();
+        fluRecog.lang='ko-KR'; fluRecog.continuous=true; fluRecog.interimResults=true;
+        fluRecog.onresult=function(ev){
+          var txt='';
+          for(var i=ev.resultIndex;i<ev.results.length;i++){ txt+=ev.results[i][0].transcript+' '; }
+          fluMatch(txt).forEach(function(w){ fluAddChip(w); });
+          $('#fluCount').textContent=String(fluTotal());
+        };
+        fluRecog.onerror=function(ev){
+          if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){
+            alert('마이크 사용이 허용되지 않았습니다.\n주소창의 마이크 아이콘에서 허용하거나, 손으로 세기로 진행하세요.');
+            fluMode='hand';
+          }
+        };
+        fluRecog.onend=function(){ if(fluRun&&fluMode==='mic'){ try{fluRecog.start();}catch(e){} } };
+        fluRecog.start();
+        $('#fluPriv').style.display='block';
+        $('#fluHelp').innerHTML='🎤 <b>듣고 있어요!</b> 동물 이름을 또박또박 말씀해 주세요.<br>알아들으면 아래에 초록 이름표가 붙습니다. 못 알아들으면 큰 단추로 세어 주세요.';
+      }catch(e){ fluMode='hand'; }
+    }
+  }
+  if(fluMode==='hand'){
+    $('#fluHelp').innerHTML='도우미: 어르신이 동물 이름을 말할 때마다 아래 큰 단추를 눌러 세어 주세요.';
+  }
+  say('시작! 동물 이름을 말씀해 주세요.');
+  fluTimer=setInterval(function(){
+    fluLeft--;
+    var t=$('#fluTimer'); t.textContent=fluLeft+'초';
+    if(fluLeft<=10) t.classList.add('hot');
+    if(fluLeft<=0){
+      clearInterval(fluTimer); fluRun=false;
+      if(fluRecog){ try{fluRecog.stop();}catch(e){} }
+      $('#fluTimer').textContent='끝!';
+      $('#fluDone').style.display='block';
+      say('수고하셨습니다. 끝내기 단추를 눌러 주세요.');
+    }
+  },1000);
+}
+function fluTap(){
+  if(!fluRun){ say('먼저 시작 단추를 눌러 주세요'); return; }
+  fluManual++; $('#fluCount').textContent=String(fluTotal());
+}
+function fluFinish(){
+  if(fluTimer){ clearInterval(fluTimer); }
+  if(fluRecog){ try{fluRecog.onend=null; fluRecog.stop();}catch(e){} fluRecog=null; }
+  fluRun=false;
+  R.flu=fluTotal();
+  judge(); saveHistory();
+  go('s-result'); renderResult('self');
+}
+
+/* ---------- 판정 ---------- */
+var J={level:'',flags:[],domains:{}};
+function cutFlu(){ /* 연령·학력 보정 동물 유창성 컷오프 */
+  var base=(R.age>=90)?7:(R.age>=80)?8:(R.age>=70)?9:10;
+  if(R.edu===0) base-=2; else if(R.edu===1) base-=1;
+  return Math.max(5,base);
+}
+function cutNc(){ var t=(R.age>=80||R.edu===0)?75:60; return t; }
+function judge(){
+  var flags=[];
+  if(R.recall<=1) flags.push('기억(회상 '+R.recall+'/3)');
+  if(R.orient<=2) flags.push('지남력('+R.orient+'/4)');
+  if(R.cdtAuto+R.cdtEval<=2) flags.push('시공간(시계 '+(R.cdtAuto+R.cdtEval)+'/6)');
+  if((R.ncTime!==null&&R.ncTime>cutNc())||R.ncErr>=3) flags.push('주의·속도('+(R.ncTime||'-')+'초, 오류 '+R.ncErr+')');
+  if(R.flu<cutFlu()) flags.push('언어 유창성(동물 '+R.flu+'개)');
+  if(R.naming<=1) flags.push('이름대기('+R.naming+'/4)');
+  if(R.calc<=1) flags.push('계산('+R.calc+'/3)');
+  var smcqHigh=R.smcq>=6, obsHigh=(R.obs!==null&&R.obs>=6);
+  var lv;
+  if(flags.length>=2) lv='high';
+  else if(flags.length===1) lv=(smcqHigh||obsHigh)?'high':'mid';
+  else lv=(smcqHigh||obsHigh)?'mid':'good';
+  J.level=lv; J.flags=flags;
+  /* 영역 점수(레이더 0-100) */
+  var langScore=Math.round((Math.min(100,R.flu/(cutFlu()+6)*100)+R.naming/4*100)/2);
+  J.domains={
+    '기억력':Math.round(R.recall/3*100),
+    '지남력':Math.round(R.orient/4*100),
+    '시공간':Math.round((R.cdtAuto+R.cdtEval)/6*100),
+    '주의·속도':(function(){ if(R.ncTime===null)return 0; var t=R.ncTime; var s=t<=25?100:t<=40?85:t<=55?70:t<=75?50:30; s-=R.ncErr*8; return Math.max(10,Math.min(100,s)); })(),
+    '언어':langScore,
+    '계산':Math.round(R.calc/3*100)
+  };
+  /* 종합점수(가중 평균 0-100): 기억25 지남15 시공간20 주의15 언어15 계산10 */
+  var w={'기억력':25,'지남력':15,'시공간':20,'주의·속도':15,'언어':15,'계산':10}, tot=0;
+  Object.keys(w).forEach(function(k){ tot+=J.domains[k]*w[k]; });
+  J.total=Math.round(tot/100);
+  clearSess(); /* 완료 → 이어하기 세션 삭제 */
+}
+
+/* ---------- 결과 렌더 ---------- */
+var LV_INFO={
+ good:{cls:'lv-good',t:'양호',self:'아주 잘하셨습니다!\n두뇌 건강이 잘 유지되고 있어요.',ds:'현재 큰 저하 신호는 보이지 않습니다.'},
+ mid:{cls:'lv-mid',t:'관심 필요',self:'잘하셨습니다.\n몇 가지는 조금 더 살펴보면 좋겠어요.',ds:'일부 영역에서 가벼운 저하 신호가 있어 생활 관리와 6개월 내 재확인을 권합니다.'},
+ high:{cls:'lv-high',t:'상담 권장',self:'수고하셨습니다.\n전문 선생님과 한번 상담해 보시면 좋겠어요.',ds:'두 가지 이상 영역에서 저하 신호가 있어 치매안심센터 무료 정밀검사를 권합니다.'}
+};
+var TIPS={
+ good:['걷기 등 가벼운 운동을 매일 30분 해 보세요.','친구분들과 자주 이야기 나누세요.','1년에 한 번 이 확인을 다시 해 보세요.'],
+ mid:['생선·채소·견과류를 자주 드세요.','화투·바둑·퍼즐 같은 두뇌 놀이를 즐기세요.','6개월 뒤 이 확인을 꼭 다시 해 보세요.'],
+ high:['가까운 치매안심센터에서 무료 정밀검사를 받아 보세요.','보호자와 결과지를 함께 보시고 상담 일정을 잡아 보세요.','혈압·혈당·청력 관리도 두뇌 건강에 중요합니다.']
+};
+function radarSVGCanvas(host,domains){
+  var names=Object.keys(domains), n=names.length;
+  var cv=document.createElement('canvas'); cv.id='radar';
+  var W=Math.min(420,(host.clientWidth||360)); cv.width=W; cv.height=W;
+  host.appendChild(cv);
+  var g=cv.getContext('2d'), cx=W/2, cy=W/2, R0=W*0.34;
+  g.strokeStyle='#ddd8cb'; g.fillStyle='#8a857a'; g.font='700 '+Math.round(W*0.038)+'px sans-serif'; g.textAlign='center';
+  for(var ring=1;ring<=4;ring++){
+    g.beginPath();
+    for(var i=0;i<=n;i++){ var a=-Math.PI/2+i/n*2*Math.PI, r=R0*ring/4;
+      var x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r; if(i===0)g.moveTo(x,y);else g.lineTo(x,y); }
+    g.stroke();
+  }
+  names.forEach(function(nm,i){
+    var a=-Math.PI/2+i/n*2*Math.PI;
+    g.fillText(nm, cx+Math.cos(a)*(R0+W*0.075), cy+Math.sin(a)*(R0+W*0.075)+5);
+  });
+  g.beginPath();
+  names.forEach(function(nm,i){
+    var a=-Math.PI/2+i/n*2*Math.PI, r=R0*(domains[nm]/100);
+    var x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r; if(i===0)g.moveTo(x,y);else g.lineTo(x,y);
+  });
+  g.closePath();
+  g.fillStyle='rgba(217,119,87,.25)'; g.fill();
+  g.strokeStyle='#c4623f'; g.lineWidth=2.5; g.stroke();
+}
+function renderResult(aud){
+  ['self','family','staff'].forEach(function(a){ $('#tab-'+a).classList.toggle('on',a===aud); });
+  var host=$('#resultHost'), L=LV_INFO[J.level], h='';
+  var today=new Date(); var ds=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var cdtSum=R.cdtAuto+R.cdtEval;
+  if(aud==='self'){
+    h='<div class="card" style="text-align:center">'
+     +'<div class="q-help">'+esc(R.name)+' · '+ds+'</div>'
+     +'<div class="level-box '+L.cls+'" style="margin-top:12px"><div class="lv">'+L.t+'</div>'
+     +'<div class="ds" style="white-space:pre-line;font-size:1.3rem;font-weight:700">'+L.self+'</div></div>'
+     +'<div class="q-text" style="font-size:1.3rem;text-align:left">이렇게 해 보세요</div>'
+     +'<ul class="tip-list" style="text-align:left">'+TIPS[J.level].map(function(t){return '<li>🌿 '+t+'</li>';}).join('')+'</ul>'
+     +(J.level==='high'?'<div class="center-box" style="text-align:left"><b>치매안심센터</b>에서 무료로 자세히 검사받을 수 있어요.<div class="tel">☎ 1899-9988</div>보건소에 물어보셔도 됩니다.</div>':'')
+     +'<button class="btn btn-ok no-print" onclick="location.href=\'mom-play.html\'">🎮 나에게 맞는 두뇌 놀이 하러 가기</button>'
+     +'</div>'
+     +'<div class="notice">이 결과는 건강 확인 참고용이며 의학적 진단이 아닙니다.</div>';
+    host.innerHTML=h;
+    say(L.self.replace(/\n/g,' '));
+  } else if(aud==='family'){
+    var pv=prevRecord();
+    h='<div class="card">'
+     +'<div class="q-num">보호자용 결과 안내</div>'
+     +'<div class="q-help">'+esc(R.name)+' · '+ds+' · 맘(MOM) 인지건강 확인'+(pv?(' · 지난 확인('+esc(pv.d)+')과 비교 표시'):'')+'</div>'
+     +'<div class="level-box '+L.cls+'"><div class="lv">'+L.t+'</div><div class="ds">참고용 종합점수 <b>'+J.total+'점</b>/100 · '+L.ds+'</div></div>'
+     +'<div id="radarHost" style="text-align:center"></div>'
+     +'<table class="dom-table"><tr><th>영역</th><th>결과</th>'+(pv?'<th>지난번과 비교</th>':'')+'</tr>'
+     +Object.keys(J.domains).map(function(k){ var v=J.domains[k]; var band=v>=70?'양호':v>=45?'보통':'관심'; var cmp=pv&&pv.dm?trendMark(v,pv.dm[k]):''; return '<tr><td>'+k+'</td><td>'+band+'</td>'+(pv?('<td>'+(cmp||'—')+'</td>'):'')+'</tr>'; }).join('')
+     +'</table>'
+     +'<div class="q-text" style="font-size:1.15rem;margin-top:18px">가정에서 도와주세요</div>'
+     +'<ul class="tip-list">'
+     +'<li>결과가 "관심"인 영역은 나무라기보다 <b>함께 하는 활동</b>(산책·대화·요리)으로 자연스럽게 자극해 주세요.</li>'
+     +'<li>'+(J.level==='high'?'가까운 <b>치매안심센터(☎ 1899-9988)</b> 무료 정밀검사를 예약해 주세요. 조기 발견이 가장 큰 선물입니다.':'6개월~1년 뒤 재확인을 달력에 표시해 주세요.')+'</li>'
+     +'<li>수면·청력·혈압 관리가 두뇌 건강과 직결됩니다. 정기 건강검진을 챙겨 주세요.</li>'
+     +'</ul>'
+     +'<button class="btn btn-line no-print" onclick="copyTxt(familyLetterText(),\'안내문이 복사되었습니다. 문자·카톡에 붙여넣으세요.\')">✉️ 가족에게 보낼 안내문 복사</button>'
+     +'</div>'
+     +'<div class="notice">본 결과는 선별 참고용입니다. 진단·치료 판단은 반드시 전문의와 상의하세요.</div>';
+    host.innerHTML=h;
+    radarSVGCanvas($('#radarHost'),J.domains);
+  } else {
+    var fl=J.flags;
+    h='<div class="card">'
+     +'<div class="q-num">복지사·도우미용 상세 결과</div>'
+     +'<div class="q-help">'+esc(R.name)+' · '+ds+' · 연령대 '+R.age+(R.age>=90?'세 이상':'대')+' · 학력 '+(R.edu===0?'무학':R.edu===1?'초등':'중등 이상')+'</div>'
+     +'<div class="level-box '+L.cls+'" style="padding:16px"><div class="lv" style="font-size:1.6rem">'+L.t+' · '+J.total+'점</div></div>'
+     +(function(){ var pv=prevRecord(); if(!pv||pv.tot==null) return ''; return '<div class="raw-kv"><span>지난 확인('+esc(pv.d)+') 종합점수</span><b>'+pv.tot+'점 → '+J.total+'점'+trendMark(J.total,pv.tot)+'</b></div>'; })()
+     +'<div class="raw-kv"><span>지연 회상 (3단어)</span><b>'+R.recall+' / 3'+(R.recall<=1?'<span class="flag">저하</span>':'')+'</b></div>'
+     +'<div class="raw-kv"><span>지남력 (연·월·요일·계절)</span><b>'+R.orient+' / 4'+(R.orient<=2?'<span class="flag">저하</span>':'')+'</b></div>'
+     +'<div class="raw-kv"><span>시계그리기 (자동 '+R.cdtAuto+' + 확인 '+R.cdtEval+')</span><b>'+cdtSum+' / 6'+(cdtSum<=2?'<span class="flag">저하</span>':'')+'</b></div>'
+     +'<div class="raw-kv"><span>숫자잇기 (기준 '+cutNc()+'초)</span><b>'+(R.ncTime===null?'-':R.ncTime+'초')+' · 오류 '+R.ncErr+((R.ncTime!==null&&R.ncTime>cutNc())||R.ncErr>=3?'<span class="flag">저하</span>':'')+'</b></div>'
+     +'<div class="raw-kv"><span>동물 유창성 (기준 '+cutFlu()+'개)</span><b>'+R.flu+'개'+(R.flu<cutFlu()?'<span class="flag">저하</span>':'')+'</b></div>'
+     +'<div class="raw-kv"><span>이름대기 (4문항)</span><b>'+R.naming+' / 4'+(R.naming<=1?'<span class="flag">저하</span>':'')+'</b></div>'
+     +'<div class="raw-kv"><span>돈 계산 (3문항)</span><b>'+R.calc+' / 3'+(R.calc<=1?'<span class="flag">저하</span>':'')+'</b></div>'
+     +'<div class="raw-kv"><span>주관 기억감퇴 설문 (기준 6)</span><b>'+R.smcq+' / 14'+(R.smcq>=6?'<span class="flag">높음</span>':'')+'</b></div>'
+     +'<div class="raw-kv"><span>보호자 관찰 설문 (기준 6)</span><b>'+(R.obs===null?'미실시':R.obs+' / 20'+(R.obs>=6?'<span class="flag">높음</span>':''))+'</b></div>'
+     +'<div class="raw-kv"><span>시계 자동지표</span><b>테두리 '+cdtAutoDetail.cov+'% · 바늘후보 '+cdtAutoDetail.hands+'</b></div>'
+     +'<div class="q-text" style="font-size:1.1rem;margin-top:18px">조치 안내 (SOP)</div>'
+     +'<ul class="tip-list" style="font-size:.98rem">'
+     +(J.level==='high'
+        ?'<li>① 본인·보호자에게 낙인 없이 안내: "더 정확한 무료 검사를 받아보자"는 표현 사용</li><li>② <b>치매안심센터(1899-9988)</b> 정밀검사 연계 — 관할 보건소 명단 확인</li><li>③ 연계 여부·일정을 기록하고 1개월 내 후속 확인</li>'
+        :J.level==='mid'
+        ?'<li>① 결과지 보호자 전달, 6개월 내 재검 일정 등록</li><li>② 주 1회 인지활동 프로그램 참여 권유</li><li>③ 청력·수면·우울 등 동반 요인 관찰</li>'
+        :'<li>① 연 1회 정기 재확인 안내</li><li>② 인지활동 프로그램 참여로 예방 유지</li>')
+     +'</ul>'
+     +'<button class="btn btn-line no-print" onclick="copyTxt(staffTSV(),\'대장용으로 복사되었습니다. 엑셀에 붙여넣으세요(탭 구분).\')">📋 대장용 복사 (엑셀)</button>'
+     +'</div>'
+     +'<div class="notice">본 도구는 선별 보조용입니다. 판정 문구를 진단으로 전달하지 마세요. 인쇄본에는 개인정보 취급에 유의하세요.</div>';
+    host.innerHTML=h;
+  }
+}
+
+/* ---------- 기록 (이 기기에만) ---------- */
+function saveHistory(){
+  try{
+    var arr=JSON.parse(localStorage.getItem('mom_hist')||'[]');
+    arr.unshift({d:new Date().toISOString().slice(0,10), n:R.name, lv:J.level, dm:J.domains, tot:J.total});
+    if(arr.length>50)arr.length=50;
+    localStorage.setItem('mom_hist',JSON.stringify(arr));
+  }catch(e){}
+}
+function showHistory(){
+  var arr=[]; try{ arr=JSON.parse(localStorage.getItem('mom_hist')||'[]'); }catch(e){}
+  var h='';
+  if(!arr.length) h='<p class="q-help">아직 기록이 없습니다.</p>';
+  else arr.forEach(function(r){
+    var L=LV_INFO[r.lv]||LV_INFO.good;
+    h+='<div class="raw-kv"><span>'+esc(r.d)+' · '+esc(r.n)+'</span><b class="'+(r.lv==='high'?'':'')+'" style="color:'+(r.lv==='high'?'var(--red)':r.lv==='mid'?'var(--warn)':'var(--ok)')+'">'+L.t+'</b></div>';
+  });
+  $('#histHost').innerHTML=h;
+  go('s-history');
+}
+
+/* ---------- 흐름 연결 ---------- */
+var goRaw;
+(function(){
+  var orig=go;
+  goRaw=orig;
+  window.go=function(id){
+    orig(id);
+    if(id==='s-orient') buildOrient(window._keepIdx===true);
+    window._keepIdx=false;
+    if(id!=='s-home'&&id!=='s-result'&&id!=='s-history') saveSess(id);
+  };
+})();
+
+/* ---------- 글자 크기 ---------- */
+var bigFont=false;
+function toggleFont(){
+  bigFont=!bigFont;
+  document.documentElement.style.fontSize=bigFont?'20px':'17px';
+  $('#fontBtn').textContent=bigFont?'가A 보통':'가A 크게';
+  $('#fontBtn').classList.toggle('on',bigFont);
+}
+
+/* ---------- 복사 헬퍼 ---------- */
+function copyTxt(t,ok){
+  function fb(){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');alert(ok);}catch(e){alert('복사 실패 — 직접 선택해 복사하세요.');} document.body.removeChild(ta); }
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(function(){alert(ok);},fb); } else fb();
+}
+/* 같은 이름의 직전 기록 (hist[0]=이번 결과) */
+function prevRecord(){
+  try{
+    var arr=JSON.parse(localStorage.getItem('mom_hist')||'[]');
+    for(var i=1;i<arr.length;i++){ if(arr[i].n===R.name) return arr[i]; }
+  }catch(e){}
+  return null;
+}
+function trendMark(cur,prev){
+  if(prev==null||isNaN(prev)) return '';
+  var d=cur-prev;
+  if(d>=10) return ' <span style="color:var(--ok);font-weight:800">▲ 좋아짐</span>';
+  if(d<=-10) return ' <span style="color:var(--red);font-weight:800">▼ 낮아짐</span>';
+  return ' <span style="color:var(--ink2)">— 비슷</span>';
+}
+/* 보호자 안내문 텍스트 */
+function familyLetterText(){
+  var L=LV_INFO[J.level];
+  var today=new Date(); var ds=today.getFullYear()+'년 '+(today.getMonth()+1)+'월 '+today.getDate()+'일';
+  var lines=['[인지건강 확인 결과 안내]','',
+    R.name+'님께서 '+ds+' 경로당에서 두뇌건강 확인(맘)을 하셨습니다.','',
+    '· 종합 결과: '+L.t+' (참고용 종합점수 '+J.total+'점/100점)',
+    '· 안내: '+L.ds,''];
+  if(J.level==='high'){
+    lines.push('가까운 치매안심센터(전화 1899-9988)에서 무료 정밀검사를 받아보시길 권합니다. 조기 확인이 가장 큰 도움이 됩니다.');
+  } else if(J.level==='mid'){
+    lines.push('6개월 안에 한 번 더 확인해 보시고, 산책·대화 등 두뇌 활동을 함께해 주세요.');
+  } else {
+    lines.push('현재 잘 유지되고 있습니다. 1년에 한 번 정기 확인을 권합니다.');
+  }
+  lines.push('','※ 본 결과는 건강 확인 참고용이며 의학적 진단이 아닙니다.');
+  return lines.join('\n');
+}
+/* 복지사 대장용 TSV */
+function staffTSV(){
+  var d=new Date().toISOString().slice(0,10);
+  var head=['날짜','이름','연령대','학력','판정','종합점수','회상/3','지남/4','시계/6','숫자잇기(초)','오류','유창성','이름대기/4','계산/3','SMCQ/14','관찰/20'].join('\t');
+  var row=[d,R.name,R.age+(R.age>=90?'+':'대'),(R.edu===0?'무학':R.edu===1?'초등':'중등+'),LV_INFO[J.level].t,J.total,
+    R.recall,R.orient,(R.cdtAuto+R.cdtEval),(R.ncTime==null?'-':R.ncTime),R.ncErr,R.flu,R.naming,R.calc,R.smcq,(R.obs==null?'-':R.obs)].join('\t');
+  return head+'\n'+row;
+}
+
+/* ---------- 시작 시 이어하기 표시 ---------- */
+(function(){
+  try{
+    var s=JSON.parse(localStorage.getItem('mom_sess')||'null');
+    if(s&&s.stage&&(Date.now()-(s.t||0))<86400000){ var b=$('#resumeBtn'); if(b) b.style.display='block'; }
+  }catch(e){}
+})();
+/* mom v1.1 */
+</script>
+</body>
+</html>

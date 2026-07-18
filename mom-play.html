@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="robots" content="noindex,nofollow">
+<title>맘(MOM) · 두뇌 놀이터</title>
+<style>
+:root{--ink:#141413;--ink2:#4a463f;--paper:#faf9f5;--paper2:#f1eee6;--line:#ddd8cb;
+--rust:#d97757;--rust2:#c4623f;--ok:#5c7a4a;--okbg:#eef4e7;--warn:#b7791f;--warnbg:#fdf3e2;--red:#b3372c;--sky:#4f7dab}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:17px}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-system,'Malgun Gothic',sans-serif;line-height:1.6}
+.app{max-width:760px;margin:0 auto;padding:0 18px 40px}
+.top{display:flex;align-items:center;gap:12px;padding:16px 0 14px}
+.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7ba05b,#5c7a4a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}
+.top h1{font-size:1.25rem;font-weight:800}
+.top .sub{font-size:.82rem;color:var(--ink2)}
+.sp{flex:1}
+.hbtn{border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 14px;font-size:.95rem;font-weight:700;color:var(--ink2);cursor:pointer;text-decoration:none}
+.scr{display:none}.scr.on{display:block;animation:fade .3s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px 22px;box-shadow:0 3px 14px rgba(20,20,19,.05);margin-bottom:16px}
+.q-text{font-size:1.5rem;font-weight:800;line-height:1.5;word-break:keep-all}
+.q-help{font-size:1.05rem;color:var(--ink2);margin-top:8px;word-break:keep-all}
+.btn{display:block;width:100%;border:none;border-radius:16px;padding:18px;font-size:1.3rem;font-weight:800;cursor:pointer;font-family:inherit;margin-top:12px;min-height:64px;word-break:keep-all}
+.btn-main{background:var(--rust);color:#fff}
+.btn-ok{background:var(--ok);color:#fff}
+.btn-line{background:#fff;color:var(--ink2);border:2px solid var(--line)}
+.reco{background:linear-gradient(135deg,#fdf0ea,#fdf3e2);border:2px solid #eac3ae;border-radius:18px;padding:18px;margin-bottom:16px;word-break:keep-all}
+.reco b{color:var(--rust2)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{background:#fff;border:2px solid var(--line);border-radius:18px;padding:20px 12px;text-align:center;cursor:pointer;position:relative}
+.tile:active{background:var(--paper2)}
+.tile .ic{font-size:2.6rem}
+.tile .t{font-size:1.15rem;font-weight:800;margin-top:6px}
+.tile .d{font-size:.85rem;color:var(--ink2)}
+.tile .badge{position:absolute;top:-10px;right:-6px;background:var(--rust);color:#fff;font-size:.78rem;font-weight:800;border-radius:999px;padding:3px 10px}
+.lvl-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.lvl{border:2px solid var(--line);background:#fff;border-radius:12px;padding:11px 4px;font-size:1rem;font-weight:800;color:var(--ink2);cursor:pointer;text-align:center}
+.lvl.sel{border-color:var(--ok);background:var(--okbg);color:var(--ok)}
+.choice{border:2px solid var(--line);background:#fff;border-radius:16px;padding:16px 10px;font-size:1.25rem;font-weight:800;cursor:pointer;font-family:inherit;min-height:62px;color:var(--ink);word-break:keep-all}
+.choice.good{border-color:var(--ok);background:var(--okbg);color:var(--ok)}
+.choice.bad{border-color:var(--red);background:#fbeceb;color:var(--red)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.gridN{display:grid;gap:10px;margin-top:14px}
+.mcard{aspect-ratio:1;border:2px solid var(--line);border-radius:14px;background:var(--rust);display:flex;align-items:center;justify-content:center;font-size:2.4rem;cursor:pointer;user-select:none;color:#fff;font-weight:900}
+.mcard.open{background:#fff}
+.mcard.done{background:var(--okbg);border-color:var(--ok)}
+.ncell{aspect-ratio:1;border:2px solid var(--line);border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;color:var(--rust2);cursor:pointer;user-select:none}
+.ncell.done{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.scoreline{display:flex;justify-content:space-between;align-items:center;font-size:1.05rem;font-weight:700;color:var(--ink2);margin-bottom:8px}
+.stamp-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.stamp{width:44px;height:44px;border-radius:50%;border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.stamp.got{border:2px solid var(--rust);background:#fdf0ea}
+.big-feedback{text-align:center;font-size:2rem;font-weight:900;margin:10px 0;min-height:52px}
+.footer-note{font-size:.85rem;color:var(--ink2);text-align:center;margin-top:18px;word-break:keep-all}
+@media(max-width:480px){html{font-size:15.5px}.mcard{font-size:1.9rem}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="logo">놀이</div>
+  <div><h1>맘(MOM) · 두뇌 놀이터</h1><div class="sub">매일 조금씩, 즐겁게 두뇌 운동</div></div>
+  <span class="sp"></span>
+  <a class="hbtn" href="mom.html">💗 검사로</a>
+</header>
+
+<!-- 홈 -->
+<section class="scr on" id="p-home">
+  <div class="reco" id="recoBox">오늘도 반갑습니다! 좋아하는 놀이를 골라 보세요.</div>
+  <div class="card" style="padding:16px 18px">
+    <div class="scoreline"><span>🏆 오늘의 칭찬 도장</span><span id="stampCnt">0개</span></div>
+    <div class="stamp-wrap" id="stampBox"></div>
+  </div>
+  <div class="tiles">
+    <div class="tile" data-g="pair"><div class="ic">🃏</div><div class="t">짝 맞추기</div><div class="d">기억력</div></div>
+    <div class="tile" data-g="num"><div class="ic">🔢</div><div class="t">숫자 찾기</div><div class="d">집중력</div></div>
+    <div class="tile" data-g="prov"><div class="ic">📜</div><div class="t">속담 완성</div><div class="d">말하기</div></div>
+    <div class="tile" data-g="market"><div class="ic">🛒</div><div class="t">시장 놀이</div><div class="d">돈 계산</div></div>
+    <div class="tile" data-g="odd"><div class="ic">👀</div><div class="t">다른 그림 찾기</div><div class="d">눈썰미</div></div>
+    <div class="tile" data-g="old"><div class="ic">📻</div><div class="t">옛날 이야기 퀴즈</div><div class="d">추억 회상</div></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="q-help" style="margin:0">난이도</div>
+    <div class="lvl-row">
+      <div class="lvl" data-l="1">아주 쉬움</div>
+      <div class="lvl sel" data-l="2">쉬움</div>
+      <div class="lvl" data-l="3">보통</div>
+    </div>
+  </div>
+  <p class="footer-note">이 놀이는 두뇌 건강 유지에 도움을 주는 여가 활동이며 치료가 아닙니다.</p>
+</section>
+
+<!-- 게임 공통 화면 -->
+<section class="scr" id="p-game">
+  <div class="card">
+    <div class="scoreline"><span id="gTitle">놀이</span><span id="gScore">0 / 5</span></div>
+    <div id="gHost"></div>
+    <div class="big-feedback" id="gFeed"></div>
+    <button class="btn btn-line" onclick="goHome()">그만하고 나가기</button>
+  </div>
+</section>
+
+<!-- 라운드 끝 -->
+<section class="scr" id="p-done">
+  <div class="card" style="text-align:center">
+    <div style="font-size:4rem" id="dEmoji">🎉</div>
+    <div class="q-text" id="dMsg">참 잘하셨어요!</div>
+    <div class="q-help" id="dScore"></div>
+    <button class="btn btn-main" onclick="replay()">한 번 더 하기</button>
+    <button class="btn btn-line" onclick="goHome()">다른 놀이 하기</button>
+  </div>
+</section>
+</div>
+
+<script>
+"use strict";
+var $=function(s){return document.querySelector(s);};
+function esc(s){return (s==null?'':String(s)).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function say(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=.72;speechSynthesis.speak(u);}catch(e){}}
+var PRAISE=['참 잘하셨어요!','정답이에요, 대단해요!','맞았어요! 최고예요!','우와, 실력이 좋으시네요!','정확해요! 멋져요!'];
+var CHEER=['괜찮아요, 다시 해 봐요!','아깝네요! 한 번 더!','천천히 해도 돼요!'];
+
+/* ---------- 난이도 & 검사결과 연동 ---------- */
+var level=2, curGame=null, score=0, round=0, ROUNDS=5;
+document.querySelectorAll('.lvl').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.lvl').forEach(function(x){x.classList.remove('sel');});
+    b.classList.add('sel'); level=parseInt(b.dataset.l,10);
+  });
+});
+var DOMAIN2GAME={'기억력':['pair','짝 맞추기'],'지남력':['old','옛날 이야기 퀴즈'],'시공간':['odd','다른 그림 찾기'],'주의·속도':['num','숫자 찾기'],'언어':['prov','속담 완성'],'계산':['market','시장 놀이']};
+(function(){
+  try{
+    var arr=JSON.parse(localStorage.getItem('mom_hist')||'[]');
+    if(!arr.length) return;
+    var r=arr[0], dm=r.dm||{}, worst=null, wv=101;
+    Object.keys(dm).forEach(function(k){ if(dm[k]<wv){wv=dm[k];worst=k;} });
+    var suggLv=(r.lv==='high')?1:(r.lv==='mid')?2:3;
+    level=suggLv;
+    document.querySelectorAll('.lvl').forEach(function(x){x.classList.toggle('sel',parseInt(x.dataset.l,10)===suggLv);});
+    var g=worst&&DOMAIN2GAME[worst];
+    $('#recoBox').innerHTML='🌅 <b>'+esc(r.n)+'님 맞춤 추천</b><br>지난 확인 결과, <b>'+esc(worst)+'</b> 놀이를 하면 좋아요 → <b>'+(g?g[1]:'')+'</b>부터 해 보세요! (난이도는 <b>'+(suggLv===1?'아주 쉬움':suggLv===2?'쉬움':'보통')+'</b>으로 맞춰 두었어요)';
+    if(g){ var t=document.querySelector('.tile[data-g="'+g[0]+'"]'); if(t){ var b=document.createElement('div'); b.className='badge'; b.textContent='추천'; t.appendChild(b); } }
+  }catch(e){}
+})();
+
+/* ---------- 도장판 ---------- */
+function stamps(){ try{return parseInt(localStorage.getItem('mom_stamps')||'0',10)||0;}catch(e){return 0;} }
+function addStamp(){ try{localStorage.setItem('mom_stamps',String(stamps()+1));}catch(e){} drawStamps(); }
+function drawStamps(){
+  var n=stamps(), box=$('#stampBox'); box.innerHTML='';
+  var show=Math.max(10,Math.ceil(n/10)*10);
+  for(var i=0;i<10;i++){
+    var d=document.createElement('div');
+    var idx=(n%10===0&&n>0)?10:(n%10);
+    d.className='stamp'+((i<idx)?' got':'');
+    d.textContent=(i<idx)?'💮':'';
+    box.appendChild(d);
+  }
+  $('#stampCnt').textContent=n+'개'+(n>=10?' 🏆':'');
+}
+drawStamps();
+
+/* ---------- 화면 ---------- */
+function show(id){ document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');}); $('#'+id).classList.add('on'); window.scrollTo(0,0); }
+function goHome(){ show('p-home'); }
+function feed(ok){
+  var f=$('#gFeed');
+  f.textContent=ok?'⭕ '+PRAISE[Math.floor(Math.random()*PRAISE.length)]:'❌ '+CHEER[Math.floor(Math.random()*CHEER.length)];
+  f.style.color=ok?'var(--ok)':'var(--red)';
+  say(f.textContent.slice(2));
+}
+function endRound(){
+  addStamp();
+  show('p-done');
+  var pct=score/ROUNDS;
+  $('#dEmoji').textContent=pct>=0.8?'🏆':pct>=0.5?'🎉':'💪';
+  $('#dMsg').textContent=pct>=0.8?'와, 정말 대단하세요!':pct>=0.5?'참 잘하셨어요!':'좋아요, 하다 보면 늘어요!';
+  $('#dScore').textContent='맞힌 개수: '+score+' / '+ROUNDS+' · 칭찬 도장 1개를 드렸어요 💮';
+  say($('#dMsg').textContent);
+}
+function replay(){ startGame(curGame); }
+document.querySelectorAll('.tile').forEach(function(t){
+  t.addEventListener('click',function(){ startGame(t.dataset.g); });
+});
+function startGame(g){
+  curGame=g; score=0; round=0;
+  $('#gScore').textContent='0 / '+ROUNDS;
+  $('#gFeed').textContent='';
+  show('p-game');
+  GAMES[g].start();
+}
+function markScore(ok){ if(ok)score++; $('#gScore').textContent=score+' / '+ROUNDS; }
+
+/* =====================================================
+   게임들
+   ===================================================== */
+var GAMES={};
+
+/* 🃏 짝 맞추기 — pair: 라운드 1회(전판), 쌍 수로 난이도 */
+GAMES.pair={
+  start:function(){
+    $('#gTitle').textContent='🃏 짝 맞추기';
+    ROUNDS=1; score=0; $('#gScore').textContent='뒤집기 0번';
+    var pairs=level===1?2:level===2?3:6;
+    var EMO=shuffle(['🐕','🐈','🌸','🍎','🐔','🌙','🐟','🌻','🍉','⭐','🦋','🍇']).slice(0,pairs);
+    var deck=shuffle(EMO.concat(EMO));
+    var host=$('#gHost');
+    var cols=pairs<=3?2:4;
+    host.innerHTML='<p class="q-help" style="text-align:center">같은 그림 두 장을 찾아 뒤집어 보세요</p><div class="gridN" id="pairGrid" style="grid-template-columns:repeat('+cols+',1fr)"></div>';
+    var grid=$('#pairGrid'), open=[], lock=false, found=0, flips=0;
+    deck.forEach(function(e,i){
+      var c=document.createElement('div');
+      c.className='mcard'; c.textContent='?'; c.dataset.e=e;
+      c.addEventListener('click',function(){
+        if(lock||c.classList.contains('open')||c.classList.contains('done'))return;
+        c.classList.add('open'); c.textContent=e; open.push(c);
+        if(open.length===2){
+          flips++; $('#gScore').textContent='뒤집기 '+flips+'번';
+          lock=true;
+          setTimeout(function(){
+            if(open[0].dataset.e===open[1].dataset.e){
+              open.forEach(function(x){x.classList.add('done');});
+              found++; say(PRAISE[Math.floor(Math.random()*PRAISE.length)]);
+              if(found===pairs){ score=ROUNDS; setTimeout(endRound,600); }
+            } else {
+              open.forEach(function(x){x.classList.remove('open');x.textContent='?';});
+            }
+            open=[]; lock=false;
+          },700);
+        }
+      });
+      grid.appendChild(c);
+    });
+    say('같은 그림 두 장을 찾아 뒤집어 보세요');
+  }
+};
+
+/* 🔢 숫자 찾기 — Schulte 간이 */
+GAMES.num={
+  start:function(){
+    $('#gTitle').textContent='🔢 숫자 찾기';
+    ROUNDS=1; score=0;
+    var N=level===1?6:level===2?9:12;
+    var cols=N<=6?3:N<=9?3:4;
+    var host=$('#gHost');
+    host.innerHTML='<p class="q-help" style="text-align:center">1부터 '+N+'까지 순서대로 눌러 보세요</p><div class="gridN" id="numGrid" style="grid-template-columns:repeat('+cols+',1fr)"></div>';
+    var grid=$('#numGrid'), next=1;
+    shuffle(Array.from({length:N},function(_,i){return i+1;})).forEach(function(n){
+      var c=document.createElement('div');
+      c.className='ncell'; c.textContent=n;
+      c.addEventListener('click',function(){
+        if(parseInt(c.textContent,10)===next){
+          c.classList.add('done'); next++;
+          if(next>N){ score=ROUNDS; feed(true); setTimeout(endRound,700); }
+        } else { feed(false); }
+      });
+      grid.appendChild(c);
+    });
+    say('일부터 '+N+'까지 순서대로 눌러 보세요');
+  }
+};
+
+/* 📜 속담 완성 */
+var PROV=[
+ /* lv1 아주 쉬움 */
+ [['가는 말이 고와야 오는 말이','곱다',['곱다','밉다','빠르다','느리다']],
+  ['호랑이도 제 말 하면','온다',['온다','간다','잔다','운다']],
+  ['세 살 버릇','여든까지 간다',['여든까지 간다','금방 없어진다','좋아진다','자란다']],
+  ['원숭이도 나무에서','떨어진다',['떨어진다','올라간다','잠잔다','논다']],
+  ['등잔 밑이','어둡다',['어둡다','밝다','뜨겁다','넓다']]],
+ /* lv2 쉬움 */
+ [['백지장도 맞들면','낫다',['낫다','무겁다','찢어진다','더 하얗다']],
+  ['우물 안','개구리',['개구리','붕어','두꺼비','자라']],
+  ['소 잃고','외양간 고친다',['외양간 고친다','말을 산다','밭을 간다','울고 만다']],
+  ['낮말은 새가 듣고','밤말은 쥐가 듣는다',['밤말은 쥐가 듣는다','밤말은 개가 듣는다','아무도 못 듣는다','바람이 듣는다']],
+  ['티끌 모아','태산',['태산','바다','동산','먼지']]],
+ /* lv3 보통 */
+ [['구슬이 서 말이라도','꿰어야 보배',['꿰어야 보배','팔아야 보배','숨겨야 보배','많아야 보배']],
+  ['가랑비에','옷 젖는 줄 모른다',['옷 젖는 줄 모른다','우산 쓴다','감기 걸린다','길이 미끄럽다']],
+  ['벼는 익을수록','고개를 숙인다',['고개를 숙인다','키가 자란다','색이 변한다','맛이 좋다']],
+  ['말 한마디에','천 냥 빚도 갚는다',['천 냥 빚도 갚는다','싸움이 난다','정이 든다','일이 생긴다']],
+  ['바늘 도둑이','소 도둑 된다',['소 도둑 된다','바늘 장수 된다','부자 된다','벌을 받는다']]]
+];
+GAMES.prov={ start:function(){ quizStart('📜 속담 완성', PROV[level-1].map(function(p){ return {q:'"'+p[0]+' ___"\n빈칸에 들어갈 말은?', a:p[1], c:p[2]}; })); } };
+
+/* 🛒 시장 놀이 */
+function marketQs(){
+  var items=[['사과','🍎'],['배','🍐'],['생선','🐟'],['두부','🥡'],['참외','🍈']];
+  var qs=[];
+  for(var i=0;i<5;i++){
+    var it=items[i%items.length];
+    var price,pay;
+    if(level===1){ price=(i%2? 500:300); pay=1000; }
+    else if(level===2){ price=[700,600,800,400,900][i]; pay=1000; }
+    else { price=[1300,2700,1800,3600,2200][i]; pay=5000; }
+    var ans=pay-price;
+    var opts=shuffle([ans, ans+100, Math.max(0,ans-100), ans+500]).map(function(v){return v.toLocaleString()+'원';});
+    if(opts.indexOf(ans.toLocaleString()+'원')<0) opts[0]=ans.toLocaleString()+'원';
+    qs.push({q:it[1]+' '+it[0]+' 한 개 '+price.toLocaleString()+'원.\n'+pay.toLocaleString()+'원을 내면 거스름돈은?', a:ans.toLocaleString()+'원', c:opts});
+  }
+  return qs;
+}
+GAMES.market={ start:function(){ quizStart('🛒 시장 놀이', marketQs()); } };
+
+/* 👀 다른 그림 찾기 */
+GAMES.odd={
+  start:function(){
+    $('#gTitle').textContent='👀 다른 그림 찾기';
+    ROUNDS=5; score=0; round=0; $('#gScore').textContent='0 / 5';
+    oddRound();
+  }
+};
+var ODDSETS=[['🐕','🐈'],['🍎','🍅'],['🌕','🌑'],['🐔','🐤'],['🌸','🌼'],['⭐','🌟'],['🍊','🍋'],['🐟','🐳']];
+function oddRound(){
+  if(round>=5){ endRound(); return; }
+  var n=level===1?4:level===2?9:16;
+  var cols=level===1?2:level===2?3:4;
+  var pair=ODDSETS[Math.floor(Math.random()*ODDSETS.length)];
+  var oddIdx=Math.floor(Math.random()*n);
+  var host=$('#gHost');
+  host.innerHTML='<p class="q-help" style="text-align:center">다른 그림 <b>하나</b>를 찾아 눌러 보세요 ('+(round+1)+'번째)</p><div class="gridN" id="oddGrid" style="grid-template-columns:repeat('+cols+',1fr)"></div>';
+  var grid=$('#oddGrid');
+  for(var i=0;i<n;i++){
+    (function(i){
+      var c=document.createElement('div');
+      c.className='ncell'; c.style.fontSize='2.2rem';
+      c.textContent=(i===oddIdx)?pair[1]:pair[0];
+      c.addEventListener('click',function(){
+        var ok=(i===oddIdx);
+        markScore(ok); feed(ok); round++;
+        setTimeout(oddRound,900);
+      });
+      grid.appendChild(c);
+    })(i);
+  }
+  if(round===0) say('다른 그림 하나를 찾아 눌러 보세요');
+}
+
+/* 📻 옛날 이야기 퀴즈 (회상) */
+var OLDQ=[
+ {q:'옛날에 마당에서 곡식을 널어 말릴 때\n쓰던 넓은 자리는?', a:'멍석', c:['멍석','이불','가마니','돗자리']},
+ {q:'겨울에 방을 따뜻하게 하려고\n아궁이에 때던 것은?', a:'장작', c:['장작','연탄가스','얼음','물']},
+ {q:'옛날 결혼식에서 신부가 타고 가던 것은?', a:'가마', c:['가마','자전거','달구지','그네']},
+ {q:'명절에 온 가족이 둘러앉아\n빚어 먹던 음식은?', a:'송편', c:['송편','빵','국수','튀김']},
+ {q:'물을 길어 나르던 물건은?', a:'물동이', c:['물동이','바가지만','소쿠리','절구']},
+ {q:'곡식을 찧을 때 쓰던 돌로 만든 도구는?', a:'절구', c:['절구','맷돌짝','호미','낫']},
+ {q:'여름밤 마당에 피워 모기를 쫓던 것은?', a:'모깃불', c:['모깃불','화롯불','촛불','등잔불']},
+ {q:'설날 아침 어른들께 드리던 인사는?', a:'세배', c:['세배','악수','목례','만세']}
+];
+GAMES.old={ start:function(){ quizStart('📻 옛날 이야기 퀴즈', shuffle(OLDQ).slice(0,5)); } };
+
+/* ---------- 4지선다 공통 엔진 ---------- */
+var quizList=[], quizIdx=0, quizTitle='';
+function quizStart(title,list){
+  quizTitle=title; quizList=list; quizIdx=0;
+  ROUNDS=list.length; score=0;
+  $('#gTitle').textContent=title;
+  $('#gScore').textContent='0 / '+ROUNDS;
+  quizDraw();
+}
+function quizDraw(){
+  if(quizIdx>=quizList.length){ endRound(); return; }
+  var q=quizList[quizIdx], host=$('#gHost');
+  var h='<div class="q-text" style="font-size:1.35rem;white-space:pre-line">'+esc(q.q)+'</div><div class="two">';
+  shuffle(q.c).forEach(function(c){ h+='<button class="choice" data-a="'+esc(c)+'">'+esc(c)+'</button>'; });
+  h+='</div>';
+  host.innerHTML=h;
+  say(q.q.replace(/\n/g,' '));
+  var answered=false;
+  host.querySelectorAll('.choice').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(answered)return; answered=true;
+      var ok=(b.dataset.a===q.a);
+      b.classList.add(ok?'good':'bad');
+      if(!ok){ host.querySelectorAll('.choice').forEach(function(x){ if(x.dataset.a===q.a)x.classList.add('good'); }); }
+      markScore(ok); feed(ok);
+      quizIdx++;
+      setTimeout(quizDraw,1200);
+    });
+  });
+}
+</script>
+</body>
+</html>
