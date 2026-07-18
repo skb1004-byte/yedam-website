@@ -268,12 +268,17 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
   <div class="card" style="text-align:center">
     <div class="q-num">말하기 놀이</div>
     <div class="q-text">1분 동안 <b style="color:var(--rust2)">동물 이름</b>을<br>아는 대로 말씀해 주세요</div>
-    <p class="q-help">도우미: 어르신이 동물 이름을 말할 때마다 아래 큰 단추를 눌러 세어 주세요.</p>
+    <p class="q-help" id="fluHelp">🎤 <b>음성으로 시작</b>을 누르면 어르신 말씀을 알아듣고 자동으로 세어 줍니다.<br>마이크가 안 되면 <b>손으로 세기</b>로 시작하세요.</p>
     <div class="flu-timer" id="fluTimer">60초</div>
     <div class="flu-count" id="fluCount">0</div>
-    <button class="btn btn-main" id="fluBtn" onclick="fluTap()" style="min-height:110px;font-size:1.7rem">동물 이름 하나! +1</button>
-    <button class="btn btn-line" id="fluStart" onclick="fluStart()">⏱ 시작하기</button>
+    <div id="fluWords" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:30px;margin-bottom:6px"></div>
+    <button class="btn btn-main" id="fluBtn" onclick="fluTap()" style="min-height:96px;font-size:1.5rem">동물 이름 하나! +1<br><span style="font-size:.85rem;font-weight:500">(못 알아들었을 때 눌러 주세요)</span></button>
+    <div class="two">
+      <button class="btn btn-ok" id="fluStartMic" onclick="fluStart('mic')" style="margin-top:14px">🎤 음성으로 시작</button>
+      <button class="btn btn-line" id="fluStart" onclick="fluStart('hand')" style="margin-top:14px">👆 손으로 세기 시작</button>
+    </div>
     <button class="btn btn-ok" id="fluDone" onclick="fluFinish()" style="display:none">끝내기 → 결과 보기</button>
+    <p class="footer-note" id="fluPriv" style="display:none">※ 음성 세기는 브라우저의 인터넷 음성인식을 사용합니다(동물 이름만 인식·저장 안 함).</p>
   </div>
 </section>
 
@@ -699,27 +704,85 @@ function recallDone(){
   go('s-flu');
 }
 
-/* ---------- ⑩ 언어 유창성 ---------- */
-var fluN=0,fluLeft=60,fluTimer=null,fluRun=false;
-function fluStart(){
-  if(fluRun) return; fluRun=true; fluN=0; fluLeft=60;
-  $('#fluCount').textContent='0';
-  $('#fluStart').style.display='none'; $('#fluDone').style.display='none';
+/* ---------- ⑩ 언어 유창성 (음성 자동 세기 + 손 세기 폴백) ---------- */
+var fluManual=0,fluLeft=60,fluTimer=null,fluRun=false,fluRecog=null,fluMode='hand';
+var fluHeard={}; /* 음성으로 인식한 동물(중복 제거) */
+/* 한국어 동물 사전 — 2글자 이상은 포함 매칭, 1글자(개·소·양·말·곰·닭·쥐·게·매·학·꿩)는 단독 단어만 */
+var ANIMALS2=['강아지','고양이','돼지','오리','토끼','호랑이','사자','코끼리','기린','원숭이','여우','늑대','사슴','염소','다람쥐','개구리','거북이','거북','물고기','고래','상어','문어','오징어','새우','참새','비둘기','까치','까마귀','독수리','부엉이','올빼미','제비','두루미','갈매기','펭귄','타조','낙타','하마','코뿔소','악어','판다','고릴라','침팬지','캥거루','코알라','박쥐','고슴도치','두더지','너구리','오소리','멧돼지','노루','표범','치타','얼룩말','당나귀','물소','순록','붕어','잉어','메기','장어','연어','고등어','갈치','멸치','나비','꿀벌','개미','잠자리','메뚜기','귀뚜라미','매미','거미','지렁이','달팽이','병아리','송아지','망아지','앵무새','공작','백조','거위','칠면조','족제비','수달','물개','바다표범','돌고래','북극곰','반달곰','살쾡이','스라소니','두꺼비','도마뱀','이구아나','전갈','불가사리','해파리','소라','조개','가재','도롱뇽','두더쥐','참치','꽁치','명태','도미','광어','우럭'];
+var ANIMALS1=['개','소','양','말','곰','닭','쥐','게','매','학','꿩','벌','뱀'];
+function fluMatch(text){
+  var found=[];
+  var norm=text.replace(/\s+/g,' ').trim();
+  ANIMALS2.forEach(function(a){ if(norm.indexOf(a)>=0 && !fluHeard[a]){ fluHeard[a]=1; found.push(a); } });
+  norm.split(/[ ,.!?]+/).forEach(function(tok){ if(ANIMALS1.indexOf(tok)>=0 && !fluHeard[tok]){ fluHeard[tok]=1; found.push(tok); } });
+  return found;
+}
+function fluTotal(){ return Object.keys(fluHeard).length + fluManual; }
+function fluAddChip(w){
+  var box=$('#fluWords'); var c=document.createElement('span');
+  c.style.cssText='background:var(--okbg);color:var(--ok);border-radius:999px;padding:4px 12px;font-size:1rem;font-weight:800';
+  c.textContent=w; box.appendChild(c);
+}
+function fluStart(mode){
+  if(fluRun) return;
+  fluMode=mode||'hand';
+  fluRun=true; fluManual=0; fluHeard={}; fluLeft=60;
+  $('#fluCount').textContent='0'; $('#fluWords').innerHTML='';
+  $('#fluStart').style.display='none'; $('#fluStartMic').style.display='none'; $('#fluDone').style.display='none';
+  if(fluMode==='mic'){
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){
+      alert('이 브라우저는 음성 인식을 지원하지 않아 손으로 세기로 진행합니다.\n(크롬 브라우저 권장)');
+      fluMode='hand';
+    } else {
+      try{
+        fluRecog=new SR();
+        fluRecog.lang='ko-KR'; fluRecog.continuous=true; fluRecog.interimResults=true;
+        fluRecog.onresult=function(ev){
+          var txt='';
+          for(var i=ev.resultIndex;i<ev.results.length;i++){ txt+=ev.results[i][0].transcript+' '; }
+          fluMatch(txt).forEach(function(w){ fluAddChip(w); });
+          $('#fluCount').textContent=String(fluTotal());
+        };
+        fluRecog.onerror=function(ev){
+          if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){
+            alert('마이크 사용이 허용되지 않았습니다.\n주소창의 마이크 아이콘에서 허용하거나, 손으로 세기로 진행하세요.');
+            fluMode='hand';
+          }
+        };
+        fluRecog.onend=function(){ if(fluRun&&fluMode==='mic'){ try{fluRecog.start();}catch(e){} } };
+        fluRecog.start();
+        $('#fluPriv').style.display='block';
+        $('#fluHelp').innerHTML='🎤 <b>듣고 있어요!</b> 동물 이름을 또박또박 말씀해 주세요.<br>알아들으면 아래에 초록 이름표가 붙습니다. 못 알아들으면 큰 단추로 세어 주세요.';
+      }catch(e){ fluMode='hand'; }
+    }
+  }
+  if(fluMode==='hand'){
+    $('#fluHelp').innerHTML='도우미: 어르신이 동물 이름을 말할 때마다 아래 큰 단추를 눌러 세어 주세요.';
+  }
   say('시작! 동물 이름을 말씀해 주세요.');
   fluTimer=setInterval(function(){
     fluLeft--;
     var t=$('#fluTimer'); t.textContent=fluLeft+'초';
     if(fluLeft<=10) t.classList.add('hot');
-    if(fluLeft<=0){ clearInterval(fluTimer); fluRun=false; $('#fluTimer').textContent='끝!'; $('#fluDone').style.display='block'; say('수고하셨습니다. 끝내기 단추를 눌러 주세요.'); }
+    if(fluLeft<=0){
+      clearInterval(fluTimer); fluRun=false;
+      if(fluRecog){ try{fluRecog.stop();}catch(e){} }
+      $('#fluTimer').textContent='끝!';
+      $('#fluDone').style.display='block';
+      say('수고하셨습니다. 끝내기 단추를 눌러 주세요.');
+    }
   },1000);
 }
 function fluTap(){
   if(!fluRun){ say('먼저 시작 단추를 눌러 주세요'); return; }
-  fluN++; $('#fluCount').textContent=String(fluN);
+  fluManual++; $('#fluCount').textContent=String(fluTotal());
 }
 function fluFinish(){
   if(fluTimer){ clearInterval(fluTimer); }
-  R.flu=fluN;
+  if(fluRecog){ try{fluRecog.onend=null; fluRecog.stop();}catch(e){} fluRecog=null; }
+  fluRun=false;
+  R.flu=fluTotal();
   judge(); saveHistory();
   go('s-result'); renderResult('self');
 }
