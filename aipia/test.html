@@ -9926,9 +9926,9 @@ window._ttsClean=function(s){
 <script>
 (function(){
   var KW=['성실','책임감','리더십','배려','협력','창의성','탐구심','발표력','끈기','자기주도','정직','긍정적태도','문제해결력','의사소통','예술성','운동능력','독서','봉사'];
+  var mounted=false;
   function collectKeywords(){
-    var el=document.getElementById('detailed-result')||document.body;
-    var text=(el.innerText||el.textContent||'');
+    var text=(document.body.innerText||document.body.textContent||'');
     var found=[];
     KW.forEach(function(k){ if(text.indexOf(k)>-1 && found.indexOf(k)<0) found.push(k); });
     return found.slice(0,6);
@@ -9941,18 +9941,15 @@ window._ttsClean=function(s){
     alert('선생님도우미로 결과를 전달했습니다 ('+kws.length+'개 키워드). 선생님도우미 화면에서 자동으로 반영됩니다.');
   }
   function mount(){
-    var host=document.getElementById('detailed-result');
-    if(!host) return;
+    if(mounted) return;
     if(document.getElementById('sendToTeacherBtn')) return;
-    var box=document.createElement('div');
-    box.style.cssText='margin:14px 0;padding:12px;border:1px solid #cde3cd;border-radius:10px;background:#eef7ee;text-align:center';
     var btn=document.createElement('button');
     btn.id='sendToTeacherBtn';
-    btn.textContent='\ud83d\udccb \uc120\uc0dd\ub2d8\ub3c4\uc6b0\ubbf8\ub85c \uacb0\uacfc \ubcf4\ub0b4\uae30 (\uc0dd\uae30\ubd80 \ud0a4\uc6cc\ub4dc \uc790\ub3d9\uc785\ub825)';
-    btn.style.cssText='padding:10px 16px;border-radius:8px;border:1px solid #c05a3c;background:#c05a3c;color:#fff;font-weight:700;cursor:pointer;font-size:14px';
+    btn.textContent='\ud83d\udccb \uc120\uc0dd\ub2d8\ub3c4\uc6b0\ubbf8\ub85c \uacb0\uacfc \ubcf4\ub0b4\uae30';
+    btn.style.cssText='position:fixed;right:18px;bottom:18px;z-index:9999;padding:12px 18px;border-radius:999px;border:1px solid #c05a3c;background:#c05a3c;color:#fff;font-weight:700;cursor:pointer;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.2)';
     btn.addEventListener('click', sendToTeacher);
-    box.appendChild(btn);
-    host.parentNode.insertBefore(box, host.nextSibling);
+    document.body.appendChild(btn);
+    mounted=true;
   }
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', mount); } else { mount(); }
 })();
