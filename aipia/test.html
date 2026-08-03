@@ -844,7 +844,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 <div class="toolbar no-print">
   <span data-en="📋 AI PIA Assessment Report">📋 AI PIA 검사 결과지</span>
   <button id="btn-back-student" style="display:none;" onclick="window.close()" data-en="← Back to student page">← 학생 페이지로</button>
-  <button id="btn-admin" style="display:none;" onclick="window.open('pia-admin.html','_blank')" data-en="🏫 Admin page">🏫 통합 관리</button>
+  <button id="btn-admin" style="display:none;" onclick="window.open('../pia-admin.html','_blank')" data-en="🏫 Admin page">🏫 통합 관리</button>
   <button onclick="piaPrintAsk()" data-en="🖨️ Print / Save PDF">🖨️ 인쇄 / PDF 저장</button>
   <button onclick="document.querySelectorAll('.page').forEach((p,i)=>p.style.display=i==0?'':'none')" data-en="Cover only">표지만</button>
   <button onclick="document.querySelectorAll('.page').forEach(p=>p.style.display='')" data-en="View all">전체 보기</button>
@@ -7678,8 +7678,8 @@ window.piaSendToRecord=function(){
     var gr=(state.profile&&state.profile.grade)?state.profile.grade:'';
     var payload={ name:nm, grade:gr, keywords:kws, at:Date.now() };
     try{ localStorage.setItem('pia_rec_bridge', JSON.stringify(payload)); }catch(e){}
-    window.open('teacher-writing.html','_blank');
-  }catch(e){ try{ window.open('teacher-writing.html','_blank'); }catch(_){} }
+    window.open('../teacher-writing.html','_blank');
+  }catch(e){ try{ window.open('../teacher-writing.html','_blank'); }catch(_){} }
 };
 function renderExtendedSections() {
   const big5 = state.results.big5.scores;
