@@ -9933,12 +9933,22 @@ window._ttsClean=function(s){
     KW.forEach(function(k){ if(text.indexOf(k)>-1 && found.indexOf(k)<0) found.push(k); });
     return found.slice(0,6);
   }
+  function showToast(msg){
+    var t=document.createElement('div');
+    t.textContent=msg;
+    t.style.cssText='position:fixed;right:18px;bottom:64px;z-index:10000;max-width:280px;padding:12px 14px;border-radius:10px;background:#2f2f2f;color:#fff;font-size:13px;line-height:1.5;box-shadow:0 4px 14px rgba(0,0,0,.25)';
+    document.body.appendChild(t);
+    setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 4000);
+  }
   function sendToTeacher(){
     var kws=collectKeywords();
-    if(kws.length===0){ alert('본문에서 강점 키워드를 찾지 못했습니다. 선생님도우미에서 직접 키워드를 선택해 주세요.'); }
     var payload={ at:Date.now(), keywords:kws };
     try{ localStorage.setItem('pia_teacher_grade', JSON.stringify(payload)); }catch(e){}
-    alert('선생님도우미로 결과를 전달했습니다 ('+kws.length+'개 키워드). 선생님도우미 화면에서 자동으로 반영됩니다.');
+    if(kws.length===0){
+      showToast('본문에서 강점 키워드를 찾지 못했습니다. 선생님도우미에서 직접 키워드를 선택해 주세요.');
+    } else {
+      showToast('선생님도우미로 결과를 전달했습니다 ('+kws.length+'개 키워드: '+kws.join(', ')+'). 선생님도우미 화면에서 자동으로 반영됩니다.');
+    }
   }
   function mount(){
     if(mounted) return;
