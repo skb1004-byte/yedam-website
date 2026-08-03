@@ -9943,7 +9943,7 @@ window._ttsClean=function(s){
   function sendToTeacher(){
     var kws=collectKeywords();
     var payload={ at:Date.now(), keywords:kws };
-    try{ localStorage.setItem('pia_teacher_grade', JSON.stringify(payload)); }catch(e){}
+    try{ localStorage.setItem('pia_rec_bridge', JSON.stringify(payload)); }catch(e){}
     if(kws.length===0){
       showToast('본문에서 강점 키워드를 찾지 못했습니다. 선생님도우미에서 직접 키워드를 선택해 주세요.');
     } else {
