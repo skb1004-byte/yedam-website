@@ -73,6 +73,7 @@ td.op button:hover{background:var(--paper2)}
 <div class="tab active" data-tab="rec">① 생기부 문장</div>
 <div class="tab" data-tab="grade">② 교과 평어</div>
 <div class="tab" data-tab="perf">③ 수행평가 피드백</div>
+<div class="tab" data-tab="subj">④ 교과 세특</div>
 </div>
 
 <!-- ===================== 탭 ① 생기부 문장 ===================== -->
@@ -194,7 +195,7 @@ td.op button:hover{background:var(--paper2)}
 <div class="row2">
 <div>
 <label class="fld" for="fSubj">과목</label>
-<select id="fSubj">
+<select id="fSubj" onchange="fSuggestUnits()">
 <option>국어</option><option>수학</option><option>사회</option><option>과학</option>
 <option>영어</option><option>체육</option><option>음악</option><option>미술</option>
 <option>도덕</option><option>실과</option><option>창의적체험활동</option>
@@ -202,7 +203,11 @@ td.op button:hover{background:var(--paper2)}
 </div>
 <div>
 <label class="fld" for="fTask">평가 과제·영역명 (선택)</label>
-<input type="text" id="fTask" placeholder="예: 분수의 덧셈 문제 해결, 글쓰기 수행평가">
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+<input type="text" id="fTask" placeholder="예: 분수의 덧셈 문제 해결, 글쓰기" style="flex:1;min-width:160px">
+<button class="gho" type="button" onclick="fSuggestUnits()">🔎 단원·영역 자동</button>
+</div>
+<div id="fTaskSugg" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
 </div>
 </div>
 
@@ -233,6 +238,69 @@ td.op button:hover{background:var(--paper2)}
 </div>
 
 <div id="fResult" style="margin-top:18px"></div>
+</div>
+</section>
+
+<!-- ===================== 탭 ④ 교과 세특 ===================== -->
+<section id="tab-subj" class="hidden">
+<div class="card">
+<h2>교과 세부능력 및 특기사항</h2>
+<p class="desc">과목·성취수준·단원을 정하면 학생마다 전혀 겹치지 않는 세특(2~4문장)을 만들어 줍니다. 나이스 세부능력 및 특기사항 칸에 바로 붙여넣을 수 있습니다.</p>
+
+<div class="row2">
+<div>
+<label class="fld" for="sSubj">과목</label>
+<select id="sSubj" onchange="sSuggestUnits()">
+<option>국어</option><option>수학</option><option>사회</option><option>과학</option>
+<option>영어</option><option>체육</option><option>음악</option><option>미술</option>
+<option>도덕</option><option>실과</option><option>창의적체험활동</option>
+</select>
+</div>
+<div>
+<label class="fld" for="sLevel">성취수준</label>
+<select id="sLevel">
+<option value="A">매우 잘함</option>
+<option value="B">잘함</option>
+<option value="C">보통</option>
+<option value="D">노력 요함</option>
+</select>
+</div>
+<div>
+<label class="fld" for="sLen">분량</label>
+<select id="sLen">
+<option value="2">간단 (2문장)</option>
+<option value="3" selected>표준 (3문장)</option>
+<option value="4">자세히 (4문장)</option>
+</select>
+</div>
+</div>
+
+<label class="fld" for="sKey">단원·영역 키워드 (선택 · 여러 개 가능)</label>
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+<input type="text" id="sKey" placeholder="예: 수와 연산, 도형과 측정" style="flex:1;min-width:160px">
+<button class="gho" type="button" onclick="sSuggestUnits()">🔎 단원·영역 자동</button>
+</div>
+<div id="sKeySugg" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+
+<label class="fld" for="sRoster">명단 (한 줄에 1명)</label>
+<div class="btns" style="margin:2px 0 6px;align-items:center">
+<span style="font-size:12.5px;color:var(--ink2)">우리 반</span>
+<input type="number" id="sCount" min="1" max="45" value="25" style="width:64px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font:inherit">
+<span style="font-size:12.5px;color:var(--ink2)">명</span>
+<button class="gho" type="button" onclick="sFill('num')"># 번호로 채우기</button>
+<button class="gho" type="button" onclick="sFill('rand')">🎲 랜덤 이름</button>
+<button class="gho" type="button" onclick="sFromGrade()">평어 명단 가져오기</button>
+</div>
+<textarea id="sRoster" rows="6" placeholder="김하늘&#10;이서준&#10;박지우"></textarea>
+
+<div class="btns">
+<button class="act" id="sGen">세특 생성</button>
+<button class="gho" id="sRegen">다시 생성</button>
+<button class="gho" id="sCopyAll">📋 전체 복사 (나이스 양식)</button>
+<button class="gho" id="sPrint">인쇄</button>
+</div>
+
+<div id="sResult" style="margin-top:18px"></div>
 </div>
 </section>
 
@@ -290,6 +358,7 @@ tabs.forEach(function(tb){
     document.getElementById('tab-rec').classList.toggle('hidden',t!=='rec');
     document.getElementById('tab-grade').classList.toggle('hidden',t!=='grade');
     document.getElementById('tab-perf').classList.toggle('hidden',t!=='perf');
+    document.getElementById('tab-subj').classList.toggle('hidden',t!=='subj');
   });
 });
 
@@ -686,26 +755,44 @@ var SUBJECT_AREAS={
   '실과':['생활문화','생명기술','수송기술','정보·소프트웨어'],
   '창의적체험활동':['자율·자치 활동','동아리 활동','진로 활동']
 };
-function suggestUnits(){
-  var subj=document.getElementById('gSubj').value;
-  var grade=document.getElementById('gGrade').value;
-  var areas=SUBJECT_AREAS[subj]||[];
-  var host=document.getElementById('gKeySugg'); host.innerHTML='';
-  if(!areas.length){ return; }
-  // 시기 반영: 상반기(3~7월)는 앞 영역, 하반기(8~2월)는 뒤 영역을 먼저 노출
+function areaSuggest(hostId,inputId,subj,labelText){
+  var areas=(SUBJECT_AREAS[subj]||[]).slice();
+  var host=document.getElementById(hostId); if(!host) return;
+  host.innerHTML='';
+  if(!areas.length) return;
   var m=new Date().getMonth()+1; var firstHalf=(m>=3&&m<=7);
   var ordered=firstHalf?areas.slice():areas.slice().reverse();
-  // 기본값: 첫 추천을 입력창에 자동 배치
-  var key=document.getElementById('gKey'); if(key && !key.value.trim()){ key.value=ordered[0]; }
-  var hint=document.createElement('span'); hint.style.cssText='font-size:11.5px;color:#94a3b8;margin-right:4px'; hint.textContent=grade+'학년 '+subj+' ('+(firstHalf?'1학기':'2학기')+') 추천 — 클릭해 입력:';
+  var inp=document.getElementById(inputId);
+  if(inp && !inp.value.trim()){ inp.value=ordered[0]; }
+  function curList(){ return inp.value.split(',').map(function(s){return s.trim();}).filter(Boolean); }
+  var hint=document.createElement('span');
+  hint.style.cssText='font-size:11.5px;color:#94a3b8;margin-right:4px';
+  hint.textContent=labelText+' ('+(firstHalf?'1학기':'2학기')+') 추천 — 클릭해 선택·해제(여러 개 가능):';
   host.appendChild(hint);
   ordered.forEach(function(a){
     var c=document.createElement('button'); c.type='button'; c.textContent=a;
-    c.style.cssText='font:inherit;font-size:12px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 11px;cursor:pointer';
-    c.onclick=function(){ var k=document.getElementById('gKey'); k.value=a; c.style.background='#f6e9e2'; };
+    function paint(on){
+      c.style.cssText='font:inherit;font-size:12px;border:1px solid '+(on?'#d97757':'#e3e0d6')+';background:'+(on?'#f6e9e2':'#fff')+';border-radius:999px;padding:4px 11px;cursor:pointer;font-weight:'+(on?'700':'400');
+    }
+    paint(curList().indexOf(a)>=0);
+    c.onclick=function(){
+      var cur=curList(); var idx=cur.indexOf(a);
+      if(idx>=0){ cur.splice(idx,1); paint(false); }
+      else{ cur.push(a); paint(true); }
+      inp.value=cur.join(', ');
+    };
     host.appendChild(c);
   });
 }
+function suggestUnits(){
+  var subj=document.getElementById('gSubj').value;
+  var grade=document.getElementById('gGrade').value;
+  areaSuggest('gKeySugg','gKey',subj,grade+'학년 '+subj);
+}
+window.fSuggestUnits=function(){
+  var subj=document.getElementById('fSubj').value;
+  areaSuggest('fTaskSugg','fTask',subj,subj);
+};
 function saveGrade(){ try{ localStorage.setItem('pia_teacher_grade', document.getElementById('gGrade').value); }catch(e){} }
 try{ window.suggestUnits=suggestUnits; window.saveGrade=saveGrade; }catch(e){}
 /* 명단 자동 채우기: 번호 또는 랜덤 이름 (NEIS로 실명은 불가 → 자리표·평어용 임시 명단) */
@@ -727,6 +814,34 @@ window.fillRoster=function(mode){
   try{ var g=localStorage.getItem('pia_teacher_grade'); var el=document.getElementById('gGrade'); if(g&&el) el.value=g; }catch(e){}
   try{ suggestUnits(); }catch(e){}
 })();
+/* ===== 중복 없는 문장 배정 엔진 =====
+   기본 문장 × 단원·영역 × 서두 표현을 조합해 학생마다 서로 다른 문장을 보장한다. */
+var G_PRE=[
+ function(kw){return kw+' 단원에서 ';},
+ function(kw){return kw+' 영역에서 ';},
+ function(kw){return josa(kw,'eulreul')+' 학습하며 ';},
+ function(kw){return kw+' 학습 과정에서 ';},
+ function(kw){return kw+' 관련 활동에서 ';}
+];
+function uniqueTexts(pool,kwPool,need){
+  var combos=[];
+  pool.forEach(function(s){
+    var _end=/[.!?…]$/.test(s)?s:s+'.';
+    combos.push(_end);
+    (kwPool||[]).forEach(function(kw){
+      G_PRE.forEach(function(pf){ combos.push(pf(kw)+_end); });
+    });
+  });
+  combos=shuffle(combos);
+  var seen={},out=[];
+  for(var i=0;i<combos.length&&out.length<need;i++){
+    var k=combos[i].replace(/\s/g,'');
+    if(!seen[k]){seen[k]=1;out.push(combos[i]);}
+  }
+  var j=0;
+  while(out.length<need&&combos.length){ out.push(combos[j%combos.length]); j++; }
+  return out;
+}
 var ALL_SUBJECTS=['국어','수학','사회','과학','영어','체육','음악','미술','도덕','실과','창의적체험활동'];
 function genGrade(){
   var scope=(document.getElementById('gScope')||{}).value||'one';
@@ -739,19 +854,12 @@ function genGrade(){
   subjects.forEach(function(subj){
     var pool=bankFor(subj,level);
     var areas=(SUBJECT_AREAS[subj]||[]).slice();
-    var bag=shuffle(pool);
+    var keyList=key?key.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
+    var kwPool=(scope==='one'&&keyList.length)?keyList:areas;
+    /* 학생 수만큼 전혀 겹치지 않는 문장 조합 배정 */
+    var texts=uniqueTexts(pool,kwPool,raw.length);
     for(var i=0;i<raw.length;i++){
-      if(i%bag.length===0) bag=shuffle(pool);
-      var sent=bag[i%bag.length];
-      /* 단원·영역: 직접 입력값(이 과목)이 있으면 고정, 없으면 학생마다 랜덤 영역 */
-      var kw=(scope==='one'&&key)?key:(areas.length?areas[Math.floor(Math.random()*areas.length)]:'');
-      var text;
-      var _end=/[.!?…]$/.test(sent)?sent:sent+'.';
-      if(kw){
-        var pre=pick([kw+' 단원에서 ', kw+' 영역에서 ', josa(kw,'eulreul')+' 학습하며 ']);
-        text=pre+_end;
-      }else{ text=_end; }
-      rows.push({name:raw[i], subj:(scope==='all'?subj:''), text:text});
+      rows.push({name:raw[i], subj:(scope==='all'?subj:''), text:texts[i]});
     }
   });
   lastRows=rows;
@@ -842,12 +950,33 @@ function fLevelFor(score){
   var t=fThresholds(); var s=+score;
   if(s>=t.A) return 'A'; if(s>=t.B) return 'B'; if(s>=t.C) return 'C'; return 'D';
 }
-function fMakeText(level){
-  if(!level) return '';
+var F_PRE=[
+ function(kw){return kw+'에서 ';},
+ function(kw){return kw+' 평가에서 ';},
+ function(kw){return kw+' 활동에서 ';},
+ function(kw){return josa(kw,'eulreul')+' 수행하며 ';},
+ function(kw){return kw+' 과제에서 ';}
+];
+function fCandidates(level){
   var task=document.getElementById('fTask').value.trim();
-  var s=pick(FB[level]);
-  var pre=task?(task+'에서 '):'';
-  return pre+s+'.';
+  var kws=task?task.split(',').map(function(s){return s.trim();}).filter(Boolean):((SUBJECT_AREAS[document.getElementById('fSubj').value]||[]).slice());
+  var combos=[];
+  FB[level].forEach(function(s){
+    var _end=s+'.';
+    combos.push(_end);
+    kws.forEach(function(kw){ F_PRE.forEach(function(pf){ combos.push(pf(kw)+_end); }); });
+  });
+  return shuffle(combos);
+}
+/* 다른 학생과 절대 겹치지 않게 피드백 배정 */
+function fAssignText(i){
+  var lv=fRows[i].level;
+  if(!lv){ fRows[i].text=''; return; }
+  var used={};
+  fRows.forEach(function(r,j){ if(j!==i&&r.text) used[r.text.replace(/\s/g,'')]=1; });
+  var c=fCandidates(lv);
+  for(var k=0;k<c.length;k++){ var kk=c[k].replace(/\s/g,''); if(!used[kk]){ fRows[i].text=c[k]; return; } }
+  fRows[i].text=c[0]||'';
 }
 window.fFill=function(mode){
   var n=parseInt(document.getElementById('fCount').value,10)||0; if(n<1||n>60){toast('인원수를 1~60으로');return;}
@@ -874,9 +1003,9 @@ function fBuild(regen){
   var prev={}; if(regen){ /* 점수 유지 */ fRows.forEach(function(r){prev[r.name]=r.score;}); }
   fRows=raw.map(function(nm){
     var sc=(regen&&prev[nm]!==undefined)?prev[nm]:'';
-    var lv=fLevelFor(sc);
-    return {name:nm,score:sc,level:lv,text:fMakeText(lv)};
+    return {name:nm,score:sc,level:fLevelFor(sc),text:''};
   });
+  fRows.forEach(function(r,i){ fAssignText(i); });
   fRender();
 }
 function fRender(){
@@ -896,7 +1025,7 @@ function fRender(){
       var i=+inp.getAttribute('data-i');
       var v=inp.value.trim(); fRows[i].score=(v===''?'':(+v));
       fRows[i].level=fLevelFor(fRows[i].score);
-      fRows[i].text=fMakeText(fRows[i].level);
+      fAssignText(i);
       var tr=inp.closest('tr');
       tr.querySelector('.fLv').textContent=fRows[i].level?LEVEL_KO[fRows[i].level]:'—';
       tr.querySelector('td:nth-child(4)').textContent=fRows[i].text;
@@ -930,6 +1059,163 @@ document.getElementById('fPrint').addEventListener('click',function(){
    '<script>window.onload=function(){window.print();}<\/script></body></html>');
   w.document.close();
 });
+
+
+/* =====================================================================
+   탭 ④ 교과 세부능력 및 특기사항 — 학생마다 전혀 겹치지 않는 2~4문장
+   ===================================================================== */
+var SE_OBS={
+ A:['수업 중 교사의 질문에 깊이 있는 답변을 하며 학습 내용을 자기 언어로 재구성하여 설명함.',
+    '토의·토론 활동에서 타당한 근거를 들어 자신의 주장을 명확하게 펼침.',
+    '학습한 개념을 다른 단원과 연결지어 이해하는 통합적 사고력을 보임.',
+    '모둠 활동에서 친구들의 질문에 알기 쉽게 설명해 주며 배움을 나눔.',
+    '과제 수행 시 다양한 자료를 스스로 찾아 활용하는 정보 활용 능력이 뛰어남.',
+    '수업에서 배운 내용을 실생활 사례에 적용하여 발표하는 응용력이 돋보임.',
+    '어려운 문제를 만나도 여러 전략을 시도하며 끝까지 해결해 내는 도전 정신을 보임.',
+    '학습 결과물을 짜임새 있게 정리하여 완성도 높은 산출물을 제출함.'],
+ B:['수업에 집중하여 참여하고 배운 내용을 성실하게 정리함.',
+    '모둠 활동에서 자신의 역할을 다하며 협력적으로 과제를 해결함.',
+    '교사의 안내에 따라 학습 활동을 차근차근 수행하여 좋은 결과를 얻음.',
+    '발표 활동에 적극적으로 참여하여 자신의 생각을 또렷하게 전달함.',
+    '학습지와 과제를 빠짐없이 수행하며 꾸준한 학습 습관을 보임.',
+    '새로 배운 개념을 예시 문제에 적용하며 이해를 다져 감.',
+    '친구들과 의견을 주고받으며 생각을 넓히는 모습이 관찰됨.',
+    '수업 준비물을 잘 갖추고 바른 자세로 학습에 임함.'],
+ C:['수업 활동에 성실히 참여하며 기본 개념을 익히려 노력함.',
+    '교사의 도움을 받아 과제를 끝까지 완수하는 모습을 보임.',
+    '모둠 활동에서 친구들과 어울려 주어진 역할을 수행함.',
+    '반복 학습을 통해 배운 내용에 대한 이해가 점차 나아지고 있음.',
+    '수업 중 궁금한 점을 질문하며 배움에 관심을 보이기 시작함.',
+    '기초 문제를 스스로 해결하며 조금씩 자신감을 쌓아 감.',
+    '학습 내용을 공책에 정리하는 습관을 길러 가고 있음.',
+    '짝 활동에서 친구의 도움을 받아 과제를 해결하며 배움을 이어 감.'],
+ D:['수업 참여를 위해 교사의 개별적인 안내와 격려가 필요함.',
+    '기초 개념 이해를 돕는 반복 지도와 단계적 학습이 요구됨.',
+    '쉬운 과제부터 성취 경험을 쌓아 학습 자신감을 기를 필요가 있음.',
+    '학습 도구 준비와 과제 수행을 챙기도록 지속적인 관심이 필요함.',
+    '짝과 모둠의 도움과 함께 과제를 수행하며 참여도를 높여 가고 있음.',
+    '흥미 있는 활동에는 참여하려는 모습을 보여 긍정적인 변화가 기대됨.',
+    '개별 지도 시간에 배운 내용을 따라 해결하려는 노력이 관찰됨.',
+    '학습 습관 형성을 위해 가정과의 연계 지도가 도움이 될 것으로 보임.']
+};
+var SE_GROW={
+ A:['앞으로 심화 과제에 도전하며 역량을 더욱 확장할 것으로 기대됨.',
+    '뛰어난 성취를 바탕으로 또래의 학습을 이끄는 역할이 기대됨.',
+    '지적 호기심을 살려 관련 분야로 배움을 넓혀 갈 잠재력이 큼.',
+    '스스로 학습을 설계하고 실천하는 힘이 있어 지속적인 성장이 기대됨.',
+    '높은 이해력과 성실함을 겸비하여 어떤 과제든 훌륭히 해낼 것으로 기대됨.',
+    '자신의 강점을 알고 발전시키려는 태도가 있어 발전 가능성이 매우 큼.',
+    '깊이 있는 사고와 표현력을 바탕으로 창의적 성취가 기대됨.',
+    '탐구하는 즐거움을 아는 학생으로 학문적 성장이 기대됨.'],
+ B:['꾸준한 노력이 이어진다면 한층 높은 성취가 기대됨.',
+    '성실한 학습 태도를 바탕으로 지속적인 향상이 기대됨.',
+    '조금 더 도전적인 과제를 통해 실력을 키워 갈 것으로 기대됨.',
+    '자신감을 가지고 발표 기회를 늘리면 더 큰 성장이 기대됨.',
+    '기본기가 탄탄하여 심화 학습으로 나아갈 준비가 되어 있음.',
+    '배운 내용을 생활 속에서 활용하려는 태도가 성장의 밑거름이 됨.',
+    '학습 습관이 안정되어 있어 꾸준한 발전이 예상됨.',
+    '또래와 협력하는 힘을 살려 더 넓은 배움으로 나아갈 것으로 기대됨.'],
+ C:['기초를 차근차근 다져 가면 안정적인 성취에 이를 것으로 기대됨.',
+    '반복 학습과 격려를 통해 자신감이 자라나고 있어 발전이 기대됨.',
+    '흥미를 느끼는 영역부터 성취 경험을 쌓으면 학습 의욕이 높아질 것으로 보임.',
+    '꾸준한 연습을 이어 간다면 뚜렷한 향상이 기대됨.',
+    '작은 성공 경험이 쌓이면서 학습에 대한 긍정적 태도가 자라고 있음.',
+    '스스로 해결하는 경험을 늘려 가면 자기주도성이 향상될 것으로 기대됨.',
+    '배움에 대한 관심이 커지고 있어 앞으로의 변화가 기대됨.',
+    '기초 개념을 다진 뒤 응용 학습으로 나아갈 수 있도록 지도할 계획임.'],
+ D:['개별 지도와 격려를 통해 기초 학습 능력을 길러 갈 필요가 있음.',
+    '작은 성취를 인정받는 경험이 쌓이면 학습 태도의 변화가 기대됨.',
+    '흥미 중심의 활동으로 학습 동기를 높이는 지도가 필요함.',
+    '가정과 연계한 꾸준한 관심과 지원이 성장에 도움이 될 것으로 보임.',
+    '기초부터 단계적으로 접근하면 점진적인 향상이 가능할 것으로 기대됨.',
+    '또래와 함께하는 활동을 통해 참여 의욕을 키워 갈 필요가 있음.',
+    '반복적이고 구체적인 안내를 통해 기본기를 다져 가도록 지도할 계획임.',
+    '성취 가능한 목표를 세워 자신감을 회복하도록 도울 필요가 있음.']
+};
+var sRows=[];
+window.sSuggestUnits=function(){
+  var subj=document.getElementById('sSubj').value;
+  areaSuggest('sKeySugg','sKey',subj,subj);
+};
+function fillNames(countId,rosterId,mode){
+  var n=parseInt(document.getElementById(countId).value,10)||0; if(n<1||n>60){toast('인원수를 1~60으로');return;}
+  var lines=[];
+  if(mode==='num'){ for(var i=1;i<=n;i++) lines.push(i+'번'); }
+  else{
+    var S=['김','이','박','최','정','강','조','윤','장','임','한','오','서','신','권','황','안','송','류','전'];
+    var G=['민준','서연','도윤','하은','시우','지우','예준','수아','지호','채원','준우','다은','건우','유나','이준','서윤','현우','지안','우진','하윤','선우','예은','유준','서아','지훈','민서','정우','예린','승현','수빈'];
+    var used={};
+    for(var i=0;i<n;i++){ var nm,g=0; do{ nm=S[Math.floor(Math.random()*S.length)]+G[Math.floor(Math.random()*G.length)]; g++; }while(used[nm]&&g<80); used[nm]=1; lines.push(nm); }
+  }
+  document.getElementById(rosterId).value=lines.join('\n');
+  toast(n+'명 명단을 채웠습니다');
+}
+window.sFill=function(mode){ fillNames('sCount','sRoster',mode); };
+window.sFromGrade=function(){
+  var v=document.getElementById('gRoster').value||lsGet(ROSTER_KEY)||'';
+  if(!v.trim()){toast('평어 탭 명단이 비어 있습니다');return;}
+  document.getElementById('sRoster').value=v;
+  toast('평어 탭 명단을 가져왔습니다');
+};
+function sBuild(){
+  var subj=document.getElementById('sSubj').value;
+  var level=document.getElementById('sLevel').value;
+  var sen=parseInt(document.getElementById('sLen').value,10)||3;
+  var raw=document.getElementById('sRoster').value.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean);
+  if(raw.length===0){toast('명단을 먼저 입력하세요');return;}
+  var key=document.getElementById('sKey').value.trim();
+  var keyList=key?key.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
+  var kwPool=keyList.length?keyList:(SUBJECT_AREAS[subj]||[]).slice();
+  var caps=uniqueTexts(bankFor(subj,level),kwPool,raw.length);
+  var obsPool=shuffle(SE_OBS[level]); var growPool=shuffle(SE_GROW[level]);
+  var pairs=[]; obsPool.forEach(function(o){ growPool.forEach(function(g){ pairs.push([o,g]); }); });
+  pairs=shuffle(pairs);
+  sRows=raw.map(function(nm,i){
+    var p=pairs[i%pairs.length];
+    var parts=[caps[i],p[0]];
+    if(sen>=4){ var o2=obsPool[(i*3+1)%obsPool.length]; if(o2!==p[0]) parts.push(o2); }
+    if(sen>=3) parts.push(p[1]);
+    var text=parts.join(' ').replace(/\s+/g,' ').trim();
+    return {name:nm,text:text};
+  });
+  sRender();
+  toast(raw.length+'명 세특을 생성했습니다');
+}
+function sRender(){
+  var html='<div class="tblwrap"><table><thead><tr><th>이름</th><th>세부능력 및 특기사항</th><th>분량</th><th>복사</th></tr></thead><tbody>';
+  sRows.forEach(function(r,i){
+    html+='<tr><td class="nm">'+esc(r.name)+'</td><td>'+esc(r.text)+'</td>'+
+      '<td class="op" style="font-size:12px;color:var(--ink2)">'+r.text.length+'자<br>'+byteLen(r.text)+'B</td>'+
+      '<td class="op"><button data-i="'+i+'">복사</button></td></tr>';
+  });
+  html+='</tbody></table></div>';
+  var box=document.getElementById('sResult'); box.innerHTML=html;
+  box.querySelectorAll('td.op button').forEach(function(b){
+    b.addEventListener('click',function(){ copyText(sRows[+b.getAttribute('data-i')].text); });
+  });
+}
+document.getElementById('sGen').addEventListener('click',sBuild);
+document.getElementById('sRegen').addEventListener('click',sBuild);
+document.getElementById('sCopyAll').addEventListener('click',function(){
+  if(!sRows.length){toast('먼저 세특을 생성하세요');return;}
+  var tsv=sRows.map(function(r){return r.name+'\t'+r.text;}).join('\n');
+  copyText(tsv); toast('나이스 양식으로 복사됨(이름·세특)');
+});
+document.getElementById('sPrint').addEventListener('click',function(){
+  if(!sRows.length){toast('먼저 세특을 생성하세요');return;}
+  var subj=document.getElementById('sSubj').value;
+  var rows=sRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td>'+esc(r.text)+'</td></tr>';}).join('');
+  var w=window.open('','_blank'); if(!w){toast('팝업이 차단되었습니다');return;}
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>'+esc(subj)+' 세부능력 및 특기사항</title>'+
+   '<style>body{font-family:sans-serif;padding:24px;color:#141413}h2{font-size:18px}'+
+   'table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #999;padding:8px;font-size:13px;text-align:left;vertical-align:top}'+
+   'th{background:#eee}td:first-child{white-space:nowrap;font-weight:bold}</style></head><body>'+
+   '<h2>'+esc(subj)+' 세부능력 및 특기사항</h2>'+
+   '<table><thead><tr><th>이름</th><th>내용</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+   '<script>window.onload=function(){window.print();}<\/script></body></html>');
+  w.document.close();
+});
+try{ window.sSuggestUnits(); window.fSuggestUnits(); }catch(e){}
 
 })();
 </script>
