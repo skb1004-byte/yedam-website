@@ -1,0 +1,14 @@
+{
+  "name": "예담정보통신 - AI PIA·맘(MOM)·선생님도우미",
+  "short_name": "예담",
+  "description": "성격·진로 검사 AI PIA, 어르신 인지건강도 검사 맘(MOM), 교사 업무 도우미를 한 곳에서.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf9f5",
+  "theme_color": "#d97757",
+  "lang": "ko",
+  "icons": [
+    { "src": "/images/favicon_256.png", "sizes": "256x256", "type": "image/png", "purpose": "any" }
+  ]
+}
