@@ -458,14 +458,15 @@ h1{line-height:1.12}
     <nav class="nav" aria-label="주요 메뉴">
       <a href="#about">회사소개</a>
       <a href="#solutions">솔루션</a>
+      <a href="ai-pia.html">AI PIA</a>
+      <a href="mom.html">맘(MOM)</a>
       <a href="#record">실적</a>
       <a href="#clients">파트너</a>
       <a href="#contact">문의</a>
     </nav>
     <a href="teacher-hub.html" class="hdr-auth" style="font-family:var(--font-ui);font-size:.94rem;font-weight:500;color:var(--ink-soft);text-decoration:none;margin-right:22px">선생님도우미</a>
-    <a href="pia-admin.html" class="hdr-auth" style="display:none">관리자</a>
     <a href="https://www.kb2g.org/auth/" target="_blank" rel="noopener" class="hdr-auth" style="font-family:var(--font-ui);font-size:.94rem;font-weight:500;color:var(--rust);text-decoration:none;margin-right:22px">공익장터</a>
-    <a href="login.html" class="hdr-auth" id="hdrAuth" style="font-family:var(--font-ui);font-size:.94rem;font-weight:500;color:var(--ink-soft);text-decoration:none;margin-right:18px">로그인</a>
+    <a href="login.html" class="hdr-auth" id="hdrAuth" style="font-family:var(--font-ui);font-size:.94rem;font-weight:500;color:var(--ink-soft);text-decoration:none;margin-right:18px">로그인/회원가입</a>
     <a href="ai-pia.html" class="btn btn-primary hdr-cta">AI PIA 검사</a>
     <button class="burger" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sheet">
       <span></span><span></span><span></span>
@@ -485,25 +486,44 @@ h1{line-height:1.12}
   #gongikPop .gp-close{ font-size:28px!important; top:8px!important; right:12px!important }
 }
 </style>
-<!-- 공익장터 코너 팝업 -->
-<div id="gongikPop" style="position:fixed;left:24px;top:90px;z-index:900;max-width:600px;background:#fff;border:1px solid #ecd9cf;border-left:10px solid #c4623f;border-radius:18px;box-shadow:0 18px 54px rgba(0,0,0,.16);padding:34px 40px 34px 38px;font-family:var(--font-ui)">
+<!-- 공익장터 코너 팝업 (즉시 노출 대신 지연·스크롤 조건 노출) -->
+<div id="gongikPop" style="display:none;position:fixed;left:24px;top:90px;z-index:900;max-width:600px;background:#fff;border:1px solid #ecd9cf;border-left:10px solid #c4623f;border-radius:18px;box-shadow:0 18px 54px rgba(0,0,0,.16);padding:34px 40px 34px 38px;font-family:var(--font-ui)">
   <button class="gp-close" onclick="var p=document.getElementById('gongikPop');p.style.display='none';try{sessionStorage.setItem('gongikPopClosed','1')}catch(e){}" aria-label="닫기" style="position:absolute;top:14px;right:18px;border:0;background:none;color:#b3ada2;font-size:34px;cursor:pointer;line-height:1">×</button>
   <div class="gp-kicker" style="font-size:1.5rem;font-weight:800;color:#c4623f;letter-spacing:.3px;margin-bottom:8px">공공기관 우선구매</div>
   <div class="gp-title" style="font-size:2.1rem;font-weight:800;color:#141413;line-height:1.3">학교·기관 도입은<br>공익장터에서</div>
   <div class="gp-sub" style="font-size:1.35rem;color:#6b6457;margin:12px 0 22px">청렴 조달 · 예산 부담 없이 간편하게</div>
   <a class="gp-btn" href="https://www.kb2g.org/auth/" target="_blank" rel="noopener" style="display:block;text-align:center;background:#c4623f;color:#fff;font-weight:800;font-size:1.6rem;text-decoration:none;padding:18px 0;border-radius:14px">공익장터 바로가기 →</a>
 </div>
-<script>try{if(sessionStorage.getItem('gongikPopClosed')==='1'){var _gp=document.getElementById('gongikPop');if(_gp)_gp.style.display='none';}}catch(e){}</script>
+<script>
+(function(){
+  try{
+    var gp=document.getElementById('gongikPop');
+    if(!gp) return;
+    if(sessionStorage.getItem('gongikPopClosed')==='1') return; /* 이미 닫음 → 이번 세션엔 다시 안 띄움 */
+    var shown=false;
+    function reveal(){ if(shown) return; shown=true; gp.style.display='block'; }
+    /* 첫 화면을 가리지 않도록: 8초 경과 또는 스크롤 40% 지점 중 먼저 오는 시점에 노출 */
+    var t=setTimeout(reveal,8000);
+    window.addEventListener('scroll',function(){
+      var max=(document.documentElement.scrollHeight||1)-window.innerHeight;
+      var pct= max>0 ? (window.scrollY||0)/max : 0;
+      if(pct>0.4){ clearTimeout(t); reveal(); }
+    },{passive:true});
+  }catch(e){}
+})();
+</script>
 
 <!-- mobile sheet -->
 <div class="sheet" id="sheet">
   <a href="#about" class="sheet-link">회사소개</a>
   <a href="#solutions" class="sheet-link">솔루션</a>
+  <a href="ai-pia.html" class="sheet-link">AI PIA</a>
+  <a href="mom.html" class="sheet-link">맘(MOM)</a>
   <a href="#record" class="sheet-link">실적</a>
   <a href="#clients" class="sheet-link">파트너</a>
   <a href="#contact" class="sheet-link">문의</a>
   <a href="teacher-hub.html" class="sheet-link">선생님도우미</a>
-  <a href="pia-admin.html" class="sheet-link" style="display:none">관리자</a>
+  <a href="login.html" class="sheet-link">로그인/회원가입</a>
   <a href="ai-pia.html" class="btn btn-primary">AI PIA 검사 →</a>
 </div>
 
@@ -530,6 +550,26 @@ h1{line-height:1.12}
   </div>
 </section>
 
+<!-- ══════════ WHO ARE YOU (대상자별 진입 동선) ══════════ -->
+<style>
+.who-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.who-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:22px 22px 24px;box-shadow:var(--sh);transition:transform .25s,box-shadow .25s,border-color .25s;display:block}
+.who-card:hover{transform:translateY(-3px);box-shadow:var(--sh-lg);border-color:var(--rust)}
+.who-card .ic{font-size:1.6rem;margin-bottom:8px;display:block}
+.who-card strong{display:block;font-family:var(--font-ui);font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:4px}
+.who-card span{font-family:var(--font-ui);font-size:.83rem;color:var(--ink-soft);line-height:1.5}
+</style>
+<section class="sec" id="who" style="padding:8px 0 44px">
+  <div class="wrap">
+    <div class="who-grid rv">
+      <a class="who-card" href="ai-pia.html"><span class="ic">🧒</span><strong>학생·개인</strong><span>성격·진로·강점 검사를 무료로 체험합니다.</span></a>
+      <a class="who-card" href="teacher-hub.html"><span class="ic">🏫</span><strong>학교·교사</strong><span>반 학생 결과·나이스 문구까지, 선생님도우미를 엽니다.</span></a>
+      <a class="who-card" href="mom.html"><span class="ic">👵</span><strong>경로당·복지기관</strong><span>어르신 인지건강 선별검사 맘(MOM)을 체험합니다.</span></a>
+      <a class="who-card" href="#contact"><span class="ic">🏛</span><strong>도입 담당자</strong><span>학교·기관·지자체 도입을 문의합니다.</span></a>
+    </div>
+  </div>
+</section>
+
 <!-- ══════════ ABOUT ══════════ -->
 <section class="sec alt" id="about">
   <div class="wrap">
@@ -547,7 +587,7 @@ h1{line-height:1.12}
       <div class="rv d1">
         <p class="about-lead">비상교육 9년 파트너십 위에서 출발한 AI 에듀테크 전문기업</p>
         <p class="about-p">2014년 설립 이래 비상교육 RMS 시스템개편(1.925억)을 시작으로 비바샘·유아Core·윙스·누리샘·티키토키 등 비상교육 핵심 서비스를 9년간 연속 수행하였습니다. 현대NGV·경기도청·국방부 사업에도 참여하며 교육·공공 전 분야의 SI 역량을 쌓았습니다.</p>
-        <p class="about-p">2026년 현재는 축적된 도메인 경험 위에 AI·IoT·실감형 기술을 결합한 4대 신규 솔루션으로 다음 단계의 에듀테크 시장을 개척하고 있습니다.</p>
+        <p class="about-p">2026년 현재는 축적된 도메인 경험 위에 AI·IoT·실감형 기술을 결합한 4대 신규 솔루션으로 다음 단계의 에듀테크 시장을 개척하고 있습니다. 학생 대상 AI PIA뿐 아니라, 한국어 음성으로 어르신을 안내하는 AI 아바타 "류시아"가 함께하는 시니어 인지건강 선별검사 맘(MOM)까지 — 말로 설명하는 기술이 아니라 실제로 써볼 수 있는 서비스로 증명합니다.</p>
         <table class="info-tbl">
           <tbody>
             <tr><td class="lbl">법인명</td><td class="val">㈜예담정보통신<span class="tag">중소기업</span></td></tr>
@@ -625,6 +665,47 @@ h1{line-height:1.12}
           </ul>
         </div>
       </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ MOM(맘) — 시니어 인지건강 선별 ══════════ -->
+<section class="sec alt" id="mom">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Senior Wellness · Cognitive Screening</span>
+      <h2 class="title">맘(MOM) — <span class="em">어르신 인지건강</span>도 AI로.</h2>
+      <p class="lead-desc">경로당·노인정 대상 AI 인지 선별검사. AI 음성 안내자 "류시아"가 검사 전 과정을 함께하며, 큰 글씨·큰 버튼으로 어르신 혼자서도 이용할 수 있습니다.</p>
+    </div>
+    <ul class="feat-list rv" style="max-width:680px">
+      <li><span class="d"></span><div><strong>인지 선별 8~12과제, 약 15분:</strong> 단어 기억·지남력·시계 그리기·동물 이름 대기 등 6개 영역 가중 종합점수로 판정.</div></li>
+      <li><span class="d"></span><div><strong>결과지 3종:</strong> 본인용·보호자용·복지사용으로 나누어 제공합니다.</div></li>
+      <li><span class="d"></span><div><strong>재검 시 변화 추적:</strong> 이전 결과와 비교해 조기 변화를 감지합니다.</div></li>
+      <li><span class="d"></span><div><strong>안심 설계:</strong> 진단이 아닌 선별·웰니스 검사이며 결과는 이 기기에만 저장됩니다. 치매안심센터(1899-9988) 연계 안내를 포함합니다.</div></li>
+    </ul>
+    <div class="rv" style="margin-top:28px;display:flex;gap:14px;flex-wrap:wrap">
+      <a href="mom.html" class="btn btn-primary">맘(MOM) 체험하기 →</a>
+      <a href="#contact" class="btn btn-ghost">경로당·기관 도입 문의</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 선생님도우미 ══════════ -->
+<section class="sec" id="teacher-tools">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Teacher Tools</span>
+      <h2 class="title">선생님도우미 — <span class="em">교사 업무를 한 곳에서.</span></h2>
+      <p class="lead-desc">담임·전담 선생님을 위한 도구 모음. 반 학생 결과 확인부터 나이스 입력, 시간표·학사일정 편성까지 한 곳에서 처리합니다.</p>
+    </div>
+    <ul class="feat-list rv" style="max-width:680px">
+      <li><span class="d"></span><div><strong>우리 반 학생 결과:</strong> 반 코드로 연결된 학생들의 검사 현황·통합유형·정서 신호를 한눈에 확인합니다.</div></li>
+      <li><span class="d"></span><div><strong>나이스(NEIS) 입력 도우미:</strong> 행동특성·창의적 체험활동·상담기록 초안을 자동 생성해 복사·붙여넣기로 씁니다.</div></li>
+      <li><span class="d"></span><div><strong>시간표·학사일정 자동편성:</strong> 과목·시수·전담을 입력하면 교사·학급이 겹치지 않는 주간 시간표를 자동 편성합니다.</div></li>
+      <li><span class="d"></span><div><strong>생기부·평어·가정통신문 도우미:</strong> 관찰 키워드만 고르면 개조식 초안을 자동 생성·복사합니다.</div></li>
+    </ul>
+    <div class="rv" style="margin-top:28px">
+      <a href="teacher-hub.html" class="btn btn-primary">선생님도우미 열기 →</a>
     </div>
   </div>
 </section>
@@ -912,6 +993,9 @@ h1{line-height:1.12}
           <span>사업자등록번호 127-86-57189</span>
           <span>서울 금천구 가산디지털1로 212, 1405호</span>
           <span>Tel 02-2261-4528</span>
+          <span><a href="ai-pia.html" style="color:inherit;text-decoration:underline">AI PIA</a></span>
+          <span><a href="mom.html" style="color:inherit;text-decoration:underline">맘(MOM)</a></span>
+          <span><a href="teacher-hub.html" style="color:inherit;text-decoration:underline">선생님도우미</a></span>
         </div>
       </div>
       <div class="ft-cr">© 2026 Yedam I&amp;C. All Rights Reserved.</div>
