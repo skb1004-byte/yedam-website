@@ -130,7 +130,7 @@ th{background:var(--paper2);font-weight:700;color:var(--ink2)}
 </div>
 
 <script>
-var DOW=['월','화','수','목','금','토'];
+var DOW=['월','화','수','목','금','토','일'];
 var classes=[];
 var subs=[]; // {name,hours,type:'hr'|'sp',teacher}
 var events=[]; // {date,name}
@@ -602,7 +602,7 @@ function renderCal(){
   var t=el('table'); var body='<tr><th>날짜</th><th>구분</th><th>내용</th><th class="noprint"></th></tr>';
   all.forEach(function(e,i){
     var dt=new Date(e.date); var dow=DOW[(dt.getDay()+6)%7];
-    body+='<tr><td>'+e.date+' ('+dow+')</td><td>'+(e.pub?'<span class="pill bad">공휴일</span>':(e.hol?'<span class="pill bad">휴업</span>':'<span class="pill tag sp">행사</span>'))+'</td><td>'+esc(e.name)+'</td>'
+    body+='<tr><td>'+e.date+' ('+dow+')</td><td>'+(e.pub?'<span class="pill bad">공휴일</span>':(e.hol?'<span class="pill bad">'+((e.name||'').indexOf('재량휴업')>-1?'재량휴업':((e.name||'').indexOf('방학')>-1?'방학':'휴업'))+'</span>':'<span class="pill tag sp">행사</span>'))+'</td><td>'+esc(e.name)+'</td>'
       +'<td class="noprint">'+(e.hol?'':'<button class="ghost sm" data-i="'+i+'">✕</button>')+'</td></tr>';
   });
   t.innerHTML=body; host.appendChild(t);
