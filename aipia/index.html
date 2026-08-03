@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI PIA — 학생 성격·진로·강점 검사 | ㈜예담정보통신</title>
+<meta name="description" content="AI PIA — Big5 성격·RIASEC 흥미·강점·그릿·사회적 판단력까지 7가지 학습 검증 검사를 무료로 체험하는 밀착형 성장 진단 플랫폼.">
+<meta name="theme-color" content="#faf9f5">
+<link rel="canonical" href="https://yedam.kr/aipia/">
+<link rel="icon" href="../images/favicon_256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#141413;--ink-soft:#3d3d3a;--paper:#faf9f5;--paper-2:#f3f1ea;--paper-3:#efece2;--line:#e3e0d6;--mid:#b0aea5;
+  --rust:#d97757;--rust-deep:#c4623f;--rust-tint:#f6e9e2;
+  --r:14px;--r-lg:22px;--r-sm:9px;
+  --sh:0 2px 10px rgba(20,20,19,.05),0 12px 32px rgba(20,20,19,.06);
+  --sh-lg:0 8px 24px rgba(20,20,19,.08),0 28px 60px rgba(20,20,19,.10);
+  --maxw:880px;
+  --font-head:'Poppins','Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-body:'Lora','Noto Sans KR',Georgia,serif;
+  --font-ui:'Noto Sans KR',-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--paper);color:var(--ink);line-height:1.7;font-size:1.0625rem;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+h1,h2{font-family:var(--font-head);letter-spacing:-.02em;line-height:1.15;font-weight:700}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;width:100%}
+.topbar{padding:22px 0;border-bottom:1px solid var(--line)}
+.topbar a{font-family:var(--font-ui);font-size:.88rem;font-weight:600;color:var(--ink-soft)}
+.hero{padding:clamp(48px,8vw,84px) 0 clamp(32px,6vw,56px);background:radial-gradient(ellipse 70% 55% at 85% 0%,var(--rust-tint) 0%,transparent 60%),var(--paper)}
+.eyebrow{font-family:var(--font-ui);font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--rust);margin-bottom:16px;display:inline-block}
+h1{font-size:clamp(1.9rem,4.6vw,3rem);color:var(--ink);margin-bottom:18px}
+h1 .em{color:var(--rust)}
+.lead-desc{font-size:1.1rem;color:var(--ink-soft);line-height:1.75;max-width:640px}
+.sec{padding:clamp(40px,7vw,72px) 0}
+.sec.alt{background:var(--paper-2)}
+h2.title{font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:800;color:var(--ink);margin-bottom:22px}
+.feat-list{display:flex;flex-direction:column;max-width:680px}
+.feat-list li{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line);font-family:var(--font-ui);font-size:.95rem;color:var(--ink-soft);line-height:1.6}
+.feat-list li:last-child{border-bottom:none}
+.feat-list li .d{width:8px;height:8px;border-radius:50%;background:var(--rust);flex-shrink:0;margin-top:7px}
+.feat-list strong{color:var(--ink);font-weight:700}
+.btn{font-family:var(--font-ui);font-weight:700;font-size:.97rem;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:.9em 1.6em;border-radius:var(--r-sm);min-height:44px;cursor:pointer;border:1px solid transparent;transition:background .2s,transform .2s,box-shadow .2s}
+.btn-primary{background:var(--rust);color:#fff}
+.btn-primary:hover{background:var(--rust-deep);transform:translateY(-1px);box-shadow:var(--sh)}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--paper-3)}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+.note{font-family:var(--font-ui);font-size:.84rem;color:var(--mid);margin-top:16px}
+.ft{padding:32px 0;border-top:1px solid var(--line);font-family:var(--font-ui);font-size:.8rem;color:var(--mid)}
+@media(max-width:560px){.wrap{padding:0 20px}.btn{width:100%}.cta-row{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap"><a href="../index.html">← yedam.kr 홈으로</a></div></div>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Mind · Growth Platform</span>
+    <h1>AI PIA — <span class="em">나를 알아가는</span><br>성격·진로·강점 검사</h1>
+    <p class="lead-desc">Big5 성격 · RIASEC 흥미 · 강점 · 그릿 · 사회적 판단력까지, 7가지 학습 검증 검사를 통해 나의 성향과 진로 방향을 확인합니다. 무료 · 회원가입 불필요 · 약 35분 소요.</p>
+    <div class="cta-row" style="margin-top:28px">
+      <a href="test.html" class="btn btn-primary">무료로 체험하기 →</a>
+      <a href="../login.html" class="btn btn-ghost">로그인하고 결과 저장하기</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt">
+  <div class="wrap">
+    <h2 class="title">이런 걸 확인할 수 있어요</h2>
+    <ul class="feat-list">
+      <li><span class="d"></span><div><strong>AI 16유형 검사:</strong> 3~5분 간편 검사 또는 정밀 검사 중 선택해 성향을 분석합니다.</div></li>
+      <li><span class="d"></span><div><strong>AI 교육형 만화·숏폼:</strong> 딱딱한 문항 대신 이야기와 숏폼으로 자연스럽게 참여합니다.</div></li>
+      <li><span class="d"></span><div><strong>익명 상담 키오스크:</strong> 결과를 바탕으로 필요한 학생에게는 위험 감지·상담 연결까지 이어집니다.</div></li>
+      <li><span class="d"></span><div><strong>로그인 시 결과 저장:</strong> 로그인하면 검사 결과를 저장하고 마이페이지에서 언제든 다시 볼 수 있습니다.</div></li>
+    </ul>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h2 class="title">학교·기관 도입 담당자시라면</h2>
+    <p class="lead-desc" style="margin-bottom:22px">학교·공공기관은 공익장터 우선구매(조달)로 예산 부담 없이 간편하게 도입하실 수 있습니다.</p>
+    <div class="cta-row">
+      <a href="https://www.kb2g.org/auth/" target="_blank" rel="noopener" class="btn btn-primary" style="background:#c4623f">🏛 공익장터에서 도입하기</a>
+      <a href="../index.html#contact" class="btn btn-ghost">담당자에게 직접 문의</a>
+    </div>
+  </div>
+</section>
+
+<footer class="ft"><div class="wrap">㈜예담정보통신 · <a href="../index.html" style="text-decoration:underline">yedam.kr</a></div></footer>
+
+</body>
+</html>
