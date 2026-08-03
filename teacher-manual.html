@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>선생님도우미 사용 설명서</title>
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--sky:#6a9bcc;--ok:#788c5d;--okbg:#eef3e6;--red:#b91c1c}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.7;font-size:15px}
+a{color:inherit}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px 60px}
+header.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 14px}
+.logo{width:38px;height:38px;border-radius:10px;background:var(--rust);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:0 0 auto}
+.brand h1{font-size:17px;margin:0;font-weight:700}
+.brand .nav{margin-left:auto;display:flex;gap:14px;font-size:14px}
+.brand .nav a{color:var(--ink2);text-decoration:none;padding:6px 10px;border-radius:8px}
+.brand .nav a:hover{background:var(--paper2)}
+.hero{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px}
+.hero h2{margin:0 0 6px;font-size:21px}
+.hero p{margin:0;color:var(--ink2);font-size:14px}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.toc a{text-decoration:none;font-size:13.5px;font-weight:600;color:var(--ink2);background:var(--paper2);border:1px solid var(--line);border-radius:999px;padding:7px 14px}
+.toc a:hover{background:#f6e9e2;border-color:var(--rust);color:var(--rust2)}
+.sec{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px}
+.sec h3{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:8px}
+.sec h3 .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--rust);color:#fff;font-size:14px;font-weight:800;flex:0 0 auto}
+.sec .sub{color:var(--ink2);font-size:13.5px;margin:0 0 14px}
+.sec h4{font-size:15px;margin:20px 0 8px;padding-left:10px;border-left:3px solid var(--rust)}
+.fig{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0;text-align:center;overflow-x:auto}
+.fig svg{max-width:100%;height:auto}
+.fig .cap{font-size:12px;color:var(--ink2);margin-top:8px}
+ol.steps{margin:8px 0;padding-left:0;list-style:none;counter-reset:st}
+ol.steps li{position:relative;padding:10px 12px 10px 44px;margin-bottom:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;counter-increment:st;font-size:14px}
+ol.steps li::before{content:counter(st);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:var(--ok);color:#fff;font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.tip{background:var(--okbg);border:1px solid #cde3cd;border-radius:10px;padding:11px 14px;font-size:13.5px;color:#356635;margin:10px 0}
+.tip b{color:#2c522c}
+.warn{background:#fdf3e2;border:1px solid #ecd9b0;border-radius:10px;padding:11px 14px;font-size:13.5px;color:#7a5a1e;margin:10px 0}
+table.man{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+table.man th,table.man td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+table.man th{background:var(--paper2);white-space:nowrap}
+.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;background:#fff;padding:1px 7px;font-size:12.5px;font-weight:700;color:var(--ink2)}
+.btn-like{display:inline-block;background:var(--rust);color:#fff;border-radius:8px;padding:2px 10px;font-size:12.5px;font-weight:700}
+.btn-like.g{background:#fff;color:var(--ink2);border:1px solid var(--line)}
+.foot{font-size:12.5px;color:var(--ink2);border-top:1px solid var(--line);margin-top:24px;padding-top:14px}
+@media(max-width:520px){.brand .nav{width:100%;margin-left:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="brand">
+<div class="logo">?</div>
+<h1>선생님도우미 사용 설명서</h1>
+<nav class="nav">
+<a href="index.html">홈</a>
+<a href="teacher-hub.html">선생님도우미</a>
+<a href="teacher-writing.html">생기부·평어 도우미</a>
+</nav>
+</header>
+
+<div class="hero">
+<h2>처음 오셨나요? 5분이면 충분합니다</h2>
+<p>선생님도우미는 생기부·평어·세특 작성, 학생 검사 결과 활용, NEIS 시간표 조회까지 담임 업무를 돕는 무료 도구 모음입니다. 설치나 로그인 없이 브라우저에서 바로 쓸 수 있고, 입력한 학생 정보는 서버로 전송되지 않고 선생님 컴퓨터(브라우저)에만 저장됩니다.</p>
+<div class="toc">
+<a href="#m-map">전체 구성</a>
+<a href="#m-rec">① 생기부 문장</a>
+<a href="#m-grade">② 교과 평어</a>
+<a href="#m-perf">③ 수행평가 피드백</a>
+<a href="#m-subj">④ 교과 세특</a>
+<a href="#m-pia">검사 결과지(교사용)</a>
+<a href="#m-nice">NEIS 시간표·학사일정</a>
+<a href="#m-faq">자주 묻는 질문</a>
+</div>
+</div>
+
+<!-- ========== 전체 구성 ========== -->
+<div class="sec" id="m-map">
+<h3><span class="num">0</span>전체 구성 한눈에 보기</h3>
+<p class="sub">선생님도우미 허브에서 아래 도구로 이동할 수 있습니다.</p>
+<div class="fig">
+<svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="230" y="12" width="180" height="52" rx="12" fill="#d97757"/>
+  <text x="320" y="34" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">선생님도우미 허브</text>
+  <text x="320" y="52" text-anchor="middle" fill="#ffe1d5" font-size="10">teacher-hub</text>
+  <line x1="320" y1="64" x2="90" y2="128" stroke="#c9c4b4" stroke-width="2"/>
+  <line x1="320" y1="64" x2="245" y2="128" stroke="#c9c4b4" stroke-width="2"/>
+  <line x1="320" y1="64" x2="400" y2="128" stroke="#c9c4b4" stroke-width="2"/>
+  <line x1="320" y1="64" x2="555" y2="128" stroke="#c9c4b4" stroke-width="2"/>
+  <rect x="16" y="130" width="150" height="66" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <text x="91" y="156" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#141413">생기부·평어 도우미</text>
+  <text x="91" y="174" text-anchor="middle" font-size="10.5" fill="#3d3d3a">문장·평어·피드백·세특</text>
+  <rect x="176" y="130" width="140" height="66" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <text x="246" y="156" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#141413">검사 실행·결과지</text>
+  <text x="246" y="174" text-anchor="middle" font-size="10.5" fill="#3d3d3a">AI PIA 교사용</text>
+  <rect x="326" y="130" width="150" height="66" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <text x="401" y="156" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#141413">나이스 입력 도우미</text>
+  <text x="401" y="174" text-anchor="middle" font-size="10.5" fill="#3d3d3a">생기부 문장 생성기</text>
+  <rect x="486" y="130" width="140" height="66" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <text x="556" y="156" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#141413">NEIS 시간표</text>
+  <text x="556" y="174" text-anchor="middle" font-size="10.5" fill="#3d3d3a">시간표·학사일정</text>
+  <rect x="120" y="218" width="400" height="30" rx="8" fill="#eef3e6" stroke="#cde3cd"/>
+  <text x="320" y="238" text-anchor="middle" font-size="11.5" fill="#356635">검사 결과의 강점 키워드가 생기부 도우미로 자동 전달됩니다</text>
+</svg>
+<div class="cap">그림 1. 선생님도우미 전체 구성도</div>
+</div>
+</div>
+
+<!-- ========== 탭 1 ========== -->
+<div class="sec" id="m-rec">
+<h3><span class="num">1</span>생기부 문장 — 강점 키워드로 초안 만들기</h3>
+<p class="sub">관찰한 강점 키워드 몇 개만 고르면 행동특성·자율·진로·동아리 특기사항 초안을 개조식으로 만들어 줍니다.</p>
+<div class="fig">
+<svg viewBox="0 0 640 150" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="10" y="12" width="140" height="120" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <text x="80" y="34" text-anchor="middle" font-size="12" font-weight="bold" fill="#141413">1) 영역 선택</text>
+  <rect x="24" y="46" width="112" height="20" rx="5" fill="#faf9f5" stroke="#e3e0d6"/><text x="80" y="60" text-anchor="middle" font-size="10" fill="#3d3d3a">행동특성·종합의견</text>
+  <rect x="24" y="72" width="112" height="20" rx="5" fill="#faf9f5" stroke="#e3e0d6"/><text x="80" y="86" text-anchor="middle" font-size="10" fill="#3d3d3a">진로활동 …</text>
+  <text x="168" y="78" font-size="18" fill="#c9c4b4">→</text>
+  <rect x="190" y="12" width="180" height="120" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <text x="280" y="34" text-anchor="middle" font-size="12" font-weight="bold" fill="#141413">2) 키워드 선택</text>
+  <rect x="204" y="46" width="48" height="20" rx="10" fill="#eef3e6" stroke="#788c5d"/><text x="228" y="60" text-anchor="middle" font-size="10" fill="#356635">성실</text>
+  <rect x="258" y="46" width="56" height="20" rx="10" fill="#eef3e6" stroke="#788c5d"/><text x="286" y="60" text-anchor="middle" font-size="10" fill="#356635">리더십</text>
+  <rect x="320" y="46" width="42" height="20" rx="10" fill="#faf9f5" stroke="#e3e0d6"/><text x="341" y="60" text-anchor="middle" font-size="10" fill="#3d3d3a">배려</text>
+  <rect x="204" y="72" width="56" height="20" rx="10" fill="#faf9f5" stroke="#e3e0d6"/><text x="232" y="86" text-anchor="middle" font-size="10" fill="#3d3d3a">탐구심</text>
+  <rect x="266" y="72" width="62" height="20" rx="10" fill="#eef3e6" stroke="#788c5d"/><text x="297" y="86" text-anchor="middle" font-size="10" fill="#356635">자기주도</text>
+  <text x="388" y="78" font-size="18" fill="#c9c4b4">→</text>
+  <rect x="410" y="12" width="220" height="120" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <text x="520" y="34" text-anchor="middle" font-size="12" font-weight="bold" fill="#141413">3) 문장 생성 → 결과</text>
+  <rect x="424" y="44" width="90" height="22" rx="6" fill="#d97757"/><text x="469" y="59" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="bold">문장 생성</text>
+  <rect x="424" y="74" width="192" height="46" rx="6" fill="#faf9f5" stroke="#e3e0d6"/>
+  <text x="432" y="90" font-size="9.5" fill="#3d3d3a">맡은 일을 끝까지 책임감 있게 완수하는</text>
+  <text x="432" y="103" font-size="9.5" fill="#3d3d3a">성실한 태도가 돋보임. 모둠 활동에서…</text>
+  <text x="432" y="116" font-size="9" fill="#788c5d">글자수 486자 · 1,420byte</text>
+</svg>
+<div class="cap">그림 2. 생기부 문장 생성 3단계</div>
+</div>
+<ol class="steps">
+<li><b>영역</b>을 고릅니다 — 행동특성 및 종합의견 / 자율·자치 / 진로 / 동아리. 영역에 따라 권장 글자수(500자 또는 700자)가 자동 적용됩니다.</li>
+<li><b>강점 키워드</b>를 여러 개 클릭합니다(초록색으로 켜짐). 목록에 없는 특징은 <b>자유 키워드</b> 칸에 쉼표로 적으면 됩니다. 예: <i>학급 게시판 관리, 모둠 발표 주도</i></li>
+<li>학생 이름은 선택 사항입니다. 비우면 이름 없이 생성됩니다.</li>
+<li><span class="btn-like">문장 생성</span>을 누르면 결과 칸에 초안이 나타납니다. 마음에 들지 않으면 <span class="btn-like g">다시 생성</span> — 누를 때마다 다른 조합의 문장이 나옵니다.</li>
+<li>결과 칸에서 직접 고쳐 쓴 뒤 <span class="btn-like g">복사</span>를 눌러 나이스에 붙여넣습니다.</li>
+</ol>
+<div class="tip"><b>글자수·byte 자동 계산:</b> 결과 아래에 글자수와 NEIS 기준 byte가 실시간 표시되고, 권장 상한을 넘으면 빨간색으로 경고합니다. 나이스는 한글 1자를 3byte로 계산하는데 이 규칙 그대로 계산해 드립니다.</div>
+<div class="tip"><b>검사 결과 자동 불러오기:</b> 학생이 AI PIA 검사를 마친 뒤 결과지에서 "선생님도우미로 보내기"를 누르면, 이 화면을 열 때 강점 키워드가 자동으로 선택돼 있습니다(24시간 이내, 같은 컴퓨터).</div>
+</div>
+
+<!-- ========== 탭 2 ========== -->
+<div class="sec" id="m-grade">
+<h3><span class="num">2</span>교과 평어 — 반 전체를 한 번에, 전혀 겹치지 않게</h3>
+<p class="sub">과목·성취수준·명단만 넣으면 학생마다 서로 다른 평어를 배정합니다. 같은 문장이 두 학생에게 나가지 않습니다.</p>
+<ol class="steps">
+<li><b>학년·과목·성취수준</b>을 고릅니다. 학년은 저장되어 다음에 자동으로 불러옵니다.</li>
+<li><span class="btn-like g">🔎 단원·영역 자동</span>을 누르면 2022 개정 교육과정 기준 그 과목의 영역이 추천 단추로 나타납니다. <b>여러 개를 클릭하면 클릭한 것이 모두 입력칸에 쉼표로 담기고</b>, 다시 클릭하면 해제됩니다. 학기(1·2학기)에 맞춰 순서도 바뀝니다.</li>
+<li><b>명단</b>은 한 줄에 한 명씩 입력합니다. 인원수를 넣고 <span class="btn-like g"># 번호로 채우기</span>를 누르면 1번~N번으로, <span class="btn-like g">🎲 랜덤 이름</span>은 연습용 가짜 이름으로 채워 줍니다. <span class="btn-like g">명단 저장</span>을 해 두면 다음에 <span class="btn-like g">명단 불러오기</span>로 재사용할 수 있습니다.</li>
+<li><b>생성 범위</b>에서 "이 과목만" 또는 "전 과목 일괄 생성"을 고르고 <span class="btn-like">학급 평어 생성</span>을 누릅니다.</li>
+<li>표에서 학생별 <span class="btn-like g">복사</span>는 평어 문장만 복사합니다(나이스 특기사항 칸에 바로 붙여넣기). <span class="btn-like g">📋 전체 복사</span>는 이름·과목·평어를 탭으로 구분한 표 형식이라 나이스 그리드나 엑셀에 한 번에 붙습니다.</li>
+</ol>
+<div class="fig">
+<svg viewBox="0 0 640 130" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="20" y="14" width="600" height="104" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <rect x="20" y="14" width="600" height="26" rx="10" fill="#f3f1ea"/>
+  <text x="60" y="31" font-size="11" font-weight="bold" fill="#141413">이름</text>
+  <text x="150" y="31" font-size="11" font-weight="bold" fill="#141413">평어</text>
+  <text x="42" y="58" font-size="11" fill="#3d3d3a">김하늘</text>
+  <text x="150" y="58" font-size="10.5" fill="#3d3d3a">수와 연산 단원에서 기본 연산을 정확하게 수행하고 배운 개념을 문제에 잘 적용함.</text>
+  <text x="42" y="84" font-size="11" fill="#3d3d3a">이서준</text>
+  <text x="150" y="84" font-size="10.5" fill="#3d3d3a">도형과 측정 영역에서 문제 해결 과정을 순서대로 정리하여 답을 구할 수 있음.</text>
+  <text x="42" y="110" font-size="11" fill="#3d3d3a">박지우</text>
+  <text x="150" y="110" font-size="10.5" fill="#3d3d3a">수와 연산을 학습하며 수학적 개념을 이해하고 유사한 문제에 스스로 적용함.</text>
+</svg>
+<div class="cap">그림 3. 같은 성취수준이라도 학생마다 단원·문형이 다르게 배정됩니다</div>
+</div>
+<div class="tip"><b>무중복 원리:</b> 기본 문장 × 단원·영역 × 서두 표현을 조합해 수십~수백 가지 서로 다른 문장을 만들고, 학생마다 겹치지 않게 하나씩 배정합니다. 40명 학급도 전원이 다른 평어를 받습니다.</div>
+</div>
+
+<!-- ========== 탭 3 ========== -->
+<div class="sec" id="m-perf">
+<h3><span class="num">3</span>수행평가 피드백 — 점수만 넣으면 수준 판정 + 문장까지</h3>
+<p class="sub">점수를 입력하면 성취수준(매우 잘함~노력 요함)을 자동 판정하고 학생마다 다른 피드백 문장을 붙여 줍니다.</p>
+<ol class="steps">
+<li><b>과목</b>을 고르고, <b>평가 과제·영역명</b>은 직접 입력하거나 <span class="btn-like g">🔎 단원·영역 자동</span>으로 교육과정 영역을 클릭해 채웁니다(여러 개 선택 가능).</li>
+<li><b>점수 → 수준 기준</b>을 학교 기준에 맞게 조정합니다. 기본값은 90/75/60입니다.</li>
+<li>명단을 채우고 <span class="btn-like">표 만들기 · 점수 입력</span>을 누릅니다. <span class="btn-like g">평어 명단 가져오기</span>를 누르면 ② 탭 명단을 그대로 씁니다.</li>
+<li>표의 점수 칸에 점수를 입력하는 <b>즉시</b> 수준과 피드백 문장이 바뀝니다. 이때도 다른 학생과 겹치지 않는 문장이 배정됩니다.</li>
+<li><span class="btn-like g">문장 다시 배정</span>은 점수는 그대로 두고 문장만 새로 뽑습니다. <span class="btn-like g">📋 전체 복사</span>는 이름·점수·피드백을 표 형식으로 복사합니다.</li>
+</ol>
+<div class="warn">점수를 입력하지 않은 학생은 문장이 비어 있습니다. 인쇄 전에 점수 누락을 확인하세요.</div>
+</div>
+
+<!-- ========== 탭 4 ========== -->
+<div class="sec" id="m-subj">
+<h3><span class="num">4</span>교과 세특 — 세부능력 및 특기사항 2~4문장</h3>
+<p class="sub">과목·성취수준·단원을 정하면 학생마다 전혀 겹치지 않는 세특을 만들어 줍니다. [수업 성취] + [관찰 모습] + [성장 전망] 구조입니다.</p>
+<div class="fig">
+<svg viewBox="0 0 640 120" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="14" y="30" width="190" height="60" rx="10" fill="#f6e9e2" stroke="#d97757"/>
+  <text x="109" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#c4623f">문장 1 · 수업 성취</text>
+  <text x="109" y="74" text-anchor="middle" font-size="10" fill="#3d3d3a">단원·영역 + 성취수준 문장</text>
+  <text x="216" y="66" font-size="16" fill="#c9c4b4">＋</text>
+  <rect x="232" y="30" width="180" height="60" rx="10" fill="#eef3e6" stroke="#788c5d"/>
+  <text x="322" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#356635">문장 2 · 관찰 모습</text>
+  <text x="322" y="74" text-anchor="middle" font-size="10" fill="#3d3d3a">수업 태도·참여 관찰</text>
+  <text x="424" y="66" font-size="16" fill="#c9c4b4">＋</text>
+  <rect x="440" y="30" width="186" height="60" rx="10" fill="#e8eef7" stroke="#6a9bcc"/>
+  <text x="533" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#3f6c9c">문장 3 · 성장 전망</text>
+  <text x="533" y="74" text-anchor="middle" font-size="10" fill="#3d3d3a">발전 가능성·지도 계획</text>
+</svg>
+<div class="cap">그림 4. 세특 문장 구조 — 조합이 달라 학생끼리 겹치지 않습니다</div>
+</div>
+<ol class="steps">
+<li><b>과목·성취수준·분량</b>(간단 2문장 / 표준 3문장 / 자세히 4문장)을 고릅니다.</li>
+<li><b>단원·영역 키워드</b>를 직접 쓰거나 <span class="btn-like g">🔎 단원·영역 자동</span>에서 여러 개 클릭해 담습니다.</li>
+<li>명단을 채우고(<span class="btn-like g">평어 명단 가져오기</span> 지원) <span class="btn-like">세특 생성</span>을 누릅니다.</li>
+<li>표에 학생별 세특과 <b>글자수·byte</b>가 함께 표시됩니다. 개별 <span class="btn-like g">복사</span> 또는 <span class="btn-like g">📋 전체 복사</span>(이름·세특 표 형식)로 나이스에 옮깁니다.</li>
+</ol>
+<div class="warn">생성 문구는 <b>초안</b>입니다. 실제 관찰 근거에 맞게 반드시 검토·수정한 뒤 입력하시고, 해당 학년도 기재요령과 분량 기준을 확인하세요.</div>
+</div>
+
+<!-- ========== 검사 결과지 ========== -->
+<div class="sec" id="m-pia">
+<h3><span class="num">5</span>검사 실행 · 결과지(교사용)</h3>
+<p class="sub">학생이 AI PIA 통합검사를 마치면 교사용 결과지를 확인하고, 강점 키워드를 생기부 도우미로 바로 넘길 수 있습니다.</p>
+<ol class="steps">
+<li>선생님도우미 허브에서 <b>검사 실행 · 결과지(교사용)</b> 카드를 누르면 바로 <b>통합 결과</b> 화면으로 이동합니다.</li>
+<li>결과지 표지의 성명·학교·학년/반·검사일·발급일·담당기관(학생의 학교명)은 검사 정보에서 <b>자동으로 채워집니다</b>.</li>
+<li>결과지 보기 탭에서 <b>학생 본인용 / 학부모·선생님용</b>을 전환할 수 있고, 인쇄·HTML 저장·TXT 저장·복사를 지원합니다.</li>
+<li>결과 화면의 <b>"선생님도우미로 보내기"</b> 단추를 누르면 강점 키워드가 저장되고, 생기부·평어 도우미의 ① 생기부 문장 탭을 열면 해당 키워드가 자동 선택돼 있습니다.</li>
+</ol>
+<div class="fig">
+<svg viewBox="0 0 640 100" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="20" y="24" width="170" height="52" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <text x="105" y="46" text-anchor="middle" font-size="12" font-weight="bold" fill="#141413">검사 결과지</text>
+  <text x="105" y="64" text-anchor="middle" font-size="10" fill="#3d3d3a">강점: 성실 · 리더십 · 탐구심</text>
+  <line x1="196" y1="50" x2="256" y2="50" stroke="#788c5d" stroke-width="2" marker-end="url(#ar)"/>
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#788c5d"/></marker></defs>
+  <rect x="262" y="24" width="150" height="52" rx="10" fill="#eef3e6" stroke="#788c5d"/>
+  <text x="337" y="46" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#356635">선생님도우미로</text>
+  <text x="337" y="63" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#356635">보내기</text>
+  <line x1="418" y1="50" x2="478" y2="50" stroke="#788c5d" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="484" y="24" width="140" height="52" rx="10" fill="#fff" stroke="#e3e0d6"/>
+  <text x="554" y="46" text-anchor="middle" font-size="12" font-weight="bold" fill="#141413">생기부 문장 탭</text>
+  <text x="554" y="64" text-anchor="middle" font-size="10" fill="#3d3d3a">키워드 자동 선택됨</text>
+</svg>
+<div class="cap">그림 5. 검사 결과 → 생기부 키워드 자동 전달 흐름</div>
+</div>
+<div class="tip"><b>전달 조건:</b> 같은 컴퓨터·같은 브라우저에서 24시간 이내에 열어야 하며, 한 번 불러오면 자동으로 지워져 중복 입력을 막습니다.</div>
+</div>
+
+<!-- ========== NEIS ========== -->
+<div class="sec" id="m-nice">
+<h3><span class="num">6</span>NEIS 시간표 · 학사일정</h3>
+<p class="sub">학교 이름만 넣으면 나이스 공공 API에서 이번 주 시간표와 학사일정을 불러옵니다.</p>
+<ol class="steps">
+<li>학교명을 입력하고 검색합니다. 같은 이름의 학교가 여러 곳이면 지역으로 구분해 고릅니다.</li>
+<li>학년·반을 고르면 이번 주 시간표가 표로 나타납니다.</li>
+<li>학사일정에는 공휴일·재량휴업·방학·행사가 배지로 구분되어 표시됩니다.</li>
+<li>생기부 문장 생성기(나이스 입력 도우미)에서는 <b>NEIS 과목·시수 자동</b> 단추로 이번 주 시간표를 읽어 과목·주당 시수를 자동으로 채울 수 있습니다.</li>
+</ol>
+<div class="warn">학기 초·방학 중에는 나이스에 시간표 자료가 아직 없어 "데이터가 없습니다"라고 나올 수 있습니다. 이 경우 잠시 후 다시 시도하거나 직접 입력하세요. 학생·교사 이름은 나이스 공공 API가 제공하지 않는 정보라 불러올 수 없습니다.</div>
+</div>
+
+<!-- ========== FAQ ========== -->
+<div class="sec" id="m-faq">
+<h3><span class="num">7</span>자주 묻는 질문</h3>
+<table class="man">
+<tr><th>질문</th><th>답변</th></tr>
+<tr><td>학생 이름 등 개인정보가 외부로 나가나요?</td><td>아니요. 명단·평어·세특은 모두 선생님 브라우저 안에서만 만들어지고 저장(localStorage)됩니다. 서버로 전송되지 않으며 AI 모델 학습에도 사용되지 않습니다.</td></tr>
+<tr><td>저장한 명단이 사라졌어요.</td><td>브라우저 방문기록(사이트 데이터)을 삭제하면 저장된 명단·학년 설정도 함께 지워집니다. 다른 컴퓨터에서는 저장 내용이 공유되지 않습니다.</td></tr>
+<tr><td>인쇄 버튼을 눌러도 반응이 없어요.</td><td>브라우저가 팝업을 차단한 경우입니다. 주소창의 팝업 차단 안내를 눌러 "허용"으로 바꾼 뒤 다시 시도하세요.</td></tr>
+<tr><td>전체 복사가 나이스에 이상하게 붙어요.</td><td>전체 복사는 탭 구분 표 형식입니다. 나이스 그리드나 엑셀에는 한 번에 붙지만, 일반 텍스트 칸에는 학생별 <b>개별 복사</b>를 사용하세요.</td></tr>
+<tr><td>생성된 문장을 그대로 써도 되나요?</td><td>초안으로만 사용하세요. 교육부는 생성형 도구를 생기부 작성의 보조수단으로 허용하고 있지만, 최종 문장은 교사의 실제 관찰 근거로 검토·수정해야 합니다.</td></tr>
+<tr><td>단축키가 있나요?</td><td>모든 입력칸은 <span class="kbd">Tab</span>으로 이동, 결과 텍스트는 <span class="kbd">Ctrl</span>+<span class="kbd">A</span> → <span class="kbd">Ctrl</span>+<span class="kbd">C</span>로 복사할 수 있습니다.</td></tr>
+</table>
+</div>
+
+<div class="foot">
+문의: 예담정보통신 · 이 설명서의 화면 그림은 이해를 돕기 위한 예시이며 실제 화면과 조금 다를 수 있습니다.
+</div>
+</div>
+</body>
+</html>
