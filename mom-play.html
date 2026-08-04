@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <meta name="robots" content="noindex,nofollow">
 <title>맘(MOM) · 두뇌 놀이터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#141413;--ink2:#4a463f;--paper:#faf9f5;--paper2:#f1eee6;--line:#ddd8cb;
 --rust:#d97757;--rust2:#c4623f;--ok:#5c7a4a;--okbg:#eef4e7;--warn:#b7791f;--warnbg:#fdf3e2;--red:#b3372c;--sky:#4f7dab}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{font-size:17px}
-body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-system,'Malgun Gothic',sans-serif;line-height:1.6}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6}
 .app{max-width:760px;margin:0 auto;padding:0 18px 40px}
 .top{display:flex;align-items:center;gap:12px;padding:16px 0 14px}
 .logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7ba05b,#5c7a4a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}
@@ -81,6 +84,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
     <div class="tile" data-g="market"><div class="ic">🛒</div><div class="t">시장 놀이</div><div class="d">돈 계산</div></div>
     <div class="tile" data-g="odd"><div class="ic">👀</div><div class="t">다른 그림 찾기</div><div class="d">눈썰미</div></div>
     <div class="tile" data-g="fast"><div class="ic">⚡</div><div class="t">빨리 찾기</div><div class="d">처리 속도</div></div>
+    <div class="tile" data-g="saju"><div class="ic">🔮</div><div class="t">오늘의 운세</div><div class="d">심심풀이</div></div>
     <div class="tile" data-g="old"><div class="ic">📻</div><div class="t">옛날 이야기 퀴즈</div><div class="d">추억 회상</div></div>
   </div>
   <div class="card" style="margin-top:16px">
@@ -411,6 +415,58 @@ var OLDQ=[
  {q:'설날 아침 어른들께 드리던 인사는?', a:'세배', c:['세배','악수','목례','만세']}
 ];
 GAMES.old={ start:function(){ quizStart('📻 옛날 이야기 퀴즈', shuffle(OLDQ).slice(0,5)); } };
+
+/* 🔮 오늘의 운세 — 심심풀이(재미용): 띠를 고르면 오늘의 운세를 보여준다 */
+var SAJU_Z=['쥐','소','호랑이','토끼','용','뱀','말','양','원숭이','닭','개','돼지'];
+var SAJU_E=['🐭','🐮','🐯','🐰','🐲','🐍','🐴','🐑','🐵','🐔','🐶','🐷'];
+GAMES.saju={
+  start:function(){
+    $('#gTitle').textContent='🔮 오늘의 운세';
+    $('#gScore').textContent='재미용';
+    $('#gFeed').textContent='';
+    var host=$('#gHost');
+    var h='<p class="q-help" style="text-align:center;font-size:1.15rem">태어난 해의 <b>띠</b>를 골라 주세요</p><div class="gridN" style="grid-template-columns:repeat(3,1fr)" id="sajuGrid"></div><p class="q-help" style="text-align:center;font-size:.85rem;margin-top:10px">※ 재미로 보는 운세이며 실제와 관계없습니다</p>';
+    host.innerHTML=h;
+    var grid=$('#sajuGrid');
+    SAJU_Z.forEach(function(z,i){
+      var c=document.createElement('div');
+      c.className='ncell';
+      c.style.cssText='font-size:1rem;line-height:1.35;padding:10px 4px';
+      c.innerHTML='<span style="font-size:1.6rem">'+SAJU_E[i]+'</span><br>'+z+'띠';
+      c.addEventListener('click',function(){ GAMES.saju.show(i); });
+      grid.appendChild(c);
+    });
+    say('태어난 해의 띠를 골라 주세요');
+  },
+  show:function(zi){
+    var d=new Date();
+    var seed=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()+zi*37;
+    function pk(arr,salt){ return arr[(seed+salt*13)%arr.length]; }
+    var HEALTH=['가벼운 산책이 몸을 가뿐하게 해 주는 날입니다.','물을 자주 마시면 몸이 좋아하는 날입니다.','햇볕을 쬐면 기분도 건강도 좋아집니다.','스트레칭 한 번이 보약보다 나은 날입니다.','일찍 주무시면 내일이 더 상쾌합니다.','따뜻한 국 한 그릇이 힘이 되는 날입니다.','친구와 웃으면 건강운이 올라갑니다.','계단보다 평지를 걷는 것이 좋은 날입니다.'];
+    var MONEY=['작은 횡재수가 있으니 주머니를 잘 살펴보세요.','아끼는 것이 버는 것! 알뜰함이 빛나는 날입니다.','오늘은 큰 지출을 미루면 이득입니다.','뜻밖의 선물이 들어올 수 있는 날입니다.','예전에 빌려준 것이 생각나는 날입니다.','시장에서 좋은 물건을 싸게 만날 수 있습니다.','재물운은 평온하니 마음 편히 지내세요.','가족에게 베풀면 복이 두 배로 돌아옵니다.'];
+    var PEOPLE=['반가운 사람에게서 소식이 올 수 있습니다.','오래된 친구 생각이 나면 먼저 전화해 보세요.','이웃과 나누는 대화가 즐거움을 줍니다.','가족과의 시간이 특히 따뜻한 날입니다.','칭찬 한마디가 큰 기쁨으로 돌아옵니다.','새로운 사람과 인연이 닿기 좋은 날입니다.','자녀·손주 목소리가 보약이 되는 날입니다.','양보하면 마음이 두 배로 넉넉해집니다.'];
+    var WORD=['웃는 얼굴에 복이 들어옵니다.','천천히 가도 충분히 잘 가고 있습니다.','오늘 하루도 당신이 주인공입니다.','마음이 젊으면 몸도 젊어집니다.','좋은 생각이 좋은 하루를 만듭니다.','넉넉한 마음이 최고의 재산입니다.','어제보다 오늘, 오늘보다 내일입니다.','당신의 미소가 누군가의 힘이 됩니다.','건강이 최고의 효도 선물입니다.','오늘 만나는 사람에게 친절하면 복이 옵니다.'];
+    var stars=3+((seed>>2)%3);
+    var starTxt='★★★★★'.slice(0,stars)+'☆☆☆☆☆'.slice(0,5-stars);
+    var host=$('#gHost');
+    host.innerHTML='<div style="text-align:center;padding:6px 0">'
+      +'<div style="font-size:3rem">'+SAJU_E[zi]+'</div>'
+      +'<div style="font-size:1.3rem;font-weight:800;margin:4px 0">'+SAJU_Z[zi]+'띠 · 오늘의 운세</div>'
+      +'<div style="color:#c98a2e;font-size:1.2rem;letter-spacing:2px">'+starTxt+'</div>'
+      +'</div>'
+      +'<div class="card" style="text-align:left;font-size:1.05rem;line-height:1.8">'
+      +'<b>🚶 건강</b> '+pk(HEALTH,1)+'<br>'
+      +'<b>💰 재물</b> '+pk(MONEY,2)+'<br>'
+      +'<b>🤝 사람</b> '+pk(PEOPLE,3)+'<br><br>'
+      +'<b>💌 오늘의 한마디</b><br>“'+pk(WORD,4)+'”'
+      +'</div>'
+      +'<button class="btn btn-main" id="sajuOther" style="margin-top:12px">다른 띠도 보기</button>'
+      +'<p class="q-help" style="text-align:center;font-size:.85rem;margin-top:8px">※ 재미로 보는 운세입니다</p>';
+    $('#sajuOther').addEventListener('click',function(){ GAMES.saju.start(); });
+    addStamp();
+    say(SAJU_Z[zi]+'띠, 오늘의 한마디. '+pk(WORD,4));
+  }
+};
 
 /* ⚡ 빨리 찾기 — 처리 속도(시각 탐색): 같은 그림을 빨리 찾아 누르기 */
 GAMES.fast={
