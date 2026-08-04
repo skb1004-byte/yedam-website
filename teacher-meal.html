@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index,follow">
+<meta name="description" content="우리 학교 오늘의 급식 메뉴·칼로리·알레르기 정보를 NEIS 공공 API로 바로 조회하고 학급 안내용으로 복사하는 무료 도구입니다.">
+<link rel="canonical" href="https://yedam.kr/teacher-meal.html">
+<title>AI PIA · 오늘의 급식</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="icon" href="images/favicon_256.png">
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--sky:#6a9bcc;--ok:#788c5d;--okbg:#eef3e6;--red:#b91c1c;--redbg:#fdecec}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.6}
+header{background:rgba(250,249,245,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+.brand{font-weight:800;display:flex;align-items:center;gap:8px}
+.brand .dot{width:24px;height:24px;border-radius:7px;background:var(--rust);display:grid;place-items:center;color:#fff;font-size:13px}
+.sp{flex:1}
+a.link{color:var(--rust);font-weight:700;text-decoration:none;font-size:13px}
+.wrap{max-width:760px;margin:0 auto;padding:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.card h2{font-size:15px;margin-bottom:4px}
+.card .sub{font-size:12px;color:var(--ink2);margin-bottom:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input{font:inherit;border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:#fff}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;background:var(--ink);color:#fff}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+button.rust{background:var(--rust)}
+button.sm{padding:5px 10px;font-size:12px}
+button:hover{opacity:.93}
+button:disabled{opacity:.5;cursor:default}
+.mut{color:var(--ink2);font-size:12px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--paper2);color:var(--ink2)}
+.pill.ok{background:var(--okbg);color:var(--ok)}
+.dnav{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:4px}
+.dnav .dlabel{font-weight:800;font-size:16px;min-width:190px;text-align:center}
+.mealcard{border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.mealcard .mtitle{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.mealcard .mtitle .nm{font-weight:800;font-size:15.5px}
+.dish{list-style:none}
+.dish li{padding:5px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.dish li:last-child{border-bottom:0}
+.dish sup{color:var(--rust2);font-weight:700;margin-left:2px}
+details{margin-top:10px;font-size:12.5px;color:var(--ink2)}
+details summary{cursor:pointer;font-weight:700}
+details .db{margin-top:6px;line-height:1.8}
+.empty{text-align:center;padding:34px 10px;color:var(--ink2)}
+.empty .ic{font-size:34px;margin-bottom:8px}
+.allerg{margin-top:8px;font-size:11.5px;color:var(--ink2);background:var(--paper2);border-radius:9px;padding:8px 10px}
+.hide{display:none}
+@media print{header,.noprint{display:none!important}.card,.mealcard{border:0;padding:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot">P</span>AI PIA · 오늘의 급식</div>
+  <span class="sp"></span>
+  <a class="link" href="index.html">홈</a>
+  <a class="link" href="teacher-hub.html" style="margin-left:12px">선생님도우미</a>
+  <a class="link" href="mypage.html" style="margin-left:12px">마이페이지</a>
+</header>
+
+<div class="wrap">
+  <div class="card noprint">
+    <h2>🏫 우리 학교</h2>
+    <div class="sub" id="schoolSub">불러오는 중…</div>
+    <div class="row" id="schoolForm">
+      <input type="text" id="neisSchool" placeholder="학교명 (예: 서울대도초등학교)" style="flex:1;min-width:200px;font-size:15px">
+      <button class="rust" id="schoolGo">급식 불러오기</button>
+      <span id="schoolMsg" class="mut"></span>
+    </div>
+  </div>
+
+  <div class="card noprint" id="dateCard">
+    <div class="dnav">
+      <button class="ghost sm" id="dPrev">◀ 어제</button>
+      <span class="dlabel" id="dLabel">-</span>
+      <button class="ghost sm" id="dNext">내일 ▶</button>
+    </div>
+    <div class="row" style="justify-content:center;margin-top:8px">
+      <button class="ghost sm" id="dToday">오늘로</button>
+      <input type="date" id="dPick" style="font-size:13px">
+    </div>
+  </div>
+
+  <div id="mealArea"></div>
+
+  <p class="mut" style="margin-top:6px">※ 급식 정보는 NEIS(교육정보 개방 포털) 공공데이터를 그대로 표시합니다. 학교 사정에 따라 당일 현장에서 메뉴가 변경될 수 있습니다.</p>
+</div>
+
+<script>
+function $(s){return document.querySelector(s);}
+var NEIS_KEY='6a290550fd57438f8374bc8ed7feabfd'; // 서버 내장 개방 API 키(시간표 도구와 공용)
+var ALLERG={1:'난류',2:'우유',3:'메밀',4:'땅콩',5:'대두',6:'밀',7:'고등어',8:'게',9:'새우',10:'돼지고기',11:'복숭아',12:'토마토',13:'아황산류',14:'호두',15:'닭고기',16:'쇠고기',17:'오징어',18:'조개류(굴·전복·홍합 포함)',19:'잣'};
+function saveSchool(o){ try{ localStorage.setItem('pia_school', JSON.stringify(o)); }catch(e){} }
+function loadSchool(){ try{ var v=localStorage.getItem('pia_school'); return v?JSON.parse(v):null; }catch(e){ return null; } }
+async function neisJson(url){ var r=await fetch(url); return r.json(); }
+async function resolveSchoolByName(nm){
+  var si=await neisJson('https://open.neis.go.kr/hub/schoolInfo?Type=json&pIndex=1&pSize=5&KEY='+encodeURIComponent(NEIS_KEY)+'&SCHUL_NM='+encodeURIComponent(nm));
+  var rows=(si.schoolInfo&&si.schoolInfo[1]&&si.schoolInfo[1].row)||[];
+  if(!rows.length) return null;
+  var s=rows[0];
+  var o=loadSchool()||{};
+  o.A=s.ATPT_OFCDC_SC_CODE; o.S=s.SD_SCHUL_CODE; o.kind=s.SCHUL_KND_SC_NM||''; o.nm=s.SCHUL_NM||nm;
+  saveSchool(o);
+  return o;
+}
+function pad(n){ return (n<10?'0':'')+n; }
+function todayYMD(){
+  var d=new Date(); var utc=d.getTime()+d.getTimezoneOffset()*60000; var kst=new Date(utc+9*3600000);
+  return kst.getFullYear()+''+pad(kst.getMonth()+1)+pad(kst.getDate());
+}
+function shiftYMD(ymd,delta){
+  var y=+ymd.slice(0,4), m=+ymd.slice(4,6)-1, dd=+ymd.slice(6,8);
+  var dt=new Date(Date.UTC(y,m,dd)); dt.setUTCDate(dt.getUTCDate()+delta);
+  return dt.getUTCFullYear()+''+pad(dt.getUTCMonth()+1)+pad(dt.getUTCDate());
+}
+function ymdLabel(ymd){
+  var y=+ymd.slice(0,4), m=+ymd.slice(4,6), dd=+ymd.slice(6,8);
+  var wd=['일','월','화','수','목','금','토'][new Date(Date.UTC(y,m-1,dd)).getUTCDay()];
+  return y+'.'+pad(m)+'.'+pad(dd)+' ('+wd+')';
+}
+var curYMD=todayYMD();
+var sc=null; // {A,S,kind,nm}
+
+function renderSchoolBox(){
+  var sub=$('#schoolSub'), form=$('#schoolForm');
+  if(sc&&sc.A&&sc.S){
+    sub.innerHTML='<b>'+sc.nm+'</b> 저장됨 — 시간표 도구와 같은 학교를 씁니다. <a href="#" id="schoolChange" style="color:var(--rust);font-weight:700;text-decoration:none">학교 변경</a>';
+    form.classList.add('hide');
+    var chg=document.getElementById('schoolChange');
+    if(chg) chg.onclick=function(e){ e.preventDefault(); form.classList.remove('hide'); sub.textContent='학교명을 입력하고 급식 불러오기를 누르세요.'; };
+  }else{
+    sub.textContent='학교명을 입력하고 급식 불러오기를 누르세요. (한 번 저장하면 시간표 도구에도 자동 반영됩니다)';
+    form.classList.remove('hide');
+  }
+}
+
+async function ensureSchool(){
+  var saved=loadSchool();
+  if(saved&&saved.A&&saved.S){ sc=saved; return sc; }
+  if(saved&&saved.nm){
+    $('#schoolMsg').textContent='저장된 학교 확인 중…';
+    var r=await resolveSchoolByName(saved.nm);
+    if(r){ sc=r; return sc; }
+  }
+  return null;
+}
+
+function parseDish(raw){
+  var lines=(raw||'').split(/<br\s*\/?\s*>/i).map(function(s){return s.trim();}).filter(Boolean);
+  return lines.map(function(line){
+    var m=line.match(/^(.*?)\s*\(([\d.]+)\)\s*$/);
+    if(m){ var codes=m[2].split('.').filter(Boolean).map(Number); return {name:m[1].trim(),codes:codes}; }
+    return {name:line,codes:[]};
+  });
+}
+function fmtMulti(raw){
+  return (raw||'').split(/<br\s*\/?\s*>/i).map(function(s){return s.trim();}).filter(Boolean);
+}
+
+function mealCardHTML(row){
+  var dishes=parseDish(row.DDISH_NM);
+  var allCodes={}; dishes.forEach(function(d){ d.codes.forEach(function(c){ allCodes[c]=1; }); });
+  var codeList=Object.keys(allCodes).map(Number).sort(function(a,b){return a-b;});
+  var icon=row.MMEAL_SC_CODE==='1'?'🌅':(row.MMEAL_SC_CODE==='3'?'🌙':'🍱');
+  var dishHTML=dishes.map(function(d){
+    return '<li>'+d.name+(d.codes.length?'<sup>'+d.codes.join(',')+'</sup>':'')+'</li>';
+  }).join('');
+  var cal=row.CAL_INFO?'<span class="pill ok">'+row.CAL_INFO+'</span>':'';
+  var orplc=fmtMulti(row.ORPLC_INFO).join('<br>');
+  var ntr=fmtMulti(row.NTR_INFO).join('<br>');
+  var legend=codeList.length?('<div class="allerg">알레르기 표시: '+codeList.map(function(c){return c+'.'+(ALLERG[c]||'');}).join(' · ')+'</div>'):'';
+  var extra='';
+  if(orplc) extra+='<details><summary>원산지 정보</summary><div class="db">'+orplc+'</div></details>';
+  if(ntr) extra+='<details><summary>영양 정보</summary><div class="db">'+ntr+'</div></details>';
+  return '<div class="mealcard" data-mn="'+(row.MMEAL_SC_NM||'')+'" data-dish="'+dishes.map(function(d){return d.name;}).join(', ').replace(/"/g,'&quot;')+'" data-cal="'+(row.CAL_INFO||'')+'">'
+    +'<div class="mtitle"><span style="font-size:20px">'+icon+'</span><span class="nm">'+row.MMEAL_SC_NM+'</span>'+cal+'</div>'
+    +'<ul class="dish">'+dishHTML+'</ul>'
+    +legend+extra
+    +'<div class="row noprint" style="margin-top:10px"><button class="sm ghost" onclick="copyMeal(this)">📋 이 급식 복사</button></div>'
+    +'</div>';
+}
+
+function copyMeal(btn){
+  var card=btn.closest('.mealcard');
+  var txt='['+card.getAttribute('data-mn')+'] '+ymdLabel(curYMD)+'\n'+card.getAttribute('data-dish');
+  if(card.getAttribute('data-cal')) txt+='\n('+card.getAttribute('data-cal')+')';
+  navigator.clipboard.writeText(txt).then(function(){ var o=btn.textContent; btn.textContent='복사됨!'; setTimeout(function(){btn.textContent=o;},1200); });
+}
+function copyAll(){
+  var cards=document.querySelectorAll('.mealcard');
+  var lines=['[오늘의 급식] '+(sc?sc.nm:'')+' · '+ymdLabel(curYMD),''];
+  cards.forEach(function(c){
+    lines.push('■ '+c.getAttribute('data-mn')+(c.getAttribute('data-cal')?' ('+c.getAttribute('data-cal')+')':''));
+    lines.push(c.getAttribute('data-dish'));
+    lines.push('');
+  });
+  lines.push('※ 괄호 숫자는 알레르기 유발식품 표시번호입니다. (NEIS 제공)');
+  navigator.clipboard.writeText(lines.join('\n'));
+  var b=document.getElementById('copyAllBtn'); if(b){ var o=b.textContent; b.textContent='복사됨!'; setTimeout(function(){b.textContent=o;},1200); }
+}
+
+async function loadMeal(){
+  $('#dLabel').textContent=ymdLabel(curYMD);
+  $('#dPick').value=curYMD.slice(0,4)+'-'+curYMD.slice(4,6)+'-'+curYMD.slice(6,8);
+  var area=$('#mealArea');
+  if(!sc||!sc.A||!sc.S){ area.innerHTML=''; return; }
+  area.innerHTML='<div class="empty mut">불러오는 중…</div>';
+  try{
+    var u='https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&KEY='+encodeURIComponent(NEIS_KEY)+'&ATPT_OFCDC_SC_CODE='+sc.A+'&SD_SCHUL_CODE='+sc.S+'&MLSV_YMD='+curYMD;
+    var j=await neisJson(u);
+    var rows=(j.mealServiceDietInfo&&j.mealServiceDietInfo[1]&&j.mealServiceDietInfo[1].row)||[];
+    if(!rows.length){
+      area.innerHTML='<div class="card"><div class="empty"><div class="ic">🍽️</div>'+ymdLabel(curYMD)+'은 급식이 없는 날입니다.<br><span class="mut">주말·방학·공휴일이거나 아직 식단이 등록되지 않았을 수 있어요.</span>'
+        +'<div class="row noprint" style="justify-content:center;margin-top:14px"><button class="sm ghost" onclick="findNext(1)">다음 급식일 찾기 ▶</button><button class="sm ghost" onclick="findNext(-1)">◀ 이전 급식일 찾기</button></div></div></div>';
+      return;
+    }
+    rows.sort(function(a,b){ return (a.MMEAL_SC_CODE||'').localeCompare(b.MMEAL_SC_CODE||''); });
+    area.innerHTML=rows.map(mealCardHTML).join('')+'<div class="row noprint" style="justify-content:center;margin-bottom:10px"><button class="ghost sm" id="copyAllBtn" onclick="copyAll()">📋 오늘 급식 전체 복사</button></div>';
+  }catch(e){
+    area.innerHTML='<div class="card"><div class="empty">불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.<div class="row noprint" style="justify-content:center;margin-top:10px"><button class="sm ghost" onclick="loadMeal()">다시 시도</button></div></div></div>';
+  }
+}
+
+async function findNext(dir){
+  var area=$('#mealArea');
+  area.innerHTML='<div class="empty mut">'+(dir>0?'다음':'이전')+' 급식일을 찾는 중…</div>';
+  var y=curYMD;
+  for(var i=0;i<20;i++){
+    y=shiftYMD(y,dir);
+    try{
+      var u='https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&KEY='+encodeURIComponent(NEIS_KEY)+'&ATPT_OFCDC_SC_CODE='+sc.A+'&SD_SCHUL_CODE='+sc.S+'&MLSV_YMD='+y;
+      var j=await neisJson(u);
+      var rows=(j.mealServiceDietInfo&&j.mealServiceDietInfo[1]&&j.mealServiceDietInfo[1].row)||[];
+      if(rows.length){ curYMD=y; loadMeal(); return; }
+    }catch(e){}
+  }
+  area.innerHTML='<div class="card"><div class="empty">20일 이내에 등록된 급식을 찾지 못했습니다.</div></div>';
+}
+
+$('#dPrev').onclick=function(){ curYMD=shiftYMD(curYMD,-1); loadMeal(); };
+$('#dNext').onclick=function(){ curYMD=shiftYMD(curYMD,1); loadMeal(); };
+$('#dToday').onclick=function(){ curYMD=todayYMD(); loadMeal(); };
+$('#dPick').onchange=function(){ var v=this.value; if(v){ curYMD=v.replace(/-/g,''); loadMeal(); } };
+$('#schoolGo').onclick=async function(){
+  var nm=($('#neisSchool').value||'').trim();
+  var msg=$('#schoolMsg');
+  if(!nm){ msg.style.color='var(--red)'; msg.textContent='학교명을 입력하세요.'; return; }
+  msg.style.color='var(--ink2)'; msg.textContent='조회 중…';
+  var r=await resolveSchoolByName(nm);
+  if(!r){ msg.style.color='var(--red)'; msg.textContent='학교를 찾지 못했습니다. 정확한 학교명을 입력해 주세요.'; return; }
+  sc=r; msg.textContent=''; renderSchoolBox(); loadMeal();
+};
+
+(async function init(){
+  await ensureSchool();
+  renderSchoolBox();
+  var savedNm=loadSchool(); if(savedNm&&savedNm.nm) $('#neisSchool').value=savedNm.nm;
+  loadMeal();
+})();
+</script>
+<script src="err-cs.js" defer></script>
+</body>
+</html>
