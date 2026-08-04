@@ -860,11 +860,11 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     <div class="cover-badge" id="cover-badge-txt" data-en="Assessment Report">학생 본인용</div>
     <div class="cover-info-box">
       <table>
-        <tr><td class="lbl" data-en="Name">성  명</td><td class="val" id="cover-name">홍 길 동</td></tr>
-        <tr><td class="lbl" data-en="School">학  교</td><td class="val" id="cover-school">한국중학교</td></tr>
-        <tr><td class="lbl" data-en="Grade / Class">학년/반</td><td class="val" id="cover-grade">2학년 3반 15번</td></tr>
-        <tr><td class="lbl" data-en="Test date">검사일</td><td class="val" id="cover-date">2026년 06월 13일</td></tr>
-        <tr><td class="lbl" data-en="Issue date">발급일</td><td class="val" id="cover-issue">2026년 06월 14일</td></tr>
+        <tr><td class="lbl" data-en="Name">성  명</td><td class="val" id="cover-name">-</td></tr>
+        <tr><td class="lbl" data-en="School">학  교</td><td class="val" id="cover-school">-</td></tr>
+        <tr><td class="lbl" data-en="Grade / Class">학년/반</td><td class="val" id="cover-grade">-</td></tr>
+        <tr><td class="lbl" data-en="Test date">검사일</td><td class="val" id="cover-date">-</td></tr>
+        <tr><td class="lbl" data-en="Issue date">발급일</td><td class="val" id="cover-issue">-</td></tr>
         <tr><td class="lbl" data-en="Issuing body">담당기관</td><td class="val" id="cover-org">-</td></tr>
       </table>
     </div>
@@ -9259,19 +9259,24 @@ function adaptReportForAdult(){
 function populateResult(d){
   const sc = d.scores || {};
   // ── 표지 ──
-  setText('cover-name', d.name||'');
-  setText('cover-school', d.school||'');
-  setText('cover-grade', (d.grade||'') + (d.class ? ' '+d.class : ''));
-  setText('cover-date', fmtDate(d.testDate));
+  /* 검사 데이터가 없으면 검사자 프로필로 자동 채움 */
+  var _pf=(typeof state!=='undefined'&&state&&state.profile)?state.profile:{};
+  var _nm=d.name||_pf.name||'-';
+  var _sc=d.school||_pf.school||'-';
+  var _gr=(((d.grade||_pf.grade||'')+' '+(d.class||_pf.class||'')).replace(/\s+/g,' ').trim())||'-';
+  setText('cover-name', _nm);
+  setText('cover-school', _sc);
+  setText('cover-grade', _gr);
+  setText('cover-date', (d.testDate?fmtDate(d.testDate):fmtDate(new Date().toISOString())));
   setText('cover-issue', fmtDate(new Date().toISOString()));
-  setText('cover-org', d.school||'-');
-  setText('footer-org', d.school||'-');
+  setText('cover-org', _sc);
+  setText('footer-org', _sc);
   setText('footer-issue', fmtDate(new Date().toISOString()));
 
   // ── 학생 정보 테이블 ──
-  document.querySelectorAll('[data-pia="name"]').forEach(el=>el.textContent=d.name||'');
-  document.querySelectorAll('[data-pia="school"]').forEach(el=>el.textContent=d.school||'');
-  document.querySelectorAll('[data-pia="grade"]').forEach(el=>el.textContent=d.grade||'');
+  document.querySelectorAll('[data-pia="name"]').forEach(el=>el.textContent=_nm);
+  document.querySelectorAll('[data-pia="school"]').forEach(el=>el.textContent=_sc);
+  document.querySelectorAll('[data-pia="grade"]').forEach(el=>el.textContent=(d.grade||_pf.grade||'-'));
   document.querySelectorAll('[data-pia="testDate"]').forEach(el=>el.textContent=fmtDate(d.testDate));
   document.querySelectorAll('[data-pia="gender"]').forEach(el=>el.textContent=d.gender||'');
   document.querySelectorAll('[data-pia="age"]').forEach(el=>el.textContent=d.age?(d.age+'세'):'');
