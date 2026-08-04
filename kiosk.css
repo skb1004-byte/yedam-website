@@ -104,3 +104,33 @@ html.kiosk-on #chat-send {
   min-height: 56px !important;
   font-size: 1.1rem !important;
 }
+
+/* =========================================================
+   전체화면(Fullscreen API) 전환 버튼 — 키오스크 모드에서만 표시
+   ========================================================= */
+#kiosk-fs-btn {
+  display: none;
+}
+html.kiosk-on #kiosk-fs-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 99999;
+  background: rgba(17, 24, 39, 0.82);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+html.kiosk-on #kiosk-fs-btn.is-fs {
+  background: rgba(220, 38, 38, 0.85);
+}
