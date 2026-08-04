@@ -1,0 +1,106 @@
+/* ==========================================================================
+   yedam.kr 키오스크(대형 터치 모니터) 대응 스타일
+   - kiosk.js가 <html>에 kiosk-on 클래스를 붙이면 아래 규칙이 적용됨
+   - 가로/세로 모두 대응 (orientation 분기 최소화, 대부분 반응형 단위로 처리)
+   ========================================================================== */
+
+html.kiosk-on body {
+  font-size: 17px;
+}
+
+/* 버튼·링크형 버튼 — 터치 오조작 방지용 최소 크기 확보 */
+html.kiosk-on button,
+html.kiosk-on a.btn,
+html.kiosk-on .btn,
+html.kiosk-on .btn-primary,
+html.kiosk-on .btn-ghost,
+html.kiosk-on input[type="button"],
+html.kiosk-on input[type="submit"] {
+  min-height: 52px;
+  min-width: 52px;
+  font-size: 1.08em;
+  padding: 14px 22px;
+}
+
+/* 입력 요소 */
+html.kiosk-on input[type="text"],
+html.kiosk-on input[type="email"],
+html.kiosk-on input[type="tel"],
+html.kiosk-on input[type="date"],
+html.kiosk-on input[type="password"],
+html.kiosk-on select,
+html.kiosk-on textarea {
+  min-height: 50px;
+  font-size: 1.08em;
+  padding: 10px 14px;
+}
+
+/* 타일·카드형 메뉴 (예: 선생님도우미 허브) */
+html.kiosk-on .tile {
+  padding: 24px !important;
+}
+html.kiosk-on .tile .ic {
+  font-size: 32px !important;
+}
+html.kiosk-on .tile .t {
+  font-size: 18px !important;
+}
+
+/* 체크박스·라디오 — 손가락으로 누르기 쉽게 */
+html.kiosk-on input[type="checkbox"],
+html.kiosk-on input[type="radio"] {
+  width: 22px;
+  height: 22px;
+}
+
+/* 스크롤바 숨김(터치 스와이프 위주 조작) */
+html.kiosk-on {
+  scrollbar-width: thin;
+}
+
+/* =========================================================
+   AI PIA / MOM 검사류 — 문항이 화면을 꽉 채우도록 확대
+   (section[data-view] + .js-qtext + choices-* 패턴 공용)
+   ========================================================= */
+html.kiosk-on section[data-view]:not(.hidden):not([data-view="home"]):not([data-view="result"]):not([data-view="fullreport"]):not([data-view="settings"]) {
+  min-height: calc(100vh - 150px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(24px, 4vw, 56px) clamp(20px, 6vw, 90px) !important;
+}
+
+html.kiosk-on section[data-view] .js-qtext {
+  font-size: clamp(24px, 3.1vw, 40px) !important;
+  line-height: 1.5 !important;
+  margin-bottom: 30px !important;
+}
+
+html.kiosk-on section[data-view] h2 {
+  font-size: clamp(22px, 2.4vw, 32px) !important;
+}
+
+html.kiosk-on section[data-view] [id^="choices-"] {
+  gap: 14px !important;
+}
+html.kiosk-on section[data-view] [id^="choices-"] button {
+  min-height: 64px !important;
+  font-size: 1.25rem !important;
+  padding: 18px 26px !important;
+  border-radius: 14px !important;
+}
+
+/* 진행률 바 — 멀리서도 보이게 */
+html.kiosk-on section[data-view] [role="progressbar"] {
+  height: 8px !important;
+}
+
+/* 자유대화(채팅) — 말풍선/입력창 확대 */
+html.kiosk-on #chat-input {
+  font-size: 1.15rem !important;
+  min-height: 56px !important;
+}
+html.kiosk-on #chat-send {
+  min-height: 56px !important;
+  font-size: 1.1rem !important;
+}
