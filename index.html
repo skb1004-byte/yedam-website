@@ -125,10 +125,10 @@ h2.title .em{color:var(--rust)}
 }
 .hdr-logo{display:flex;align-items:center;height:100%}
 .hdr-logo img{height:30px;width:auto}
-.nav{display:flex;align-items:center;gap:30px}
+.nav{display:flex;align-items:center;gap:24px;flex-shrink:0}
 .nav a{
   font-family:var(--font-ui);font-size:.94rem;font-weight:500;color:var(--ink-soft);
-  position:relative;padding:4px 0;transition:color .2s;
+  position:relative;padding:4px 0;transition:color .2s;white-space:nowrap;
 }
 .nav a::after{
   content:'';position:absolute;left:0;bottom:-3px;height:2px;width:100%;
@@ -161,8 +161,9 @@ h2.title .em{color:var(--rust)}
 }
 .sheet .btn{margin-top:26px;width:100%}
 
-@media(max-width:880px){
-  .nav,.hdr-cta{display:none}
+.hdr-auth{white-space:nowrap;flex-shrink:0}
+@media(max-width:1180px){
+  .nav,.hdr-cta,.hdr-auth{display:none}
   .burger{display:flex}
 }
 
@@ -525,6 +526,7 @@ h1{line-height:1.12}
   <a href="#clients" class="sheet-link">파트너</a>
   <a href="#contact" class="sheet-link">문의</a>
   <a href="teacher/index.html" class="sheet-link">선생님도우미</a>
+  <a href="https://www.kb2g.org/auth/" target="_blank" rel="noopener" class="sheet-link">공익장터</a>
   <a href="login.html" class="sheet-link">로그인/회원가입</a>
   <a href="aipia/test.html" class="btn btn-primary">AI PIA 검사 →</a>
 </div>
