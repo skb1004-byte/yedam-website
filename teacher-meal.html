@@ -40,10 +40,14 @@ button:disabled{opacity:.5;cursor:default}
 .mealcard{border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
 .mealcard .mtitle{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .mealcard .mtitle .nm{font-weight:800;font-size:15.5px}
-.dish{list-style:none}
-.dish li{padding:5px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.dish{list-style:none;display:flex;flex-direction:column;gap:2px}
+.dish li{display:flex;align-items:center;gap:12px;padding:8px 2px;border-bottom:1px dashed var(--line);font-size:14px}
 .dish li:last-child{border-bottom:0}
 .dish sup{color:var(--rust2);font-weight:700;margin-left:2px}
+.dish-ic{flex:0 0 auto;width:44px;height:44px;border-radius:12px;display:grid;place-items:center}
+.dish-ic svg{width:26px;height:26px;display:block}
+.dish-nm{flex:1;min-width:0;line-height:1.35}
+.dish-cat{display:block;font-size:10.5px;color:var(--ink2);font-weight:600;margin-top:1px}
 details{margin-top:10px;font-size:12.5px;color:var(--ink2)}
 details summary{cursor:pointer;font-weight:700}
 details .db{margin-top:6px;line-height:1.8}
@@ -162,13 +166,57 @@ function fmtMulti(raw){
   return (raw||'').split(/<br\s*\/?\s*>/i).map(function(s){return s.trim();}).filter(Boolean);
 }
 
+var DISH_CATS=[
+ {id:'stew',label:'국/찌개',bg:'#fdeae5',fg:'#c4623f',kw:['찌개','전골','탕','국']},
+ {id:'noodle',label:'면류',bg:'#fff3d0',fg:'#b8863b',kw:['면','국수','잡채','우동','짜장','짬뽕','라면','마카로니','스파게티']},
+ {id:'rice',label:'밥/덮밥',bg:'#f7ecd2',fg:'#a9832f',kw:['덮밥','비빔밥','볶음밥','죽','밥']},
+ {id:'grill',label:'구이/구운',bg:'#f3e0d6',fg:'#a85a3a',kw:['구이','불고기','갈비','스테이크','버거']},
+ {id:'fried',label:'튀김/까스',bg:'#fff0c9',fg:'#b8862e',kw:['튀김','까스','가스','탕수육','강정']},
+ {id:'stirfry',label:'조림/볶음',bg:'#eef2df',fg:'#7c8c4a',kw:['조림','볶음']},
+ {id:'namul',label:'나물/무침',bg:'#e8f4e6',fg:'#5c8a52',kw:['나물','무침','겉절이','생채','샐러드']},
+ {id:'jeon',label:'만두/전',bg:'#f7ecd9',fg:'#b1793b',kw:['만두','부침','전','산적','동그랑땡']},
+ {id:'steam',label:'찜/두부',bg:'#eef2f5',fg:'#6a8296',kw:['찜','두부']},
+ {id:'kimchi',label:'김치',bg:'#fbe4df',fg:'#c15b45',kw:['김치']},
+ {id:'bread',label:'빵/양식',bg:'#f6ecd6',fg:'#b58a3f',kw:['빵','피자','카레','그라탕','토스트']},
+ {id:'dessert',label:'후식/과일',bg:'#fdeaf0',fg:'#c46a8a',kw:['과일','요구르트','젤리','아이스크림','케이크','식혜','화채','한과','디저트','푸딩']},
+ {id:'drink',label:'음료/우유',bg:'#e9f1fb',fg:'#5b83b0',kw:['우유','음료','주스','두유']}
+];
+var DISH_ICONS={
+ stew:'<path d="M7 17h30l-2.5 15.5A6 6 0 0 1 28.6 38H15.4a6 6 0 0 1-5.9-5.5L7 17z" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linejoin="round"/><path d="M4 19h4M36 19h4" stroke="{fg}" stroke-width="2.3" stroke-linecap="round"/><path d="M15 13c0-2 2.2-2 2.2-4M22 13c0-2 2.2-2 2.2-4M29 13c0-2 2.2-2 2.2-4" fill="none" stroke="{fg}" stroke-width="2" stroke-linecap="round"/>',
+ noodle:'<path d="M8 19h28l-2 12a5 5 0 0 1-5 4H15a5 5 0 0 1-5-4l-2-12z" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linejoin="round"/><path d="M12 19c1-4 3-6 3-9M19 19c1-4 3-6 3-9M26 19c1-4 3-6 3-9" fill="none" stroke="{fg}" stroke-width="2" stroke-linecap="round"/>',
+ rice:'<path d="M8 19h28l-2 12a5 5 0 0 1-5 4H15a5 5 0 0 1-5-4l-2-12z" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linejoin="round"/><circle cx="16" cy="14" r="1.6" fill="{fg}"/><circle cx="22" cy="11.5" r="1.6" fill="{fg}"/><circle cx="28" cy="14" r="1.6" fill="{fg}"/>',
+ grill:'<rect x="6" y="20" width="32" height="12" rx="2" fill="none" stroke="{fg}" stroke-width="2.3"/><path d="M12 20v12M20 20v12M28 20v12" stroke="{fg}" stroke-width="1.6"/><path d="M17 13c2-2 0-3 1-5M25 13c2-2 0-3 1-5" fill="none" stroke="{fg}" stroke-width="2" stroke-linecap="round"/>',
+ fried:'<path d="M14 10c-5 2-6 8-4 12-3 2-3 7 1 9 3 2 15 2 18 0 4-2 4-7 1-9 2-4 1-10-4-12-3-2-9-2-12 0z" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linejoin="round"/><circle cx="30" cy="30" r="1.4" fill="{fg}"/><circle cx="34" cy="25" r="1.4" fill="{fg}"/>',
+ stirfry:'<path d="M6 21c0 7 7 12 16 12s16-5 16-12" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linecap="round"/><path d="M6 21h32" stroke="{fg}" stroke-width="2.3" stroke-linecap="round"/><path d="M38 21l5-5" stroke="{fg}" stroke-width="2.3" stroke-linecap="round"/><circle cx="18" cy="16" r="1.5" fill="{fg}"/><circle cx="24" cy="14" r="1.5" fill="{fg}"/><circle cx="29" cy="17" r="1.5" fill="{fg}"/>',
+ namul:'<path d="M9 22h26l-1.6 9.5A5 5 0 0 1 28.5 36h-13a5 5 0 0 1-4.9-4.5L9 22z" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linejoin="round"/><path d="M14 22c-2-5 0-9 2-12M22 22c0-6 1-9 0-13M30 22c2-5 0-9-1-12" fill="none" stroke="{fg}" stroke-width="2" stroke-linecap="round"/>',
+ jeon:'<path d="M6 27c0-9 8-16 16-16s16 7 16 16" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linecap="round"/><path d="M11 24a11 8 0 0 1 22 0" fill="none" stroke="{fg}" stroke-width="1.6" stroke-dasharray="2 3"/>',
+ steam:'<circle cx="22" cy="27" r="11" fill="none" stroke="{fg}" stroke-width="2.3"/><path d="M12 27h20M12 22h20" stroke="{fg}" stroke-width="1.6"/><path d="M16 13c0-2 2.2-2 2.2-4M22 13c0-2 2.2-2 2.2-4M28 13c0-2 2.2-2 2.2-4" fill="none" stroke="{fg}" stroke-width="2" stroke-linecap="round"/>',
+ kimchi:'<path d="M13 16h18v16a5 5 0 0 1-5 5H18a5 5 0 0 1-5-5V16z" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linejoin="round"/><path d="M11 16h22" stroke="{fg}" stroke-width="2.3" stroke-linecap="round"/><path d="M17 12c1-3 3-4 5-4s4 1 5 4" fill="none" stroke="{fg}" stroke-width="2" stroke-linecap="round"/>',
+ bread:'<path d="M8 24c0-8 6-14 14-14s14 6 14 14-6 10-14 10S8 32 8 24z" fill="none" stroke="{fg}" stroke-width="2.3"/><path d="M15 20c1.5 2 1.5 6 0 8M22 19c1.5 2 1.5 8 0 10M29 20c1.5 2 1.5 6 0 8" fill="none" stroke="{fg}" stroke-width="1.7" stroke-linecap="round"/>',
+ dessert:'<path d="M22 8c5 4 9 11 9 16a9 9 0 1 1-18 0c0-5 4-12 9-16z" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linejoin="round"/><path d="M22 8c1.5 1.5 2 3 1 4.5" fill="none" stroke="{fg}" stroke-width="1.8" stroke-linecap="round"/>',
+ drink:'<path d="M13 10h18l-2.5 24a3 3 0 0 1-3 2.7h-7a3 3 0 0 1-3-2.7L13 10z" fill="none" stroke="{fg}" stroke-width="2.3" stroke-linejoin="round"/><path d="M13 10h18" stroke="{fg}" stroke-width="2.3" stroke-linecap="round"/><path d="M27 6l3 3-3 3" fill="none" stroke="{fg}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+ etc:'<circle cx="22" cy="22" r="14" fill="none" stroke="{fg}" stroke-width="2.3"/><path d="M15 14v8M15 14c0 3 1.5 4 3 4M22 14v16" fill="none" stroke="{fg}" stroke-width="1.8" stroke-linecap="round"/><path d="M29 14c-2 0-3 2-3 4s1 3 3 3v9" fill="none" stroke="{fg}" stroke-width="1.8" stroke-linecap="round"/>'
+};
+function categorizeDish(name){
+  for(var i=0;i<DISH_CATS.length;i++){
+    var c=DISH_CATS[i];
+    for(var j=0;j<c.kw.length;j++){ if(name.indexOf(c.kw[j])>-1) return c; }
+  }
+  return {id:'etc',label:'기타',bg:'#f0efe9',fg:'#7a7a72'};
+}
+function dishIconHTML(name){
+  var c=categorizeDish(name);
+  var svg=(DISH_ICONS[c.id]||DISH_ICONS.etc).split('{fg}').join(c.fg);
+  return '<span class="dish-ic" style="background:'+c.bg+'"><svg viewBox="0 0 44 44">'+svg+'</svg></span>';
+}
 function mealCardHTML(row){
   var dishes=parseDish(row.DDISH_NM);
   var allCodes={}; dishes.forEach(function(d){ d.codes.forEach(function(c){ allCodes[c]=1; }); });
   var codeList=Object.keys(allCodes).map(Number).sort(function(a,b){return a-b;});
   var icon=row.MMEAL_SC_CODE==='1'?'🌅':(row.MMEAL_SC_CODE==='3'?'🌙':'🍱');
   var dishHTML=dishes.map(function(d){
-    return '<li>'+d.name+(d.codes.length?'<sup>'+d.codes.join(',')+'</sup>':'')+'</li>';
+    var cat=categorizeDish(d.name);
+    return '<li>'+dishIconHTML(d.name)+'<span class="dish-nm">'+d.name+(d.codes.length?'<sup>'+d.codes.join(',')+'</sup>':'')+'<span class="dish-cat">'+cat.label+'</span></span></li>';
   }).join('');
   var cal=row.CAL_INFO?'<span class="pill ok">'+row.CAL_INFO+'</span>':'';
   var orplc=fmtMulti(row.ORPLC_INFO).join('<br>');
