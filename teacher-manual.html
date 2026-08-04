@@ -188,6 +188,10 @@ table.man th{background:var(--paper2);white-space:nowrap}
 <li><span class="btn-like g">문장 다시 배정</span>은 점수는 그대로 두고 문장만 새로 뽑습니다. <span class="btn-like g">📋 전체 복사</span>는 이름·점수·피드백을 표 형식으로 복사합니다.</li>
 </ol>
 <div class="warn">점수를 입력하지 않은 학생은 문장이 비어 있습니다. 인쇄 전에 점수 누락을 확인하세요.</div>
+<h4>과목별 단원·영역 예시 (직접 눌러 보세요)</h4>
+<p class="sub" style="margin:6px 0 8px">과목 단추를 누르면 그 과목에서 "🔎 단원·영역 자동" 추천으로 나오는 예시가 보입니다. ② 교과 평어 · ③ 수행평가 · ④ 교과 세특 탭에서 똑같이 사용됩니다.</p>
+<div id="subjBtns" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+<div id="subjAreas" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
 </div>
 
 <!-- ========== 탭 4 ========== -->
@@ -280,5 +284,29 @@ table.man th{background:var(--paper2);white-space:nowrap}
 문의: 예담정보통신 · 이 설명서의 화면 그림은 이해를 돕기 위한 예시이며 실제 화면과 조금 다를 수 있습니다.
 </div>
 </div>
+<script>
+(function(){
+var A={'국어':['듣기·말하기','읽기','쓰기','문법','문학','매체'],'수학':['수와 연산','변화와 관계','도형과 측정','자료와 가능성'],'사회':['지리 인식','자연환경과 인간생활','정치와 시민','경제생활','역사','지속가능한 세계'],'과학':['운동과 에너지','물질','생명','지구와 우주'],'영어':['듣기','말하기','읽기','쓰기'],'체육':['운동과 건강','스포츠','표현 활동','안전'],'음악':['연주','감상','창작'],'미술':['체험','표현','감상'],'도덕':['자신과의 관계','타인과의 관계','사회·공동체와의 관계','자연과의 관계'],'실과':['생활문화','생명기술','수송기술','정보·소프트웨어'],'창의적체험활동':['자율·자치 활동','동아리 활동','진로 활동']};
+var bh=document.getElementById('subjBtns'), ah=document.getElementById('subjAreas');
+if(!bh||!ah) return;
+var cur=null;
+Object.keys(A).forEach(function(s,i){
+  var b=document.createElement('button'); b.type='button'; b.textContent=s;
+  b.style.cssText='font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;cursor:pointer';
+  b.onclick=function(){
+    if(cur){ cur.style.background='#fff'; cur.style.borderColor='#e3e0d6'; cur.style.color='inherit'; }
+    cur=b; b.style.background='#d97757'; b.style.borderColor='#d97757'; b.style.color='#fff';
+    ah.innerHTML='';
+    A[s].forEach(function(a){
+      var c=document.createElement('span'); c.textContent=a;
+      c.style.cssText='font-size:13px;border:1px solid #cde3cd;background:#eef3e6;color:#356635;border-radius:999px;padding:6px 13px';
+      ah.appendChild(c);
+    });
+  };
+  bh.appendChild(b);
+  if(i===0) setTimeout(function(){ b.click(); },0);
+});
+})();
+</script>
 </body>
 </html>
