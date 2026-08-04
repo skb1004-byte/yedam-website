@@ -84,7 +84,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
     <div class="tile" data-g="market"><div class="ic">🛒</div><div class="t">시장 놀이</div><div class="d">돈 계산</div></div>
     <div class="tile" data-g="odd"><div class="ic">👀</div><div class="t">다른 그림 찾기</div><div class="d">눈썰미</div></div>
     <div class="tile" data-g="fast"><div class="ic">⚡</div><div class="t">빨리 찾기</div><div class="d">처리 속도</div></div>
-    <div class="tile" data-g="saju"><div class="ic">🔮</div><div class="t">오늘의 운세</div><div class="d">심심풀이</div></div>
+    <div class="tile" data-g="saju"><div class="ic">🔮</div><div class="t">토정비결</div><div class="d">오늘의 운세</div></div>
     <div class="tile" data-g="old"><div class="ic">📻</div><div class="t">옛날 이야기 퀴즈</div><div class="d">추억 회상</div></div>
   </div>
   <div class="card" style="margin-top:16px">
@@ -416,55 +416,89 @@ var OLDQ=[
 ];
 GAMES.old={ start:function(){ quizStart('📻 옛날 이야기 퀴즈', shuffle(OLDQ).slice(0,5)); } };
 
-/* 🔮 오늘의 운세 — 심심풀이(재미용): 띠를 고르면 오늘의 운세를 보여준다 */
+/* 🔮 토정비결 운세 — 심심풀이(재미용): 생년월일로 올해 괘와 오늘 운세 보기 */
 var SAJU_Z=['쥐','소','호랑이','토끼','용','뱀','말','양','원숭이','닭','개','돼지'];
 var SAJU_E=['🐭','🐮','🐯','🐰','🐲','🐍','🐴','🐑','🐵','🐔','🐶','🐷'];
+var SAJU_GWA=[
+ ['동풍해동(東風解凍)','봄바람에 얼음이 녹아 물이 흐르니','막혔던 일이 스르르 풀리는 해입니다. 서두르지 않아도 좋은 소식이 찾아옵니다.'],
+ ['고목봉춘(枯木逢春)','마른 나무가 봄을 만나 꽃을 피우니','다시 힘이 나고 즐거움이 생기는 해입니다. 새로운 취미를 시작해 보기 좋습니다.'],
+ ['금상첨화(錦上添花)','비단 위에 꽃을 더하니','좋은 일에 좋은 일이 겹치는 해입니다. 주변과 기쁨을 나누면 복이 더 커집니다.'],
+ ['우후청산(雨後靑山)','비 갠 뒤 산이 더욱 푸르니','걱정이 지나가고 마음이 맑아지는 해입니다. 건강도 차차 좋아집니다.'],
+ ['만경창파(萬頃蒼波)','넓은 바다에 순풍이 불어오니','하시는 일이 순조롭게 나아가는 해입니다. 가족의 도움이 큰 힘이 됩니다.'],
+ ['월출동령(月出東嶺)','동쪽 고개에 밝은 달이 떠오르니','귀인이 나타나 도움을 주는 해입니다. 오랜 친구를 소중히 하세요.'],
+ ['화중생련(火中生蓮)','불 속에서도 연꽃이 피어나니','어려움 속에서도 웃음을 잃지 않으면 반드시 좋아지는 해입니다.'],
+ ['춘풍화기(春風和氣)','봄바람에 온화한 기운이 가득하니','집안이 화목하고 마음이 평안한 해입니다. 자녀·손주와 정이 깊어집니다.'],
+ ['석전경우(石田耕牛)','돌밭을 가는 소처럼 꾸준하니','부지런한 만큼 결실이 차곡차곡 쌓이는 해입니다. 작은 습관이 큰 복이 됩니다.'],
+ ['명월만공(明月滿空)','밝은 달이 하늘에 가득 차니','이름이 빛나고 대접받는 해입니다. 베풀수록 존경이 더해집니다.'],
+ ['유수불부(流水不腐)','흐르는 물은 썩지 않으니','몸을 자주 움직이면 건강이 지켜지는 해입니다. 산책이 곧 보약입니다.'],
+ ['봉구황곡(鳳求凰曲)','봉황이 짝을 찾아 노래하니','반가운 만남과 경사가 있는 해입니다. 모임에 나가면 즐거움이 따릅니다.']
+];
 GAMES.saju={
   start:function(){
-    $('#gTitle').textContent='🔮 오늘의 운세';
+    $('#gTitle').textContent='🔮 토정비결 운세';
     $('#gScore').textContent='재미용';
     $('#gFeed').textContent='';
     var host=$('#gHost');
-    var h='<p class="q-help" style="text-align:center;font-size:1.15rem">태어난 해의 <b>띠</b>를 골라 주세요</p><div class="gridN" style="grid-template-columns:repeat(3,1fr)" id="sajuGrid"></div><p class="q-help" style="text-align:center;font-size:.85rem;margin-top:10px">※ 재미로 보는 운세이며 실제와 관계없습니다</p>';
-    host.innerHTML=h;
-    var grid=$('#sajuGrid');
-    SAJU_Z.forEach(function(z,i){
-      var c=document.createElement('div');
-      c.className='ncell';
-      c.style.cssText='font-size:1rem;line-height:1.35;padding:10px 4px';
-      c.innerHTML='<span style="font-size:1.6rem">'+SAJU_E[i]+'</span><br>'+z+'띠';
-      c.addEventListener('click',function(){ GAMES.saju.show(i); });
-      grid.appendChild(c);
+    var saved={}; try{ saved=JSON.parse(localStorage.getItem('mom_saju_birth')||'{}'); }catch(e){}
+    host.innerHTML='<p class="q-help" style="text-align:center;font-size:1.15rem"><b>생년월일</b>을 넣어 주세요</p>'
+     +'<div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:10px 0">'
+     +'<input type="number" id="sjY" placeholder="1945" min="1900" max="2020" value="'+(saved.y||'')+'" style="width:110px;padding:14px 8px;font-size:1.3rem;text-align:center;border:2px solid var(--line);border-radius:12px">'
+     +'<span style="font-size:1.1rem">년</span>'
+     +'<input type="number" id="sjM" placeholder="3" min="1" max="12" value="'+(saved.m||'')+'" style="width:80px;padding:14px 8px;font-size:1.3rem;text-align:center;border:2px solid var(--line);border-radius:12px">'
+     +'<span style="font-size:1.1rem">월</span>'
+     +'<input type="number" id="sjD" placeholder="15" min="1" max="31" value="'+(saved.d||'')+'" style="width:80px;padding:14px 8px;font-size:1.3rem;text-align:center;border:2px solid var(--line);border-radius:12px">'
+     +'<span style="font-size:1.1rem">일</span>'
+     +'</div>'
+     +'<button class="btn btn-main" id="sjGo">운세 보기</button>'
+     +'<p class="q-help" style="text-align:center;font-size:.85rem;margin-top:10px">※ 재미로 보는 운세이며 실제와 관계없습니다</p>';
+    $('#sjGo').addEventListener('click',function(){
+      var y=parseInt($('#sjY').value,10), m=parseInt($('#sjM').value,10), d=parseInt($('#sjD').value,10);
+      if(!y||y<1900||y>2020){ alert('태어난 해를 1900~2020 사이로 넣어 주세요.'); return; }
+      if(!m||m<1||m>12){ alert('태어난 달을 1~12 사이로 넣어 주세요.'); return; }
+      if(!d||d<1||d>31){ alert('태어난 날을 1~31 사이로 넣어 주세요.'); return; }
+      try{ localStorage.setItem('mom_saju_birth',JSON.stringify({y:y,m:m,d:d})); }catch(e){}
+      GAMES.saju.show(y,m,d);
     });
-    say('태어난 해의 띠를 골라 주세요');
+    say('생년월일을 넣고 운세 보기를 눌러 주세요');
   },
-  show:function(zi){
-    var d=new Date();
-    var seed=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()+zi*37;
+  show:function(by,bm,bd){
+    var now=new Date(); var cy=now.getFullYear();
+    var zi=((by-4)%12+12)%12;
+    /* 토정비결식 3괘(재미용 간이 계산): 상괘=나이+태세, 중괘=생월+월건, 하괘=생일+일진 */
+    var age=cy-by+1;
+    var g1=(age+cy)%8+1, g2=(bm+cy)%6+1, g3=(bd+cy)%3+1;
+    var gwaIdx=(g1*100+g2*10+g3)%SAJU_GWA.length;
+    var gwa=SAJU_GWA[gwaIdx];
+    var seed=cy*10000+(now.getMonth()+1)*100+now.getDate()+by+bm*31+bd;
     function pk(arr,salt){ return arr[(seed+salt*13)%arr.length]; }
     var HEALTH=['가벼운 산책이 몸을 가뿐하게 해 주는 날입니다.','물을 자주 마시면 몸이 좋아하는 날입니다.','햇볕을 쬐면 기분도 건강도 좋아집니다.','스트레칭 한 번이 보약보다 나은 날입니다.','일찍 주무시면 내일이 더 상쾌합니다.','따뜻한 국 한 그릇이 힘이 되는 날입니다.','친구와 웃으면 건강운이 올라갑니다.','계단보다 평지를 걷는 것이 좋은 날입니다.'];
     var MONEY=['작은 횡재수가 있으니 주머니를 잘 살펴보세요.','아끼는 것이 버는 것! 알뜰함이 빛나는 날입니다.','오늘은 큰 지출을 미루면 이득입니다.','뜻밖의 선물이 들어올 수 있는 날입니다.','예전에 빌려준 것이 생각나는 날입니다.','시장에서 좋은 물건을 싸게 만날 수 있습니다.','재물운은 평온하니 마음 편히 지내세요.','가족에게 베풀면 복이 두 배로 돌아옵니다.'];
     var PEOPLE=['반가운 사람에게서 소식이 올 수 있습니다.','오래된 친구 생각이 나면 먼저 전화해 보세요.','이웃과 나누는 대화가 즐거움을 줍니다.','가족과의 시간이 특히 따뜻한 날입니다.','칭찬 한마디가 큰 기쁨으로 돌아옵니다.','새로운 사람과 인연이 닿기 좋은 날입니다.','자녀·손주 목소리가 보약이 되는 날입니다.','양보하면 마음이 두 배로 넉넉해집니다.'];
     var WORD=['웃는 얼굴에 복이 들어옵니다.','천천히 가도 충분히 잘 가고 있습니다.','오늘 하루도 당신이 주인공입니다.','마음이 젊으면 몸도 젊어집니다.','좋은 생각이 좋은 하루를 만듭니다.','넉넉한 마음이 최고의 재산입니다.','어제보다 오늘, 오늘보다 내일입니다.','당신의 미소가 누군가의 힘이 됩니다.','건강이 최고의 효도 선물입니다.','오늘 만나는 사람에게 친절하면 복이 옵니다.'];
-    var stars=3+((seed>>2)%3);
+    var stars=3+((seed+gwaIdx)%3);
     var starTxt='★★★★★'.slice(0,stars)+'☆☆☆☆☆'.slice(0,5-stars);
     var host=$('#gHost');
     host.innerHTML='<div style="text-align:center;padding:6px 0">'
       +'<div style="font-size:3rem">'+SAJU_E[zi]+'</div>'
-      +'<div style="font-size:1.3rem;font-weight:800;margin:4px 0">'+SAJU_Z[zi]+'띠 · 오늘의 운세</div>'
+      +'<div style="font-size:1.25rem;font-weight:800;margin:4px 0">'+by+'년생 '+SAJU_Z[zi]+'띠 · '+cy+'년 토정비결</div>'
       +'<div style="color:#c98a2e;font-size:1.2rem;letter-spacing:2px">'+starTxt+'</div>'
       +'</div>'
+      +'<div class="card" style="text-align:center;background:#fdf8ef;border-color:#ecd9b0">'
+      +'<div style="font-size:1.25rem;font-weight:800;color:#8a5a1e">'+gwa[0]+'</div>'
+      +'<div style="font-size:1rem;color:#7a5a1e;margin-top:2px">'+gwa[1]+'</div>'
+      +'</div>'
       +'<div class="card" style="text-align:left;font-size:1.05rem;line-height:1.8">'
-      +'<b>🚶 건강</b> '+pk(HEALTH,1)+'<br>'
-      +'<b>💰 재물</b> '+pk(MONEY,2)+'<br>'
-      +'<b>🤝 사람</b> '+pk(PEOPLE,3)+'<br><br>'
+      +'<b>📜 올해 총운</b> '+gwa[2]+'<br><br>'
+      +'<b>🚶 오늘의 건강</b> '+pk(HEALTH,1)+'<br>'
+      +'<b>💰 오늘의 재물</b> '+pk(MONEY,2)+'<br>'
+      +'<b>🤝 오늘의 사람</b> '+pk(PEOPLE,3)+'<br><br>'
       +'<b>💌 오늘의 한마디</b><br>“'+pk(WORD,4)+'”'
       +'</div>'
-      +'<button class="btn btn-main" id="sajuOther" style="margin-top:12px">다른 띠도 보기</button>'
+      +'<button class="btn btn-main" id="sajuOther" style="margin-top:12px">생년월일 다시 넣기</button>'
       +'<p class="q-help" style="text-align:center;font-size:.85rem;margin-top:8px">※ 재미로 보는 운세입니다</p>';
     $('#sajuOther').addEventListener('click',function(){ GAMES.saju.start(); });
     addStamp();
-    say(SAJU_Z[zi]+'띠, 오늘의 한마디. '+pk(WORD,4));
+    say(SAJU_Z[zi]+'띠, '+cy+'년 토정비결. '+gwa[1]+'. '+gwa[2]);
   }
 };
 
