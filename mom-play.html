@@ -80,6 +80,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
     <div class="tile" data-g="prov"><div class="ic">📜</div><div class="t">속담 완성</div><div class="d">말하기</div></div>
     <div class="tile" data-g="market"><div class="ic">🛒</div><div class="t">시장 놀이</div><div class="d">돈 계산</div></div>
     <div class="tile" data-g="odd"><div class="ic">👀</div><div class="t">다른 그림 찾기</div><div class="d">눈썰미</div></div>
+    <div class="tile" data-g="fast"><div class="ic">⚡</div><div class="t">빨리 찾기</div><div class="d">처리 속도</div></div>
     <div class="tile" data-g="old"><div class="ic">📻</div><div class="t">옛날 이야기 퀴즈</div><div class="d">추억 회상</div></div>
   </div>
   <div class="card" style="margin-top:16px">
@@ -166,7 +167,7 @@ document.querySelectorAll('.lvl').forEach(function(b){
     b.classList.add('sel'); level=parseInt(b.dataset.l,10);
   });
 });
-var DOMAIN2GAME={'기억력':['pair','짝 맞추기'],'지남력':['old','옛날 이야기 퀴즈'],'시공간':['odd','다른 그림 찾기'],'주의·속도':['num','숫자 찾기'],'언어':['prov','속담 완성'],'계산':['market','시장 놀이']};
+var DOMAIN2GAME={'기억력':['pair','짝 맞추기'],'지남력':['old','옛날 이야기 퀴즈'],'시공간':['odd','다른 그림 찾기'],'주의·속도':['fast','빨리 찾기'],'언어':['prov','속담 완성'],'계산':['market','시장 놀이']};
 (function(){
   try{
     var arr=JSON.parse(localStorage.getItem('mom_hist')||'[]');
@@ -208,13 +209,36 @@ function feed(ok){
   f.style.color=ok?'var(--ok)':'var(--red)';
   say(f.textContent.slice(2));
 }
+/* ---------- 게임별 최고 기록 & 난이도 자동 승급 ---------- */
+function bestGet(){ try{ return JSON.parse(localStorage.getItem('mom_best')||'{}'); }catch(e){ return {}; } }
+function bestSet(o){ try{ localStorage.setItem('mom_best',JSON.stringify(o)); }catch(e){} }
+function recordBest(g,lv,sc,rounds){
+  var b=bestGet(); var k=g+'_'+lv;
+  var prev=(b[k]&&typeof b[k].sc==='number')?b[k].sc:-1;
+  var better=sc>prev;
+  if(better){ b[k]={sc:sc,rounds:rounds,d:new Date().toISOString().slice(0,10)}; bestSet(b); }
+  return {better:better, prev:prev};
+}
 function endRound(){
   addStamp();
   show('p-done');
   var pct=score/ROUNDS;
   $('#dEmoji').textContent=pct>=0.8?'🏆':pct>=0.5?'🎉':'💪';
   $('#dMsg').textContent=pct>=0.8?'와, 정말 대단하세요!':pct>=0.5?'참 잘하셨어요!':'좋아요, 하다 보면 늘어요!';
-  $('#dScore').textContent='맞힌 개수: '+score+' / '+ROUNDS+' · 칭찬 도장 1개를 드렸어요 💮';
+  var extra='';
+  try{
+    var rec=recordBest(curGame,level,score,ROUNDS);
+    if(rec.better&&rec.prev>=0) extra=' · 🥇 최고 기록 경신!';
+    else if(rec.better) extra=' · 첫 기록으로 저장!';
+    else if(rec.prev>=0) extra=' · 지금까지 최고 '+rec.prev+'점';
+  }catch(e){}
+  /* 만점이면 다음 판 난이도 자동 승급 (적응형 훈련) */
+  if(pct>=1&&level<3){
+    level=level+1;
+    document.querySelectorAll('.lvl').forEach(function(x){x.classList.toggle('sel',parseInt(x.dataset.l,10)===level);});
+    $('#dMsg').textContent=$('#dMsg').textContent+' 다음 판은 한 단계 어려워져요!';
+  }
+  $('#dScore').textContent='맞힌 개수: '+score+' / '+ROUNDS+extra+' · 칭찬 도장 1개를 드렸어요 💮';
   say($('#dMsg').textContent);
 }
 function replay(){ startGame(curGame); }
@@ -387,6 +411,50 @@ var OLDQ=[
  {q:'설날 아침 어른들께 드리던 인사는?', a:'세배', c:['세배','악수','목례','만세']}
 ];
 GAMES.old={ start:function(){ quizStart('📻 옛날 이야기 퀴즈', shuffle(OLDQ).slice(0,5)); } };
+
+/* ⚡ 빨리 찾기 — 처리 속도(시각 탐색): 같은 그림을 빨리 찾아 누르기 */
+GAMES.fast={
+  start:function(){
+    $('#gTitle').textContent='⚡ 빨리 찾기';
+    ROUNDS=5; score=0; round=0;
+    $('#gScore').textContent='0 / '+ROUNDS;
+    this.t0=Date.now();
+    this.next();
+  },
+  next:function(){
+    var self=this;
+    if(round>=ROUNDS){
+      var sec=Math.round((Date.now()-this.t0)/1000);
+      endRound();
+      $('#dScore').textContent=$('#dScore').textContent+' · 걸린 시간 '+sec+'초';
+      return;
+    }
+    var SETS=[['🍎','🍏'],['🐶','🐱'],['🌙','⭐'],['🚗','🚌'],['🌷','🌻'],['⚽','🏀'],['🐟','🐙'],['🥛','🧃']];
+    var pk=SETS[Math.floor(Math.random()*SETS.length)];
+    var target=pk[0], dis=pk[1];
+    var N=level===1?6:level===2?9:12;
+    var pos=Math.floor(Math.random()*N);
+    var cols=N<=9?3:4;
+    var host=$('#gHost');
+    host.innerHTML='<p class="q-help" style="text-align:center;font-size:1.15rem">아래에서 <span style="font-size:1.9rem">'+target+'</span> 을(를) 찾아 눌러 주세요</p><div class="gridN" style="grid-template-columns:repeat('+cols+',1fr)" id="fastGrid"></div>';
+    var grid=$('#fastGrid');
+    var first=true;
+    for(var i=0;i<N;i++){
+      (function(i){
+        var c=document.createElement('div');
+        c.className='ncell';
+        c.textContent=(i===pos)?target:dis;
+        c.style.fontSize='1.9rem';
+        c.addEventListener('click',function(){
+          if(i===pos){ if(first){ markScore(true); } feed(true); round++; setTimeout(function(){ self.next(); },600); }
+          else { first=false; feed(false); }
+        });
+        grid.appendChild(c);
+      })(i);
+    }
+    say('같은 그림을 빨리 찾아 눌러 주세요');
+  }
+};
 
 /* ---------- 4지선다 공통 엔진 ---------- */
 var quizList=[], quizIdx=0, quizTitle='';
