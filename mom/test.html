@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <meta name="robots" content="noindex,nofollow">
 <title>맘(MOM) · 인지건강 확인</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#141413;--ink2:#4a463f;--paper:#faf9f5;--paper2:#f1eee6;--line:#ddd8cb;
@@ -958,6 +961,7 @@ function renderResult(aud){
      +'<li>수면·청력·혈압 관리가 두뇌 건강과 직결됩니다. 정기 건강검진을 챙겨 주세요.</li>'
      +'</ul>'
      +'<button class="btn btn-line no-print" onclick="copyTxt(familyLetterText(),\'안내문이 복사되었습니다. 문자·카톡에 붙여넣으세요.\')">✉️ 가족에게 보낼 안내문 복사</button>'
+     +'<button class="btn btn-line no-print" onclick="copyTxt(familyDetailText(),\'상세 결과지가 복사되었습니다. 카카오톡·문자에 붙여넣어 자녀분께 보내세요.\')">📩 자녀에게 보낼 상세 결과지 복사</button>'
      +'</div>'
      +'<div class="notice">본 결과는 선별 참고용입니다. 진단·치료 판단은 반드시 전문의와 상의하세요.</div>';
     host.innerHTML=h;
@@ -1107,6 +1111,46 @@ function familyLetterText(){
     lines.push('현재 잘 유지되고 있습니다. 1년에 한 번 정기 확인을 권합니다.');
   }
   lines.push('','※ 본 결과는 건강 확인 참고용이며 의학적 진단이 아닙니다.');
+  return lines.join('\n');
+}
+/* 자녀·가족 전송용 상세 결과지 텍스트 */
+function familyDetailText(){
+  var L=LV_INFO[J.level];
+  var today=new Date(); var ds=today.getFullYear()+'년 '+(today.getMonth()+1)+'월 '+today.getDate()+'일';
+  function grade(v){ return v>=70?'양호':v>=45?'보통':'관심 필요'; }
+  var dm=J.domains||{};
+  var DESC={'기억력':'세 단어를 잠시 후 다시 기억하기','지남력':'오늘 날짜·요일·계절 확인','시공간':'시계 그리기','주의·속도':'숫자를 순서대로 빠르게 잇기','언어':'1분 동안 동물 이름 말하기','계산':'돈 계산'};
+  var lines=['[인지건강 확인 · 상세 결과지]','',
+    R.name+'님 · '+ds+' · 두뇌건강 확인(맘)','',
+    '■ 종합 결과: '+L.t+' (참고용 종합점수 '+J.total+'점/100점)',
+    L.ds,'',
+    '■ 영역별 결과 (100점 기준 · 70점 이상 양호 / 45~69 보통 / 45 미만 관심 필요)'];
+  Object.keys(dm).forEach(function(k){ lines.push('· '+k+' '+dm[k]+'점 ('+grade(dm[k])+') — '+(DESC[k]||'')); });
+  var pv=prevRecord();
+  if(pv&&pv.tot!=null){
+    var df=J.total-pv.tot;
+    lines.push('','■ 지난 확인과 비교: '+pv.d+' '+pv.tot+'점 → 이번 '+J.total+'점 ('+(df>0?'+'+df+'점 좋아짐':(df<0?df+'점 낮아짐':'변화 없음'))+')');
+  }
+  lines.push('','■ 참고 수치');
+  lines.push('· 세 단어 기억(지연 회상): '+R.recall+' / 3'+(R.recallHint?' (보기 도움 받음)':''));
+  if(R.ncTime!=null) lines.push('· 숫자 잇기: '+R.ncTime+'초 (잘못 누름 '+R.ncErr+'회)');
+  lines.push('· 1분 동물 이름 말하기: '+R.flu+'개');
+  lines.push('· 스스로 느끼는 기억 설문: '+R.smcq+' / 14');
+  if(R.obs!=null) lines.push('· 보호자 관찰 설문: '+R.obs+' / 20');
+  lines.push('','■ 가족이 도와주실 일');
+  if(J.level==='high'){
+    lines.push('① 가까운 치매안심센터(전화 1899-9988)에서 무료 정밀검사를 받아보시길 권합니다. 가족이 함께 동행해 주시면 큰 힘이 됩니다.');
+    lines.push('② 이 결과지를 보관해 두었다가 검사받으실 때 보여 주시면 참고가 됩니다.');
+    lines.push('③ 청력·수면·기분(우울) 문제도 기억력에 영향을 줄 수 있으니 함께 살펴봐 주세요.');
+  } else if(J.level==='mid'){
+    lines.push('① 6개월 안에 한 번 더 확인해 보시길 권합니다.');
+    lines.push('② 매일 산책과 대화, 두뇌 놀이 같은 활동을 함께해 주세요.');
+    lines.push('③ 갑자기 달라지는 모습이 보이면 치매안심센터(1899-9988)에 상담해 주세요.');
+  } else {
+    lines.push('① 현재 잘 유지되고 계십니다. 1년에 한 번 정기 확인을 권합니다.');
+    lines.push('② 규칙적인 산책과 가족과의 대화가 큰 도움이 됩니다.');
+  }
+  lines.push('','※ 본 결과는 건강 확인 참고용이며 의학적 진단이 아닙니다. 정확한 평가는 치매안심센터(1899-9988)나 의료기관에서 받으실 수 있습니다.');
   return lines.join('\n');
 }
 /* 복지사 대장용 TSV */
