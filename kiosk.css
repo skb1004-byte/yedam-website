@@ -134,3 +134,47 @@ html.kiosk-on #kiosk-fs-btn {
 html.kiosk-on #kiosk-fs-btn.is-fs {
   background: rgba(220, 38, 38, 0.85);
 }
+
+/* =========================================================
+   "메인으로" (키오스크 홈 화면 복귀) 버튼 — 전체화면 버튼 바로 위에 쌓음
+   ========================================================= */
+#kiosk-home-btn {
+  display: none;
+}
+html.kiosk-on #kiosk-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: fixed;
+  right: 18px;
+  bottom: 84px;
+  z-index: 99999;
+  background: rgba(37, 99, 235, 0.88);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+/* =========================================================
+   kiosk-home.html 타일 링크(썸네일 이미지) 공용 스타일
+   ========================================================= */
+.kiosk-tile-hint {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  background: rgba(17, 24, 39, 0.72);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  pointer-events: none;
+}

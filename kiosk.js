@@ -15,13 +15,19 @@
     }
   })();
 
+  // kiosk-home.html(키오스크 메인 화면) 자기 자신에서는 "메인으로" 버튼이 필요 없음
+  var isKioskHomePage = /(^|\/)kiosk-home\.html$/.test(window.location.pathname);
+
   function detect() {
     try {
       var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches;
       var big = Math.max(window.innerWidth, window.innerHeight) >= 900;
       var isKiosk = !!(coarse && big);
       document.documentElement.classList.toggle('kiosk-on', isKiosk);
-      if (isKiosk) ensureFullscreenUI();
+      if (isKiosk) {
+        ensureFullscreenUI();
+        ensureHomeButton();
+      }
       return isKiosk;
     } catch (e) {
       return false;
@@ -103,6 +109,18 @@
       fsBtn.textContent = '⛶ 전체화면으로 보기';
       fsBtn.classList.remove('is-fs');
     }
+  }
+
+  var homeBtn = null;
+
+  function ensureHomeButton() {
+    if (isFramed || isKioskHomePage || homeBtn) return;
+    homeBtn = document.createElement('a');
+    homeBtn.id = 'kiosk-home-btn';
+    homeBtn.href = window.location.origin + '/kiosk-home.html';
+    homeBtn.textContent = '🏠 메인으로';
+    homeBtn.setAttribute('aria-label', '키오스크 메인 화면으로 이동');
+    document.body.appendChild(homeBtn);
   }
 
   detect();
