@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>예담 키오스크 홈 | ㈜예담정보통신</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="images/favicon_256.png">
+<link rel="stylesheet" href="kiosk.css">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0f1115;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+  }
+
+  /* 21.5인치 세로 화면(1080x1920) 기준 상단 2x2 + 하단 1칸, 총 5분할 */
+  .kiosk-grid {
+    display: grid;
+    width: 100vw;
+    height: 100vh;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 18vh;
+    gap: 8px;
+    padding: 8px;
+    box-sizing: border-box;
+    background: #0f1115;
+  }
+
+  .kiosk-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.3);
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .kiosk-tile-label {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 18px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.2px;
+  }
+
+  .kiosk-tile-1 .kiosk-tile-label { background: linear-gradient(90deg, #4f46e5, #6366f1); } /* AI PIA */
+  .kiosk-tile-2 .kiosk-tile-label { background: linear-gradient(90deg, #0ea5e9, #38bdf8); } /* MOM */
+  .kiosk-tile-3 .kiosk-tile-label { background: linear-gradient(90deg, #ea580c, #f97316); } /* 선생님도우미 */
+  .kiosk-tile-4 .kiosk-tile-label { background: linear-gradient(90deg, #16a34a, #22c55e); } /* 두뇌 놀이터 */
+
+  .kiosk-tile iframe {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: #fff;
+  }
+
+  .kiosk-bottom {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.3);
+    min-height: 0;
+  }
+
+  .kiosk-bottom-label {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 18px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(90deg, #334155, #475569);
+    letter-spacing: -0.2px;
+  }
+
+  .kiosk-bottom iframe {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: #fff;
+  }
+
+  /* 이 홈 화면에서는 전체화면 버튼이 하단 배너와 겹치지 않도록 우측 상단으로 이동 */
+  html.kiosk-on #kiosk-fs-btn {
+    top: 12px;
+    right: 12px;
+    bottom: auto;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+  <div class="kiosk-grid">
+    <div class="kiosk-tile kiosk-tile-1">
+      <div class="kiosk-tile-label">🧭 AI PIA · 성격·진로 검사</div>
+      <iframe src="aipia/test.html" title="AI PIA" allow="microphone; fullscreen" loading="lazy"></iframe>
+    </div>
+    <div class="kiosk-tile kiosk-tile-2">
+      <div class="kiosk-tile-label">🧠 MOM · 인지건강 확인</div>
+      <iframe src="mom/test.html" title="MOM 인지건강 확인" allow="fullscreen" loading="lazy"></iframe>
+    </div>
+    <div class="kiosk-tile kiosk-tile-3">
+      <div class="kiosk-tile-label">🍎 선생님도우미</div>
+      <iframe src="teacher-hub.html" title="선생님도우미" allow="fullscreen" loading="lazy"></iframe>
+    </div>
+    <div class="kiosk-tile kiosk-tile-4">
+      <div class="kiosk-tile-label">🎮 두뇌 놀이터</div>
+      <iframe src="mom-play.html" title="두뇌 놀이터" allow="fullscreen" loading="lazy"></iframe>
+    </div>
+    <div class="kiosk-bottom">
+      <div class="kiosk-bottom-label">📢 AI 교육 · 안내</div>
+      <iframe src="https://aiedu.visang.com/" title="비상 AI교육" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+
+  <script src="kiosk.js"></script>
+</body>
+</html>

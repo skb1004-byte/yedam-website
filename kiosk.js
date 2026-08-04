@@ -4,7 +4,17 @@
 // 키오스크 모드에서는 실제 브라우저 전체화면으로 전환하는 버튼을 우측 하단에 띄우고,
 // 첫 터치/클릭 시(브라우저 정책상 사용자 제스처가 있어야 전체화면 진입 가능) 자동으로
 // 전체화면 진입을 한 번 시도한다.
+// iframe 안에 끼워진 페이지(예: kiosk-home.html의 4분할 타일)에서는 kiosk-on 감지만 하고
+// 전체화면 버튼/자동진입은 만들지 않는다 (최상위 페이지에만 하나만 있으면 됨).
 (function () {
+  var isFramed = (function () {
+    try {
+      return window.top !== window.self;
+    } catch (e) {
+      return true;
+    }
+  })();
+
   function detect() {
     try {
       var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches;
@@ -58,6 +68,7 @@
   }
 
   function ensureFullscreenUI() {
+    if (isFramed) return;
     if (fsBtn) {
       updateFsBtn();
       return;
