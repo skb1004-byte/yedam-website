@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <circle cx="120" cy="140" r="90" fill="#ffffff" opacity="0.08"/>
+  <circle cx="700" cy="880" r="140" fill="#ffffff" opacity="0.08"/>
+  <circle cx="660" cy="160" r="46" fill="#ffffff" opacity="0.10"/>
+
+  <!-- 레이더 차트(성격 프로파일) 아이콘 -->
+  <g transform="translate(400,430)">
+    <polygon points="0,-190 165,-95 165,95 0,190 -165,95 -165,-95"
+             fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="4"/>
+    <polygon points="0,-125 108,-63 108,63 0,125 -108,63 -108,-63"
+             fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="3"/>
+    <polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30"
+             fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
+    <polygon points="0,-170 90,-40 130,90 -20,170 -150,60 -80,-100"
+             fill="#ffffff" fill-opacity="0.85"/>
+    <circle cx="0" cy="-170" r="10" fill="#fff"/>
+    <circle cx="90" cy="-40" r="10" fill="#fff"/>
+    <circle cx="130" cy="90" r="10" fill="#fff"/>
+    <circle cx="-20" cy="170" r="10" fill="#fff"/>
+    <circle cx="-150" cy="60" r="10" fill="#fff"/>
+    <circle cx="-80" cy="-100" r="10" fill="#fff"/>
+  </g>
+
+  <text x="400" y="770" text-anchor="middle" font-family="'Pretendard',-apple-system,sans-serif"
+        font-size="46" font-weight="800" fill="#ffffff">AI PIA</text>
+  <text x="400" y="826" text-anchor="middle" font-family="'Pretendard',-apple-system,sans-serif"
+        font-size="30" font-weight="600" fill="#ffffff" fill-opacity="0.92">성격 · 진로 검사</text>
+  <text x="400" y="872" text-anchor="middle" font-family="'Pretendard',-apple-system,sans-serif"
+        font-size="20" fill="#ffffff" fill-opacity="0.72">7개 학술 검증 검사 + 자유대화</text>
+</svg>

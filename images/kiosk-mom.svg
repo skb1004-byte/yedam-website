@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <circle cx="700" cy="150" r="110" fill="#ffffff" opacity="0.08"/>
+  <circle cx="90" cy="900" r="150" fill="#ffffff" opacity="0.08"/>
+
+  <!-- 뇌 + 맥박선 아이콘 -->
+  <g transform="translate(400,420)">
+    <path d="M -120,-40
+             C -150,-120 -80,-180 -20,-165
+             C 10,-190 70,-190 95,-155
+             C 160,-150 190,-90 165,-30
+             C 195,10 180,80 130,105
+             C 120,150 60,180 10,160
+             C -30,190 -100,175 -120,130
+             C -175,110 -190,40 -150,0
+             C -170,-30 -160,-60 -120,-40 Z"
+          fill="#ffffff" fill-opacity="0.92"/>
+    <path d="M -70,-60 C -55,-90 -25,-95 -5,-70 C 15,-95 55,-85 60,-50
+             C 80,-40 85,-5 65,15 C 80,45 65,85 30,90
+             C 20,120 -20,130 -45,105 C -80,115 -115,90 -110,50
+             C -140,35 -140,-5 -115,-25 C -125,-45 -100,-70 -70,-60 Z"
+          fill="none" stroke="#0ea5e9" stroke-width="3" stroke-opacity="0.35"/>
+    <polyline points="-190,140 -140,140 -110,90 -70,190 -30,60 10,140 60,140 100,80 140,140 210,140"
+              fill="none" stroke="#0ea5e9" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="400" y="740" text-anchor="middle" font-family="'Pretendard',-apple-system,sans-serif"
+        font-size="46" font-weight="800" fill="#ffffff">MOM</text>
+  <text x="400" y="796" text-anchor="middle" font-family="'Pretendard',-apple-system,sans-serif"
+        font-size="30" font-weight="600" fill="#ffffff" fill-opacity="0.92">인지건강 확인</text>
+  <text x="400" y="842" text-anchor="middle" font-family="'Pretendard',-apple-system,sans-serif"
+        font-size="20" fill="#ffffff" fill-opacity="0.72">경로당 · 노인정 두뇌건강 선별 도우미</text>
+</svg>
