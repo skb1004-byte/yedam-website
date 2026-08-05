@@ -69,24 +69,7 @@
     transform: scale(0.985);
   }
 
-  .kiosk-tile-label {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 44px;
-    padding: 0 18px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.2px;
-  }
-
-  .kiosk-tile-1 .kiosk-tile-label { background: linear-gradient(90deg, #4f46e5, #6366f1); } /* AI PIA */
-  .kiosk-tile-2 .kiosk-tile-label { background: linear-gradient(90deg, #0ea5e9, #38bdf8); } /* MOM */
-  .kiosk-tile-3 .kiosk-tile-label { background: linear-gradient(90deg, #ea580c, #f97316); } /* 선생님도우미 */
-  .kiosk-tile-4 .kiosk-tile-label { background: linear-gradient(90deg, #16a34a, #22c55e); } /* 두뇌 놀이터 */
-
+  /* 타일/배너 이미지 자체에 제목·설명이 이미 디자인되어 있어 별도 라벨 바는 사용하지 않음 */
   .kiosk-tile-imgwrap {
     position: relative;
     flex: 1 1 auto;
@@ -121,20 +104,6 @@
     transform: scale(0.99);
   }
 
-  .kiosk-bottom-label {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 36px;
-    padding: 0 18px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(90deg, #334155, #475569);
-    letter-spacing: -0.2px;
-  }
-
   .kiosk-bottom-imgwrap {
     position: relative;
     flex: 1 1 auto;
@@ -166,42 +135,37 @@
       <div class="kiosk-square-grid">
         <a class="kiosk-tile kiosk-tile-1" href="aipia/test.html"
            onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
-          <div class="kiosk-tile-label">🧭 AI PIA · 성격·진로 검사</div>
           <div class="kiosk-tile-imgwrap">
-            <img src="images/kiosk-aipia.svg" alt="AI PIA · 성격·진로 검사" loading="lazy">
+            <img src="images/kiosk-aipia.jpg" alt="AI PIA · 성격·진로 검사" loading="lazy">
             <span class="kiosk-tile-hint">탭하여 열기 →</span>
           </div>
         </a>
         <a class="kiosk-tile kiosk-tile-2" href="mom/test.html"
            onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
-          <div class="kiosk-tile-label">🧠 MOM · 인지건강 확인</div>
           <div class="kiosk-tile-imgwrap">
-            <img src="images/kiosk-mom.svg" alt="MOM · 인지건강 확인" loading="lazy">
+            <img src="images/kiosk-mom.jpg" alt="MOM · 인지건강 확인" loading="lazy">
             <span class="kiosk-tile-hint">탭하여 열기 →</span>
           </div>
         </a>
         <a class="kiosk-tile kiosk-tile-3" href="teacher-hub.html"
            onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
-          <div class="kiosk-tile-label">🍎 선생님도우미</div>
           <div class="kiosk-tile-imgwrap">
-            <img src="images/kiosk-teacher.svg" alt="선생님도우미" loading="lazy">
+            <img src="images/kiosk-teacher.jpg" alt="선생님도우미" loading="lazy">
             <span class="kiosk-tile-hint">탭하여 열기 →</span>
           </div>
         </a>
         <a class="kiosk-tile kiosk-tile-4" href="mom-play.html"
            onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
-          <div class="kiosk-tile-label">🎮 두뇌 놀이터</div>
           <div class="kiosk-tile-imgwrap">
-            <img src="images/kiosk-play.svg" alt="두뇌 놀이터" loading="lazy">
+            <img src="images/kiosk-play.jpg" alt="두뇌 놀이터" loading="lazy">
             <span class="kiosk-tile-hint">탭하여 열기 →</span>
           </div>
         </a>
       </div>
     </div>
     <a class="kiosk-bottom" href="https://aiedu.visang.com/" target="_blank" rel="noopener">
-      <div class="kiosk-bottom-label">📢 AI 교육 · 안내 (새 창으로 열림)</div>
       <div class="kiosk-bottom-imgwrap">
-        <img src="images/kiosk-aiedu.svg" alt="AI 교육 안내" loading="lazy">
+        <img src="images/kiosk-aiedu.jpg" alt="AI 교육 안내 (새 창으로 열림)" loading="lazy">
       </div>
     </a>
   </div>
