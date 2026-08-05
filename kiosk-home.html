@@ -52,71 +52,181 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
-    background: #fff;
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
     min-height: 0;
     min-width: 0;
     text-decoration: none;
-    color: inherit;
+    color: #fff;
+    text-align: center;
     -webkit-tap-highlight-color: transparent;
+    padding: 6% 8%;
+    box-sizing: border-box;
   }
 
   .kiosk-tile:active {
     transform: scale(0.985);
   }
 
-  /* 타일/배너 이미지 자체에 제목·설명이 이미 디자인되어 있어 별도 라벨 바는 사용하지 않음 */
-  .kiosk-tile-imgwrap {
-    position: relative;
-    flex: 1 1 auto;
-    overflow: hidden;
-    background: #f1f5f9;
+  .kiosk-tile-1 { background: linear-gradient(135deg, #8B7CF6 0%, #4C3FA6 100%); }
+  .kiosk-tile-2 { background: linear-gradient(135deg, #FF7A6E 0%, #DD3444 100%); }
+  .kiosk-tile-3 { background: linear-gradient(135deg, #4FCB8F 0%, #178B57 100%); }
+  .kiosk-tile-4 { background: linear-gradient(135deg, #52ADEF 0%, #1660C7 100%); }
+
+  .kiosk-tile-title {
+    font-weight: 800;
+    font-size: clamp(1.4rem, 6vw, 2.5rem);
+    letter-spacing: 0.02em;
+    line-height: 1.1;
   }
 
-  .kiosk-tile-imgwrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-    display: block;
+  .kiosk-tile-divider {
+    width: 34%;
+    max-width: 90px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.55);
+    margin: 0.5em 0 0.55em;
+  }
+
+  .kiosk-tile-sub {
+    font-weight: 700;
+    font-size: clamp(0.85rem, 3.4vw, 1.2rem);
+    margin-bottom: 0.4em;
+  }
+
+  .kiosk-tile-desc {
+    font-weight: 400;
+    font-size: clamp(0.62rem, 2.3vw, 0.85rem);
+    line-height: 1.4;
+    opacity: 0.92;
   }
 
   .kiosk-bottom {
     flex: 1 1 auto;
     position: relative;
     display: flex;
-    flex-direction: column;
-    background: #fff;
-    border-radius: 16px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3%;
+    background: linear-gradient(120deg, #0B1B45 0%, #122A5E 60%, #0E2050 100%);
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
     min-height: 0;
     text-decoration: none;
-    color: inherit;
+    color: #fff;
     -webkit-tap-highlight-color: transparent;
+    padding: 3% 4%;
+    box-sizing: border-box;
+  }
+
+  .kiosk-bottom::before {
+    content: "";
+    position: absolute;
+    right: -6%;
+    top: -30%;
+    width: 46%;
+    height: 160%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(90, 150, 255, 0.18), transparent 70%);
+    pointer-events: none;
   }
 
   .kiosk-bottom:active {
     transform: scale(0.99);
   }
 
-  .kiosk-bottom-imgwrap {
+  .kiosk-bottom-left {
     position: relative;
     flex: 1 1 auto;
-    overflow: hidden;
-    background: #f1f5f9;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
-  .kiosk-bottom-imgwrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-    display: block;
+  .kiosk-bottom-badge {
+    display: inline-block;
+    align-self: flex-start;
+    background: #3B6BEF;
+    color: #fff;
+    font-weight: 700;
+    font-size: clamp(0.5rem, 1.6vh, 0.72rem);
+    padding: 0.3em 0.9em;
+    border-radius: 999px;
+    margin-bottom: 0.35em;
+  }
+
+  .kiosk-bottom-title {
+    font-weight: 800;
+    font-size: clamp(1.1rem, 4.6vh, 2.1rem);
+    line-height: 1.05;
+    margin-bottom: 0.25em;
+  }
+
+  .kiosk-bottom-title .accent { color: #6FC3FF; }
+
+  .kiosk-bottom-tagline {
+    font-size: clamp(0.55rem, 1.9vh, 0.85rem);
+    line-height: 1.35;
+    opacity: 0.92;
+    margin-bottom: 0.5em;
+  }
+
+  .kiosk-bottom-tagline .hl { color: #6FC3FF; font-weight: 700; }
+
+  .kiosk-bottom-cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    background: #fff;
+    color: #12296B;
+    font-weight: 700;
+    font-size: clamp(0.5rem, 1.7vh, 0.75rem);
+    padding: 0.45em 1.1em;
+    border-radius: 999px;
+  }
+
+  .kiosk-bottom-right {
+    position: relative;
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.6em 1.4em;
+  }
+
+  .kiosk-bottom-feat {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4em;
+  }
+
+  .kiosk-bottom-feat-dot {
+    width: 0.45em;
+    height: 0.45em;
+    border-radius: 50%;
+    background: #6FC3FF;
+    margin-top: 0.5em;
+    flex: 0 0 auto;
+  }
+
+  .kiosk-bottom-feat-t {
+    font-weight: 700;
+    font-size: clamp(0.5rem, 1.7vh, 0.78rem);
+    line-height: 1.25;
+  }
+
+  .kiosk-bottom-feat-d {
+    font-weight: 400;
+    font-size: clamp(0.42rem, 1.35vh, 0.62rem);
+    line-height: 1.3;
+    opacity: 0.75;
   }
 
   /* 이 홈 화면에서는 전체화면 버튼이 하단 배너와 겹치지 않도록 우측 상단으로 이동 */
@@ -127,7 +237,11 @@
     padding: 10px 16px;
     font-size: 0.85rem;
   }
-.kiosk-bottom .kiosk-bottom-imgwrap img{object-fit:contain !important;object-position:center center !important;}</style>
+
+  @media (max-width: 720px) {
+    .kiosk-bottom-right { display: none; }
+  }
+</style>
 </head>
 <body>
   <div class="kiosk-page">
@@ -135,37 +249,58 @@
       <div class="kiosk-square-grid">
         <a class="kiosk-tile kiosk-tile-1" href="aipia/test.html"
            onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
-          <div class="kiosk-tile-imgwrap">
-            <img src="images/kiosk-aipia.jpg" alt="AI PIA · 성격·진로 검사" loading="lazy">
-            <span class="kiosk-tile-hint">탭하여 열기 →</span>
-          </div>
+          <div class="kiosk-tile-title">AI PIA</div>
+          <div class="kiosk-tile-divider"></div>
+          <div class="kiosk-tile-sub">학생 인적성검사</div>
+          <div class="kiosk-tile-desc">AI 기반 맞춤형 인적성검사로<br>학생의 성향과 잠재력을 분석해요</div>
         </a>
         <a class="kiosk-tile kiosk-tile-2" href="mom/test.html"
            onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
-          <div class="kiosk-tile-imgwrap">
-            <img src="images/kiosk-mom.jpg" alt="MOM · 인지건강 확인" loading="lazy">
-            <span class="kiosk-tile-hint">탭하여 열기 →</span>
-          </div>
+          <div class="kiosk-tile-title">MOM</div>
+          <div class="kiosk-tile-divider"></div>
+          <div class="kiosk-tile-sub">부모님 인지건강 테스트</div>
+          <div class="kiosk-tile-desc">부모님의 기억력과 인지기능을<br>쉽고 간편하게 확인해요</div>
         </a>
         <a class="kiosk-tile kiosk-tile-3" href="teacher-hub.html"
            onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
-          <div class="kiosk-tile-imgwrap">
-            <img src="images/kiosk-teacher.jpg" alt="선생님도우미" loading="lazy">
-            <span class="kiosk-tile-hint">탭하여 열기 →</span>
-          </div>
+          <div class="kiosk-tile-title">선생님 도우미</div>
+          <div class="kiosk-tile-divider"></div>
+          <div class="kiosk-tile-sub">선생님 지원 솔루션</div>
+          <div class="kiosk-tile-desc">수업 준비부터 평가까지,<br>스마트한 선생님 업무를 지원해요</div>
         </a>
         <a class="kiosk-tile kiosk-tile-4" href="mom-play.html"
            onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
-          <div class="kiosk-tile-imgwrap">
-            <img src="images/kiosk-play.jpg" alt="두뇌 놀이터" loading="lazy">
-            <span class="kiosk-tile-hint">탭하여 열기 →</span>
-          </div>
+          <div class="kiosk-tile-title">두뇌 놀이터</div>
+          <div class="kiosk-tile-divider"></div>
+          <div class="kiosk-tile-sub">부모님·어르신 두뇌훈련</div>
+          <div class="kiosk-tile-desc">재미있는 게임과 활동으로<br>두뇌를 건강하게 훈련해요</div>
         </a>
       </div>
     </div>
     <a class="kiosk-bottom" href="https://aiedu.visang.com/" target="_blank" rel="noopener">
-      <div class="kiosk-bottom-imgwrap">
-        <img src="images/kiosk-aiedu.jpg" alt="AI 교육 안내 (새 창으로 열림)" loading="lazy">
+      <div class="kiosk-bottom-left">
+        <span class="kiosk-bottom-badge">비상한 AI 교육!</span>
+        <div class="kiosk-bottom-title">AI <span class="accent">교육</span></div>
+        <div class="kiosk-bottom-tagline">비상한 AI 교육으로 우리 아이의 <span class="hl">미래</span>를 설계하세요!</div>
+        <span class="kiosk-bottom-cta">AI 교육 프로그램 자세히 보기 →</span>
+      </div>
+      <div class="kiosk-bottom-right">
+        <div class="kiosk-bottom-feat">
+          <span class="kiosk-bottom-feat-dot"></span>
+          <span><span class="kiosk-bottom-feat-t">창의력 향상</span><br><span class="kiosk-bottom-feat-d">상상력과 창의적 사고력 강화</span></span>
+        </div>
+        <div class="kiosk-bottom-feat">
+          <span class="kiosk-bottom-feat-dot"></span>
+          <span><span class="kiosk-bottom-feat-t">문제해결력</span><br><span class="kiosk-bottom-feat-d">논리적 사고와 문제해결 능력 개발</span></span>
+        </div>
+        <div class="kiosk-bottom-feat">
+          <span class="kiosk-bottom-feat-dot"></span>
+          <span><span class="kiosk-bottom-feat-t">미래 역량 강화</span><br><span class="kiosk-bottom-feat-d">AI 시대에 필요한 핵심 역량 함양</span></span>
+        </div>
+        <div class="kiosk-bottom-feat">
+          <span class="kiosk-bottom-feat-dot"></span>
+          <span><span class="kiosk-bottom-feat-t">글로벌 교육</span><br><span class="kiosk-bottom-feat-d">세계적 수준의 글로벌 교육 경험</span></span>
+        </div>
       </div>
     </a>
   </div>
