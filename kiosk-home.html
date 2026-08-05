@@ -79,7 +79,7 @@
   .kiosk-tile-4 { background: linear-gradient(135deg, #52ADEF 0%, #1660C7 100%); }
 
   .kiosk-tile-title {
-    font-weight: 800;
+    font-weight: 900;
     font-size: clamp(1.8rem, 7.6vw, 3.2rem);
     letter-spacing: 0.02em;
     line-height: 1.1;
@@ -92,8 +92,7 @@
   }
 
   .kiosk-tile-divider {
-    width: 34%;
-    max-width: 100px;
+    width: 60px;
     height: 3px;
     background: rgba(255, 255, 255, 0.55);
     margin: 0.5em 0 0.55em;
@@ -311,6 +310,21 @@
     </a>
   </div>
 
+  <script>
+    function syncKioskDividers() {
+      document.querySelectorAll('.kiosk-tile-title').forEach(function (title) {
+        var divider = title.nextElementSibling;
+        if (divider && divider.classList.contains('kiosk-tile-divider')) {
+          divider.style.width = title.offsetWidth + 'px';
+        }
+      });
+    }
+    window.addEventListener('load', syncKioskDividers);
+    window.addEventListener('resize', syncKioskDividers);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(syncKioskDividers);
+    }
+  </script>
   <script src="kiosk.js"></script>
 </body>
 </html>
