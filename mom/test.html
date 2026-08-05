@@ -165,7 +165,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
   <div class="card">
     <div class="q-num">기본 정보</div>
     <div class="q-text">어떻게 불러 드릴까요?</div>
-    <input id="pName" placeholder="예: 김 어르신 (별명도 좋아요)" style="width:100%;margin-top:14px;padding:18px;font-size:1.3rem;border:2px solid var(--line);border-radius:14px;font-family:inherit;background:var(--paper)">
+<div class="q-help" style="margin-top:14px">아래에서 골라 주세요 (직접 입력 없이도 진행돼요)</div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px" id="nameQuick"><button class="choice" data-g="name" data-v="어르신" style="flex:1 1 28%;padding:14px 6px;font-size:1.05rem;min-height:52px">어르신</button><button class="choice" data-g="name" data-v="할아버님" style="flex:1 1 28%;padding:14px 6px;font-size:1.05rem;min-height:52px">할아버님</button><button class="choice" data-g="name" data-v="할머님" style="flex:1 1 28%;padding:14px 6px;font-size:1.05rem;min-height:52px">할머님</button></div><div style="display:flex;gap:8px;align-items:center;margin-top:10px"><input id="pName" placeholder="예: 김 어르신 (별명도 좋아요)" style="flex:1;min-width:0;padding:18px;font-size:1.3rem;border:2px solid var(--line);border-radius:14px;font-family:inherit;background:var(--paper)"><button class="hear" id="pNameMic" style="margin-top:0;white-space:nowrap" onclick="nameVoice()">🎤 말해서 넣기</button></div>
     <div class="q-text" style="margin-top:26px;font-size:1.35rem">연세가 어떻게 되세요?</div>
     <div class="two" style="margin-top:12px">
       <button class="choice" data-g="age" data-v="60">60대</button>
@@ -265,7 +265,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
     <div class="q-text">아까 기억해 달라고 한<br><b style="color:var(--rust2)">세 단어</b>는 무엇이었나요?</div>
     <div id="rcFree">
       <p class="q-help">생각나는 단어를 말씀해 주세요. 어르신이 말씀하신 대로 적으면 됩니다(도우미가 대신 적어도 좋아요).</p>
-      <input type="text" id="rcInput" placeholder="예: 나무, 모자" style="width:100%;padding:16px;font-size:1.3rem;border:2px solid var(--line);border-radius:12px;background:#fff">
+<div style="display:flex;gap:8px;align-items:center"><input type="text" id="rcInput" placeholder="예: 나무, 모자" style="flex:1;min-width:0;padding:16px;font-size:1.3rem;border:2px solid var(--line);border-radius:12px;background:#fff"><button class="hear" id="rcMic" style="margin-top:0;white-space:nowrap" onclick="rcVoice()">🎤 음성으로 적기</button></div>
       <button class="btn btn-main" onclick="recallFreeDone()">말한 대로 적었어요</button>
       <button class="btn btn-line" onclick="recallShowChoices()">잘 기억나지 않아요 · 보기에서 고르기</button>
     </div>
@@ -435,10 +435,10 @@ function resumeSess(){
 document.querySelectorAll('.choice[data-g]').forEach(function(b){
   b.addEventListener('click',function(){
     document.querySelectorAll('.choice[data-g="'+b.dataset.g+'"]').forEach(function(x){x.classList.remove('sel');});
-    b.classList.add('sel');
+    b.classList.add('sel'); if(b.dataset.g==='name'){ $('#pName').value=b.dataset.v; }
   });
 });
-function infoNext(){
+function _voiceFill(inputSel,btnSel){var SR=window.SpeechRecognition||window.webkitSpeechRecognition;var btn=$(btnSel);if(!SR){alert('이 브라우저는 음성 인식을 지원하지 않습니다. 직접 입력해 주세요.');return;}try{var r=new SR();r.lang='ko-KR';r.continuous=false;r.interimResults=false;var orig=btn.textContent;btn.textContent='🎤 듣는 중...';btn.disabled=true;r.onresult=function(ev){var tr=(ev.results[0][0].transcript||'').trim();if(tr)$(inputSel).value=tr;};r.onerror=function(ev){if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){alert('마이크 사용이 허용되지 않았습니다. 직접 입력해 주세요.');}};r.onend=function(){btn.textContent=orig;btn.disabled=false;};r.start();}catch(e){btn.disabled=false;alert('음성 인식을 시작할 수 없습니다. 직접 입력해 주세요.');}}function nameVoice(){_voiceFill('#pName','#pNameMic');}function rcVoice(){_voiceFill('#rcInput','#rcMic');}function infoNext(){
   var a=document.querySelector('.choice[data-g="age"].sel');
   var e=document.querySelector('.choice[data-g="edu"].sel');
   if(!a||!e){ alert('연세와 학력을 골라 주세요.'); return; }
