@@ -443,14 +443,14 @@ GAMES.saju={
     $('#gScore').textContent='재미용';
     $('#gFeed').textContent='';
     var host=$('#gHost');
-    var saved={}; try{ saved=JSON.parse(localStorage.getItem('mom_saju_birth')||'{}'); }catch(e){}
-    host.innerHTML='<p class="q-help" style="text-align:center;font-size:1.15rem"><b>생년월일</b>을 넣어 주세요</p>'
+    var saved={}; try{ saved=JSON.parse(localStorage.getItem('mom_saju_birth')||'{}'); }catch(e){} var curY=new Date().getFullYear(); function _selOpts(from,to,sel){var s='';var asc=from<=to;if(asc){for(var i=from;i<=to;i++){s+='<option value="'+i+'"'+(i===sel?' selected':'')+'>'+i+'</option>';}}else{for(var i=from;i>=to;i--){s+='<option value="'+i+'"'+(i===sel?' selected':'')+'>'+i+'</option>';}}return s;}
+    host.innerHTML='<p class="q-help" style="text-align:center;font-size:1.15rem"><b>생년월일</b>을 골라 주세요 (눌러서 선택)</p>'
      +'<div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:10px 0">'
-     +'<input type="number" id="sjY" placeholder="1945" min="1900" max="2020" value="'+(saved.y||'')+'" style="width:110px;padding:14px 8px;font-size:1.3rem;text-align:center;border:2px solid var(--line);border-radius:12px">'
+     +'<select id="sjY" style="min-width:110px;padding:14px 8px;font-size:1.3rem;text-align:center;border:2px solid var(--line);border-radius:12px;font-family:inherit;background:#fff">'+_selOpts(curY,1920,saved.y||1950)+'</select>'
      +'<span style="font-size:1.1rem">년</span>'
-     +'<input type="number" id="sjM" placeholder="3" min="1" max="12" value="'+(saved.m||'')+'" style="width:80px;padding:14px 8px;font-size:1.3rem;text-align:center;border:2px solid var(--line);border-radius:12px">'
+     +'<select id="sjM" style="min-width:80px;padding:14px 8px;font-size:1.3rem;text-align:center;border:2px solid var(--line);border-radius:12px;font-family:inherit;background:#fff">'+_selOpts(1,12,saved.m||1)+'</select>'
      +'<span style="font-size:1.1rem">월</span>'
-     +'<input type="number" id="sjD" placeholder="15" min="1" max="31" value="'+(saved.d||'')+'" style="width:80px;padding:14px 8px;font-size:1.3rem;text-align:center;border:2px solid var(--line);border-radius:12px">'
+     +'<select id="sjD" style="min-width:80px;padding:14px 8px;font-size:1.3rem;text-align:center;border:2px solid var(--line);border-radius:12px;font-family:inherit;background:#fff">'+_selOpts(1,31,saved.d||1)+'</select>'
      +'<span style="font-size:1.1rem">일</span>'
      +'</div>'
      +'<button class="btn btn-main" id="sjGo">운세 보기</button>'
@@ -463,7 +463,7 @@ GAMES.saju={
       try{ localStorage.setItem('mom_saju_birth',JSON.stringify({y:y,m:m,d:d})); }catch(e){}
       GAMES.saju.show(y,m,d);
     });
-    say('생년월일을 넣고 운세 보기를 눌러 주세요');
+    say('생년월일을 고르고 운세 보기를 눌러 주세요');
   },
   show:function(by,bm,bd){
     var now=new Date(); var cy=now.getFullYear();
