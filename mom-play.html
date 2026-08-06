@@ -89,7 +89,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
     <div class="tile" data-g="odd"><div class="ic">👀</div><div class="t">다른 그림 찾기</div><div class="d">눈썰미</div></div>
     <div class="tile" data-g="fast"><div class="ic">⚡</div><div class="t">빨리 찾기</div><div class="d">처리 속도</div></div>
     <div class="tile" data-g="saju"><div class="ic">🔮</div><div class="t">토정비결</div><div class="d">오늘의 운세</div></div>
-    <div class="tile" data-g="old"><div class="ic">📻</div><div class="t">옛날 이야기 퀴즈</div><div class="d">추억 회상</div></div>
+    <div class="tile" data-g="old"><div class="ic">📻</div><div class="t">옛날 이야기 퀴즈</div><div class="d">추억 회상</div></div><div class="tile" data-g="letter"><div class="ic">💌</div><div class="t">가족에게 편지</div><div class="d">말로 전하기</div></div>
   </div>
   <div class="card" style="margin-top:16px">
     <div class="q-help" style="margin:0">난이도</div>
@@ -266,6 +266,131 @@ function markScore(ok){ if(ok)score++; $('#gScore').textContent=score+' / '+ROUN
    게임들
    ===================================================== */
 var GAMES={};
+GAMES.letter={
+  start:function(){
+    $('#gTitle').textContent='💌 가족에게 편지';
+    ROUNDS=1; score=0; $('#gScore').textContent='';
+    var TO=['아들','딸','손주','며느리','사위','남편','아내','형제자매','친구'];
+    var TOPIC=[
+      {t:'안부 전하기', s:'잘 지내고 있단다. 너는 어떻게 지내니?'},
+      {t:'고마운 마음', s:'늘 고맙구나. 네 덕분에 힘이 난다.'},
+      {t:'보고 싶어', s:'많이 보고 싶구나. 얼굴 보러 한번 오려무나.'},
+      {t:'자랑하기', s:'오늘 두뇌 놀이터에서 놀이를 했단다.'},
+      {t:'하고 싶은 말', s:''}
+    ];
+    var to='', body='', host=$('#gHost'), rec=null, listening=false;
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function full(){ return (to?to+'에게\n\n':'')+body.trim()+'\n\n- 사랑을 담아'; }
+    function setState(t){ var s=$('#ltState'); if(s) s.textContent=t; }
+    function draw(){ var p=$('#ltPaper'); if(p) p.textContent=full(); }
+    function step1(){
+      host.innerHTML='<p class="q-text" style="text-align:center">누구에게 편지를 쓸까요?</p><div class="gridN" id="ltTo" style="grid-template-columns:repeat(3,1fr)"></div>';
+      var g=$('#ltTo');
+      TO.forEach(function(n){
+        var b=document.createElement('div'); b.className='mcard'; b.style.fontSize='1.15rem'; b.textContent=n;
+        b.addEventListener('click',function(){ to=n; say(n+'에게 편지를 씁니다.'); step2(); });
+        g.appendChild(b);
+      });
+      say('누구에게 편지를 쓸까요? 골라 보세요.');
+    }
+    function step2(){
+      host.innerHTML='<p class="q-text" style="text-align:center">'+esc(to)+'에게 어떤 말을 전할까요?</p><div class="gridN" id="ltTp" style="grid-template-columns:repeat(2,1fr)"></div><button class="btn btn-line" id="ltBack" style="margin-top:10px">◀ 받는 사람 다시 고르기</button>';
+      var g=$('#ltTp');
+      TOPIC.forEach(function(o){
+        var b=document.createElement('div'); b.className='mcard'; b.style.fontSize='1.05rem'; b.textContent=o.t;
+        b.addEventListener('click',function(){ body=o.s; step3(); });
+        g.appendChild(b);
+      });
+      $('#ltBack').addEventListener('click',step1);
+      say('어떤 말을 전할까요?');
+    }
+    function stopRec(){ listening=false; try{ if(rec&&rec.stop) rec.stop(); }catch(e){} var b=$('#ltMic'); if(b){ b.textContent='🎤 말하기'; } }
+    function toggleRec(){
+      var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      if(!SR){ setState('이 기기는 음성 입력을 지원하지 않아요.'); say('이 기기는 음성 입력을 지원하지 않습니다.'); return; }
+      if(listening){ stopRec(); setState('멈췄어요.'); return; }
+      try{
+        speechSynthesis.cancel();
+        rec=new SR(); rec.lang='ko-KR'; rec.continuous=false; rec.interimResults=true; rec.maxAlternatives=1;
+        var fin='';
+        rec.onstart=function(){ listening=true; var b=$('#ltMic'); if(b){ b.textContent='⏹ 그만 말하기'; } setState('듣고 있어요… 천천히 말씀하세요.'); };
+        rec.onresult=function(ev){
+          var it='';
+          for(var i=ev.resultIndex;i<ev.results.length;i++){
+            var r=ev.results[i];
+            if(r.isFinal) fin+=r[0].transcript; else it+=r[0].transcript;
+          }
+          if(it) setState('듣는 중: '+it.slice(0,40));
+        };
+        rec.onerror=function(ev){
+          listening=false; stopRec();
+          if(ev.error==='not-allowed'||ev.error==='service-not-allowed') setState('마이크 사용이 허용되지 않았어요.');
+          else if(ev.error==='no-speech') setState('소리가 들리지 않았어요. 다시 눌러 주세요.');
+          else setState('다시 한 번 눌러 주세요.');
+        };
+        rec.onend=function(){
+          listening=false; stopRec();
+          var t=(fin||'').trim();
+          if(t){ body=(body?body.trim()+' ':'')+t+(/[.!?]$/.test(t)?'':'.'); draw(); setState('담았어요. 더 말해도 좋아요.'); }
+          else setState('들은 내용이 없어요. 다시 눌러 주세요.');
+        };
+        rec.start();
+      }catch(e){ listening=false; setState('음성 입력을 시작할 수 없어요.'); }
+    }
+    function step3(){
+      host.innerHTML=
+        '<p class="q-help" style="text-align:center;margin-bottom:6px">🎤 버튼을 누르고 편하게 말씀하세요. 말한 내용이 편지에 담깁니다.</p>'+
+        '<div id="ltPaper" style="background:#fffdf8;border:1px solid #e7e2d6;border-radius:12px;padding:14px;min-height:120px;white-space:pre-wrap;line-height:1.7;font-size:1.05rem"></div>'+
+        '<div id="ltState" class="q-help" style="text-align:center;margin-top:6px;min-height:22px"></div>'+
+        '<button class="btn btn-main" id="ltMic" style="margin-top:8px">🎤 말하기</button>'+
+        '<div style="display:flex;gap:8px;margin-top:8px">'+
+          '<button class="btn btn-line" id="ltUndo" style="flex:1">↩ 마지막 문장 지우기</button>'+
+          '<button class="btn btn-line" id="ltRead" style="flex:1">🔊 읽어주기</button>'+
+        '</div>'+
+        '<button class="btn btn-main" id="ltDone" style="margin-top:8px">✅ 다 썼어요</button>'+
+        '<button class="btn btn-line" id="ltBack2" style="margin-top:8px">◀ 내용 다시 고르기</button>';
+      draw();
+      $('#ltBack2').addEventListener('click',step2);
+      $('#ltUndo').addEventListener('click',function(){
+        var p=body.trim().split(/\s*(?:(?<=[.!?])\s+|\n+)\s*/).filter(function(s){return s.trim();});
+        p.pop(); body=p.join(' '); draw(); say('마지막 문장을 지웠어요.');
+      });
+      $('#ltRead').addEventListener('click',function(){ say(body||'아직 내용이 없어요.'); });
+      $('#ltDone').addEventListener('click',function(){ stopRec(); step4(); });
+      $('#ltMic').addEventListener('click',toggleRec);
+    }
+    function step4(){
+      var txt=full();
+      host.innerHTML=
+        '<p class="q-text" style="text-align:center">편지가 완성되었어요 💌</p>'+
+        '<div style="background:#fffdf8;border:1px solid #e7e2d6;border-radius:12px;padding:14px;white-space:pre-wrap;line-height:1.7;font-size:1.05rem">'+esc(txt)+'</div>'+
+        '<button class="btn btn-main" id="ltCopy" style="margin-top:10px">📋 복사하기</button>'+
+        '<button class="btn btn-main" id="ltSms" style="margin-top:8px">💬 문자로 보내기</button>'+
+        '<button class="btn btn-line" id="ltShare" style="margin-top:8px">📤 공유하기</button>'+
+        '<button class="btn btn-line" id="ltAgain" style="margin-top:8px">✏️ 더 고쳐 쓰기</button>'+
+        '<p class="q-help" style="text-align:center;margin-top:10px">복사한 뒤 카카오톡이나 문자에 붙여넣어 보내세요.</p>';
+      $('#ltAgain').addEventListener('click',step3);
+      $('#ltCopy').addEventListener('click',function(){
+        var done=function(){ $('#ltCopy').textContent='✅ 복사했어요!'; say('편지를 복사했어요. 문자나 카카오톡에 붙여넣어 보내세요.'); };
+        var fallback=function(){
+          try{ var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }
+          catch(e2){ alert('복사에 실패했어요. 화면의 글을 길게 눌러 복사해 주세요.'); }
+        };
+        try{
+          if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done,fallback); }
+          else fallback();
+        }catch(e){ fallback(); }
+      });
+      $('#ltSms').addEventListener('click',function(){ try{ location.href='sms:?&body='+encodeURIComponent(txt); }catch(e){} });
+      $('#ltShare').addEventListener('click',function(){
+        try{ if(navigator.share){ navigator.share({title:'편지',text:txt}); } else { alert('이 기기에서는 공유가 지원되지 않아요. 복사하기를 눌러 주세요.'); } }catch(e){}
+      });
+      try{ addStamp(); drawStamps(); }catch(e){}
+      say('편지가 완성되었어요. 참 잘하셨어요.');
+    }
+    step1();
+  }
+};
 
 /* 🃏 짝 맞추기 — pair: 라운드 1회(전판), 쌍 수로 난이도 */
 GAMES.pair={
