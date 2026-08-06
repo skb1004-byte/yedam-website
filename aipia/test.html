@@ -9172,7 +9172,7 @@ showView = function(name) {
 };
 
 window.safeStartRecognition = safeStartRecognition;
-window.safeStopRecognition = safeStopRecognition;
+window.safeStopRecognition = safeStopRecognition;(function(){var _homeGreeted=false;var _origShow8=showView;showView=function(name){_origShow8(name);if(name==='home'&&!isMobile()&&!_homeGreeted){try{if(typeof getCompletedTests==='function'&&Object.keys(getCompletedTests()).length>0)return;}catch(e){}_homeGreeted=true;setTimeout(function(){try{if(!('speechSynthesis' in window))return;var u=new SpeechSynthesisUtterance('안녕하세요! 저는 AI 코치 피아예요. 오늘 나의 성향을 함께 알아볼까요? 원하는 검사를 선택하거나, 자유대화를 눌러 저와 편하게 이야기해도 좋아요.');u.lang='ko-KR';u.rate=1.0;u.pitch=1.05;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}},700);}};})();
 
 
 // ===== 결과지 JS =====
