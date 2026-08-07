@@ -10433,7 +10433,7 @@ window.PIA.botImg=function(kind,alt){
 /* 오래된 서비스워커·캐시 때문에 옛 화면이 보이는 문제 자가 복구.
    빌드 태그가 바뀌면 캐시를 비우고 서비스워커를 갱신한 뒤 한 번만 새로고침한다. */
 (function(){
-  var BUILD='20260807-krds-3';
+  var BUILD='20260807-krds-4';
   /* 예전 버전에서 기기에 영구 저장된 교사 플래그를 제거 (키오스크 결과지 선행 노출 원인) */
   try{ localStorage.removeItem('pia_aud_teacher'); }catch(e){}
   try{
@@ -10524,10 +10524,13 @@ window.PIA.botImg=function(kind,alt){
   PIA.ttsOn = false;
   PIA.toggleTTS = function(){
     PIA.ttsOn = !PIA.ttsOn;
-    try{ localStorage.setItem('pia_tts', PIA.ttsOn?'1':'0'); }catch(e){}
     var b=document.getElementById('pia-tts-btn'); if(b) b.setAttribute('aria-pressed', PIA.ttsOn?'true':'false');
-    try{ localStorage.setItem('pia_tts', PIA.ttsOn?'1':''); }catch(e){}
-    if(PIA.ttsOn){ PIA.speak(PIA.currentReadText()||'음성 안내를 켰습니다.'); }
+    try{ localStorage.setItem('pia_tts', PIA.ttsOn?'1':'0'); }catch(e){}
+    if(PIA.ttsOn){
+      var _t = PIA.currentReadText() || '음성 안내를 켰습니다.';
+      PIA._lastRead = _t;           // 감시 로직이 같은 문구를 또 읽지 않도록 기록
+      PIA.speak(_t);
+    }
     else { try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} }
   };
   PIA.speak = function(t){
@@ -11639,8 +11642,9 @@ window._ttsClean=function(s){
         var o=PIA.toggleTTS;
         PIA.toggleTTS=function(){
           var r=o.apply(this, arguments);
-          try{ PIA._lastRead=''; }catch(e){}
-          setTimeout(readNow, 120);
+          /* toggleTTS 가 이미 현재 문구를 읽었으므로 여기서 또 읽지 않는다.
+             혹시 읽을 문구를 못 찾았을 때만 보완한다. */
+          setTimeout(function(){ if(window.PIA && PIA.ttsOn && !PIA._lastRead) readNow(); }, 200);
           return r;
         };
       }
