@@ -623,42 +623,71 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 </section>
 
 
-<section data-view="chat" class="hidden bg-white rounded-2xl border border-slate-200">
-  <div class="flex items-center gap-3 px-5 py-3 border-b border-slate-200">
-    <div class="w-10 h-10 rounded-xl bg-slate-900 text-white grid place-items-center text-lg">🤖</div>
-    <div>
-      <div class="font-semibold">AI PIA와 자유대화</div>
-      <div class="text-xs text-slate-500">일상 대화로 성향·흥미 파악 <span id="chat-aistatus" class="ml-1"></span></div>
-      <div class="text-xs text-slate-500 mt-1">수준 <select id="chat-grade" onchange="setGrade(this.value); if(window.renderChatStarter) renderChatStarter();" class="ml-1 border border-slate-300 rounded px-1 py-0.5 text-xs"><option value="elem">초등</option><option value="mid" selected>중등</option><option value="high">고등</option><option value="univ">대학생</option><option value="adult">일반인</option></select></div>
-    </div>
-    <div class="ml-auto">
-      <span id="chat-turn" class="text-xs text-slate-500">0 / 16 턴</span>
-      <button onclick="showView('home')" class="ml-2 text-xs text-slate-500">← 메뉴</button>
-    </div>
-  </div>
-  <div id="chat-msgs" class="h-[440px] overflow-y-auto p-4 space-y-3" role="log" aria-live="polite" aria-label="피아와의 대화 내용">
-    <div class="flex"><div class="bg-slate-100 max-w-[78%] rounded-2xl rounded-tl-sm px-3 py-2 text-sm">
-      안녕하세요! 저는 AI 피아예요. 편한 속도로 천천히 시작하시면 돼요. 짧게 말씀하셔도 충분해요.
-    </div></div>
-  </div>
-  <div id="chat-profile" class="px-4 pt-2 text-[11px] text-slate-500"></div>
-  <div class="px-4 py-3 border-t border-slate-200 space-y-2">
-    <div class="flex gap-2">
-      <input id="chat-input" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="예: 친구들이 나랑 안 놀아줘 (Enter로 전송)" />
-      <button id="chat-mic" class="bg-rose-500 text-white px-3 py-2 rounded-lg text-sm font-semibold" title="음성 입력 시작/중지" aria-label="음성 입력 시작/중지">🎤</button>
-      <button id="chat-send" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">전송</button>
-    </div>
-    <div class="flex justify-between items-center">
-      <div id="chat-quick-wrap" class="flex flex-wrap gap-1">
-        <button class="chat-quick bg-slate-100 px-2 py-1 rounded-md text-xs">오늘 기분이 별로야</button>
-        <button class="chat-quick bg-slate-100 px-2 py-1 rounded-md text-xs">친구랑 싸웠어</button>
-        <button class="chat-quick bg-slate-100 px-2 py-1 rounded-md text-xs">꿈이 아직 없어</button>
-        <button class="chat-quick bg-slate-100 px-2 py-1 rounded-md text-xs">국어 시간이 좋아</button>
+<section data-view="chat" class="hidden">
+  <div class="pia">
+    <button type="button" class="pia-back" onclick="showView('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em"><path d="M15 18 9 12l6-6"/></svg>홈</button>
+    <div style="margin-bottom:var(--pia-s3)"><span class="pia-badge">필수 검사 1/3</span></div>
+    <h1 class="pia-h1" style="margin-bottom:var(--pia-s2)">AI와 대화</h1>
+    <p class="pia-bodyL pia-muted">편하게 이야기해주세요. 정답은 없어요.</p>
+    <div style="height:var(--pia-s4)"></div>
+
+    <div class="pia-prog">
+      <div class="pia-prog__top">
+        <span class="pia-prog__label">대화 진행 <b class="pia-prog__cur" id="chat-turn-n">0</b> <span class="pia-prog__tot">/ <span id="chat-turn-t">16</span></span></span>
+        <span class="pia-sr" id="chat-turn-pct">0%</span>
       </div>
-      <div class="flex items-center gap-2">
-        <span id="chat-mic-status" class="text-xs text-slate-500"></span>
-        <label class="flex items-center gap-1 text-xs text-slate-500"><input id="chat-tts" type="checkbox" checked /> 응답 음성 재생</label><label class="flex items-center gap-1 text-xs text-slate-500" title="구글 자연 음성(온라인). 실패하면 자동으로 내장 음성으로 전환됩니다."><input id="chat-gtts" type="checkbox" checked /> 자연 음성</label><select id="chat-voice" class="text-xs border border-slate-200 rounded px-1 py-0.5 bg-white text-slate-600" title="피아 목소리 선택 (내장 음성)"></select>
+      <div class="pia-prog__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="대화 진행률">
+        <div class="pia-prog__fill" id="chat-turn-bar" style="width:0%"></div>
       </div>
+    </div>
+    <span id="chat-turn" class="pia-sr">0 / 16 턴</span>
+
+    <section class="pia-sec pia-ask">
+      <div class="pia-ask__bot" aria-hidden="true" id="pia-chat-bot"></div>
+      <div class="pia-ask__tx">
+        <span class="pia-ask__who">AI PIA</span>
+        <p class="pia-q" id="pia-chat-q">안녕하세요! 저는 AI 피아예요.<br>편한 속도로 천천히 이야기해요.</p>
+      </div>
+    </section>
+
+    <div id="chat-msgs" class="pia-sr" role="log" aria-live="polite" aria-label="피아와의 대화 내용"></div>
+
+    <div id="chat-quick-title" class="pia-h3" style="margin:var(--pia-s4) 0 var(--pia-s2)">이렇게 답해도 좋아요</div>
+    <div id="chat-quick-wrap" class="pia-qk">
+      <button type="button" class="chat-quick pia-qk__b">오늘 기분이 별로야</button>
+      <button type="button" class="chat-quick pia-qk__b">친구랑 싸웠어</button>
+      <button type="button" class="chat-quick pia-qk__b">꿈이 아직 없어</button>
+      <button type="button" class="chat-quick pia-qk__b">국어 시간이 좋아</button>
+      <span class="pia-sr">답변 예시입니다. 눌러서 바로 보낼 수 있어요.</span>
+    </div>
+
+    <div class="pia-h3" style="margin:var(--pia-s4) 0 var(--pia-s2)">또는 직접 이야기해주세요</div>
+    <div class="pia-say">
+      <input id="chat-input" class="pia-in pia-say__in" placeholder="답변을 입력해주세요..." aria-label="답변 입력" />
+      <button id="chat-mic" type="button" class="pia-say__mic" aria-label="음성으로 답변하기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg>
+        <span>말하기</span>
+      </button>
+    </div>
+    <p id="chat-mic-status" class="pia-cap" style="margin-top:var(--pia-s1);min-height:1.6em" role="status" aria-live="polite"></p>
+
+    <div style="margin-top:var(--pia-s3)">
+      <button id="chat-send" type="button" class="pia-btn pia-btn--primary pia-btn--cta">답변 보내기<span class="pia-btn__ar" aria-hidden="true">›</span></button>
+    </div>
+    <p class="pia-autosave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:1.1em;height:1.1em"><path d="M18 16a4 4 0 0 0-1-7.9A6 6 0 0 0 5.5 9 4 4 0 0 0 6 16z"/><path d="m9 13 2 2 4-4"/></svg>자동 저장됨</p>
+
+    <div id="chat-profile" class="pia-sr"></div>
+    <div class="pia-fab" style="margin-top:var(--pia-s5)">
+      <button type="button" class="pia-btn pia-btn--ghost" onclick="showView('home')">검사 종료하기</button>
+      <button type="button" class="pia-btn pia-btn--ghost" onclick="showView('help')">이용 도움</button>
+    </div>
+
+    <div class="pia-sr">
+      <span id="chat-aistatus"></span>
+      <select id="chat-grade" onchange="setGrade(this.value); if(window.renderChatStarter) renderChatStarter();" aria-hidden="true" tabindex="-1"><option value="elem">초등</option><option value="mid" selected>중등</option><option value="high">고등</option><option value="univ">대학생</option><option value="adult">일반인</option></select>
+      <label><input id="chat-tts" type="checkbox" checked /> 응답 음성 재생</label>
+      <label><input id="chat-gtts" type="checkbox" checked /> 자연 음성</label>
+      <select id="chat-voice" aria-hidden="true" tabindex="-1"></select>
     </div>
   </div>
 </section>
@@ -666,7 +695,10 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 
 <section data-view="result" class="hidden space-y-5">
 
+  <div id="pia-result-head"></div>
+
   
+  <details class="pia-tools no-print"><summary>결과지 도구 (인쇄·저장·복사)</summary>
   <div class="bg-white rounded-2xl border border-slate-200 px-5 py-3 flex flex-wrap items-center justify-between gap-3 no-print">
     <div class="flex items-center gap-2">
       <span class="text-xs text-slate-500" data-en="Report view:">결과지 보기:</span>
@@ -683,6 +715,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       <button id="result-copy" class="bg-slate-100 text-slate-900 px-3 py-2 rounded-lg text-xs font-semibold" data-en="📋 Copy">📋 복사</button>
     </div>
   </div>
+  </details>
 
   
   <div id="audience-greeting" class="bg-violet-50 border border-violet-200 rounded-2xl p-4 text-sm text-violet-900"></div>
@@ -1977,56 +2010,56 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 //    +/-: 정방향(1)/역방향(-1)
 // -----------------------------------------------------------------
 const IPIP_BIG5_50 = [
-  { f:'E', s: 1, t:'나는 파티의 중심이 되는 편이다.' },
-  { f:'A', s:-1, t:'나는 다른 사람의 일에 별로 관심이 없다.' },
-  { f:'C', s: 1, t:'나는 항상 준비가 되어있다.' },
+  { f:'E', s: 1, t:'나는 모임에서 분위기를 이끄는 편이다.' },
+  { f:'A', s:-1, t:'나는 다른 사람을 별로 걱정해 주지 않는다.' },
+  { f:'C', s: 1, t:'나는 무슨 일이든 미리 준비해 둔다.' },
   { f:'N', s: 1, t:'나는 쉽게 스트레스를 받는다.' },
-  { f:'O', s: 1, t:'나는 풍부한 어휘를 가지고 있다.' },
-  { f:'E', s:-1, t:'나는 별로 말이 없다.' },
-  { f:'A', s: 1, t:'나는 사람들의 안부가 궁금하다.' },
-  { f:'C', s:-1, t:'나는 물건을 제자리에 두지 않는다.' },
-  { f:'N', s:-1, t:'나는 대부분의 시간이 편안하다.' },
-  { f:'O', s:-1, t:'나는 추상적인 아이디어에 별 관심이 없다.' },
-  { f:'E', s: 1, t:'나는 사람들과 어울리는 것이 편하다.' },
-  { f:'A', s:-1, t:'나는 다른 사람들을 모욕할 때가 있다.' },
-  { f:'C', s: 1, t:'나는 세세한 부분까지 주의를 기울인다.' },
-  { f:'N', s: 1, t:'나는 자주 걱정한다.' },
-  { f:'O', s: 1, t:'나는 풍부한 상상력을 갖고 있다.' },
-  { f:'E', s:-1, t:'나는 사람들의 관심을 받는 것을 피한다.' },
-  { f:'A', s: 1, t:'나는 다른 사람의 감정에 공감한다.' },
-  { f:'C', s:-1, t:'나는 일을 미루는 경향이 있다.' },
-  { f:'N', s:-1, t:'나는 거의 화를 내지 않는다.' },
-  { f:'O', s:-1, t:'나는 추상적 사고에 흥미가 없다.' },
-  { f:'E', s: 1, t:'나는 다양한 사람들과 대화를 시작한다.' },
-  { f:'A', s:-1, t:'나는 다른 사람의 문제에는 관심이 없다.' },
-  { f:'C', s: 1, t:'나는 일정을 잘 지킨다.' },
-  { f:'N', s: 1, t:'나는 쉽게 우울해진다.' },
-  { f:'O', s: 1, t:'나는 훌륭한 아이디어를 자주 떠올린다.' },
-  { f:'E', s:-1, t:'나는 다른 사람과 이야기할 때 별로 할 말이 없다.' },
-  { f:'A', s: 1, t:'나는 따뜻한 마음을 가지고 있다.' },
-  { f:'C', s:-1, t:'나는 잊어버리고 책임을 다하지 않을 때가 있다.' },
-  { f:'N', s:-1, t:'나는 자주 감정의 기복이 적은 편이다.' },
-  { f:'O', s:-1, t:'나는 추상적인 토론에 흥미가 없다.' },
-  { f:'E', s: 1, t:'나는 사람들의 관심을 끄는 것이 좋다.' },
-  { f:'A', s: 1, t:'나는 다른 사람과 시간을 보내는 것이 즐겁다.' },
-  { f:'C', s: 1, t:'나는 일을 빠짐없이 처리한다.' },
-  { f:'N', s: 1, t:'나는 종종 우울한 기분이 든다.' },
-  { f:'O', s: 1, t:'나는 사물에 대해 깊이 생각하는 것을 좋아한다.' },
-  { f:'E', s:-1, t:'나는 말수가 적은 편이다.' },
-  { f:'A', s:-1, t:'나는 다른 사람에게 별로 관심이 없다.' },
+  { f:'O', s: 1, t:'나는 아는 낱말이 많은 편이다.' },
+  { f:'E', s:-1, t:'나는 말을 많이 하지 않는다.' },
+  { f:'A', s: 1, t:'나는 사람들에게 관심이 많다.' },
+  { f:'C', s:-1, t:'나는 내 물건을 여기저기 늘어놓는다.' },
+  { f:'N', s:-1, t:'나는 대체로 마음이 느긋하다.' },
+  { f:'O', s:-1, t:'나는 추상적인 개념은 이해하기 어렵다.' },
+  { f:'E', s: 1, t:'나는 사람들과 함께 있으면 마음이 편하다.' },
+  { f:'A', s:-1, t:'나는 남에게 상처 주는 말을 할 때가 있다.' },
+  { f:'C', s: 1, t:'나는 작은 부분까지 꼼꼼히 챙긴다.' },
+  { f:'N', s: 1, t:'나는 이런저런 걱정이 많다.' },
+  { f:'O', s: 1, t:'나는 상상력이 풍부하다.' },
+  { f:'E', s:-1, t:'나는 나서지 않고 뒤에 있는 편이다.' },
+  { f:'A', s: 1, t:'나는 다른 사람의 마음에 잘 공감한다.' },
+  { f:'C', s:-1, t:'나는 일을 어수선하게 벌여 놓는 편이다.' },
+  { f:'N', s:-1, t:'나는 우울해지는 일이 거의 없다.' },
+  { f:'O', s:-1, t:'나는 추상적인 생각에는 흥미가 없다.' },
+  { f:'E', s: 1, t:'나는 먼저 말을 걸어 대화를 시작한다.' },
+  { f:'A', s:-1, t:'나는 다른 사람이 겪는 문제에는 마음이 가지 않는다.' },
+  { f:'C', s: 1, t:'나는 해야 할 일은 미루지 않고 바로 한다.' },
+  { f:'N', s: 1, t:'나는 작은 일에도 쉽게 마음이 흔들린다.' },
+  { f:'O', s: 1, t:'나는 좋은 생각을 자주 떠올린다.' },
+  { f:'E', s:-1, t:'나는 딱히 할 말이 떠오르지 않는다.' },
+  { f:'A', s: 1, t:'나는 어려운 처지의 사람을 보면 마음이 쓰인다.' },
+  { f:'C', s:-1, t:'나는 쓴 물건을 제자리에 돌려놓는 걸 자주 잊는다.' },
+  { f:'N', s:-1, t:'나는 웬만한 일에는 잘 흔들리지 않는다.' },
+  { f:'O', s:-1, t:'나는 새로운 것을 머릿속에 그려 보는 일이 서툴다.' },
+  { f:'E', s: 1, t:'나는 모임에서 여러 사람과 두루 이야기한다.' },
+  { f:'A', s: 1, t:'나는 다른 사람을 먼저 배려하는 편이다.' },
+  { f:'C', s: 1, t:'나는 정돈된 상태를 좋아한다.' },
+  { f:'N', s: 1, t:'나는 기분이 자주 바뀐다.' },
+  { f:'O', s: 1, t:'나는 무엇이든 빨리 이해하는 편이다.' },
+  { f:'E', s:-1, t:'나는 나에게 시선이 쏠리는 것이 싫다.' },
+  { f:'A', s:-1, t:'나는 사람 자체에 별로 흥미를 느끼지 않는다.' },
   { f:'C', s: 1, t:'나는 정해진 계획을 끝까지 따른다.' },
-  { f:'N', s:-1, t:'나는 자주 기분이 좋다.' },
-  { f:'O', s: 1, t:'나는 새로운 아이디어를 잘 떠올린다.' },
-  { f:'E', s: 1, t:'나는 활기차다.' },
-  { f:'A', s: 1, t:'나는 사람들을 편안하게 해준다.' },
-  { f:'C', s: 1, t:'나는 일을 정확하게 한다.' },
-  { f:'N', s: 1, t:'나는 자주 슬프거나 의기소침해진다.' },
-  { f:'O', s: 1, t:'나는 깊이 있는 생각을 즐긴다.' },
-  { f:'E', s:-1, t:'나는 사람들과 거리를 두는 편이다.' },
-  { f:'A', s: 1, t:'나는 다른 사람과 잘 협조한다.' },
+  { f:'N', s:-1, t:'나는 기분 좋은 날이 많다.' },
+  { f:'O', s: 1, t:'나는 어려운 낱말도 잘 골라 쓴다.' },
+  { f:'E', s: 1, t:'나는 주목받는 것이 싫지 않다.' },
+  { f:'A', s: 1, t:'나는 다른 사람의 기분을 잘 알아챈다.' },
+  { f:'C', s: 1, t:'나는 정해진 시간표대로 움직인다.' },
+  { f:'N', s: 1, t:'나는 쉽게 짜증이 난다.' },
+  { f:'O', s: 1, t:'나는 무언가를 곰곰이 되짚어 보는 것을 좋아한다.' },
+  { f:'E', s:-1, t:'나는 낯선 사람들과 있으면 말이 없어진다.' },
+  { f:'A', s: 1, t:'나는 사람들을 편하게 해 준다.' },
   { f:'C', s:-1, t:'나는 정리정돈에 약하다.' },
-  { f:'N', s: 1, t:'나는 자주 마음이 불안하다.' },
-  { f:'O', s: 1, t:'나는 다양한 분야에 호기심을 가진다.' }
+  { f:'N', s: 1, t:'나는 이유 없이 우울할 때가 많다.' },
+  { f:'O', s: 1, t:'나는 머릿속에 아이디어가 가득하다.' }
 ];
 
 // -----------------------------------------------------------------
@@ -2076,9 +2109,9 @@ const VIA_YOUTH = [
   { f:'판단', t:'나는 결정을 내리기 전에 다양한 측면을 살핀다.' },
   { f:'학습열정', t:'나는 새로운 것을 배우는 것을 즐긴다.' },
   { f:'통찰', t:'나는 친구가 고민할 때 좋은 조언을 해준다.' },
-  { f:'용기', t:'나는 옳다고 생각하는 일을 두려워하지 않는다.' },
+  { f:'용기', t:'나는 옳다고 생각하는 일은 용기 내어 한다.' },
   { f:'끈기', t:'나는 어려워도 끝까지 해낸다.' },
-  { f:'정직', t:'나는 거짓말을 잘 하지 않는다.' },
+  { f:'정직', t:'나는 늘 사실대로 말한다.' },
   { f:'활력', t:'나는 활기차고 에너지가 넘친다.' },
   { f:'사랑', t:'나는 가족·친구를 소중히 여긴다.' },
   { f:'친절', t:'나는 다른 사람을 잘 돕는다.' },
@@ -2087,7 +2120,7 @@ const VIA_YOUTH = [
   { f:'공정', t:'나는 모든 사람을 똑같이 대한다.' },
   { f:'리더십', t:'나는 사람들을 이끄는 역할이 잘 맞는다.' },
   { f:'용서', t:'나는 누군가 실수했을 때 용서할 줄 안다.' },
-  { f:'겸손', t:'나는 자랑하지 않는다.' },
+  { f:'겸손', t:'나는 나를 내세우기보다 겸손한 편이다.' },
   { f:'신중', t:'나는 행동하기 전에 한 번 더 생각한다.' },
   { f:'자기조절', t:'나는 감정을 잘 조절한다.' },
   { f:'심미안', t:'나는 아름다운 것에 감동을 잘 받는다.' },
@@ -2102,12 +2135,12 @@ const VIA_YOUTH = [
 //    자체 작성 한국어 문항 · Perseverance(끈기, P) / Consistency(일관성, C)
 // -----------------------------------------------------------------
 const GRIT_S = [
-  { f:'C', s:-1, t:'새로운 아이디어와 프로젝트로 인해 이전 것에 대한 관심이 흐트러질 때가 있다.' },
-  { f:'C', s:-1, t:'몇 달마다 새로운 일에 흥미가 생긴다.' },
+  { f:'C', s:-1, t:'새로운 일이 생기면 하던 일에 대한 관심이 흐트러질 때가 있다.' },
+  { f:'C', s:-1, t:'어떤 일에 잠깐 푹 빠졌다가 나중에 흥미를 잃은 적이 있다.' },
   { f:'P', s: 1, t:'좌절은 나를 단념시키지 않는다.' },
-  { f:'P', s: 1, t:'나는 열심히 일하는 사람이다.' },
+  { f:'P', s: 1, t:'나는 무슨 일이든 열심히 하는 편이다.' },
   { f:'C', s:-1, t:'목표를 세웠다가 나중에 다른 것을 추구하는 경우가 종종 있다.' },
-  { f:'C', s:-1, t:'몇 달 이상 걸리는 프로젝트에 집중하기 어렵다.' },
+  { f:'C', s:-1, t:'몇 달 넘게 걸리는 일에는 집중을 이어가기 어렵다.' },
   { f:'P', s: 1, t:'한번 시작한 일은 끝까지 마친다.' },
   { f:'P', s: 1, t:'나는 부지런하다.' }
 ];
@@ -3943,6 +3976,7 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
       const scoreFn = window['score' + viewId.charAt(0).toUpperCase() + viewId.slice(1)];
       if (scoreFn) state.results[stateKey].scores = scoreFn();
       save();
+      try{ if(window._piaCheckAllDone) window._piaCheckAllDone(); }catch(_e){}
       container.innerHTML = `
         <div class="text-center py-10">
           <div class="text-4xl mb-2">✓</div>
@@ -3958,31 +3992,65 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
     const dataIdx = order ? order[current] : current;
     const item = dataset[dataIdx];
     const pct = Math.round((current/total)*100);
-    container.innerHTML = `
-      ${easyControls(viewId)}
-      ${current===0 ? '<div class="text-xs bg-sky-50 border border-sky-200 rounded-lg p-2 mb-3 text-sky-900">🙂 정답은 없어요. 솔직하게 답할수록 결과가 정확해져요.</div>' : ''}
-      <div class="mb-2 text-xs text-slate-500" role="status" aria-live="polite">${current+1} / ${total}</div>
-      <div class="w-full bg-slate-100 rounded-full h-1.5 mb-5" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="검사 진행률">
-        <div class="bg-emerald-500 h-1.5 rounded-full" style="width:${pct}%"></div>
-      </div>
-      <div class="text-base leading-relaxed mb-6 js-qtext" data-orig="" aria-live="polite">${applyEasy(item.t || item)}</div>
-      <div class="grid gap-2" id="choices-${viewId}"></div>
-      <div class="mt-4 flex justify-between text-xs text-slate-500">
-        <button onclick="(function(){var _R=state.results['${stateKey}'];if(${order?1:0}){if((_R.seq||0)>0){_R.seq--;var _di=_R.order[_R.seq];_R.answers[_di]=undefined;}}else{_R.answers.pop();}save();render${viewId.charAt(0).toUpperCase()+viewId.slice(1)}();})()" ${current===0?'disabled style="opacity:.4"':''}>← 이전</button>
-        <span>${pct}%</span>
-      </div>
-    `;
+    container.innerHTML = (function(){
+      var META={
+        big5:{step:'필수 검사 2/3',title:'나의 성격',sub:'평소의 나와 가장 가까운 답을 선택해주세요.',note:'IPIP Big5 기반 성격 검사',back:'이전 단계',backAct:"showView('chat')",pct:false},
+        riasec:{step:'필수 검사 3/3',title:'진로 흥미 검사',sub:'어떤 활동에 관심이 있고 즐거운지 알아볼까요?',note:'RIASEC 기반 검사',guide:'얼마나 관심 있고 즐거울 것 같은지 선택해주세요.',guideIcon:'compass',back:'이전 단계',backAct:"showView('big5')",face:1,split:1},
+        via:{step:'선택 검사',title:'나의 강점',sub:'나와 가까운 답을 선택해주세요.',back:'홈',backAct:"showView('home')"},
+        grit:{step:'선택 검사',title:'끈기·근면',sub:'나와 가까운 답을 선택해주세요.',back:'홈',backAct:"showView('home')"},
+        learn:{step:'선택 검사',title:'학습 역량',sub:'과목별로 나와 가까운 답을 선택해주세요.',back:'홈',backAct:"showView('home')"},
+        mi:{step:'선택 검사',title:'다중지능',sub:'나와 가까운 답을 선택해주세요.',back:'홈',backAct:"showView('home')"},
+        rses:{step:'선택 검사',title:'자존감',sub:'나와 가까운 답을 선택해주세요.',back:'홈',backAct:"showView('home')"},
+        cesd:{step:'마음 건강',title:'마음 살펴보기',sub:'지난 1주일을 떠올리며 답해주세요.',back:'홈',backAct:"showView('home')"},
+        phqa:{step:'마음 건강',title:'마음 살펴보기',sub:'지난 2주일을 떠올리며 답해주세요.',back:'홈',backAct:"showView('home')"},
+        gad:{step:'마음 건강',title:'마음 살펴보기',sub:'지난 2주일을 떠올리며 답해주세요.',back:'홈',backAct:"showView('home')"},
+        who5:{step:'마음 건강',title:'요즘 나의 상태',sub:'지난 2주일을 떠올리며 답해주세요.',back:'홈',backAct:"showView('home')"}
+      };
+      var M=META[viewId]||{step:'검사',title:viewId,sub:'',back:'홈',backAct:"showView('home')"};
+      var P=window.PIA;
+      var prevAct="(function(){var _R=state.results['"+stateKey+"'];if("+(order?1:0)+"){if((_R.seq||0)>0){_R.seq--;var _di=_R.order[_R.seq];_R.answers[_di]=undefined;}}else{_R.answers.pop();}save();render"+viewId.charAt(0).toUpperCase()+viewId.slice(1)+"();})()";
+      return '<div class="pia">'
+        + P.back(M.back, M.backAct)
+        + '<div style="margin-bottom:var(--pia-s3)">' + P.badge(M.step) + '</div>'
+        + '<h1 class="pia-h1" style="margin-bottom:var(--pia-s2)">'+M.title+'</h1>'
+        + '<p class="pia-bodyL pia-muted">'+M.sub+'</p>'
+        + (M.note?'<p class="pia-cap" style="margin-top:6px">'+M.note+'</p>':'')
+        + '<div style="height:var(--pia-s4)"></div>'
+        + P.progress('문항', current+1, total, {pct: M.pct!==false})
+        + (M.guide?'<p class="pia-note pia-note--card" style="margin-bottom:var(--pia-s3)">'+P.icon(M.guideIcon||'help')+M.guide+'</p>':'')
+        + ((current===0 && !M.guide)?'<p class="pia-note pia-note--card" style="margin-bottom:var(--pia-s3)">'+P.icon('help')+'정답은 없어요. 솔직하게 답할수록 결과가 정확해져요.</p>':'')
+        + '<section class="pia-sec">'
+        + '<p class="pia-q js-qtext" data-orig="" aria-live="polite" style="text-align:center;margin-bottom:var(--pia-s5)">'+applyEasy(item.t || item)+'</p>'
+        + '<div class="pia-choices" role="radiogroup" aria-label="답변 선택" id="choices-'+viewId+'"></div>'
+        + P.fab([ P.btn('이전', prevAct, 'secondary', {disabled: current===0}) ])
+        + P.autosave()
+        + '</section></div>';
+    })();
     const cc = el('choices-' + viewId);
     // B: LIKERT5 보기 순서를 셔플하되 각 버튼은 원래 점수값(val)을 저장 → 채점 불변.
-    var _opts = scale.map(function(label, i){ return { label: label, val: (i + (scale === LIKERT4 ? 0 : 1)) }; });
+    var _opts = scale.map(function(label, i){ return { label: label, val: (i + ((scale === LIKERT4 || scale === CESD_SCALE) ? 0 : 1)) }; });
     if (scale === LIKERT5) {
       for (var _z = _opts.length - 1; _z > 0; _z--) { var _r = Math.floor(Math.random()*(_z+1)); var _t = _opts[_z]; _opts[_z] = _opts[_r]; _opts[_r] = _t; }
     }
     _opts.forEach(function(o){
       const btn = document.createElement('button');
-      btn.className = 'text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 text-sm transition';
-      btn.textContent = o.label;
+      btn.type = 'button';
+      btn.className = 'pia-choice';
+      btn.setAttribute('role','radio');
+      btn.setAttribute('aria-checked','false');
+      btn.setAttribute('data-val', o.val);
+      var faceHtml = (viewId==='riasec' && window.PIA_FACE) ? (window.PIA_FACE(o.val)||'') : '';
+      btn.innerHTML = '<span class="pia-choice__radio" aria-hidden="true"></span>'
+        + faceHtml
+        + '<span class="pia-choice__txt"></span>'
+        + '<span class="pia-choice__ck" aria-hidden="true">\u2713</span>';
+      btn.querySelector('.pia-choice__txt').textContent = o.label;
       btn.addEventListener('click', function(){
+        try{
+          var _sib = cc.querySelectorAll('.pia-choice');
+          for(var _i=0;_i<_sib.length;_i++) _sib[_i].setAttribute('aria-checked','false');
+          btn.setAttribute('aria-checked','true');
+        }catch(_e){}
         var _R = state.results[stateKey];
         if (order) {
           // D: 표시 순서 무관하게 원래 dataset 인덱스 위치에 저장
@@ -4003,11 +4071,11 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
 
 // WHO-5 웰빙 지수 (무료, WHO) — 지난 2주, 0~5 빈도(6점)
 const WHO5 = [
-  '지난 2주간 나는 밝고 기분이 좋았다.',
-  '지난 2주간 나는 차분하고 편안했다.',
-  '지난 2주간 나는 활기차고 기운이 넘쳤다.',
-  '지난 2주간 나는 푹 자고 상쾌하게 일어났다.',
-  '지난 2주간 나의 일상은 흥미로운 일로 채워졌다.'
+  '나는 밝고 기분이 좋았다.',
+  '나는 차분하고 편안했다.',
+  '나는 활기차고 기운이 넘쳤다.',
+  '나는 푹 자고 상쾌하게 일어났다.',
+  '나의 일상은 흥미로운 일로 채워졌다.'
 ];
 const WHO5_SCALE = ['전혀 그렇지 않았다','가끔 그랬다','종종 그랬다','자주 그랬다','대부분 그랬다','항상 그랬다'];
 // Rosenberg 자존감 척도(RSES, 공개) — 1~4, 5문항 역채점
@@ -4029,7 +4097,7 @@ const RSES_SCALE = ['전혀 그렇지 않다','그렇지 않다','그렇다','�
 const LEARN_ITEMS = [
   { f:'korean',  t:'글이나 책을 읽고 내용을 잘 이해한다.' },
   { f:'korean',  t:'내 생각을 글로 잘 표현한다.' },
-  { f:'math',    t:'수학 문제를 푸는 것이 어렵지 않다.' },
+  { f:'math',    t:'수학 문제를 잘 푸는 편이다.' },
   { f:'math',    t:'숫자·규칙·논리를 다루는 것이 재미있다.' },
   { f:'english', t:'영어 문장을 읽고 뜻을 잘 파악한다.' },
   { f:'english', t:'영어로 말하거나 쓰는 것에 자신이 있다.' },
@@ -4064,13 +4132,15 @@ const MI_ITEMS = [
 ];
 
 const LIKERT5 = ['전혀 그렇지 않다','그렇지 않다','보통이다','그렇다','매우 그렇다'];
-const LIKERT4 = ['전혀 그렇지 않다(0)','며칠 동안(1)','절반 이상(2)','거의 매일(3)'];
+const LIKERT4 = ['전혀 아니다','며칠 동안','일주일 이상','거의 매일'];
+// CES-D(지난 1주일)는 원척도가 '일수' 기준이라 별도 보기를 사용한다 — 채점은 인덱스 기반이라 점수 불변
+const CESD_SCALE = ['극히 드물다 (하루 미만)','가끔 있었다 (1~2일)','종종 있었다 (3~4일)','대부분 그랬다 (5~7일)'];
 
 const renderBig5 = makeLikertRenderer('big5', IPIP_BIG5_50, 'big5', LIKERT5, true);
 const renderRiasec = makeLikertRenderer('riasec', RIASEC_30, 'riasec', LIKERT5, false);
 const renderVia = makeLikertRenderer('via', VIA_YOUTH, 'via', LIKERT5, false);
 const renderGrit = makeLikertRenderer('grit', GRIT_S, 'grit', LIKERT5, true);
-const renderCesd = makeLikertRenderer('cesd', CES_D_10, 'cesd', LIKERT4, true);
+const renderCesd = makeLikertRenderer('cesd', CES_D_10, 'cesd', CESD_SCALE, true);
 const renderPhqa = makeLikertRenderer('phqa', PHQ_A, 'phqa', LIKERT4, false);
 const renderGad = makeLikertRenderer('gad', GAD_7, 'gad', LIKERT4, false);
 const renderWho5 = makeLikertRenderer('who5', WHO5, 'who5', WHO5_SCALE, false);
@@ -4111,14 +4181,15 @@ function renderSjt() {
   const idx = answers.length;
   if (idx >= _S.length) {
     save();
-    container.innerHTML = `
-      <div class="text-center py-10">
-        <div class="text-4xl mb-2">✓</div>
-        <div class="text-lg font-semibold mb-1">SJT ${_S.length}문항 완료</div>
-        <div class="text-sm text-slate-500 mb-4">행동 예측 신뢰도가 가장 높은 검사입니다.</div>
-        <button onclick="showView('home')" class="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm">메뉴로</button>
-        <button onclick="state.results.sjt={answers:[],dims:{},order:[],adaptive:false}; save(); renderSjt()" class="bg-slate-100 px-5 py-2 rounded-lg text-sm ml-2">다시</button>
-      </div>`;
+    var P0 = window.PIA;
+    container.innerHTML = '<div class="pia"><section class="pia-sec" style="text-align:center">'
+      + '<div class="pia-done__ic" aria-hidden="true">\u2713</div>'
+      + '<h2 class="pia-h2" style="margin-bottom:var(--pia-s2)">' + _S.length + '문항을 모두 마쳤어요</h2>'
+      + '<p class="pia-bodyL pia-muted" style="margin-bottom:var(--pia-s4)">결과는 통합 결과지에 반영됩니다.</p>'
+      + P0.btn('검사 메뉴로 돌아가기', "showView('home')", 'primary', {cta:1, arrow:1})
+      + '<div style="height:var(--pia-s2)"></div>'
+      + P0.btn('이 검사 다시 하기', "state.results.sjt={answers:[],dims:{},order:[],adaptive:false}; save(); renderSjt()", 'secondary')
+      + '</section></div>';
     return;
   }
   const q = _S[seq[idx]];
@@ -4126,23 +4197,44 @@ function renderSjt() {
   const banner = state.results.sjt.adaptive
     ? '<div class="mb-4 text-xs bg-violet-50 border border-violet-200 rounded-lg p-2 text-violet-900">💬 자유대화에서 파악한 관심사·성향에 맞춰 시나리오 순서가 <strong>맞춤 구성</strong>되었습니다.</div>'
     : '';
-  container.innerHTML = `
-    ${banner}
-    ${easyControls('sjt')}
-    <div class="mb-2 text-xs text-slate-500">시나리오 ${idx+1} / ${_S.length}</div>
-    <div class="w-full bg-slate-100 rounded-full h-1.5 mb-5">
-      <div class="bg-emerald-500 h-1.5 rounded-full" style="width:${pct}%"></div>
-    </div>
-    <div class="text-base leading-relaxed mb-2 font-medium js-qtext" data-orig="">${applyEasy(q.q)}</div>
-    <div class="text-xs text-slate-500 mb-5">당신이라면 어떻게 하시겠습니까?</div>
-    <div class="grid gap-2" id="sjt-choices"></div>
-  `;
+  var P = window.PIA;
+  container.innerHTML = '<div class="pia">'
+    + P.back('홈', "showView('home')")
+    + '<div style="margin-bottom:var(--pia-s3)">' + P.badge('선택 검사') + '</div>'
+    + '<h1 class="pia-h1" style="margin-bottom:var(--pia-s2)">상황 판단</h1>'
+    + '<p class="pia-bodyL pia-muted">이런 상황이라면 나는 어떻게 할지 골라주세요.</p>'
+    + '<p class="pia-cap" style="margin-top:6px">정답이 없는 상황 판단 검사예요.</p>'
+    + '<div style="height:var(--pia-s4)"></div>'
+    + P.progress('시나리오', idx + 1, _S.length, {pct:true})
+    + (state.results.sjt.adaptive
+        ? '<p class="pia-note pia-note--card" style="margin-bottom:var(--pia-s3)">' + P.icon('help')
+          + '앞선 대화에서 파악한 관심사에 맞춰 순서가 구성되었어요.</p>'
+        : '')
+    + '<section class="pia-sec">'
+    + '<p class="pia-q js-qtext" data-orig="" aria-live="polite" style="text-align:center;margin-bottom:var(--pia-s2)">' + applyEasy(q.q) + '</p>'
+    + '<p class="pia-bodyL pia-muted" style="text-align:center;margin-bottom:var(--pia-s5)">나라면 어떻게 할까요?</p>'
+    + '<div class="pia-choices" role="radiogroup" aria-label="답변 선택" id="sjt-choices"></div>'
+    + P.autosave()
+    + '</section>'
+    + '<div class="pia-sr">' + easyControls('sjt') + '</div>'
+    + '</div>';
   const cc = el('sjt-choices');
   q.choices.forEach((c, ci) => {
     const btn = document.createElement('button');
-    btn.className = 'text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 text-sm transition';
-    btn.textContent = `${String.fromCharCode(65+ci)}) ${applyEasy(c.t)}`;
+    btn.type = 'button';
+    btn.className = 'pia-choice';
+    btn.setAttribute('role','radio');
+    btn.setAttribute('aria-checked','false');
+    btn.innerHTML = '<span class="pia-choice__radio" aria-hidden="true"></span>'
+      + '<span class="pia-choice__txt"></span>'
+      + '<span class="pia-choice__ck" aria-hidden="true">\u2713</span>';
+    btn.querySelector('.pia-choice__txt').textContent = applyEasy(c.t);
     btn.addEventListener('click', () => {
+      try{
+        var _sib = cc.querySelectorAll('.pia-choice');
+        for(var _i=0;_i<_sib.length;_i++) _sib[_i].setAttribute('aria-checked','false');
+        btn.setAttribute('aria-checked','true');
+      }catch(_e){}
       state.results.sjt.answers.push(ci);
       for (const [dim, w] of Object.entries(c.w)) {
         state.results.sjt.dims[dim] = (state.results.sjt.dims[dim]||0) + w;
@@ -4252,79 +4344,12 @@ function renderHome() {
   const _nextCardId = ((cards||[]).find(c=>!_isCardDone(c))||{}).id;
 
   // 진행률 헤더 + 카드 그리드
-  container.innerHTML = `
-    <div class="col-span-full mb-2">
-      <div class="bg-gradient-to-r from-violet-100 via-indigo-50 to-emerald-50 rounded-2xl p-5 border border-slate-200">
-        <div class="flex items-center justify-between mb-3 flex-wrap gap-3">
-          <div>
-            <h2 class="text-lg font-bold text-slate-900">검사 순서 — 필수 먼저, 선택은 추가</h2>
-            <p class="text-xs text-slate-600 mt-1"><b>AI 자유대화는 필수</b>이며 가장 먼저 진행합니다. <b>필수 3종(자유대화·Big5·RIASEC)</b>을 마치면 결과지가 열리고, <b>선택</b> 검사를 더할수록 분석이 정확해집니다.</p>
-          </div>
-          <div class="text-right">
-            <div class="text-xs text-rose-600 font-bold">필수 ${reqDone} / 3 ${reqDone>=3?'✓':''}</div>
-            <div class="text-2xl font-bold text-violet-700">${done} / ${total}</div>
-            <div class="text-xs text-slate-500">전체 ${progress}%</div>
-          </div>
-        </div>
-        <div class="w-full bg-white rounded-full h-2 overflow-hidden">
-          <div class="bg-gradient-to-r from-violet-500 to-emerald-500 h-2 transition-all" style="width:${progress}%"></div>
-        </div>
-        <div class="flex gap-3 mt-3 text-xs text-slate-600 flex-wrap">
-          <span><span class="pill bg-rose-100 text-rose-800">필수</span> = 결과지 열람에 필요 (자유대화·Big5·RIASEC)</span>
-          <span><span class="pill bg-slate-200 text-slate-700">선택</span> = 정확도·정서 보강 (많이 할수록 정확)</span>
-        </div>
-      </div>
-    </div>
-  ` + cards.map(c => {
-    const isDone = c.key === 'conv' ? state.results.conv.turns >= 8 :
-                   c.key === 'sjt' ? state.results.sjt.answers.length >= sjtSet().length :
-                   _likertDoneCount(c.key) >= (c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: 100);
-
-    // 진행 중 표시
-    const currentItems = c.key === 'conv' ? state.results.conv.turns :
-                         c.key === 'sjt' ? state.results.sjt.answers.length :
-                         _likertDoneCount(c.key);
-    const totalItems = c.id==='big5'?50: c.id==='riasec'?30: c.id==='via'?24: c.id==='grit'?8: c.id==='cesd'?10: c.id==='phqa'?9: c.id==='gad'?7: c.id==='who5'?5: c.id==='rses'?10: c.id==='learn'?14: c.id==='mi'?16: c.id==='sjt'?30: 10;
-    const inProgress = currentItems > 0 && !isDone;
-    const itemProgress = Math.round((currentItems/totalItems)*100);
-
-    const col = colorMap[c.color];
-    const priorityBadge = c.priority === '필수' ? 'bg-rose-100 text-rose-800' :
-                         c.priority === '권장' ? 'bg-amber-100 text-amber-800' :
-                         'bg-slate-200 text-slate-700';
-
-    return `
-      <div class="${col.bg} ${col.border} border-2 rounded-2xl p-4 transition relative ${isDone?'ring-2 ring-emerald-400':'hover:shadow-lg'} ${c.id===_nextCardId?'ring-2 ring-amber-400 shadow-lg pia-next-glow':''}">
-        ${isDone?'<div class="absolute -top-3 -right-2 bg-emerald-500 text-white text-[11px] font-bold rounded-full w-8 h-8 flex items-center justify-center shadow">✓</div>':''}
-        <div class="absolute -top-3 left-3 bg-slate-900 text-white text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">${c.step}</div>
-        <div class="flex items-start justify-between mb-2 mt-2">
-          <div class="flex items-center gap-2">
-            <span class="text-2xl">${c.icon}</span>
-            <span class="pill ${priorityBadge} text-[10px]">${c.priority}</span>
-          </div>
-          ${isDone ? '<span class="pill bg-emerald-500 text-white font-bold">✓ 완료됨</span>' : inProgress ? '<span class="pill bg-blue-100 text-blue-800 font-semibold">▶ 진행 중 '+currentItems+'/'+totalItems+'</span>' : (c.id===_nextCardId ? '<span class="pill bg-amber-100 text-amber-800 font-semibold">⭐ 다음 추천 · 미완료</span>' : '<span class="pill bg-slate-200 text-slate-600">미완료</span>')}
-        </div>
-        <h3 class="font-bold text-sm ${col.text} mb-1">${c.title}</h3>
-        <p class="text-xs ${col.text} opacity-90 mb-1 leading-relaxed font-medium">${c.desc}</p>
-        <p class="text-[11px] text-slate-600 mb-3 leading-relaxed border-t border-white pt-2">${c.detail}</p>
-        <div class="flex items-center justify-between text-[11px] text-slate-600 mb-3 gap-2 flex-wrap">
-          <span>⏱ ${c.dur}</span>
-          <span>📝 ${c.items}${typeof c.items==='number'?'문항':''}</span>
-          <span class="pill ${col.badge} text-[10px]">${c.track}</span>
-        </div>
-        ${inProgress ? `<div class="w-full bg-white rounded-full h-1.5 mb-2 overflow-hidden"><div class="${col.btn.split(' ')[0]} h-1.5" style="width:${itemProgress}%"></div></div><div class="text-[10px] text-slate-500 text-center mb-2">${currentItems}/${totalItems}</div>` : ''}
-        ${isDone
-          ? `<button onclick="retakeTest('${c.id}','${c.key}')" class="w-full bg-emerald-50 text-emerald-800 border border-emerald-300 py-2.5 rounded-lg text-sm font-semibold hover:bg-emerald-100 transition" title="이 검사만 초기화하고 다시 합니다">✓ 완료 · 다시 하기</button>`
-          : `<button onclick="showView('${c.id}')" class="w-full ${col.btn} text-white py-2.5 rounded-lg text-sm font-semibold transition">${inProgress ? '▶ 이어서' : '▶ 시작'}</button>`}
-      </div>
-    `;
-  }).join('') + `
-    <div class="bg-gradient-to-r from-indigo-50 to-violet-50 border-2 border-indigo-200 rounded-2xl p-4">
-      <div class="flex items-center gap-2 mb-1 mt-2"><span class="text-2xl">🧭</span><span class="pill bg-indigo-100 text-indigo-800 text-[10px]">공식 · 선택</span></div>
-      <h3 class="font-bold text-sm text-indigo-900 mb-1">커리어넷 공식 진로심리검사</h3>
-      <p class="text-xs text-slate-600 mb-3 leading-relaxed border-t border-white pt-2">교육부·한국직업능력연구원 <b>국가 표준화 검사</b>(직업적성·흥미·가치관·진로성숙도 등). 결과는 AI PIA 결과지에 <b>교차검증 카드</b>로 추가됩니다.</p>
-      <button onclick="openCareernetModal()" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-semibold transition">🧭 공식 검사 선택하기</button>
-    </div>`;
+  if (typeof window.piaRenderHomeV2 !== 'function') {
+    window._piaHomePending = { cards: cards, isDone: _isCardDone, reqDone: reqDone };
+    return;
+  }
+  window._piaHomePending = null;
+  container.innerHTML = window.piaRenderHomeV2(cards, _isCardDone, reqDone);
 }
 
 // =================================================================
@@ -4590,7 +4615,7 @@ function renderChatStarter(){
   }
   const wrap=document.getElementById('chat-quick-wrap');
   if(wrap){
-    wrap.innerHTML=c.quick.map(function(t){return '<button class="chat-quick bg-slate-100 px-2 py-1 rounded-md text-xs">'+t+'</button>';}).join('');
+    wrap.innerHTML=c.quick.map(function(t){return '<button type="button" class="chat-quick pia-qk__b">'+t+'</button>';}).join('');
     wrap.querySelectorAll('.chat-quick').forEach(function(b){ b.onclick=function(){ var i=document.getElementById('chat-input'),snd=document.getElementById('chat-send'); if(i)i.value=b.textContent; if(snd)snd.click(); }; });
   }
   const gs=document.getElementById('chat-grade'); if(gs) gs.value=g;
@@ -8231,7 +8256,7 @@ window.addEventListener("DOMContentLoaded", () => {
     addBackupRestoreUI();
     renderHeaderProgress();
     if (state.profile) renderProfileBar();
-    else if(!_piaSkipGate() && !_piaIsStaffSync()) ensureStudentProfile();
+    /* v2: 홈 → 동의 → 정보입력 플로우 */
     if(_piaIsStaffSync()) { try{ showView('result'); }catch(e3){} }
   }, 200);
 });
@@ -8746,7 +8771,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(async () => {
     if (sessionStorage.getItem('pia_v3_dark') === '1') applyDarkMode(true);
     var _isStaff=false; try{ _isStaff=await _piaIsStaff(); }catch(e){}
-    if(!_piaSkipGate() && !_isStaff) await showConsentModalIfNeeded();
+    /* v2: 동의는 홈 → 검사 시작하기 이후 consent 화면에서 진행 */
     injectGlobalActions();
   }, 100);
 });
@@ -9171,7 +9196,7 @@ showView = function(name) {
 };
 
 window.safeStartRecognition = safeStartRecognition;
-window.safeStopRecognition = safeStopRecognition;(function(){function _vscore(v){var n=(v.name||'');var sc=0;if(v.localService===false)sc+=12;if(/google/i.test(n))sc+=7;if(/neural|natural|wavenet|premium/i.test(n))sc+=6;if(/yuna|heami|sunhi|sora|seoyeon|nari|jiyoon|jenny|aria|female|여성|여자/i.test(n))sc+=9;if(/injoon|namjun|jihun|male|남성|남자/i.test(n))sc-=6;if(/ko[-_]?kr/i.test(v.lang||''))sc+=2;if(/microsoft/i.test(n))sc+=1;return sc;}window.piaPickVoice=function(){try{if(!('speechSynthesis' in window))return null;var vs=speechSynthesis.getVoices()||[];var ko=vs.filter(function(v){return ((v.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;});if(!ko.length)return null;var saved='';try{saved=localStorage.getItem('pia_v3_voice')||'';}catch(e){}var s=ko.filter(function(v){return v.voiceURI===saved;})[0];if(s)return s;ko.sort(function(a,b){return _vscore(b)-_vscore(a);});return ko[0]||null;}catch(e){return null;}};window.piaVoiceRate=function(){try{var g=(window.state&&state.profile&&state.profile.grade)||'';return /초/.test(g)?0.9:0.95;}catch(e){return 0.95;}};window.piaApplyVoice=function(u){try{var v=window.piaPickVoice();if(v)u.voice=v;u.lang='ko-KR';u.rate=window.piaVoiceRate();u.pitch=1.05;}catch(e){}return u;};window.piaSpeak=function(text,onStarted){  var useG=true;  try{var g=document.getElementById('chat-gtts');if(g)useG=!!g.checked;}catch(e){}  function builtin(){    try{      if(!('speechSynthesis' in window))return;      var u=new SpeechSynthesisUtterance(text);      if(typeof window.piaApplyVoice==='function'){window.piaApplyVoice(u);}else{u.lang='ko-KR';u.rate=0.95;u.pitch=1.05;}      u.onstart=function(){if(onStarted)onStarted();};      speechSynthesis.cancel();speechSynthesis.speak(u);    }catch(e){}  }  if(!useG){builtin();return;}  try{    var parts=String(text).split(/(?<=[.!?])\s+/).filter(function(s){return s.trim();});    if(!parts.length)parts=[String(text)];    var i=0,started=false;    function fail(){window.__gttsPlaying=false;if(!started)builtin();}    function next(){      if(i>=parts.length){window.__gttsPlaying=false;return;}      var url='https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q='+encodeURIComponent(parts[i]);      var a=new Audio(url);window.__gttsPlaying=true;      a.onplaying=function(){if(!started){started=true;if(onStarted)onStarted();}};      a.onended=function(){i++;next();};      a.onerror=fail;      var pr=a.play();if(pr&&pr.catch)pr.catch(fail);    }    next();  }catch(e){builtin();}};try{if('speechSynthesis' in window&&typeof speechSynthesis.addEventListener==='function'){speechSynthesis.addEventListener('voiceschanged',function(){try{window.piaPickVoice();}catch(e){}});}}catch(e){}})();(function(){var _homeGreeted=false,_fallbackArmed=false,_fbHandler=null;var GREET='안녕하세요! 저는 AI 코치 피아예요. 오늘 나의 성향을 함께 알아볼까요? 원하는 검사를 선택하거나, 자유대화를 눌러 저와 편하게 이야기해도 좋아요.';function _isHome(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='home';}catch(e){return false;}}function _eligible(){try{if(typeof isMobile==='function'&&isMobile())return false;}catch(e){}try{if(typeof getCompletedTests==='function'&&Object.keys(getCompletedTests()).length>0)return false;}catch(e){}return true;}function _disarm(){if(!_fallbackArmed)return;_fallbackArmed=false;['pointerdown','touchstart','click','keydown'].forEach(function(evt){document.removeEventListener(evt,_fbHandler,true);});}function _speak(){if(_homeGreeted)return;if(!_isHome())return;try{if(typeof window.piaSpeak==='function'){window.piaSpeak(GREET,function(){_homeGreeted=true;_disarm();});return;}if(!('speechSynthesis' in window))return;var u=new SpeechSynthesisUtterance(GREET);if(typeof window.piaApplyVoice==='function'){window.piaApplyVoice(u);}else{u.lang='ko-KR';u.rate=0.95;u.pitch=1.05;}u.onstart=function(){_homeGreeted=true;_disarm();};speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}function _arm(){if(_fallbackArmed||_homeGreeted)return;_fallbackArmed=true;_fbHandler=function(){setTimeout(_speak,0);};['pointerdown','touchstart','click','keydown'].forEach(function(evt){document.addEventListener(evt,_fbHandler,true);});}function _trigger(){if(_homeGreeted||!_eligible())return;_arm();setTimeout(_speak,700);}var _origShow8=showView;showView=function(name){_origShow8(name);if(name==='home')_trigger();};function _boot(){setTimeout(function(){if(_isHome())_trigger();},400);}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_boot);}else{_boot();}})();(function(){var _mon=null,_ac=null,_an=null,_buf=null,_raf=null,_peak=0,_devLabel='',_silentSince=0,_uiEl=null,_watch=null;function _log(){try{console.log.apply(console,['[MIC]'].concat([].slice.call(arguments)));}catch(e){}}try{window.vadHasVoice=function(){return true;};}catch(e){}function _score(d){var l=(d.label||'').toLowerCase();var s=0;if(/usb/.test(l))s+=10;if(/headset|헤드셋|earphone|이어폰|mic/.test(l))s+=5;if(/external|외장/.test(l))s+=4;if(/array/.test(l))s+=2;if(/internal|built-?in|내장/.test(l))s-=5;return s;}async function _pick(){try{if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices)return null;var ds=await navigator.mediaDevices.enumerateDevices();var ins=ds.filter(function(d){return d.kind==='audioinput'&&d.deviceId&&d.deviceId!=='communications';});if(!ins.length)return null;var saved=null;try{saved=localStorage.getItem('pia_mic_device');}catch(e){}if(saved){var m=ins.filter(function(d){return d.deviceId===saved;})[0];if(m)return m;}ins.sort(function(a,b){return _score(b)-_score(a);});return ins[0];}catch(e){return null;}}function _ui(){if(_uiEl&&document.body.contains(_uiEl))return _uiEl;var st=document.getElementById('chat-mic-status');if(!st||!st.parentNode)return null;var d=document.createElement('div');d.id='pia-mic-diag';d.style.cssText='font-size:11px;color:#6b7280;margin-top:4px;line-height:1.5';st.parentNode.insertBefore(d,st.nextSibling);_uiEl=d;return d;}function _render(){var d=_ui();if(!d)return;var lvl=Math.min(100,Math.round(_peak*900));var bar='<span style="display:inline-block;width:70px;height:6px;background:#e5e7eb;border-radius:3px;vertical-align:middle;overflow:hidden"><span style="display:block;height:6px;width:'+lvl+'%;background:'+(lvl>6?'#788c5d':'#d1d5db')+'"></span></span>';var warn='';if(_silentSince&&Date.now()-_silentSince>7000){warn='<div style="color:#c4623f;margin-top:2px">⚠ 마이크에서 소리가 들어오지 않습니다. Windows 소리 설정에서 사용할 마이크를 <b>기본 장치</b>로 지정해 주세요.</div>';}d.innerHTML='🎙 '+(_devLabel||'기본 마이크')+' '+bar+warn;}function _stopMon(){if(_raf)cancelAnimationFrame(_raf);_raf=null;if(_ac){try{_ac.close();}catch(e){}}_ac=null;_an=null;_peak=0;if(_mon){try{_mon.getTracks().forEach(function(t){t.stop();});}catch(e){}}_mon=null;if(_watch){clearInterval(_watch);_watch=null;}}async function _startMon(){try{if(_mon)return true;if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return false;var dev=await _pick();var c={echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1};if(dev&&dev.deviceId)c.deviceId={ideal:dev.deviceId};_mon=await navigator.mediaDevices.getUserMedia({audio:c});var tr=_mon.getAudioTracks()[0];_devLabel=(tr&&tr.label)||(dev&&dev.label)||'';_log('사용 마이크:',_devLabel);var AC=window.AudioContext||window.webkitAudioContext;if(AC){_ac=new AC();var src=_ac.createMediaStreamSource(_mon);_an=_ac.createAnalyser();_an.fftSize=512;_an.smoothingTimeConstant=0.3;src.connect(_an);_buf=new Uint8Array(_an.fftSize);var loop=function(){if(!_an)return;_an.getByteTimeDomainData(_buf);var s=0;for(var i=0;i<_buf.length;i++){var v=(_buf[i]-128)/128;s+=v*v;}var rms=Math.sqrt(s/_buf.length);_peak=_peak*0.85+rms*0.15;if(rms>0.012){_silentSince=0;}else if(!_silentSince){_silentSince=Date.now();}_raf=requestAnimationFrame(loop);};loop();}_silentSince=Date.now();if(!_watch)_watch=setInterval(_render,500);_render();return true;}catch(e){_log('모니터 실패',e&&e.message);return false;}}try{if(navigator.mediaDevices&&navigator.mediaDevices.addEventListener){navigator.mediaDevices.addEventListener('devicechange',function(){_log('장치 변경 감지');var onChat=(function(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}})();if(!onChat)return;_stopMon();setTimeout(function(){_startMon();try{if(window._micWantProxy!==false&&typeof safeStopRecognition==='function'&&typeof safeStartRecognition==='function'){safeStartRecognition();}}catch(e){}},600);});}}catch(e){}var _o=showView;showView=function(n){_o(n);if(n==='chat'){setTimeout(_startMon,250);var tries=0;var iv=setInterval(function(){tries++;var cur=(function(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}})();if(!cur||tries>6){clearInterval(iv);return;}try{if(!_globalRecording&&!(('speechSynthesis' in window)&&speechSynthesis.speaking)){_micWant=true;safeStartRecognition();}}catch(e){}},1500);}else{_stopMon();}};window.piaMicDiag=function(){return{device:_devLabel,peak:_peak,silentMs:_silentSince?Date.now()-_silentSince:0};};window.piaSetMic=async function(id){try{localStorage.setItem('pia_mic_device',id);}catch(e){}_stopMon();await _startMon();return _devLabel;};window.piaListMics=async function(){var ds=await navigator.mediaDevices.enumerateDevices();return ds.filter(function(d){return d.kind==='audioinput';}).map(function(d){return{id:d.deviceId,label:d.label};});};})();
+window.safeStopRecognition = safeStopRecognition;(function(){function _vscore(v){var n=(v.name||'');var sc=0;if(v.localService===false)sc+=12;if(/google/i.test(n))sc+=7;if(/neural|natural|wavenet|premium/i.test(n))sc+=6;if(/yuna|heami|sunhi|sora|seoyeon|nari|jiyoon|jenny|aria|female|여성|여자/i.test(n))sc+=9;if(/injoon|namjun|jihun|male|남성|남자/i.test(n))sc-=6;if(/ko[-_]?kr/i.test(v.lang||''))sc+=2;if(/microsoft/i.test(n))sc+=1;return sc;}window.piaPickVoice=function(){try{if(!('speechSynthesis' in window))return null;var vs=speechSynthesis.getVoices()||[];var ko=vs.filter(function(v){return ((v.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;});if(!ko.length)return null;var saved='';try{saved=localStorage.getItem('pia_v3_voice')||'';}catch(e){}var s=ko.filter(function(v){return v.voiceURI===saved;})[0];if(s)return s;ko.sort(function(a,b){return _vscore(b)-_vscore(a);});return ko[0]||null;}catch(e){return null;}};window.piaVoiceRate=function(){try{var g=(window.state&&state.profile&&state.profile.grade)||'';return /초/.test(g)?0.9:0.95;}catch(e){return 0.95;}};window.piaApplyVoice=function(u){try{var v=window.piaPickVoice();if(v)u.voice=v;u.lang='ko-KR';u.rate=window.piaVoiceRate();u.pitch=1.05;}catch(e){}return u;};window.piaSpeak=function(text,onStarted){  var useG=true;  try{var g=document.getElementById('chat-gtts');if(g)useG=!!g.checked;}catch(e){}  function builtin(){    try{      if(!('speechSynthesis' in window))return;      var u=new SpeechSynthesisUtterance(text);      if(typeof window.piaApplyVoice==='function'){window.piaApplyVoice(u);}else{u.lang='ko-KR';u.rate=0.95;u.pitch=1.05;}      u.onstart=function(){if(onStarted)onStarted();};      speechSynthesis.cancel();speechSynthesis.speak(u);    }catch(e){}  }  if(!useG){builtin();return;}  try{    var parts=String(text).split(/(?<=[.!?])\s+/).filter(function(s){return s.trim();});    if(!parts.length)parts=[String(text)];    var i=0,started=false;    function fail(){window.__gttsPlaying=false;if(!started)builtin();}    function next(){      if(i>=parts.length){window.__gttsPlaying=false;return;}      var url='https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q='+encodeURIComponent(parts[i]);      var a=new Audio(url);window.__gttsPlaying=true;      a.onplaying=function(){if(!started){started=true;if(onStarted)onStarted();}};      a.onended=function(){i++;next();};      a.onerror=fail;      var pr=a.play();if(pr&&pr.catch)pr.catch(fail);    }    next();  }catch(e){builtin();}};try{if('speechSynthesis' in window&&typeof speechSynthesis.addEventListener==='function'){speechSynthesis.addEventListener('voiceschanged',function(){try{window.piaPickVoice();}catch(e){}});}}catch(e){}})();(function(){var _homeGreeted=false,_fallbackArmed=false,_fbHandler=null;var GREET='안녕하세요! 저는 AI 피아예요. 편하게 이야기해 주세요. 정답은 없어요.';function _isHome(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}}function _eligible(){try{if(!(window.PIA&&window.PIA.ttsOn))return false;}catch(e){return false;}try{if(typeof isMobile==='function'&&isMobile())return false;}catch(e){}try{if(typeof getCompletedTests==='function'&&Object.keys(getCompletedTests()).length>0)return false;}catch(e){}return true;}function _disarm(){if(!_fallbackArmed)return;_fallbackArmed=false;['pointerdown','touchstart','click','keydown'].forEach(function(evt){document.removeEventListener(evt,_fbHandler,true);});}function _speak(){if(_homeGreeted)return;if(!_isHome())return;try{if(typeof window.piaSpeak==='function'){window.piaSpeak(GREET,function(){_homeGreeted=true;_disarm();});return;}if(!('speechSynthesis' in window))return;var u=new SpeechSynthesisUtterance(GREET);if(typeof window.piaApplyVoice==='function'){window.piaApplyVoice(u);}else{u.lang='ko-KR';u.rate=0.95;u.pitch=1.05;}u.onstart=function(){_homeGreeted=true;_disarm();};speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}function _arm(){if(_fallbackArmed||_homeGreeted)return;_fallbackArmed=true;_fbHandler=function(){setTimeout(_speak,0);};['pointerdown','touchstart','click','keydown'].forEach(function(evt){document.addEventListener(evt,_fbHandler,true);});}function _trigger(){if(_homeGreeted||!_eligible())return;_arm();setTimeout(_speak,700);}var _origShow8=showView;showView=function(name){_origShow8(name);if(name==='chat')_trigger();};function _boot(){}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_boot);}else{_boot();}})();(function(){var _mon=null,_ac=null,_an=null,_buf=null,_raf=null,_peak=0,_devLabel='',_silentSince=0,_uiEl=null,_watch=null;function _log(){try{console.log.apply(console,['[MIC]'].concat([].slice.call(arguments)));}catch(e){}}try{window.vadHasVoice=function(){return true;};}catch(e){}function _score(d){var l=(d.label||'').toLowerCase();var s=0;if(/usb/.test(l))s+=10;if(/headset|헤드셋|earphone|이어폰|mic/.test(l))s+=5;if(/external|외장/.test(l))s+=4;if(/array/.test(l))s+=2;if(/internal|built-?in|내장/.test(l))s-=5;return s;}async function _pick(){try{if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices)return null;var ds=await navigator.mediaDevices.enumerateDevices();var ins=ds.filter(function(d){return d.kind==='audioinput'&&d.deviceId&&d.deviceId!=='communications';});if(!ins.length)return null;var saved=null;try{saved=localStorage.getItem('pia_mic_device');}catch(e){}if(saved){var m=ins.filter(function(d){return d.deviceId===saved;})[0];if(m)return m;}ins.sort(function(a,b){return _score(b)-_score(a);});return ins[0];}catch(e){return null;}}function _ui(){if(_uiEl&&document.body.contains(_uiEl))return _uiEl;var st=document.getElementById('chat-mic-status');if(!st||!st.parentNode)return null;var d=document.createElement('div');d.id='pia-mic-diag';d.style.cssText='font-size:11px;color:#6b7280;margin-top:4px;line-height:1.5';st.parentNode.insertBefore(d,st.nextSibling);_uiEl=d;return d;}function _render(){var d=_ui();if(!d)return;var lvl=Math.min(100,Math.round(_peak*900));var bar='<span style="display:inline-block;width:70px;height:6px;background:#e5e7eb;border-radius:3px;vertical-align:middle;overflow:hidden"><span style="display:block;height:6px;width:'+lvl+'%;background:'+(lvl>6?'#788c5d':'#d1d5db')+'"></span></span>';var warn='';if(_silentSince&&Date.now()-_silentSince>7000){warn='<div style="color:#c4623f;margin-top:2px">⚠ 마이크에서 소리가 들어오지 않습니다. Windows 소리 설정에서 사용할 마이크를 <b>기본 장치</b>로 지정해 주세요.</div>';}d.innerHTML='🎙 '+(_devLabel||'기본 마이크')+' '+bar+warn;}function _stopMon(){if(_raf)cancelAnimationFrame(_raf);_raf=null;if(_ac){try{_ac.close();}catch(e){}}_ac=null;_an=null;_peak=0;if(_mon){try{_mon.getTracks().forEach(function(t){t.stop();});}catch(e){}}_mon=null;if(_watch){clearInterval(_watch);_watch=null;}}async function _startMon(){try{if(_mon)return true;if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return false;var dev=await _pick();var c={echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1};if(dev&&dev.deviceId)c.deviceId={ideal:dev.deviceId};_mon=await navigator.mediaDevices.getUserMedia({audio:c});var tr=_mon.getAudioTracks()[0];_devLabel=(tr&&tr.label)||(dev&&dev.label)||'';_log('사용 마이크:',_devLabel);var AC=window.AudioContext||window.webkitAudioContext;if(AC){_ac=new AC();var src=_ac.createMediaStreamSource(_mon);_an=_ac.createAnalyser();_an.fftSize=512;_an.smoothingTimeConstant=0.3;src.connect(_an);_buf=new Uint8Array(_an.fftSize);var loop=function(){if(!_an)return;_an.getByteTimeDomainData(_buf);var s=0;for(var i=0;i<_buf.length;i++){var v=(_buf[i]-128)/128;s+=v*v;}var rms=Math.sqrt(s/_buf.length);_peak=_peak*0.85+rms*0.15;if(rms>0.012){_silentSince=0;}else if(!_silentSince){_silentSince=Date.now();}_raf=requestAnimationFrame(loop);};loop();}_silentSince=Date.now();if(!_watch)_watch=setInterval(_render,500);_render();return true;}catch(e){_log('모니터 실패',e&&e.message);return false;}}try{if(navigator.mediaDevices&&navigator.mediaDevices.addEventListener){navigator.mediaDevices.addEventListener('devicechange',function(){_log('장치 변경 감지');var onChat=(function(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}})();if(!onChat)return;_stopMon();setTimeout(function(){_startMon();try{if(window._micWantProxy!==false&&typeof safeStopRecognition==='function'&&typeof safeStartRecognition==='function'){safeStartRecognition();}}catch(e){}},600);});}}catch(e){}var _o=showView;showView=function(n){_o(n);if(n==='chat'){setTimeout(_startMon,250);var tries=0;var iv=setInterval(function(){tries++;var cur=(function(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}})();if(!cur||tries>6){clearInterval(iv);return;}try{if(!_globalRecording&&!(('speechSynthesis' in window)&&speechSynthesis.speaking)){_micWant=true;safeStartRecognition();}}catch(e){}},1500);}else{_stopMon();}};window.piaMicDiag=function(){return{device:_devLabel,peak:_peak,silentMs:_silentSince?Date.now()-_silentSince:0};};window.piaSetMic=async function(id){try{localStorage.setItem('pia_mic_device',id);}catch(e){}_stopMon();await _startMon();return _devLabel;};window.piaListMics=async function(){var ds=await navigator.mediaDevices.enumerateDevices();return ds.filter(function(d){return d.kind==='audioinput';}).map(function(d){return{id:d.deviceId,label:d.label};});};})();
 
 
 // ===== 결과지 JS =====
@@ -9722,7 +9747,9 @@ function missingAllTests(){
 function openFullReport() {
   const _miss = (typeof missingRequired==='function') ? missingRequired() : [];
   if (_miss.length > 0) {
-    alert('필수 검사(' + _miss.map(function(t){return t.label;}).join(', ') + ')를 모두 완료한 뒤 전체 결과지를 볼 수 있어요.');
+    var _m1='필수 검사(' + _miss.map(function(t){return t.label;}).join(', ') + ')를 모두 마친 뒤 전체 결과지를 볼 수 있어요.';
+    if(window.showToast) showToast(_m1); else console.error(_m1);
+    console.error('[전체 결과지] 필수 검사 미완료:', _miss.map(function(t){return t.id;}));
     showView('result');
     return;
   }
@@ -9730,8 +9757,10 @@ function openFullReport() {
   var _missAll = (typeof missingAllTests==='function') ? missingAllTests() : [];
   if (_missAll.length > 0) {
     var _names = _missAll.map(function(t){ return t.label; }).join(', ');
-    alert('통합 결과지는 \uBAA8\uB4E0 \uAC80\uC0AC\uB97C \uB9C8\uCCD0\uC57C \uC5F4\uB824\uC694.\n\uB0A8\uC740 \uAC80\uC0AC '+_missAll.length+'\uAC1C: '+_names);
-    showView('home'); return;
+    var _m2='전체 결과지는 모든 검사를 마쳐야 열려요. 남은 검사 '+_missAll.length+'개: '+_names;
+    if(window.showToast) showToast(_m2); else console.error(_m2);
+    console.error('[전체 결과지] 남은 검사:', _missAll.map(function(t){return t.id;}));
+    showView('result'); return;
   }
   const d = mapAiPiaToResultData();
   showView('fullreport');
@@ -9841,7 +9870,1483 @@ body:not(.dark-mode){
 }
 </style>
 
-<style id="no-anon-style">#pf-skip{display:none!important}</style><style id="blue-unify">[class*="bg-blue-600"]{background-color:var(--sky)!important}[class*="bg-blue-700"]{background-color:#4a7bab!important}[class*="bg-blue-100"]{background-color:var(--sky-tint)!important;color:#3a6491!important}[class*="text-blue-600"]{color:var(--sky)!important}[class*="text-blue-800"]{color:#2c4a6b!important}[class*="border-blue-600"]{border-color:var(--sky)!important}</style>
+<style id="no-anon-style">#pf-skip{display:none!important}</style>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style id="pia-token">
+/* ============================================================
+   AI PIA — KRDS Design Token (Portrait Kiosk 1080x1920)
+   ============================================================ */
+:root{
+  /* Color — KRDS Semantic */
+  --pia-primary:#246BEB; --pia-primary-dark:#1D56BC; --pia-primary-light:#EAF1FE; --pia-primary-border:#B6CDF8;
+  --pia-text:#1E2124; --pia-text-2:#464C53; --pia-text-3:#6D7882; --pia-text-dis:#9AA5B4;
+  --pia-border:#CDD1D5; --pia-border-2:#E0E4EA; --pia-surface:#F4F5F6; --pia-bg:#FFFFFF;
+  --pia-success:#128700; --pia-success-bg:#EAFBE6; --pia-warning:#B36F00; --pia-danger:#DE1F26; --pia-danger-bg:#FDF0F0;
+  /* Spacing — 8px grid */
+  --pia-s1:8px; --pia-s2:16px; --pia-s3:24px; --pia-s4:32px; --pia-s5:40px; --pia-s6:48px; --pia-s8:64px;
+  /* Radius */
+  --pia-r-sec:16px; --pia-r-card:12px; --pia-r-input:12px; --pia-r-btn:12px; --pia-r-pill:999px;
+  /* Typography scale (kiosk base) */
+  --pia-f-display:56px; --pia-f-h1:52px; --pia-f-h2:36px; --pia-f-h3:30px; --pia-f-q:38px;
+  --pia-f-bodyL:28px; --pia-f-body:26px; --pia-f-btn:30px; --pia-f-input:26px; --pia-f-cap:22px; --pia-f-badge:22px;
+  /* Touch target */
+  --pia-touch:80px; --pia-touch-cta:96px; --pia-touch-choice:88px;
+  /* Layout */
+  --pia-canvas:1080px; --pia-safe:56px;
+  --pia-font:"Pretendard","Pretendard Variable","Noto Sans KR","Apple SD Gothic Neo",-apple-system,sans-serif;
+}
+/* 데스크톱/일반 브라우저 — 캔버스 중앙정렬 + 스케일 축소 */
+@media (max-width:1079px){
+  :root{
+    --pia-f-display:34px; --pia-f-h1:32px; --pia-f-h2:26px; --pia-f-h3:22px; --pia-f-q:24px;
+    --pia-f-bodyL:19px; --pia-f-body:17px; --pia-f-btn:19px; --pia-f-input:17px; --pia-f-cap:15px; --pia-f-badge:15px;
+    --pia-touch:56px; --pia-touch-cta:60px; --pia-touch-choice:60px; --pia-safe:20px;
+  }
+}
+/* 글자 크게 (접근성) */
+html[data-pia-fs="l"]{ --pia-f-q:44px; --pia-f-bodyL:32px; --pia-f-body:30px; --pia-f-btn:34px; --pia-f-input:30px; --pia-f-cap:26px; }
+@media (max-width:1079px){ html[data-pia-fs="l"]{ --pia-f-q:28px; --pia-f-bodyL:22px; --pia-f-body:20px; --pia-f-btn:22px; --pia-f-input:20px; --pia-f-cap:17px; } }
+
+/* ===== Base ===== */
+.pia{ font-family:var(--pia-font); color:var(--pia-text); font-size:var(--pia-f-body); line-height:1.5;
+  max-width:var(--pia-canvas); margin:0 auto; padding:0 var(--pia-safe); box-sizing:border-box; }
+.pia *,.pia *::before,.pia *::after{ box-sizing:border-box; }
+.pia button{ font-family:inherit; }
+
+/* ===== Typography ===== */
+.pia-display{ font-size:var(--pia-f-display); font-weight:700; line-height:1.25; margin:0; }
+.pia-h1{ font-size:var(--pia-f-h1); font-weight:700; line-height:1.3; margin:0; }
+.pia-h2{ font-size:var(--pia-f-h2); font-weight:700; line-height:1.35; margin:0; }
+.pia-h3{ font-size:var(--pia-f-h3); font-weight:600; line-height:1.4; margin:0; }
+.pia-q{ font-size:var(--pia-f-q); font-weight:700; line-height:1.4; margin:0; word-break:keep-all; }
+.pia-bodyL{ font-size:var(--pia-f-bodyL); font-weight:500; line-height:1.5; margin:0; }
+.pia-body{ font-size:var(--pia-f-body); font-weight:400; line-height:1.5; margin:0; }
+.pia-cap{ font-size:var(--pia-f-cap); font-weight:400; line-height:1.5; margin:0; color:var(--pia-text-3); }
+.pia-muted{ color:var(--pia-text-2); }
+
+/* ===== Section / Card ===== */
+.pia-sec{ background:var(--pia-bg); border:1px solid var(--pia-border-2); border-radius:var(--pia-r-sec);
+  padding:var(--pia-s5) var(--pia-s4); margin-bottom:var(--pia-s3); }
+.pia-card{ background:var(--pia-bg); border:1px solid var(--pia-border-2); border-radius:var(--pia-r-card); padding:var(--pia-s3); }
+
+/* ===== Button ===== */
+.pia-btn{ display:flex; align-items:center; justify-content:center; gap:var(--pia-s1); position:relative; width:100%;
+  min-height:var(--pia-touch); padding:var(--pia-s2) var(--pia-s6); border-radius:var(--pia-r-btn);
+  font-size:var(--pia-f-btn); font-weight:600; line-height:1.4; cursor:pointer; border:1px solid transparent;
+  transition:background-color .15s,border-color .15s; text-align:center; }
+.pia-btn--cta{ min-height:var(--pia-touch-cta); }
+.pia-btn--primary{ background:var(--pia-primary); color:#fff; border-color:var(--pia-primary); }
+.pia-btn--primary:hover{ background:var(--pia-primary-dark); border-color:var(--pia-primary-dark); }
+.pia-btn--secondary{ background:var(--pia-bg); color:var(--pia-primary); border-color:var(--pia-primary-border); }
+.pia-btn--secondary:hover{ background:var(--pia-primary-light); }
+.pia-btn--ghost{ background:transparent; color:var(--pia-text-2); border-color:transparent; }
+.pia-btn--ghost:hover{ background:var(--pia-surface); }
+.pia-btn[disabled],.pia-btn[aria-disabled="true"]{ background:var(--pia-surface); color:var(--pia-text-dis);
+  border-color:var(--pia-border-2); cursor:not-allowed; }
+.pia-btn .pia-btn__ar{ position:absolute; right:var(--pia-s3); font-weight:400; }
+.pia-btn:focus-visible,.pia-choice:focus-visible,.pia-in:focus-visible,.pia-sel:focus-visible,
+.pia-cat:focus-visible,.pia-hdr-btn:focus-visible,.pia-back:focus-visible,.pia-rrow:focus-visible{
+  outline:3px solid var(--pia-primary); outline-offset:3px; }
+
+/* ===== Back navigation ===== */
+.pia-back{ display:inline-flex; align-items:center; gap:var(--pia-s1); background:none; border:0; cursor:pointer;
+  color:var(--pia-primary); font-size:var(--pia-f-bodyL); font-weight:600; padding:var(--pia-s1) var(--pia-s1) var(--pia-s1) 0;
+  min-height:56px; margin-bottom:var(--pia-s2); }
+.pia-back:hover{ text-decoration:underline; }
+
+/* ===== Badge ===== */
+.pia-badge{ display:inline-flex; align-items:center; gap:6px; font-size:var(--pia-f-badge); font-weight:600;
+  padding:6px var(--pia-s2); border-radius:var(--pia-r-pill); background:var(--pia-primary-light); color:var(--pia-primary-dark); }
+.pia-badge--done{ background:var(--pia-success-bg); color:var(--pia-success); }
+.pia-badge--neutral{ background:var(--pia-surface); color:var(--pia-text-2); }
+
+/* ===== Progress ===== */
+.pia-prog{ margin-bottom:var(--pia-s4); }
+.pia-prog__top{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--pia-s2); margin-bottom:var(--pia-s1); }
+.pia-prog__label{ font-size:var(--pia-f-bodyL); font-weight:600; color:var(--pia-text-2); }
+.pia-prog__label b{ color:var(--pia-primary); font-weight:700; }
+.pia-prog__pct{ font-size:var(--pia-f-cap); font-weight:600; color:var(--pia-primary); }
+.pia-prog__bar{ height:10px; background:var(--pia-border-2); border-radius:var(--pia-r-pill); overflow:hidden; }
+.pia-prog__fill{ height:100%; background:var(--pia-primary); border-radius:var(--pia-r-pill); transition:width .25s; }
+
+/* ===== Choice (Radio card) — 색상만으로 상태 표현하지 않음 ===== */
+.pia-choices{ display:flex; flex-direction:column; gap:var(--pia-s2); }
+.pia-choice{ display:flex; align-items:center; gap:var(--pia-s2); width:100%; min-height:var(--pia-touch-choice);
+  padding:var(--pia-s2) var(--pia-s3); background:var(--pia-bg); border:1px solid var(--pia-border);
+  border-radius:var(--pia-r-card); cursor:pointer; text-align:left; font-size:var(--pia-f-bodyL);
+  font-weight:500; color:var(--pia-text); line-height:1.5; transition:border-color .15s,background-color .15s; }
+.pia-choice:hover{ border-color:var(--pia-primary-border); background:var(--pia-primary-light); }
+.pia-choice__radio{ flex-shrink:0; width:28px; height:28px; border-radius:50%; border:2px solid var(--pia-border);
+  display:flex; align-items:center; justify-content:center; }
+.pia-choice__radio::after{ content:""; width:14px; height:14px; border-radius:50%; background:transparent; }
+.pia-choice__txt{ flex:1; min-width:0; word-break:keep-all; }
+.pia-choice__ck{ flex-shrink:0; opacity:0; color:var(--pia-primary); font-size:1.4em; font-weight:700; }
+.pia-choice[aria-checked="true"]{ border-color:var(--pia-primary); border-width:2px; background:var(--pia-primary-light);
+  padding:calc(var(--pia-s2) - 1px) calc(var(--pia-s3) - 1px); }
+.pia-choice[aria-checked="true"] .pia-choice__radio{ border-color:var(--pia-primary); border-width:2px; }
+.pia-choice[aria-checked="true"] .pia-choice__radio::after{ background:var(--pia-primary); }
+.pia-choice[aria-checked="true"] .pia-choice__txt{ font-weight:700; color:var(--pia-primary-dark); }
+.pia-choice[aria-checked="true"] .pia-choice__ck{ opacity:1; }
+
+/* ===== Input / Select ===== */
+.pia-field{ margin-bottom:var(--pia-s3); }
+.pia-label{ display:block; font-size:var(--pia-f-bodyL); font-weight:600; color:var(--pia-text); margin-bottom:6px; }
+.pia-label .req{ color:var(--pia-danger); margin-left:4px; }
+.pia-hint{ display:block; font-size:var(--pia-f-cap); color:var(--pia-text-3); margin-bottom:var(--pia-s1); line-height:1.5; }
+.pia-in,.pia-sel{ width:100%; min-height:var(--pia-touch); padding:var(--pia-s2); border:1px solid var(--pia-border);
+  border-radius:var(--pia-r-input); font-size:var(--pia-f-input); font-family:inherit; color:var(--pia-text);
+  background:var(--pia-bg); line-height:1.5; }
+.pia-in::placeholder{ color:var(--pia-text-dis); }
+.pia-in:focus,.pia-sel:focus{ border-color:var(--pia-primary); border-width:2px; padding:calc(var(--pia-s2) - 1px); outline:none; }
+.pia-in[aria-invalid="true"],.pia-sel[aria-invalid="true"]{ border-color:var(--pia-danger); border-width:2px; }
+.pia-err{ display:none; align-items:center; gap:6px; margin-top:6px; font-size:var(--pia-f-cap); color:var(--pia-danger); }
+.pia-err.on{ display:flex; }
+.pia-note{ display:flex; align-items:center; gap:var(--pia-s1); background:var(--pia-primary-light);
+  border:1px solid var(--pia-primary-border); border-radius:var(--pia-r-card); padding:var(--pia-s2);
+  font-size:var(--pia-f-cap); color:var(--pia-text-2); line-height:1.5; }
+.pia-note svg{ width:24px; height:24px; color:var(--pia-primary); flex-shrink:0; }
+
+/* ===== Footer action bar ===== */
+.pia-fab{ display:flex; gap:var(--pia-s2); margin-top:var(--pia-s4); }
+.pia-fab .pia-btn{ flex:1; }
+.pia-autosave{ display:flex; align-items:center; justify-content:center; gap:6px; margin-top:var(--pia-s2);
+  font-size:var(--pia-f-cap); color:var(--pia-text-3); }
+
+/* ===== Result summary row ===== */
+.pia-rrow{ display:flex; align-items:center; gap:var(--pia-s2); width:100%; min-height:var(--pia-touch);
+  padding:var(--pia-s3); background:var(--pia-bg); border:1px solid var(--pia-border-2);
+  border-radius:var(--pia-r-card); margin-bottom:var(--pia-s2); text-align:left; cursor:pointer; }
+.pia-rrow[data-static="1"]{ cursor:default; }
+.pia-rrow:not([data-static="1"]):hover{ border-color:var(--pia-primary-border); }
+.pia-rrow__ic{ width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pia-rrow__tx{ flex:1; min-width:0; }
+.pia-rrow__t{ font-size:var(--pia-f-bodyL); font-weight:700; margin-bottom:2px; }
+.pia-rrow__d{ font-size:var(--pia-f-body); color:var(--pia-text-2); word-break:keep-all; }
+.pia-rrow__more{ display:flex; align-items:center; gap:4px; font-size:var(--pia-f-cap); color:var(--pia-text-3); flex-shrink:0; }
+
+/* ===== AppHeader (모든 화면 공통 · 높이/위치 불변) ===== */
+.pia-hdr{ position:sticky; top:0; z-index:50; background:var(--pia-bg); border-bottom:1px solid var(--pia-border-2); }
+.pia-hdr__in{ max-width:var(--pia-canvas); margin:0 auto; padding:var(--pia-s2) var(--pia-safe);
+  display:flex; align-items:center; gap:var(--pia-s2); min-height:96px; }
+.pia-hdr__brand{ display:flex; align-items:baseline; gap:var(--pia-s2); flex:1; min-width:0; }
+.pia-hdr__logo{ font-size:var(--pia-f-h3); font-weight:700; color:var(--pia-primary); letter-spacing:-.5px; white-space:nowrap; }
+.pia-hdr__sub{ font-size:var(--pia-f-cap); color:var(--pia-text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pia-hdr__acts{ display:flex; gap:var(--pia-s1); flex-shrink:0; }
+.pia-hdr-btn{ display:inline-flex; align-items:center; gap:6px; min-height:56px; padding:0 var(--pia-s2);
+  border:1px solid var(--pia-border); border-radius:var(--pia-r-btn); background:var(--pia-bg);
+  font-size:var(--pia-f-cap); font-weight:500; color:var(--pia-text-2); cursor:pointer; white-space:nowrap; font-family:inherit; }
+.pia-hdr-btn:hover{ background:var(--pia-surface); }
+.pia-hdr-btn[aria-pressed="true"]{ background:var(--pia-primary-light); border-color:var(--pia-primary-border); color:var(--pia-primary-dark); }
+.pia-hdr-btn svg{ width:22px; height:22px; flex-shrink:0; }
+.pia-hdr-btn b{ color:var(--pia-primary); font-weight:700; }
+@media (max-width:1079px){
+  .pia-hdr__in{ min-height:64px; }
+  .pia-hdr__sub{ display:none; }
+  .pia-hdr-btn{ min-height:44px; padding:0 var(--pia-s1); }
+  .pia-hdr-btn span{ display:none; }
+}
+/* 기존 헤더 숨김 (v2 헤더로 대체) */
+body.pia-v2 > header:not(.pia-hdr),
+body.pia-v2 #topNav{ display:none !important; }
+
+/* ===== HOME ===== */
+.pia-hero{ display:flex; align-items:center; gap:var(--pia-s3); }
+.pia-hero__tx{ flex:1; min-width:0; }
+.pia-hero__bot{ width:300px; flex-shrink:0; }
+.pia-hero__time{ display:inline-flex; align-items:center; gap:var(--pia-s1); font-size:var(--pia-f-bodyL);
+  font-weight:600; color:var(--pia-text-2); margin:0; }
+.pia-hero__time svg{ width:28px; height:28px; color:var(--pia-primary); }
+.pia-steps{ display:flex; align-items:flex-start; justify-content:center; gap:var(--pia-s1); }
+.pia-step{ display:flex; flex-direction:column; align-items:center; gap:var(--pia-s2); flex:1; min-width:0; }
+.pia-step__n{ width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:var(--pia-f-bodyL); flex-shrink:0; }
+.pia-step__ic{ width:120px; height:120px; border-radius:50%; border:0; cursor:pointer; padding:0;
+  display:flex; align-items:center; justify-content:center; transition:box-shadow .15s; }
+.pia-step__ic:hover{ box-shadow:0 4px 16px rgba(36,107,235,.22); }
+.pia-step__ic svg{ width:52px; height:52px; }
+.pia-step__t{ font-size:var(--pia-f-bodyL); font-weight:700; text-align:center; word-break:keep-all; }
+.pia-step__d{ font-size:var(--pia-f-cap); color:var(--pia-text-2); background:var(--pia-surface);
+  border-radius:var(--pia-r-pill); padding:6px var(--pia-s2); }
+.pia-step__ar{ color:var(--pia-border); font-size:32px; margin-top:76px; flex-shrink:0; }
+.pia-cats{ display:grid; grid-template-columns:repeat(2,1fr); gap:var(--pia-s2); }
+.pia-cat{ display:flex; align-items:center; gap:var(--pia-s2); min-height:var(--pia-touch);
+  padding:var(--pia-s3); background:var(--pia-bg); border:1px solid var(--pia-border-2);
+  border-radius:var(--pia-r-card); cursor:pointer; text-align:left; width:100%;
+  transition:border-color .15s,background-color .15s; }
+.pia-cat:hover{ border-color:var(--pia-primary-border); background:var(--pia-primary-light); }
+.pia-cat__ic{ flex-shrink:0; display:flex; }
+.pia-cat__ic svg{ width:52px; height:52px; }
+.pia-cat__tx{ flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+.pia-cat__t{ font-size:var(--pia-f-bodyL); font-weight:700; display:flex; align-items:center; gap:var(--pia-s1); flex-wrap:wrap; }
+.pia-cat__d{ font-size:var(--pia-f-cap); color:var(--pia-text-2); word-break:keep-all; }
+.pia-cat__ar{ color:var(--pia-text-dis); font-size:30px; flex-shrink:0; }
+.pia-foot{ display:flex; align-items:center; justify-content:center; gap:var(--pia-s2); padding:var(--pia-s3) 0 var(--pia-s5); }
+.pia-foot button{ background:none; border:0; color:var(--pia-text-2); font-size:var(--pia-f-cap);
+  cursor:pointer; padding:var(--pia-s1); min-height:56px; font-family:inherit; }
+.pia-foot button:hover{ color:var(--pia-primary); text-decoration:underline; }
+.pia-foot span{ color:var(--pia-border); }
+@media (max-width:1079px){
+  .pia-hero{ flex-direction:column-reverse; text-align:center; }
+  .pia-hero__bot{ width:180px; }
+  .pia-hero__time{ justify-content:center; }
+  .pia-step__ic{ width:72px; height:72px; }
+  .pia-step__ic svg{ width:32px; height:32px; }
+  .pia-step__n{ width:34px; height:34px; }
+  .pia-step__ar{ margin-top:48px; font-size:22px; }
+  .pia-cats{ grid-template-columns:1fr; }
+  .pia-cat__ic svg{ width:38px; height:38px; }
+}
+
+/* ===== SETUP (기본정보 입력) ===== */
+.pia-setup__hd{ margin-bottom:var(--pia-s5); }
+.pia-setup__steps{ display:flex; align-items:center; justify-content:center; margin-bottom:var(--pia-s5); }
+.pia-ss{ display:flex; flex-direction:column; align-items:center; gap:var(--pia-s1); flex-shrink:0; }
+.pia-ss__n{ width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:var(--pia-f-bodyL); }
+.pia-ss__l{ font-size:var(--pia-f-cap); font-weight:600; }
+.pia-ss__line{ flex:1; height:2px; background:var(--pia-border-2); margin:0 var(--pia-s2) var(--pia-s5); min-width:40px; }
+.pia-codebox{ background:var(--pia-primary-light); border:1px solid var(--pia-primary-border);
+  border-radius:var(--pia-r-card); padding:var(--pia-s3); margin-bottom:var(--pia-s3); }
+.pia-inrow{ display:flex; gap:var(--pia-s1); }
+.pia-inrow .pia-in{ flex:1; min-width:0; }
+.pia-inrow .pia-btn{ width:auto; flex-shrink:0; padding:0 var(--pia-s3); }
+.pia-ok{ display:none; align-items:center; gap:6px; margin-top:var(--pia-s1);
+  font-size:var(--pia-f-cap); color:var(--pia-success); font-weight:600; }
+.pia-ok.on{ display:flex; }
+.pia-help{ display:flex; align-items:center; gap:var(--pia-s3); background:var(--pia-primary-light);
+  border:1px solid var(--pia-primary-border); border-radius:var(--pia-r-sec);
+  padding:var(--pia-s3); margin-top:var(--pia-s3); }
+.pia-help__bot{ width:120px; flex-shrink:0; }
+.pia-help__tx{ flex:1; min-width:0; }
+@media (max-width:1079px){ .pia-help__bot{ width:72px; } .pia-ss__n{ width:36px; height:36px; } }
+
+/* ===== 체크박스 (KRDS) ===== */
+.pia-check{ display:flex; align-items:flex-start; gap:var(--pia-s2); cursor:pointer; min-height:var(--pia-touch);
+  padding:var(--pia-s2) 0; }
+.pia-check input{ position:absolute; opacity:0; width:1px; height:1px; }
+.pia-check__box{ flex-shrink:0; width:36px; height:36px; border:2px solid var(--pia-border); border-radius:8px;
+  background:var(--pia-bg); display:flex; align-items:center; justify-content:center; margin-top:2px; }
+.pia-check__box::after{ content:"✓"; color:transparent; font-size:24px; font-weight:700; line-height:1; }
+.pia-check input:checked + .pia-check__box{ background:var(--pia-primary); border-color:var(--pia-primary); }
+.pia-check input:checked + .pia-check__box::after{ color:#fff; }
+.pia-check input:focus-visible + .pia-check__box{ outline:3px solid var(--pia-primary); outline-offset:3px; }
+.pia-check__tx{ flex:1; min-width:0; font-size:var(--pia-f-bodyL); line-height:1.5; word-break:keep-all; }
+.pia-check--all{ border-bottom:1px solid var(--pia-border-2); margin-bottom:var(--pia-s2); padding-bottom:var(--pia-s3); }
+.pia-check--all .pia-check__tx{ font-size:var(--pia-f-h3); }
+.pia-consent__row{ border-bottom:1px solid var(--pia-border-2); padding-bottom:var(--pia-s1); }
+.pia-consent__row:last-child{ border-bottom:0; }
+.pia-consent__more{ margin:0 0 var(--pia-s2) 52px; }
+.pia-consent__more summary{ font-size:var(--pia-f-cap); color:var(--pia-primary); cursor:pointer;
+  min-height:44px; display:flex; align-items:center; }
+.pia-consent__more > div{ font-size:var(--pia-f-cap); color:var(--pia-text-2); line-height:1.6;
+  background:var(--pia-surface); border-radius:8px; padding:var(--pia-s2); margin-bottom:var(--pia-s1); }
+@media(max-width:1079px){ .pia-check__box{ width:26px; height:26px; } .pia-check__box::after{ font-size:17px; }
+  .pia-consent__more{ margin-left:42px; } .pia-check{ min-height:52px; } }
+
+/* ===== 완료 화면 ===== */
+.pia-done__list{ list-style:none; padding:0; margin:0 auto; max-width:480px; text-align:left; }
+.pia-done__i{ display:flex; align-items:center; gap:var(--pia-s2); padding:var(--pia-s2) var(--pia-s3);
+  background:var(--pia-bg); border:1px solid var(--pia-border-2); border-radius:var(--pia-r-card);
+  margin-bottom:var(--pia-s2); font-size:var(--pia-f-bodyL); font-weight:600; }
+.pia-done__ck{ width:44px; height:44px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; font-weight:700; font-size:var(--pia-f-bodyL); flex-shrink:0; }
+.pia-ul{ margin:0; padding-left:1.3em; }
+.pia-ul li{ font-size:var(--pia-f-body); line-height:1.7; color:var(--pia-text-2); margin-bottom:var(--pia-s1); word-break:keep-all; }
+.pia-ul li b{ color:var(--pia-text); }
+
+/* ===== 스크린리더 전용 (기존 로직 유지용 숨김) ===== */
+.pia-sr{ position:absolute!important; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+
+/* ===== AI 대화 (Interview UI) ===== */
+.pia-ask{ display:flex; align-items:center; gap:var(--pia-s3);
+  background:var(--pia-bg); border:1px solid var(--pia-primary-border); }
+.pia-ask__bot{ width:130px; flex-shrink:0; }
+.pia-ask__tx{ flex:1; min-width:0; }
+.pia-ask__who{ display:inline-block; font-size:var(--pia-f-cap); font-weight:700; color:var(--pia-primary-dark);
+  background:var(--pia-bg); border-radius:var(--pia-r-pill); padding:4px var(--pia-s2); margin-bottom:var(--pia-s2); }
+.pia-ask .pia-q{ text-align:left; }
+.pia-qk{ display:grid; grid-template-columns:repeat(2,1fr); gap:var(--pia-s2); }
+.pia-qk__b{ display:flex; align-items:center; gap:var(--pia-s2); min-height:var(--pia-touch-choice);
+  padding:var(--pia-s2) var(--pia-s3); background:var(--pia-bg); border:1px solid var(--pia-border);
+  border-radius:var(--pia-r-card); font-size:var(--pia-f-bodyL); font-weight:500; color:var(--pia-text);
+  cursor:pointer; text-align:left; font-family:inherit; line-height:1.5; word-break:keep-all;
+  transition:border-color .15s,background-color .15s; }
+.pia-qk__b:hover{ border-color:var(--pia-primary-border); background:var(--pia-primary-light); }
+.pia-qk__b:focus-visible{ outline:3px solid var(--pia-primary); outline-offset:3px; }
+.pia-say{ display:flex; gap:var(--pia-s2); align-items:stretch; }
+.pia-say__in{ flex:1; min-width:0; }
+.pia-say__mic{ flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:2px; min-width:110px; min-height:var(--pia-touch); padding:var(--pia-s1) var(--pia-s2);
+  background:var(--pia-bg); border:1px solid var(--pia-border); border-radius:var(--pia-r-input);
+  color:var(--pia-primary); font-size:var(--pia-f-cap); font-weight:600; cursor:pointer; font-family:inherit; }
+.pia-say__mic svg{ width:30px; height:30px; }
+.pia-say__mic:hover{ background:var(--pia-primary-light); border-color:var(--pia-primary-border); }
+.pia-say__mic[aria-pressed="true"]{ background:var(--pia-primary); border-color:var(--pia-primary); color:#fff; }
+.pia-say__mic:focus-visible{ outline:3px solid var(--pia-primary); outline-offset:3px; }
+@media(max-width:1079px){
+  .pia-ask{ flex-direction:column; text-align:center; }
+  .pia-ask__bot{ width:88px; }
+  .pia-ask .pia-q{ text-align:center; }
+  .pia-qk{ grid-template-columns:1fr; }
+  .pia-say__mic{ min-width:80px; }
+  .pia-say__mic svg{ width:22px; height:22px; }
+}
+
+
+/* ===== 구(舊) 레이아웃 잔재 완전 숨김 ===== */
+body.pia-v2 header:not(.pia-hdr){ display:none !important; }
+/* 홈 컨테이너가 grid라 새 레이아웃이 1칸에 갇히는 문제 */
+body.pia-v2 #home-content{ display:block !important; }
+/* 결과지 인쇄 툴바는 결과 화면에서만 */
+body.pia-v2 .toolbar.no-print{ display:none !important; }
+body.pia-v2.pia-on-result .toolbar.no-print{ display:flex !important; }
+body.pia-v2 section[data-view="home"] > div.bg-violet-50{ display:none !important; }
+body.pia-v2 > div.max-w-6xl{ max-width:none !important; padding:0 !important; }
+body.pia-v2 section[data-view="home"]{ margin:0 !important; }
+/* 제목 줄바꿈 보호 */
+.pia-display,.pia-h1,.pia-h2,.pia-h3,.pia-q{ word-break:keep-all !important; overflow-wrap:break-word; }
+@media(max-width:520px){
+  :root{ --pia-f-display:34px; --pia-f-h1:30px; --pia-f-h2:24px; --pia-f-q:24px;
+         --pia-f-bodyL:18px; --pia-f-body:17px; --pia-f-btn:19px; }
+  .pia-hero{ flex-direction:column; text-align:center; }
+  .pia-hero__bot{ width:150px; margin:0 auto; }
+}
+
+/* ===== 통합 결과 (시안 6) ===== */
+.pia-rhero{ display:flex; align-items:center; gap:var(--pia-s3); margin-bottom:var(--pia-s4); }
+.pia-rhero__tx{ flex:1; min-width:0; }
+.pia-rhero__bot{ width:200px; flex-shrink:0; }
+.pia-ai{ display:flex; align-items:center; gap:var(--pia-s3);
+  background:var(--pia-primary-light); border-color:var(--pia-primary-border); }
+.pia-ai__ic{ flex-shrink:0; width:104px; height:104px; border-radius:50%; background:var(--pia-bg);
+  display:grid; place-items:center; color:var(--pia-primary); }
+.pia-ai__ic svg{ width:52px; height:52px; }
+.pia-ai__tx{ flex:1; min-width:0; }
+.pia-ai__lab{ display:block; font-size:var(--pia-f-bodyL); font-weight:700; color:var(--pia-primary); margin-bottom:var(--pia-s2); }
+.pia-ai__d{ font-size:var(--pia-f-h3,28px); font-weight:700; color:var(--pia-text); line-height:1.55; word-break:keep-all; }
+.pia-sums{ display:flex; flex-direction:column; gap:var(--pia-s2); margin-bottom:var(--pia-s4); }
+.pia-sum{ display:flex; align-items:center; gap:var(--pia-s3); width:100%; min-height:var(--pia-touch);
+  padding:var(--pia-s3); background:var(--pia-bg); border:1px solid var(--pia-border);
+  border-radius:var(--pia-r-card); cursor:pointer; text-align:left; font-family:inherit;
+  transition:border-color .15s, box-shadow .15s; }
+.pia-sum:hover{ border-color:var(--pia-primary-border); box-shadow:0 2px 10px rgba(36,107,235,.10); }
+.pia-sum:focus-visible{ outline:3px solid var(--pia-primary); outline-offset:3px; }
+.pia-sum__ic{ flex-shrink:0; width:72px; height:72px; border-radius:50%; display:grid; place-items:center; }
+.pia-sum__ic svg{ width:34px; height:34px; }
+.pia-sum--green  .pia-sum__ic{ background:#E6F4EA; color:#1E8E4E; }
+.pia-sum--purple .pia-sum__ic{ background:#EEEAFB; color:#6B47C9; }
+.pia-sum--orange .pia-sum__ic{ background:#FDEDE3; color:#D9711F; }
+.pia-sum__tx{ flex:1; min-width:0; }
+.pia-sum__t{ display:block; font-size:var(--pia-f-bodyL); font-weight:700; margin-bottom:4px; }
+.pia-sum--green  .pia-sum__t{ color:#1E8E4E; }
+.pia-sum--purple .pia-sum__t{ color:#6B47C9; }
+.pia-sum--orange .pia-sum__t{ color:#D9711F; }
+.pia-sum__w{ display:block; font-size:var(--pia-f-body); color:var(--pia-text-2); line-height:1.5; word-break:keep-all; }
+.pia-sum__more{ flex-shrink:0; font-size:var(--pia-f-cap); font-weight:600; color:var(--pia-text-2); white-space:nowrap; }
+.pia-sum__ar{ flex-shrink:0; font-size:28px; color:var(--pia-text-3,#8A9199); line-height:1; }
+.pia-top3{ list-style:none; margin:0; padding:0; }
+.pia-top3__i{ display:flex; align-items:center; gap:var(--pia-s3); min-height:var(--pia-touch);
+  padding:var(--pia-s2) 0; border-bottom:1px solid var(--pia-border-light,#E4E7EA); }
+.pia-top3__i:last-child{ border-bottom:0; }
+.pia-top3__r{ flex-shrink:0; width:52px; height:52px; border-radius:50%; background:var(--pia-primary); color:#fff;
+  display:grid; place-items:center; font-size:var(--pia-f-body); font-weight:700; }
+.pia-top3__t{ flex:1; font-size:var(--pia-f-bodyL); font-weight:700; color:var(--pia-text); word-break:keep-all; }
+.pia-top3__v{ font-size:var(--pia-f-body); color:var(--pia-text-2); white-space:nowrap; }
+.pia-top3__ar{ flex-shrink:0; font-size:28px; color:var(--pia-text-3,#8A9199); line-height:1; }
+.pia-btn__ic{ display:inline-flex; width:1.1em; height:1.1em; margin-right:8px; vertical-align:-.15em; }
+.pia-btn__ic svg{ width:100%; height:100%; }
+.pia-rfoot{ text-align:center; }
+.pia-rfoot button{ display:inline-flex; align-items:center; gap:8px; min-height:56px; padding:0 var(--pia-s3);
+  background:none; border:0; cursor:pointer; font-family:inherit;
+  font-size:var(--pia-f-body); font-weight:600; color:var(--pia-text-2); }
+.pia-rfoot button svg{ width:1.2em; height:1.2em; }
+.pia-rfoot button:hover{ color:var(--pia-primary); }
+.pia-tools{ background:var(--pia-surface); border:1px solid var(--pia-border); border-radius:var(--pia-r-card); }
+.pia-tools > summary{ cursor:pointer; padding:var(--pia-s2) var(--pia-s3); font-size:var(--pia-f-body);
+  font-weight:600; color:var(--pia-text-2); list-style:none; min-height:56px; display:flex; align-items:center; }
+.pia-tools > summary::-webkit-details-marker{ display:none; }
+.pia-tools > summary::before{ content:'\25B8'; margin-right:8px; color:var(--pia-primary); }
+.pia-tools[open] > summary::before{ content:'\25BE'; }
+@media(max-width:1079px){
+  .pia-rhero{ flex-direction:column-reverse; text-align:center; }
+  .pia-rhero__bot{ width:130px; }
+  .pia-ai{ flex-direction:column; text-align:center; }
+  .pia-ai__ic{ width:76px; height:76px; }
+  .pia-ai__ic svg{ width:38px; height:38px; }
+  .pia-sum__ic{ width:56px; height:56px; }
+  .pia-sum__ic svg{ width:26px; height:26px; }
+  .pia-sum__more{ display:none; }
+}
+
+.pia-bot{ display:block; width:100%; height:auto; }
+.pia-hero__bot,.pia-rhero__bot,.pia-ask__bot{ line-height:0; }
+
+.pia-prog__cur{ font-size:1.5em; font-weight:700; color:var(--pia-primary); line-height:1; }
+.pia-prog__tot{ color:var(--pia-text-3,#8A9199); font-weight:500; }
+.pia-qk__ic{ flex-shrink:0; width:38px; height:38px; color:var(--pia-primary); }
+.pia-qk__ic svg{ width:100%; height:100%; }
+
+/* --- 리커트 표정 아이콘 (RIASEC) --- */
+.pia-choice__face{ flex-shrink:0; width:52px; height:52px; border-radius:50%;
+  background:var(--pia-surface); color:var(--pia-text-3,#8A9199);
+  display:grid; place-items:center; margin-right:var(--pia-s2); transition:background-color .15s,color .15s; }
+.pia-choice__face svg{ width:32px; height:32px; }
+.pia-choice[aria-checked="true"] .pia-choice__face{ background:var(--pia-primary-light); color:var(--pia-primary); }
+/* RIASEC 선택행: 흰 배경 + 파란 테두리 (Big5의 연파랑과 구분) */
+#choices-riasec .pia-choice[aria-checked="true"]{ background:var(--pia-bg) !important; }
+#choices-riasec .pia-choice__ck{ display:none; }
+/* 안내 배너 카드형 */
+.pia-note--card{ display:flex; align-items:center; gap:var(--pia-s2);
+  background:var(--pia-primary-light); border-radius:var(--pia-r-card);
+  padding:var(--pia-s2) var(--pia-s3); min-height:72px; color:var(--pia-text-2); }
+.pia-note--card svg{ flex-shrink:0; width:34px; height:34px; color:var(--pia-primary);
+  background:var(--pia-bg); border-radius:50%; padding:5px; box-sizing:content-box; }
+@media(max-width:1079px){ .pia-choice__face{ width:40px; height:40px; } .pia-choice__face svg{ width:24px; height:24px; } }
+
+/* --- 정보입력 필드 아이콘 (시안2) --- */
+.pia-inwrap{ position:relative; display:block; flex:1; min-width:0; }
+.pia-fic{ position:absolute; left:var(--pia-s2); top:50%; transform:translateY(-50%);
+  width:34px; height:34px; color:var(--pia-text-3,#8A9199); pointer-events:none; z-index:1; }
+.pia-fic svg{ width:100%; height:100%; }
+.pia-in--ic, .pia-inwrap .pia-sel{ padding-left:calc(var(--pia-s2) + 34px + var(--pia-s2)) !important; width:100%; }
+.pia-inwrap:focus-within .pia-fic{ color:var(--pia-primary); }
+.pia-help{ display:flex; align-items:center; gap:var(--pia-s3); flex-wrap:wrap;
+  background:var(--pia-primary-light); border-radius:var(--pia-r-card);
+  padding:var(--pia-s3); margin-top:var(--pia-s5); }
+.pia-help__bot{ flex-shrink:0; width:130px; line-height:0; }
+.pia-help__bot img{ display:block; width:100%; height:auto; }
+.pia-help__tx{ flex:1; min-width:180px; }
+.pia-help__btn{ flex-shrink:0; display:inline-flex; align-items:center; gap:8px;
+  min-height:var(--pia-touch); padding:0 var(--pia-s3); background:var(--pia-bg);
+  border:1px solid var(--pia-primary-border); border-radius:var(--pia-r-input);
+  color:var(--pia-primary); font-family:inherit; font-size:var(--pia-f-body); font-weight:700; cursor:pointer; }
+.pia-help__btn .pia-fic{ position:static; transform:none; width:28px; height:28px; color:var(--pia-primary); }
+.pia-help__btn:hover{ background:var(--pia-primary-light); }
+.pia-help__btn:focus-visible{ outline:3px solid var(--pia-primary); outline-offset:3px; }
+@media(max-width:1079px){ .pia-help__bot{ width:88px; } .pia-fic{ width:26px; height:26px; }
+  .pia-in--ic,.pia-inwrap .pia-sel{ padding-left:calc(var(--pia-s2) + 26px + var(--pia-s1)) !important; } }
+
+/* --- 학생 화면에서 운영자용 플로팅 버튼 숨김 --- */
+body.pia-v2 .errcs-fab,
+body.pia-v2 #bottomBar{ display:none !important; }
+body.pia-v2 #sendToTeacherBtn{ display:none !important; }
+body.pia-v2.pia-on-result #sendToTeacherBtn{ display:inline-flex !important; }
+/* --- 본문 캔버스 정렬 --- */
+body.pia-v2 .pia{ max-width:var(--pia-canvas); margin:0 auto; padding:0 var(--pia-safe) var(--pia-s8); box-sizing:border-box; }
+@media(max-width:1079px){ body.pia-v2 .pia{ padding:0 var(--pia-s3) var(--pia-s6); } }
+
+body.pia-v2 section[data-view].hidden{ display:none !important; }
+
+/* --- 각 검사 섹션에 남아있던 구 헤더 숨김 --- */
+body.pia-v2 section[data-view] > div.flex.justify-between.items-baseline{ display:none !important; }
+/* --- 뒤로가기 줄바꿈/찌그러짐 방지 --- */
+.pia-back{ white-space:nowrap; flex-shrink:0; align-self:flex-start; width:auto; }
+/* --- 선택지 텍스트 크기 (Tailwind text-sm 상속 차단) --- */
+.pia-choice__txt{ font-size:var(--pia-f-bodyL) !important; font-weight:500; line-height:1.5; word-break:keep-all; }
+.pia-choice[aria-checked="true"] .pia-choice__txt{ font-weight:700; color:var(--pia-primary-dark); }
+.pia-q{ font-size:var(--pia-f-q) !important; }
+.pia-h1{ font-size:var(--pia-f-h1) !important; }
+.pia-h2{ font-size:var(--pia-f-h2) !important; }
+.pia-h3{ font-size:var(--pia-f-bodyL) !important; }
+.pia-bodyL{ font-size:var(--pia-f-bodyL) !important; }
+.pia-cap,.pia-note{ font-size:var(--pia-f-cap) !important; }
+.pia-btn{ font-size:var(--pia-f-btn) !important; }
+.pia-label{ font-size:var(--pia-f-bodyL) !important; }
+.pia-in,.pia-sel{ font-size:var(--pia-f-body) !important; }
+.pia-badge{ font-size:var(--pia-f-cap) !important; }
+.pia-prog__label{ font-size:var(--pia-f-body) !important; }
+
+.pia-top3__st{ flex-shrink:0; font-size:var(--pia-f-body); color:#F0A020; letter-spacing:1px; white-space:nowrap; }
+
+/* --- Toast --- */
+#pia-toast-box{ position:fixed; left:50%; bottom:var(--pia-s5); transform:translateX(-50%);
+  z-index:10001; display:flex; flex-direction:column; gap:var(--pia-s1);
+  width:min(560px, calc(100vw - 32px)); pointer-events:none; }
+.pia-toast{ background:var(--pia-text); color:#fff; border-radius:var(--pia-r-card);
+  padding:var(--pia-s2) var(--pia-s3); font-size:var(--pia-f-body); line-height:1.5;
+  box-shadow:0 6px 24px rgba(0,0,0,.22); word-break:keep-all;
+  animation:piaToastIn .22s ease-out; }
+.pia-toast--out{ opacity:0; transition:opacity .22s ease; }
+@keyframes piaToastIn{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:none;} }
+@media (prefers-reduced-motion:reduce){ .pia-toast{ animation:none; } }
+
+/* --- 아이콘 크기 안전장치 (크기 미지정 SVG가 거대해지는 것 방지) --- */
+.pia-autosave svg{ width:1.25em; height:1.25em; flex-shrink:0; }
+.pia-back svg{ width:1em; height:1em; flex-shrink:0; }
+.pia-hero__time svg{ width:1.15em; height:1.15em; flex-shrink:0; }
+.pia-note svg{ width:1.4em; height:1.4em; flex-shrink:0; }
+.pia-hdr-btn svg{ width:1.3em; height:1.3em; flex-shrink:0; }
+.pia-step__ic svg,.pia-cat__ic svg{ width:100%; height:100%; }
+/* 마지막 방어선: .pia 안의 모든 SVG는 부모를 넘지 않는다 */
+.pia svg{ max-width:100%; max-height:4em; }
+.pia .pia-bot,.pia img{ max-height:none; }
+</style>
+<script id="pia-botimg">
+window.PIA_BOT_HERO='data:image/webp;base64,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';
+window.PIA_BOT_WAVE='data:image/webp;base64,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';
+
+window.PIA=window.PIA||{};
+window.PIA.botImg=function(kind,alt){
+  var src=(kind==='wave')?window.PIA_BOT_WAVE:window.PIA_BOT_HERO;
+  return '<img class="pia-bot" src="'+src+'" alt="'+(alt||'')+'"'+(alt?'':' aria-hidden="true"')+' loading="lazy" decoding="async">';
+};
+</script>
+<script id="pia-toast">
+/* 전역 Toast — 접근성(role=status) + KRDS 토큰. 기존 내부 showToast 는 건드리지 않는다 */
+(function(){
+  window.PIA = window.PIA || {};
+  var box=null;
+  function ensure(){
+    if(box && document.body.contains(box)) return box;
+    box=document.createElement('div');
+    box.id='pia-toast-box';
+    box.setAttribute('role','status');
+    box.setAttribute('aria-live','polite');
+    document.body.appendChild(box);
+    return box;
+  }
+  PIA.toast=function(msg, ms){
+    try{
+      var b=ensure();
+      var t=document.createElement('div');
+      t.className='pia-toast';
+      t.textContent=String(msg||'');
+      b.appendChild(t);
+      setTimeout(function(){
+        t.classList.add('pia-toast--out');
+        setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 250);
+      }, ms||4000);
+    }catch(e){ if(window.console) console.error('토스트 표시 실패:', e); }
+  };
+  if(typeof window.showToast!=='function') window.showToast=PIA.toast;
+})();
+</script>
+<script id="pia-comp">
+/* ============================================================
+   AI PIA — 공통 UI 컴포넌트 (KRDS)
+   ※ 비즈니스 로직 없음. 렌더링 헬퍼만 제공.
+   ============================================================ */
+(function(){
+  'use strict';
+  var PIA = window.PIA = window.PIA || {};
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  PIA.esc = esc;
+
+  /* --- Icon set --- */
+  var IC = {
+    fontsize:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 9 6l5 14"/><path d="M6 15h6"/><path d="M17 12h5M19.5 9.5v5"/></svg>',
+    sound:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>',
+    help:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>',
+    back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></svg>',
+    save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16a4 4 0 0 0-1-7.9A6 6 0 0 0 5.5 9 4 4 0 0 0 6 16z"/><path d="m9 13 2 2 4-4"/></svg>',
+    shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+    warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.5" r=".7" fill="currentColor"/></svg>',
+    clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 2"/></svg>'
+  };
+  IC.compass = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5.5-5.5 2 2-5.5z"/></svg>';
+  PIA.icon = function(n){ return IC[n]||''; };
+
+  /* --- AppHeader --- */
+  PIA.header = function(){
+    var big = document.documentElement.getAttribute('data-pia-fs')==='l';
+    return '<header class="pia-hdr"><div class="pia-hdr__in">'
+      + '<div class="pia-hdr__brand"><span class="pia-hdr__logo">AI PIA</span>'
+      + '<span class="pia-hdr__sub">AI 기반 진로·성향 검사</span></div>'
+      + '<div class="pia-hdr__acts">'
+      + '<button type="button" class="pia-hdr-btn" id="pia-fs-btn" aria-pressed="'+(big?'true':'false')+'" onclick="PIA.toggleFontSize()">'
+      + IC.fontsize + '<span>글자 크게</span></button>'
+      + '<button type="button" class="pia-hdr-btn" id="pia-tts-btn" aria-pressed="false" onclick="PIA.toggleTTS()">'
+      + IC.sound + '<span>음성 안내</span></button>'
+      + '<button type="button" class="pia-hdr-btn" onclick="PIA.openHelp()">'
+      + IC.help + '<span>도움</span></button>'
+      + '</div></div></header>';
+  };
+
+  /* --- 접근성: 글자 크게 --- */
+  PIA.toggleFontSize = function(){
+    var h=document.documentElement, on=h.getAttribute('data-pia-fs')==='l';
+    h.setAttribute('data-pia-fs', on?'':'l');
+    try{ localStorage.setItem('pia_fs', on?'':'l'); }catch(e){}
+    var b=document.getElementById('pia-fs-btn'); if(b) b.setAttribute('aria-pressed', on?'false':'true');
+  };
+  try{ if(localStorage.getItem('pia_fs')==='l') document.documentElement.setAttribute('data-pia-fs','l'); }catch(e){}
+
+  /* --- 접근성: 음성 안내 (기존 piaSpeak 재사용) --- */
+  PIA.ttsOn = false;
+  PIA.toggleTTS = function(){
+    PIA.ttsOn = !PIA.ttsOn;
+    try{ localStorage.setItem('pia_tts', PIA.ttsOn?'1':'0'); }catch(e){}
+    var b=document.getElementById('pia-tts-btn'); if(b) b.setAttribute('aria-pressed', PIA.ttsOn?'true':'false');
+    try{ localStorage.setItem('pia_tts', PIA.ttsOn?'1':''); }catch(e){}
+    if(PIA.ttsOn){ PIA.speak(PIA.currentReadText()||'음성 안내를 켰습니다.'); }
+    else { try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} }
+  };
+  PIA.speak = function(t){
+    if(!t) return;
+    try{ if(typeof window.piaSpeak==='function'){ window.piaSpeak(String(t)); return; } }catch(e){}
+    try{ var u=new SpeechSynthesisUtterance(String(t)); u.lang='ko-KR'; u.rate=.95;
+      if(typeof window.piaApplyVoice==='function') window.piaApplyVoice(u);
+      speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){}
+  };
+  PIA.currentReadText = function(){
+    var s=document.querySelector('section[data-view]:not(.hidden)'); if(!s) return '';
+    var q=s.querySelector('.pia-q'); if(q) return q.textContent.trim();
+    var h=s.querySelector('.pia-h1,.pia-display,.pia-h2'); return h?h.textContent.trim():'';
+  };
+  PIA.autoRead = function(){ if(PIA.ttsOn){ var t=PIA.currentReadText(); if(t) PIA.speak(t); } };
+  try{ if(localStorage.getItem('pia_tts')==='1') PIA.ttsOn=true; }catch(e){}
+
+  PIA.openHelp = function(){ try{ if(typeof showView==='function') showView('help'); }catch(e){} };
+
+  /* --- Back navigation --- */
+  PIA.back = function(label, action){
+    return '<button type="button" class="pia-back" onclick="'+esc(action)+'">'+IC.back+esc(label)+'</button>';
+  };
+
+  /* --- Progress bar --- */
+  PIA.progress = function(label, cur, total, opt){
+    opt = opt || {};
+    var pct = total>0 ? Math.round(cur/total*100) : 0;
+    var pctHtml = (opt.pct===false)
+      ? '<span class="pia-sr">'+pct+'%</span>'
+      : '<span class="pia-prog__pct">'+pct+'%</span>';
+    return '<div class="pia-prog'+(opt.compact?' pia-prog--compact':'')+'">'
+      + '<div class="pia-prog__top"><span class="pia-prog__label">'+esc(label)+' <b class="pia-prog__cur">'+cur+'</b> <span class="pia-prog__tot">/ '+total+'</span></span>'
+      + pctHtml+'</div>'
+      + '<div class="pia-prog__bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="'+esc(label)+' 진행률">'
+      + '<div class="pia-prog__fill" style="width:'+pct+'%"></div></div></div>';
+  };
+
+  /* --- Badge --- */
+  PIA.badge = function(txt, kind){
+    return '<span class="pia-badge'+(kind?' pia-badge--'+kind:'')+'">'+esc(txt)+'</span>';
+  };
+
+  /* --- Choice card (Radio + Check + Text) --- */
+  PIA.choice = function(txt, onclick, checked){
+    return '<button type="button" role="radio" aria-checked="'+(checked?'true':'false')+'" class="pia-choice" onclick="'+esc(onclick)+'">'
+      + '<span class="pia-choice__radio" aria-hidden="true"></span>'
+      + '<span class="pia-choice__txt">'+esc(txt)+'</span>'
+      + '<span class="pia-choice__ck" aria-hidden="true">✓</span></button>';
+  };
+
+  /* --- Autosave indicator --- */
+  PIA.autosave = function(txt){
+    return '<p class="pia-autosave">'+IC.save+(txt||'답변은 자동으로 저장돼요')+'</p>';
+  };
+
+  /* --- Footer action bar --- */
+  PIA.fab = function(btns){
+    return '<div class="pia-fab">'+btns.join('')+'</div>';
+  };
+  PIA.btn = function(label, onclick, variant, opt){
+    opt = opt||{};
+    var cls='pia-btn pia-btn--'+(variant||'primary')+(opt.cta?' pia-btn--cta':'');
+    var dis = opt.disabled ? ' disabled aria-disabled="true"' : '';
+    var ar = opt.arrow ? '<span class="pia-btn__ar" aria-hidden="true">›</span>' : '';
+    return '<button type="button" class="'+cls+'"'+dis+' onclick="'+esc(onclick)+'">'+esc(label)+ar+'</button>';
+  };
+})();
+
+</script>
+
+<script id="pia-face">
+/* 리커트 5단계 표정 아이콘 — 점수값(1~5) 기준. 보기 셔플과 무관하게 정확히 매칭 */
+(function(){
+  var W='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">';
+  var F={
+    1: W+'<circle cx="12" cy="12" r="9"/><path d="M8 16.5q4-4 8 0"/><path d="m8.5 9 2 1.6M15.5 9l-2 1.6"/></svg>',
+    2: W+'<circle cx="12" cy="12" r="9"/><path d="M8.8 16q3.2-2 6.4 0"/><path d="M9 9.6h.01M15 9.6h.01"/></svg>',
+    3: W+'<circle cx="12" cy="12" r="9"/><path d="M8.5 15.5h7"/><path d="M9 9.6h.01M15 9.6h.01"/></svg>',
+    4: W+'<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5q3.5 3 7 0"/><path d="M9 9.6h.01M15 9.6h.01"/></svg>',
+    5: W+'<circle cx="12" cy="12" r="9"/><path d="M8 14q4 4 8 0"/><path d="m7.4 8.6 1.2 1.2 1.2-1.2M14.2 8.6l1.2 1.2 1.2-1.2"/></svg>'
+  };
+  window.PIA_FACE=function(v){
+    var h=F[v]; if(!h) return '';
+    return '<span class="pia-choice__face" aria-hidden="true">'+h+'</span>';
+  };
+})();
+</script>
+<script id="pia-voice">
+/* ===== 음성 안내 정책 =====
+   · 자동 낭독: AI 대화 화면에서만 (진입 인사 + AI 질문)
+   · 홈/동의/입력/문항/결과: 자동 낭독 없음
+   · 헤더 '음성 안내' OFF 상태에서는 어떤 화면에서도 소리 없음
+*/
+(function(){
+  var PIA=window.PIA;
+  /* 자동 낭독 허용 화면: AI 대화만. 그 외는 헤더 '음성 안내'를 켠 뒤 눌러야 낭독 */
+  var AUTO_OK={ chat:1 };
+  var GREET='안녕하세요! 나를 알아보는 AI 진로검사예요. 검사 시작하기를 눌러 주세요.';
+  var TIP={
+    chat:'편하게 이야기해 주세요. 정답은 없어요.',
+    done:'필수 검사를 모두 완료했어요. 통합 결과를 확인해 보세요.',
+    mindintro:'마음 건강 확인은 선택이에요. 원하지 않으면 하지 않아도 괜찮아요.',
+    result:'검사 결과가 나왔어요.'
+  };
+  PIA.autoRead=function(){
+    try{
+      var s=document.querySelector('section[data-view]:not(.hidden)'); if(!s) return;
+      var v=s.dataset.view;
+      if(!PIA.ttsOn) return;                       // 토글 OFF면 낭독 안 함
+      if(!AUTO_OK[v]) return;                      // 대화 화면 외에는 자동 낭독 안 함
+      var q=s.querySelector('.pia-q');              // 검사 문항 우선
+      if(q){ PIA.speak(q.textContent.trim()); return; }
+      if(TIP[v]){ PIA.speak(TIP[v]); return; }
+      var h=s.querySelector('.pia-h1,.pia-display');
+      if(h) PIA.speak(h.textContent.replace(/\s+/g,' ').trim());
+    }catch(e){}
+  };
+  PIA.greetOnce=function(){
+    try{
+      if(window._piaGreeted) return;
+      var s=document.querySelector('section[data-view]:not(.hidden)');
+      if(!s||s.dataset.view!=='home') return;
+      if(document.querySelector('.pia-modal, #piav2-modal')) return;  // 모달 중엔 금지
+      window._piaGreeted=true;
+      if(typeof window.piaSpeak==='function') window.piaSpeak(GREET);
+      else PIA.speak(GREET);
+    }catch(e){}
+  };
+})();
+
+
+/* AI 대화 화면에 들어가면 음성 안내를 자동으로 켠다 (사용자가 직접 끈 적이 없을 때만) */
+(function(){
+  var _o=showView;
+  showView=function(n){
+    _o(n);
+    if(n!=='chat') return;
+    try{
+      var off=false;
+      try{ off = localStorage.getItem('pia_tts')==='0'; }catch(e){}
+      if(off) return;
+      if(window.PIA && !PIA.ttsOn){
+        PIA.ttsOn=true;
+        var b=document.getElementById('pia-tts-btn');
+        if(b) b.setAttribute('aria-pressed','true');
+      }
+    }catch(e){ if(window.console) console.error('음성 자동 켜기 실패:', e); }
+  };
+})();
+</script>
+<script id="pia-home">
+/* ===== STEP3: HOME (KRDS) — 기존 cards 배열/완료판정 재사용 ===== */
+(function(){
+  var PIA=window.PIA;
+  var CATS=[
+    {id:'strength',t:'나의 강점',d:'나만의 강점을 알아보세요.',c:'#246BEB',tests:['via','grit'],
+     ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M12 3 8 9l4 12 4-12-4-6z"/></svg>'},
+    {id:'learning',t:'학습 스타일',d:'나에게 맞는 학습 방법을 찾아보세요.',c:'#246BEB',tests:['learn','mi'],
+     ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3H11v18H4.5A2.5 2.5 0 0 1 2 18.5z"/><path d="M22 5.5A2.5 2.5 0 0 0 19.5 3H13v18h6.5a2.5 2.5 0 0 0 2.5-2.5z"/></svg>'},
+    {id:'career',t:'진로 탐색',d:'다양한 직업과 정보를 탐색해보세요.',c:'#C2410C',tests:['sjt'],
+     ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M2 13h20"/></svg>'},
+    {id:'mind',t:'마음 건강',d:'지금의 마음 상태를 확인해보세요.',c:'#128700',tests:['rses','cesd','phqa','gad','who5'],
+     ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg>'}
+  ];
+  var REQ=[
+    {id:'chat',   t:'AI와 대화', dur:'약 5분',
+     ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-4-.9L3 21l1.9-4.9A8.4 8.4 0 0 1 4 11.5a8.5 8.5 0 0 1 8.5-8.5A8.4 8.4 0 0 1 21 11.5z"/><circle cx="9" cy="11.5" r=".8" fill="currentColor"/><circle cx="12.5" cy="11.5" r=".8" fill="currentColor"/><circle cx="16" cy="11.5" r=".8" fill="currentColor"/></svg>'},
+    {id:'big5',   t:'나의 성격', dur:'약 10분',
+     ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>'},
+    {id:'riasec', t:'진로 흥미', dur:'약 7분',
+     ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5.5-5.5 2 2-5.5z"/></svg>'}
+  ];
+  window._piaCats=CATS;
+
+  window.piaRenderHomeV2=function(cards,isDone,reqDone){
+    var byId={}; cards.forEach(function(c){byId[c.id]=c;});
+    window._piaCards=cards; window._piaIsDone=isDone;
+    var nextReq=null;
+    for(var i=0;i<REQ.length;i++){ if(byId[REQ[i].id] && !isDone(byId[REQ[i].id])){ nextReq=REQ[i].id; break; } }
+    var steps=REQ.map(function(s,i){
+      var dn=byId[s.id]?isDone(byId[s.id]):false, nx=(s.id===nextReq);
+      var nb=dn?'#128700':(nx?'#246BEB':'#E0E4EA'), nf=(dn||nx)?'#fff':'#6D7882';
+      var ib=dn?'#EAFBE6':(nx?'#EAF1FE':'#F4F5F6'), if_=dn?'#128700':(nx?'#246BEB':'#9AA5B4');
+      return '<div class="pia-step">'
+        +'<span class="pia-step__n" style="background:'+nb+';color:'+nf+'">'+(dn?'✓':(i+1))+'</span>'
+        +'<button type="button" class="pia-step__ic" style="background:'+ib+';color:'+if_+'" onclick="piaGoTest(\''+s.id+'\')" aria-label="'+s.t+' 시작">'+s.ic+'</button>'
+        +'<span class="pia-step__t">'+s.t+'</span>'
+        +'<span class="pia-step__d">'+s.dur+'</span></div>'
+        +(i<REQ.length-1?'<span class="pia-step__ar" aria-hidden="true">→</span>':'');
+    }).join('');
+    var cats=CATS.map(function(k){
+      var n=k.tests.filter(function(t){return byId[t]&&isDone(byId[t]);}).length;
+      return '<button type="button" class="pia-cat" onclick="piaOpenCategory(\''+k.id+'\')">'
+        +'<span class="pia-cat__ic" style="color:'+k.c+'" aria-hidden="true">'+k.ic+'</span>'
+        +'<span class="pia-cat__tx"><span class="pia-cat__t">'+k.t
+        +(n>0?' <span class="pia-badge pia-badge--done">'+n+'/'+k.tests.length+'</span>':'')+'</span>'
+        +'<span class="pia-cat__d">'+k.d+'</span></span>'
+        +'<span class="pia-cat__ar" aria-hidden="true">›</span></button>';
+    }).join('');
+    var allDone = !nextReq;
+    var startLabel = nextReq ? (reqDone>0?'이어서 검사하기':'검사 시작하기') : '검사 다시 하기';
+    return '<div class="pia">'
+      +'<section class="pia-sec pia-hero">'
+      +'<div class="pia-hero__tx"><h1 class="pia-display">나를 알아보는<br><span style="color:var(--pia-primary)">AI 진로검사</span></h1>'
+      +'<p class="pia-bodyL pia-muted" style="margin:var(--pia-s3) 0">성격과 흥미를 알아보고<br>나에게 맞는 진로를 찾아보세요.</p>'
+      +'<p class="pia-hero__time">'+PIA.icon('clock')+' 약 20분</p></div>'
+      +'<div class="pia-hero__bot">'+PIA.botImg('hero','AI PIA 캐릭터')+'</div>'
+      +'</section>'
+      +'<div style="margin-bottom:var(--pia-s3)">'
+      + PIA.btn(startLabel,'piaStartFlow()','primary',{cta:1,arrow:1})
+      +'<div style="height:var(--pia-s2)"></div>'
+      + (allDone
+          ? PIA.btn('통합 결과 확인하기','showView(\'result\')','secondary',{arrow:1})
+          : PIA.btn('이전 검사 결과 보기','showView(\'result\')','secondary',{arrow:1}))
+      +'</div>'
+      +'<section class="pia-sec"><h2 class="pia-h2" style="margin-bottom:var(--pia-s4)">필수 검사 <span style="color:var(--pia-primary)">'+reqDone+'</span>/3</h2>'
+      +'<div class="pia-steps">'+steps+'</div></section>'
+      +'<section class="pia-sec"><h2 class="pia-h2" style="margin-bottom:var(--pia-s3)">선택 검사</h2>'
+      +'<div class="pia-cats">'+cats+'</div></section>'
+      +'<div class="pia-foot"><button type="button" onclick="piaShowAllTests()">전체 검사 목록</button>'
+      +'<span aria-hidden="true">|</span><button type="button" onclick="showView(\'help\')">이용안내</button></div>'
+      +'</div>';
+  };
+  window.piaGoTest=function(id){
+    if(!state.profile){ window._piaPendingTest=id; showView('setup'); return; }
+    showView(id);
+  };
+  window.piaStartFlow=function(){
+    try{
+      if(sessionStorage.getItem('pia_v3_consent')!=='1'){ showView('consent'); return; }
+      if(!state.profile){ showView('setup'); return; }
+      var b={}; (window._piaCards||[]).forEach(function(c){b[c.id]=c;});
+      var nx=null; for(var i=0;i<REQ.length;i++){ if(b[REQ[i].id]&&!window._piaIsDone(b[REQ[i].id])){nx=REQ[i].id;break;} }
+      showView(nx||'result');
+    }catch(e){ showView('setup'); }
+  };
+})();
+
+</script>
+<script id="pia-setup">
+/* ===== STEP4: 기본정보 입력 (반 코드 우선) ===== */
+(function(){
+  var PIA=window.PIA;
+  var FI={
+    hash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3 7 21M17 3l-2 18M3.5 8.5h17M3 15.5h17"/></svg>',
+    school:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6"/><path d="M12 4V2h4v2"/></svg>',
+    cap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m2 8 10-4 10 4-10 4z"/><path d="M6 10.5V15c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"/><path d="M21 8.5v5"/></svg>',
+    group:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.6 6.5-5.6s6.5 2.2 6.5 5.6"/><path d="M16.5 5.4a3.2 3.2 0 0 1 0 5.2"/><path d="M18 14.9c2.1.7 3.5 2.4 3.5 5.1"/></svg>',
+    user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c0-3.9 3.3-6.3 7.5-6.3s7.5 2.4 7.5 6.3"/></svg>',
+    head:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h2.5a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M20 13h-2.5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1H19a1 1 0 0 0 1-1z"/></svg>'
+  };
+  function fic(k){ return '<span class="pia-fic" aria-hidden="true">'+(FI[k]||'')+'</span>'; }
+  window.piaRenderSetup=function(){
+    var p=(window.state&&state.profile)||{};
+    var ks=window.KIOSK_SCHOOL||'';
+    var gopt=['초3','초4','초5','초6','중1','중2','중3','고1','고2','고3','대학생','성인'];
+    var copt=[]; for(var i=1;i<=20;i++) copt.push(i+'반'); ['A','B','C','D','E'].forEach(function(x){copt.push(x+'조');}); copt.push('기타');
+    function sel(id,ph,arr,val){
+      return '<select id="'+id+'" class="pia-sel"><option value="">'+ph+'</option>'
+        + arr.map(function(o){ return '<option'+(val===o?' selected':'')+'>'+o+'</option>'; }).join('') + '</select>';
+    }
+    function st(n,l,on){
+      var b=on?'#246BEB':'#F4F5F6', f=on?'#fff':'#9AA5B4', c=on?'#1D56BC':'#6D7882';
+      return '<div class="pia-ss"><span class="pia-ss__n" style="background:'+b+';color:'+f+'">'+n+'</span>'
+        +'<span class="pia-ss__l" style="color:'+c+'">'+l+'</span></div>';
+    }
+    return '<div class="pia">'
+      + PIA.back('홈','showView(\'home\')')
+      + '<div class="pia-setup__hd"><h1 class="pia-h1">검사를 시작하기 전에<br>기본 정보를 확인해주세요</h1>'
+      + '<p class="pia-bodyL pia-muted" style="margin-top:var(--pia-s2)">정확한 분석을 위해 정보를 입력해주세요.</p></div>'
+      + '<div class="pia-setup__steps">'+st(1,'정보 입력',1)+'<span class="pia-ss__line"></span>'
+      + st(2,'검사 진행',0)+'<span class="pia-ss__line"></span>'+st(3,'결과 확인',0)+'</div>'
+      + '<section class="pia-sec">'
+      + '<div class="pia-codebox"><label class="pia-label" for="sv-code">반 코드</label>'
+      + '<span class="pia-hint">반 코드를 입력하면 학교 정보가 자동으로 설정될 수 있어요. 없으면 비워두세요.</span>'
+      + '<div class="pia-inrow"><span class="pia-inwrap">'+fic('hash')+'<input id="sv-code" class="pia-in pia-in--ic" placeholder="반 코드를 입력해주세요" inputmode="latin" autocomplete="off"></span>'
+      + '<button type="button" class="pia-btn pia-btn--secondary" onclick="svCheckCode()">확인</button></div>'
+      + '<p class="pia-ok" id="sv-code-ok">'+PIA.icon('save')+'<span id="sv-code-ok-t"></span></p>'
+      + '<p class="pia-err" id="sv-code-err">'+PIA.icon('warn')+'확인되지 않는 코드예요. 아래에서 직접 선택해주세요.</p></div>'
+      + '<div class="pia-field"><label class="pia-label" for="sv-school">학교 / 기관<span class="req" aria-hidden="true">*</span></label>'
+      + '<span class="pia-inwrap">'+fic('school')+'<input id="sv-school" class="pia-in pia-in--ic" placeholder="학교 또는 기관을 입력해주세요" value="'+PIA.esc(p.school||ks)+'"'+(ks?' readonly':'')+'></span>'
+      + '<p class="pia-err" id="sv-school-err">'+PIA.icon('warn')+'학교 또는 기관을 입력해주세요.</p></div>'
+      + '<div class="pia-field"><label class="pia-label" for="sv-grade">학년<span class="req" aria-hidden="true">*</span></label>'
+      + '<span class="pia-inwrap">'+fic('cap')+sel('sv-grade','학년을 선택해주세요',gopt,p.grade)+'</span>'
+      + '<p class="pia-err" id="sv-grade-err">'+PIA.icon('warn')+'학년을 선택해주세요.</p></div>'
+      + '<div class="pia-field"><label class="pia-label" for="sv-class">반 / 그룹</label>'
+      + '<span class="pia-inwrap">'+fic('group')+sel('sv-class','반 또는 그룹을 선택해주세요',copt,p.class)+'</span>'+'</div>'
+      + '<div class="pia-field"><label class="pia-label" for="sv-name">이름<span class="req" aria-hidden="true">*</span></label>'
+      + '<div class="pia-inrow"><span class="pia-inwrap">'+fic('user')+'<input id="sv-name" class="pia-in pia-in--ic" placeholder="이름을 입력해주세요" autocomplete="name" value="'+PIA.esc(p.name&&p.name!=='익명'?p.name:'')+'"></span>'
+      + '<button type="button" class="pia-btn pia-btn--secondary" onclick="svNameVoice(this)" aria-label="음성으로 이름 입력">🎤</button></div>'
+      + '<p class="pia-err" id="sv-name-err">'+PIA.icon('warn')+'이름을 입력해주세요.</p></div>'
+      + '<p class="pia-note">'+PIA.icon('shield')+'입력하신 정보는 검사 목적 외에는 사용되지 않으며, 안전하게 보호됩니다.</p>'
+      + '<div style="margin-top:var(--pia-s4)">'+PIA.btn('확인하고 검사 시작하기','svSaveAndStart()','primary',{cta:1,arrow:1})+'</div>'
+      + '</section>'
+      + '<div class="pia-help"><span class="pia-help__bot">'+PIA.botImg('wave','')+'</span>'
+      + '<span class="pia-help__tx"><b class="pia-h3">음성 안내를 이용해보세요!</b>'
+      + '<p class="pia-cap" style="margin-top:6px">상단의 \'음성 안내\' 버튼을 누르면 도움을 받을 수 있어요.</p></span>'
+      + '<button type="button" class="pia-help__btn" onclick="PIA.toggleTTS()">'+fic('head')+'음성 안내 사용하기</button></div>'
+      + '</div>';
+  };
+  function E(id,on){ var f=document.getElementById(id), e=document.getElementById(id+'-err');
+    if(f) f.setAttribute('aria-invalid', on?'true':'false'); if(e) e.classList.toggle('on',!!on); }
+  window.svCheckCode=function(){
+    var c=((document.getElementById('sv-code')||{}).value||'').trim();
+    var ok=document.getElementById('sv-code-ok'), er=document.getElementById('sv-code-err');
+    if(ok) ok.classList.remove('on'); if(er) er.classList.remove('on');
+    if(!c) return;
+    if(typeof _piaEnsureSB!=='function'){ if(er) er.classList.add('on'); return; }
+    _piaEnsureSB().then(function(sb){
+      if(!sb||!sb.rpc){ if(er) er.classList.add('on'); return; }
+      sb.rpc('pia_org_by_code',{p_code:c}).then(function(r){
+        var d=r&&r.data&&r.data[0];
+        if(d&&d.org_id){
+          window._piaClassOrgId=d.org_id; window._piaOrgCode=c; window._piaOrgName=d.org_name||'';
+          var s=document.getElementById('sv-school');
+          if(s&&d.org_name){ s.value=d.org_name; E('sv-school',false); }
+          var t=document.getElementById('sv-code-ok-t');
+          if(t) t.textContent=(d.org_name||'반')+' 확인됐어요. 학년과 반은 아래에서 선택해주세요.';
+          if(ok) ok.classList.add('on');
+        } else { if(er) er.classList.add('on'); }
+      }).catch(function(){ if(er) er.classList.add('on'); });
+    }).catch(function(){ if(er) er.classList.add('on'); });
+  };
+  window.svNameVoice=function(btn){
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){ alert('이 기기는 음성 입력을 지원하지 않아요. 직접 입력해 주세요.'); return; }
+    var o=btn?btn.textContent:'';
+    try{ var r=new SR(); r.lang='ko-KR'; r.continuous=false; r.interimResults=false;
+      if(btn){ btn.textContent='●'; btn.disabled=true; }
+      r.onresult=function(ev){ var t=(ev.results[0][0].transcript||'').trim().replace(/\s/g,'');
+        if(t){ var n=document.getElementById('sv-name'); if(n){ n.value=t; E('sv-name',false); } } };
+      r.onerror=function(ev){ if(ev.error==='not-allowed') alert('마이크 사용이 허용되지 않았어요. 직접 입력해 주세요.'); };
+      r.onend=function(){ if(btn){ btn.textContent=o||'🎤'; btn.disabled=false; } };
+      r.start();
+    }catch(e){ if(btn) btn.disabled=false; }
+  };
+  window.svSaveAndStart=function(){
+    try{
+      var g=function(id){ return ((document.getElementById(id)||{}).value||'').trim(); };
+      var nm=g('sv-name'), gr=g('sv-grade'), cl=g('sv-class'), sc=g('sv-school');
+      var bad=null;
+      E('sv-name',!nm); if(!nm) bad=bad||'sv-name';
+      E('sv-grade',!gr); if(!gr) bad=bad||'sv-grade';
+      E('sv-school',!sc); if(!sc) bad=bad||'sv-school';
+      if(bad){ var b=document.getElementById(bad); if(b){ b.focus(); b.scrollIntoView({block:'center',behavior:'smooth'}); } return; }
+      state.profile={ name:nm, grade:gr, class:cl, school:sc, createdAt:Date.now() };
+      if(window._piaOrgCode){ state.profile.orgCode=window._piaOrgCode; state.profile.orgName=window._piaOrgName||''; }
+      state.studentId=nm;
+      if(typeof save==='function') save();
+      try{ if(typeof renderProfileBar==='function') renderProfileBar(); }catch(e){}
+      try{ if(typeof renderHome==='function') renderHome(); }catch(e){}
+      var pend=window._piaPendingTest; window._piaPendingTest=null;
+      showView(pend||'chat');
+    }catch(e){ console.error('svSaveAndStart:',e); }
+  };
+})();
+
+</script>
+<script id="pia-flow">
+/* ===== 전체 플로우 재배치 + 신규 화면 (KRDS) =====
+   순서: HOME → 동의 → 정보입력 → AI대화 → Big5 → RIASEC → 완료 → 결과 → 상세
+   근거: 서비스 이해 후 동의(informed consent) → 수집 직전 동의(개인정보보호법)
+         라포 형성 먼저(이탈↓·솔직도↑) → 민감검사는 선택·후반 배치
+*/
+(function(){
+  var PIA=window.PIA;
+
+  /* ---------- [신규] 동의 화면 ---------- */
+  var CONSENT_ITEMS=[
+    {id:'c-privacy',t:'개인정보 수집·이용 동의',
+     d:'수집 항목: 이름(또는 별명), 학년, 학교/기관, 검사 응답·결과<br>이용 목적: 검사 결과 분석·제공<br>보유 기간: 동의 철회 또는 목적 달성 시까지'},
+    {id:'c-sensitive',t:'민감정보(정서 확인) 처리 동의',
+     d:'정서 확인(CES-D·PHQ-A·GAD-7)은 <b>선택 검사</b>이며, 하지 않아도 됩니다. 의료 진단이 아닙니다.'},
+    {id:'c-minor',t:'연령·법정대리인 확인',
+     d:'만 14세 이상이거나, 만 14세 미만인 경우 법정대리인의 동의를 받았습니다.'},
+    {id:'c-terms',t:'이용약관 동의',
+     d:'본 서비스는 교육·자기이해 목적이며 의료 진단·치료를 대체하지 않습니다.'},
+    {id:'c-safety',t:'안전 안내 동의',
+     d:'대화 중 위기 신호가 감지되면 1388·109 등 상담 연락처를 화면에 안내합니다.'}
+  ];
+  window.piaRenderConsent=function(){
+    var rows=CONSENT_ITEMS.map(function(c){
+      return '<div class="pia-consent__row"><label class="pia-check" for="'+c.id+'">'
+        +'<input type="checkbox" id="'+c.id+'" onchange="piaConsentSync()">'
+        +'<span class="pia-check__box" aria-hidden="true"></span>'
+        +'<span class="pia-check__tx"><b>[필수] '+c.t+'</b></span></label>'
+        +'<details class="pia-consent__more"><summary>자세히 보기</summary><div>'+c.d+'</div></details></div>';
+    }).join('');
+    return '<div class="pia">'
+      + PIA.back('홈',"showView('home')")
+      + '<h1 class="pia-h1" style="margin-bottom:var(--pia-s2)">검사를 시작하기 전에<br>동의가 필요해요</h1>'
+      + '<p class="pia-bodyL pia-muted" style="margin-bottom:var(--pia-s5)">아래 항목에 동의하시면 검사를 시작할 수 있어요.</p>'
+      + '<div class="pia-setup__steps">'
+      + '<div class="pia-ss"><span class="pia-ss__n" style="background:#246BEB;color:#fff">1</span><span class="pia-ss__l" style="color:#1D56BC">동의</span></div>'
+      + '<span class="pia-ss__line"></span>'
+      + '<div class="pia-ss"><span class="pia-ss__n" style="background:#F4F5F6;color:#9AA5B4">2</span><span class="pia-ss__l" style="color:#6D7882">정보 입력</span></div>'
+      + '<span class="pia-ss__line"></span>'
+      + '<div class="pia-ss"><span class="pia-ss__n" style="background:#F4F5F6;color:#9AA5B4">3</span><span class="pia-ss__l" style="color:#6D7882">검사 진행</span></div>'
+      + '</div>'
+      + '<section class="pia-sec">'
+      + '<label class="pia-check pia-check--all" for="c-all"><input type="checkbox" id="c-all" onchange="piaConsentAll(this)">'
+      + '<span class="pia-check__box" aria-hidden="true"></span><span class="pia-check__tx"><b>전체 동의하기</b></span></label>'
+      + '<div class="pia-consent__list">'+rows+'</div>'
+      + '<p class="pia-note" style="margin-top:var(--pia-s3)">'+PIA.icon('shield')+'동의하지 않을 권리가 있습니다. 다만 필수 항목에 동의하지 않으면 검사를 진행할 수 없어요.</p>'
+      + '<div style="margin-top:var(--pia-s4)" id="pia-consent-cta">'
+      + PIA.btn('동의하고 계속하기','piaConsentDone()','primary',{cta:1,arrow:1,disabled:true})
+      + '</div></section></div>';
+  };
+  window.piaConsentSync=function(){
+    var ids=CONSENT_ITEMS.map(function(c){return c.id;});
+    var ok=ids.every(function(i){var e=document.getElementById(i);return e&&e.checked;});
+    var all=document.getElementById('c-all'); if(all) all.checked=ok;
+    var w=document.getElementById('pia-consent-cta');
+    if(w) w.innerHTML=PIA.btn('동의하고 계속하기','piaConsentDone()','primary',{cta:1,arrow:1,disabled:!ok});
+  };
+  window.piaConsentAll=function(cb){
+    CONSENT_ITEMS.forEach(function(c){var e=document.getElementById(c.id); if(e) e.checked=cb.checked;});
+    piaConsentSync();
+  };
+  window.piaConsentDone=function(){
+    try{
+      var rec={ at:new Date().toISOString(), items:CONSENT_ITEMS.map(function(c){return c.id;}), v:'v2' };
+      sessionStorage.setItem('pia_v3_consent','1');
+      localStorage.setItem('pia_consent', JSON.stringify(rec));
+      if(typeof _piaEnsureSB==='function'){
+        _piaEnsureSB().then(function(sb){ if(sb&&sb.rpc){ try{ sb.rpc('pia_log_consent',{payload:rec}); }catch(e){} } });
+      }
+    }catch(e){}
+    showView('setup');
+  };
+
+  /* ---------- [신규] 필수검사 완료 ---------- */
+  window.piaRenderDone=function(){
+    var b={}; (window._piaCards||[]).forEach(function(c){b[c.id]=c;});
+    var names={chat:'AI와 대화',big5:'나의 성격',riasec:'진로 흥미'};
+    var rows=['chat','big5','riasec'].map(function(id){
+      var dn=b[id]&&window._piaIsDone?window._piaIsDone(b[id]):false;
+      return '<li class="pia-done__i"><span class="pia-done__ck" style="background:'+(dn?'#EAFBE6':'#F4F5F6')
+        +';color:'+(dn?'#128700':'#9AA5B4')+'">'+(dn?'✓':'·')+'</span>'+names[id]+'</li>';
+    }).join('');
+    return '<div class="pia" style="text-align:center;padding-top:var(--pia-s8)">'
+      + '<div style="width:200px;margin:0 auto var(--pia-s4)" aria-hidden="true">'+PIA.botImg('wave','')+'</div>'
+      + '<h1 class="pia-h1">필수 검사를<br>모두 완료했어요!</h1>'
+      + '<p class="pia-bodyL pia-muted" style="margin:var(--pia-s3) 0 var(--pia-s5)">이제 통합 결과를 확인할 수 있어요.</p>'
+      + '<ul class="pia-done__list">'+rows+'</ul>'
+      + '<div style="margin-top:var(--pia-s5)">'
+      + PIA.btn('통합 결과 확인하기',"showView('result')",'primary',{cta:1,arrow:1})
+      + '<div style="height:var(--pia-s2)"></div>'
+      + PIA.btn('선택 검사 더 해보기',"showView('home')",'secondary')
+      + '</div></div>';
+  };
+
+  /* ---------- [신규] 마음건강 진입 안내 ---------- */
+  var MIND=['rses','cesd','phqa','gad','who5'];
+  window.piaRenderMindIntro=function(target){
+    return '<div class="pia">'
+      + PIA.back('홈',"showView('home')")
+      + '<h1 class="pia-h1" style="margin-bottom:var(--pia-s3)">마음 건강 확인</h1>'
+      + '<section class="pia-sec">'
+      + '<p class="pia-bodyL" style="margin-bottom:var(--pia-s3)">요즘 마음이 어떤지 살펴보는 검사예요.</p>'
+      + '<ul class="pia-ul">'
+      + '<li>이 검사는 <b>선택</b>이에요. 하지 않아도 괜찮아요.</li>'
+      + '<li>결과는 <b>의료 진단이 아니에요.</b> 참고용이에요.</li>'
+      + '<li>답한 내용은 성격·진로 결과와 <b>합산하지 않아요.</b></li>'
+      + '<li>언제든 그만둘 수 있어요.</li>'
+      + '</ul>'
+      + '<p class="pia-note" style="margin-top:var(--pia-s3)">'+PIA.icon('help')
+      + '많이 힘들다면 언제든 1388(청소년) · 109(자살예방)로 연락할 수 있어요.</p>'
+      + '<div style="margin-top:var(--pia-s4)">'
+      + PIA.btn('시작하기',"showView('"+(target||'rses')+"')",'primary',{cta:1,arrow:1})
+      + '<div style="height:var(--pia-s2)"></div>'
+      + PIA.btn('다음에 할게요',"showView('home')",'secondary')
+      + '</div></section></div>';
+  };
+  window.piaGoMind=function(t){ window._piaMindTarget=t||'rses'; showView('mindintro'); };
+  window._piaMindTests=MIND;
+})();
+
+</script>
+<script id="pia-boot">
+/* ===== v2 부팅 · 라우팅 (신규 화면 포함) ===== */
+window.PIA_BOT = '<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI PIA 캐릭터"><defs><linearGradient id="pbG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#e8edf5"/></linearGradient></defs><ellipse cx="118" cy="150" rx="72" ry="58" fill="#dbe4ff" opacity=".55"/><path d="M100 34c0-8 6-14 14-14s14 6 14 14-6 14-14 20c-8-6-14-12-14-20z" fill="#256ef4"/><rect x="97" y="50" width="6" height="14" rx="3" fill="#256ef4"/><rect x="46" y="62" width="108" height="94" rx="44" fill="url(#pbG)" stroke="#c9cfd8" stroke-width="2"/><rect x="60" y="76" width="80" height="62" rx="31" fill="#1e2124"/><path d="M78 104q7-9 14 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M108 104q7-9 14 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M88 118q12 10 24 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="30" y="88" width="18" height="40" rx="9" fill="#256ef4"/><rect x="152" y="88" width="18" height="40" rx="9" fill="#256ef4"/><rect x="66" y="160" width="68" height="46" rx="20" fill="#fff" stroke="#c9cfd8" stroke-width="2"/><rect x="72" y="168" width="56" height="12" rx="6" fill="#256ef4"/><circle cx="100" cy="192" r="12" fill="#256ef4"/><text x="100" y="196" font-size="9" font-weight="700" fill="#fff" text-anchor="middle" font-family="sans-serif">PIA</text><g transform="rotate(-22 42 150)"><rect x="30" y="140" width="16" height="44" rx="8" fill="#fff" stroke="#c9cfd8" stroke-width="2"/><circle cx="38" cy="138" r="11" fill="#fff" stroke="#c9cfd8" stroke-width="2"/></g><rect x="154" y="150" width="16" height="44" rx="8" fill="#fff" stroke="#c9cfd8" stroke-width="2"/></svg>';
+(function(){
+  var PIA=window.PIA;
+  var NEW_VIEWS=['consent','setup','done','mindintro'];
+  function boot(){
+    try{
+      document.body.classList.add('pia-v2');
+      if(!document.querySelector('.pia-hdr')){
+        var w=document.createElement('div'); w.innerHTML=PIA.header();
+        document.body.insertBefore(w.firstChild, document.body.firstChild);
+      }
+      var hs=document.querySelector('section[data-view="home"]');
+      if(hs){
+        NEW_VIEWS.forEach(function(v){
+          if(document.querySelector('section[data-view="'+v+'"]')) return;
+          var s=document.createElement('section');
+          s.setAttribute('data-view',v); s.id='pia-'+v+'-sec'; s.className='hidden';
+          hs.parentNode.insertBefore(s, hs.nextSibling);
+        });
+      }
+    }catch(e){ console.error('pia boot:',e); }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+
+  function flush(){
+    try{
+      var p=window._piaHomePending;
+      if(p){ var el2=document.getElementById('home-content');
+        if(el2){ el2.innerHTML=window.piaRenderHomeV2(p.cards,p.isDone,p.reqDone); window._piaHomePending=null; } }
+      else if(typeof renderHome==='function'){ renderHome(); }
+    }catch(e){ console.error('pia flush:',e); }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(flush,60); });
+  else setTimeout(flush,60);
+  setTimeout(flush,400);
+
+  var RENDER={
+    consent:function(){ return window.piaRenderConsent(); },
+    setup:function(){ return window.piaRenderSetup(); },
+    done:function(){ return window.piaRenderDone(); },
+    mindintro:function(){ return window.piaRenderMindIntro(window._piaMindTarget); }
+  };
+  var _o=showView;
+  showView=function(n){
+    _o(n);
+    try{
+      if(RENDER[n]){
+        var s=document.getElementById('pia-'+n+'-sec');
+        if(s){ s.innerHTML=RENDER[n](); s.classList.remove('hidden');
+          if(n==='consent') setTimeout(window.piaConsentSync,50);
+          if(n==='setup') setTimeout(function(){ var f=document.getElementById('sv-code'); if(f&&!f.value) f.focus(); },200);
+        }
+      }
+      window.scrollTo(0,0);
+      setTimeout(function(){ try{ PIA.autoRead(); }catch(e){} },380);
+      if(n==='home') setTimeout(function(){ try{ PIA.greetOnce(); }catch(e){} },700);
+    }catch(e){}
+  };
+
+  /* 필수 3종 완료 순간 → 완료 화면으로 안내 */
+  window._piaCheckAllDone=function(){
+    try{
+      var b={}; (window._piaCards||[]).forEach(function(c){b[c.id]=c;});
+      var all=['chat','big5','riasec'].every(function(i){ return b[i]&&window._piaIsDone(b[i]); });
+      if(all && !sessionStorage.getItem('pia_done_shown')){
+        sessionStorage.setItem('pia_done_shown','1');
+        setTimeout(function(){ showView('done'); },400);
+        return true;
+      }
+    }catch(e){}
+    return false;
+  };
+})();
+
+
+(function(){
+  var _o=showView;
+  showView=function(n){
+    _o(n);
+    try{ document.body.classList.toggle('pia-on-result', n==='result'); }catch(e){}
+  };
+  try{ document.body.classList.toggle('pia-on-result',
+    (document.querySelector('section[data-view]:not(.hidden)')||{dataset:{}}).dataset.view==='result'); }catch(e){}
+})();
+</script>
+<script id="pia-chat">
+/* ===== AI 대화 화면 동기화 (기존 로직 무수정) ===== */
+(function(){
+  function $(i){ return document.getElementById(i); }
+  function syncTurn(){
+    try{
+      var t=$('chat-turn'); if(!t) return;
+      var m=String(t.textContent||'').match(/(\d+)\s*\/\s*(\d+)/);
+      if(!m) return;
+      var cur=+m[1], tot=+m[2]||8, pct=tot>0?Math.round(cur/tot*100):0;
+      var n=$('chat-turn-n'), tt=$('chat-turn-t'), p=$('chat-turn-pct'), b=$('chat-turn-bar');
+      if(n) n.textContent=cur;
+      if(tt) tt.textContent=tot;
+      if(p) p.textContent=pct+'%';
+      if(b){ b.style.width=pct+'%'; var pr=b.parentNode; if(pr&&pr.setAttribute) pr.setAttribute('aria-valuenow',pct); }
+    }catch(e){}
+  }
+  function syncQ(){
+    try{
+      var box=$('chat-msgs'), q=$('pia-chat-q'); if(!box||!q) return;
+      var kids=box.children; if(!kids.length) return;
+      for(var i=kids.length-1;i>=0;i--){
+        var el=kids[i];
+        var isUser = el.className && /justify-end/.test(el.className);
+        if(isUser) continue;
+        var tx=(el.textContent||'').replace(/\s+/g,' ').trim();
+        if(tx && tx.length>1){
+          if(q.textContent.replace(/\s+/g,' ').trim()!==tx){
+            q.textContent=tx;
+            try{ if(window.PIA&&window.PIA.ttsOn) window.PIA.speak(tx); }catch(e){}
+          }
+          return;
+        }
+      }
+    }catch(e){}
+  }
+  function syncMic(){
+    try{
+      var b=$('chat-mic'); if(!b) return;
+      var rec = (typeof window._globalRecordingProxy!=='undefined') ? window._globalRecordingProxy : null;
+      var on = b.classList.contains('animate-pulse') || /⏹/.test(b.textContent||'');
+      b.setAttribute('aria-pressed', on?'true':'false');
+    }catch(e){}
+  }
+  /* 빠른답변 칩 선화 아이콘 (표시 전용 · 텍스트/전송 로직 무변경) */
+  var QI={
+    friend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M17 4h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1l-2 2v-2h-1a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/></svg>',
+    sport:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m12 7 4 2.9-1.5 4.7h-5L8 9.9z"/><path d="M12 3v4M3.6 9.6 8 9.9M20.4 9.6 16 9.9M6.5 19.5 9.5 14.6M17.5 19.5 14.5 14.6"/></svg>',
+    rest:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12V8a2 2 0 0 1 4 0v4"/><path d="M15 12V8a2 2 0 0 1 4 0v4"/><path d="M4 12h16v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M6 19v2M18 19v2"/></svg>',
+    study:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5a2.5 2.5 0 0 1 2.5 2.5z"/></svg>',
+    mood:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5q3.5-2.5 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>',
+    dream:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/><circle cx="12" cy="12" r="3.5"/></svg>',
+    unknown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2-2.5 3.4"/><path d="M12 17h.01"/></svg>'
+  };
+  var QRULE=[
+    [/\uce5c\uad6c|\uc0ac\ub78c|\uac19\uc774|\uc774\uc57c\uae30|\ub300\ud654/,'friend'],
+    [/\uccb4\uc721|\uc6b4\ub3d9|\ucd95\uad6c|\ub18d\uad6c|\uc2a4\ud3ec\uce20|\uac8c\uc784/,'sport'],
+    [/\uc26c|\ud63c\uc790|\uc7a0|\ud734\uc2dd|\uc9d1/,'rest'],
+    [/\uad6d\uc5b4|\uc218\ud559|\uc601\uc5b4|\uacfc\ud559|\uacf5\ubd80|\uc218\uc5c5|\ubc30\uc6b0/,'study'],
+    [/\uae30\ubd84|\uc6b0\uc6b8|\ud654\ub098|\uc2ac\ud504|\uc2f8\uc6e0|\ud798\ub4e4/,'mood'],
+    [/\uafc8|\uc9c4\ub85c|\uc9c1\uc5c5|\ub418\uace0 \uc2f6|\uc7a5\ub798/,'dream']
+  ];
+  function decorateQuick(){
+    try{
+      var w=$('chat-quick-wrap'); if(!w) return;
+      [].forEach.call(w.querySelectorAll('.chat-quick'),function(b){
+        if(b.querySelector('.pia-qk__ic')) return;
+        var t=(b.textContent||'').trim(), key='unknown';
+        for(var i=0;i<QRULE.length;i++){ if(QRULE[i][0].test(t)){ key=QRULE[i][1]; break; } }
+        b.className='chat-quick pia-qk__b';
+        b.setAttribute('type','button');
+        b.innerHTML='<span class="pia-qk__ic" aria-hidden="true">'+QI[key]+'</span><span>'+t+'</span>';
+      });
+    }catch(e){ if(window.console) console.error('\ube60\ub978\ub2f5\ubcc0 \uc544\uc774\ucf58 \uc2e4\ud328:', e); }
+  }
+  function boot(){
+    var bot=$('pia-chat-bot'); if(bot && !bot.innerHTML && window.PIA && PIA.botImg) bot.innerHTML=PIA.botImg('hero','');
+    var t=$('chat-turn'), box=$('chat-msgs'), mic=$('chat-mic');
+    if(t && window.MutationObserver) new MutationObserver(syncTurn).observe(t,{childList:true,characterData:true,subtree:true});
+    if(box && window.MutationObserver) new MutationObserver(function(){ syncQ(); }).observe(box,{childList:true,subtree:true});
+    if(mic && window.MutationObserver) new MutationObserver(syncMic).observe(mic,{attributes:true,childList:true,subtree:true});
+    var qw=$('chat-quick-wrap');
+    if(qw && window.MutationObserver) new MutationObserver(function(){ decorateQuick(); }).observe(qw,{childList:true});
+    syncTurn(); syncQ();
+    decorateQuick();
+  }
+  var _o=showView;
+  showView=function(n){ _o(n); try{ document.body.classList.toggle('pia-on-result', n==='result'); }catch(e){} if(n==='chat') setTimeout(boot,150); };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(boot,300); });
+  else setTimeout(boot,300);
+})();
+
+</script>
+<script id="pia-result">
+/* ===== 통합 결과 KRDS 요약 (시안 6) — 기존 renderResult 무수정 ===== */
+(function(){
+  var R6={R:{n:'현실형',l:'R'},I:{n:'탐구형',l:'I'},A:{n:'예술형',l:'A'},
+          S:{n:'사회형',l:'S'},E:{n:'진취형',l:'E'},C:{n:'관습형',l:'C'}};
+  /* Big5 → 형용사 (높음/낮음) */
+  var B5W={
+    E:{hi:'사교적인',lo:'차분한'}, A:{hi:'공감하는',lo:'주관이 뚜렷한'},
+    C:{hi:'꼼꼼한',lo:'유연한'},  O:{hi:'호기심 많은',lo:'현실적인'},
+    N:{hi:'섬세한',lo:'안정적인'}
+  };
+  function ico(kind){
+    var m={
+      person:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>',
+      compass:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5.5-5.5 2 2-5.5z"/></svg>',
+      chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-5.5A8 8 0 0 1 11 4h2a8 8 0 0 1 8 8z"/></svg>',
+      spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8"/></svg>',
+      qr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1M14 20h3M20 18v3"/></svg>',
+      home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 21v-7h6v7"/></svg>'
+    };
+    return m[kind]||'';
+  }
+  function row(id,tone,icon,title,words,target){
+    return '<button type="button" class="pia-sum pia-sum--'+tone+'" onclick="piaResultJump(\''+target+'\')">'
+      +'<span class="pia-sum__ic" aria-hidden="true">'+ico(icon)+'</span>'
+      +'<span class="pia-sum__tx"><span class="pia-sum__t">'+title+'</span>'
+      +'<span class="pia-sum__w">'+(words||'검사 데이터 준비 중')+'</span></span>'
+      +'<span class="pia-sum__more">자세히 보기</span>'
+      +'<span class="pia-sum__ar" aria-hidden="true">›</span></button>';
+  }
+
+  window.piaResultJump=function(sel){
+    try{
+      var t=document.querySelector(sel);
+      if(!t){ if(window.openFullReport) openFullReport(); return; }
+      t.classList.remove('hidden');
+      t.scrollIntoView({behavior:'smooth',block:'start'});
+      t.setAttribute('tabindex','-1'); t.focus({preventScroll:true});
+    }catch(e){ if(window.console) console.error('결과 이동 실패:', e); }
+  };
+
+  window.piaResultHead=function(){
+    try{
+      var host=document.getElementById('pia-result-head'); if(!host) return;
+      var emp=document.getElementById('result-empty');
+      if(emp && !emp.classList.contains('hidden')){ host.innerHTML=''; return; }
+
+      var s=(typeof state!=='undefined'&&state)?state:(window.state||{});
+      var rr=(s.results||{});
+      var b5=(rr.big5||{}).scores, ri=(rr.riasec||{}).scores, cv=(rr.conv||{}).dims||{};
+      if(!b5){ host.innerHTML=''; return; }
+
+      var nm=((s.profile||{}).name)||s.studentId||'';
+      var tDesc=(document.getElementById('hero-desc')||{}).textContent||'';
+      var tName=(document.getElementById('hero-type')||{}).textContent||'';
+
+      /* ① 나의 성격 — Big5 상위 3 형용사 */
+      var pw=Object.keys(B5W).map(function(k){
+        var v=Number(b5[k])||50;
+        return {w: v>=50?B5W[k].hi:B5W[k].lo, d: Math.abs(v-50)};
+      }).sort(function(a,b){return b.d-a.d;}).slice(0,3).map(function(o){return o.w;}).join(' · ');
+
+      /* ② 진로 흥미 — RIASEC TOP3 */
+      var iw='';
+      if(ri){
+        iw=Object.keys(R6).map(function(k){return {k:k,v:Number(ri[k])||0};})
+            .sort(function(a,b){return b.v-a.v;}).slice(0,3)
+            .map(function(o){return R6[o.k].n+' '+R6[o.k].l;}).join(' · ');
+      }
+
+      /* ③ AI가 발견한 나 — 대화 성향 TOP3 */
+      var aw=Object.keys(cv).map(function(k){return {k:k,v:Number(cv[k])||0};})
+              .filter(function(o){return o.v>0;})
+              .sort(function(a,b){return b.v-a.v;}).slice(0,3)
+              .map(function(o){return o.k;}).join(' · ');
+
+      /* ④ 추천 진로 TOP3 */
+      var jobs='', cw=document.getElementById('careers');
+      if(cw){
+        var seen={},uniq=[];
+        [].slice.call(cw.children).forEach(function(row){
+          var stars='', name='';
+          [].slice.call(row.querySelectorAll('span,li,strong,b')).forEach(function(e){
+            if(e.children.length) return;
+            var t=(e.textContent||'').trim().replace(/\s+/g,' ');
+            if(!t) return;
+            if(/^[\u2605\u2606\u002A\s]+$/.test(t)){ if(!stars) stars=t; return; }  /* 별점만 있는 칸은 이름이 아님 */
+            if(!name && t.length>1 && t.length<28) name=t;
+          });
+          if(name && !seen[name]){ seen[name]=1; uniq.push({n:name, s:stars}); }
+        });
+        uniq=uniq.slice(0,3);
+        if(uniq.length){
+          jobs='<section class="pia-sec"><h2 class="pia-h2" style="margin-bottom:var(--pia-s3)">추천 진로 TOP 3</h2>'
+            +'<ol class="pia-top3">'+uniq.map(function(o,i){
+              return '<li class="pia-top3__i"><span class="pia-top3__r">0'+(i+1)+'</span>'
+                +'<span class="pia-top3__t">'+o.n+'</span>'
+                +(o.s?'<span class="pia-top3__st" aria-label="적합도">'+o.s+'</span>':'')
+                +'<span class="pia-top3__ar" aria-hidden="true">›</span></li>';
+            }).join('')+'</ol></section>';
+        }
+      }
+
+      host.innerHTML='<div class="pia">'
+        +'<button type="button" class="pia-back" onclick="showView(\'home\')">'
+        +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em"><path d="M15 18 9 12l6-6"/></svg>검사 홈</button>'
+        +'<section class="pia-rhero">'
+          +'<div class="pia-rhero__tx">'
+            +'<h1 class="pia-h1">'+(nm?nm+'님의 ':'')+'통합 결과</h1>'
+            +'<p class="pia-bodyL pia-muted" style="margin-top:var(--pia-s2)">AI 대화, 성격, 진로 흥미를 종합해 분석했어요.</p>'
+          +'</div>'
+          +'<div class="pia-rhero__bot">'+PIA.botImg('wave','AI PIA 캐릭터')+'</div>'
+        +'</section>'
+        +'<section class="pia-sec pia-ai">'
+          +'<div class="pia-ai__ic" aria-hidden="true">'+ico('spark')+'</div>'
+          +'<div class="pia-ai__tx">'
+            +'<span class="pia-ai__lab">AI 종합 분석</span>'
+            +'<p class="pia-ai__d">'+(tDesc||tName||'검사 결과를 분석했어요.')+'</p>'
+          +'</div>'
+        +'</section>'
+        +'<div class="pia-sums">'
+          +row('p','green','person','나의 성격',pw,'#chart-big5-wrap')
+          +row('i','purple','compass','진로 흥미',iw,'#chart-riasec-wrap')
+          +row('a','orange','chat','AI가 발견한 나',aw,'#result-qa')
+        +'</div>'
+        +jobs
+        +'<div style="margin-bottom:var(--pia-s3)">'
+        +'<button type="button" class="pia-btn pia-btn--primary pia-btn--cta" onclick="piaResultJump(\'#chart-big5-wrap\')">상세 결과 보기<span class="pia-btn__ar" aria-hidden="true">›</span></button>'
+        +'<div style="height:var(--pia-s2)"></div>'
+        +'<button type="button" class="pia-btn pia-btn--secondary" onclick="if(window.showShareModal)showShareModal()">'
+        +'<span class="pia-btn__ic" aria-hidden="true">'+ico('qr')+'</span>QR로 결과 가져가기</button>'
+        +'</div>'
+        +'<div class="pia-rfoot"><button type="button" onclick="showView(\'home\')">'
+        +'<span aria-hidden="true">'+ico('home')+'</span>처음으로</button></div>'
+        +'<p class="pia-cap" style="margin:var(--pia-s3) 0 var(--pia-s5)">이 결과지는 선별·참고용이며 의료적 진단이 아닙니다.</p>'
+        +'</div>';
+    }catch(e){ if(window.console) console.error('piaResultHead 실패:', e); }
+  };
+
+  function wrap(){
+    if(typeof window.renderResult!=='function' || window.renderResult._piaWrapped) return false;
+    var o=window.renderResult;
+    var w=function(){
+      var r;
+      try{ r=o.apply(this,arguments); }
+      catch(e){ if(window.console) console.error('renderResult 오류:', e); }
+      finally{ try{ window.piaResultHead(); }catch(e2){ if(window.console) console.error('piaResultHead 오류:', e2); } }
+      return r;
+    };
+    w._piaWrapped=true; window.renderResult=w; return true;
+  }
+  if(!wrap()){ var t=setInterval(function(){ if(wrap()) clearInterval(t); },200); setTimeout(function(){clearInterval(t);},6000); }
+})();
+
+</script>
+<script id="pia-cat">
+
+function piaOpenCategory(catId){
+  try{
+    var cats=window._piaCats||[], cards=window._piaCards||[];
+    var cat=cats.filter(function(c){return c.id===catId;})[0]; if(!cat) return;
+    var byId={}; cards.forEach(function(c){byId[c.id]=c;});
+    var rows=cat.tests.map(function(tid){
+      var c=byId[tid]; if(!c) return '';
+      var dn=false; try{ dn=window._piaIsDone?window._piaIsDone(c):false; }catch(e){}
+      return '<button type="button" class="piav2-titem'+(dn?' done':'')+'" onclick="piaCloseCategory();showView(\''+c.id+'\')">'
+        +'<span class="em">'+(c.icon||'📝')+'</span>'
+        +'<span class="tx"><span class="tt">'+c.title.replace(/\s*\([^)]*\)\s*$/,'')+'</span>'
+        +'<span class="td">'+(c.desc||'')+'</span>'
+        +'<span class="meta">'+(c.dur||'')+' · '+(c.items||'')+'문항</span></span>'
+        +'<span class="st '+(dn?'d':'n')+'">'+(dn?'완료':'시작')+'</span></button>';
+    }).join('');
+    piaCloseCategory();
+    var m=document.createElement('div'); m.id='piav2-modal';
+    m.innerHTML='<div class="box" role="dialog" aria-modal="true"><h3>'+cat.title+'</h3><p class="lead">'+cat.desc+'</p>'
+      +'<div class="piav2-tlist">'+rows+'</div>'
+      +'<button type="button" class="close" onclick="piaCloseCategory()">닫기</button></div>';
+    m.addEventListener('click',function(e){ if(e.target===m) piaCloseCategory(); });
+    document.body.appendChild(m);
+  }catch(e){ console.error('piaOpenCategory:',e); }
+}
+function piaCloseCategory(){ var m=document.getElementById('piav2-modal'); if(m&&m.parentNode) m.parentNode.removeChild(m); }
+function piaShowAllTests(){
+  try{
+    var cards=window._piaCards||[];
+    var rows=cards.map(function(c){
+      var dn=false; try{ dn=window._piaIsDone?window._piaIsDone(c):false; }catch(e){}
+      return '<button type="button" class="piav2-titem'+(dn?' done':'')+'" onclick="piaCloseCategory();showView(\''+c.id+'\')">'
+        +'<span class="em">'+(c.icon||'📝')+'</span>'
+        +'<span class="tx"><span class="tt">'+c.title+'</span><span class="td">'+(c.desc||'')+'</span>'
+        +'<span class="meta">'+(c.priority||'')+' · '+(c.dur||'')+'</span></span>'
+        +'<span class="st '+(dn?'d':'n')+'">'+(dn?'완료':'시작')+'</span></button>';
+    }).join('');
+    piaCloseCategory();
+    var m=document.createElement('div'); m.id='piav2-modal';
+    m.innerHTML='<div class="box" role="dialog" aria-modal="true"><h3>전체 검사 목록</h3><p class="lead">필수 3종을 마치면 통합 결과지가 열립니다.</p>'
+      +'<div class="piav2-tlist">'+rows+'</div><button type="button" class="close" onclick="piaCloseCategory()">닫기</button></div>';
+    m.addEventListener('click',function(e){ if(e.target===m) piaCloseCategory(); });
+    document.body.appendChild(m);
+  }catch(e){ console.error('piaShowAllTests:',e); }
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') piaCloseCategory(); });
+
+
+</script><style id="blue-unify">[class*="bg-blue-600"]{background-color:var(--sky)!important}[class*="bg-blue-700"]{background-color:#4a7bab!important}[class*="bg-blue-100"]{background-color:var(--sky-tint)!important;color:#3a6491!important}[class*="text-blue-600"]{color:var(--sky)!important}[class*="text-blue-800"]{color:#2c4a6b!important}[class*="border-blue-600"]{border-color:var(--sky)!important}</style>
 <script id="no-anon-guard">
 (function(){
   document.addEventListener('click',function(e){
@@ -9989,6 +11494,71 @@ window._ttsClean=function(s){
     mounted=true;
   }
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', mount); } else { mount(); }
+})();
+</script>
+<script id="pia-screenparam">
+/* 검수용 화면 직행: ?screen=<view>[&demo=1]  — 파라미터가 없으면 아무 동작도 하지 않는다 */
+(function(){
+  var q; try{ q=new URLSearchParams(location.search); }catch(e){ return; }
+  var want=q.get('screen'); if(!want) return;
+  var demo=q.get('demo')==='1';
+  function fillDemo(){
+    try{
+      sessionStorage.setItem('pia_v3_consent','1');
+      state.profile={school:'예담중학교',grade:'중2',class:'3반',name:'김예담'};
+      var R=state.results;
+      R.conv.turns=16;
+      R.conv.dims={'창의':5,'공감':4,'감성':3,'탐구':2};
+      R.conv.transcript=[];
+      function fill(k,ds,fn,base,steps){
+        if(!ds||!R[k]) return;
+        R[k].answers=ds.map(function(x,i){ return base+((i*3)%steps); });
+        R[k].order=null; R[k].seq=R[k].answers.length;
+        try{ R[k].scores=fn(); }catch(e){}
+      }
+      fill('big5',window.IPIP_BIG5_50,window.scoreBig5,1,5);
+      fill('riasec',window.RIASEC_30,window.scoreRiasec,1,5);
+      fill('via',window.VIA_YOUTH,window.scoreVia,1,5);
+      fill('grit',window.GRIT_S,window.scoreGrit,1,5);
+      fill('learn',window.LEARN_ITEMS,window.scoreLearn,1,5);
+      fill('mi',window.MI_ITEMS,window.scoreMi,1,5);
+      fill('rses',window.RSES,window.scoreRses,1,4);
+      fill('cesd',window.CES_D_10,window.scoreCesd,0,4);
+      fill('phqa',window.PHQ_A,window.scorePhqa,0,4);
+      fill('gad',window.GAD_7,window.scoreGad,0,4);
+      fill('who5',window.WHO5,window.scoreWho5,1,6);
+      if(typeof sjtSet==='function'){
+        var S=sjtSet();
+        R.sjt.order=S.map(function(x,i){return i;});
+        R.sjt.answers=S.map(function(x,i){return i%4;});
+      }
+      save();
+    }catch(e){ if(window.console) console.error('데모 데이터 주입 실패:', e); }
+  }
+  function go(){
+    try{
+      /* 검수 중 소리·마이크·모달이 뜨지 않게 */
+      window.alert=function(m){ if(window.console) console.error('[alert]',m); };
+      window.confirm=function(){ return true; };
+      try{ navigator.mediaDevices.getUserMedia=function(){ return Promise.reject(new Error('preview')); }; }catch(e){}
+      window.safeStartRecognition=function(){};
+      if(window.PIA) PIA.ttsOn=false;
+      window.piaSpeak=function(){};
+      try{ localStorage.setItem('pia_tts','0'); }catch(e){}
+
+      if(demo) fillDemo();
+      /* 문항 화면은 첫 문항이 보이도록 응답을 비운다 */
+      var FRESH={big5:1,riasec:1,via:1,grit:1,learn:1,mi:1,rses:1,cesd:1,phqa:1,gad:1,who5:1};
+      if(demo && FRESH[want] && state.results[want]){
+        state.results[want].answers=[]; state.results[want].order=null; state.results[want].seq=0;
+      }
+      if(demo && want==='sjt'){ state.results.sjt.answers=[]; }
+      showView(want);
+      window.scrollTo(0,0);
+    }catch(e){ if(window.console) console.error('화면 직행 실패:', e); }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(go,600); });
+  else setTimeout(go,600);
 })();
 </script>
 </body></html>
