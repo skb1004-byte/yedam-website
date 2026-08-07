@@ -62,7 +62,7 @@ html.kiosk-on {
    AI PIA / MOM 검사류 — 문항이 화면을 꽉 채우도록 확대
    (section[data-view] + .js-qtext + choices-* 패턴 공용)
    ========================================================= */
-html.kiosk-on section[data-view]:not(.hidden):not([data-view="home"]):not([data-view="result"]):not([data-view="fullreport"]):not([data-view="settings"]) {
+html.kiosk-on body:not(.pia-v2) section[data-view]:not(.hidden):not([data-view="home"]):not([data-view="result"]):not([data-view="fullreport"]):not([data-view="settings"]) {
   min-height: calc(100vh - 150px);
   display: flex;
   flex-direction: column;
@@ -70,20 +70,20 @@ html.kiosk-on section[data-view]:not(.hidden):not([data-view="home"]):not([data-
   padding: clamp(24px, 4vw, 56px) clamp(20px, 6vw, 90px) !important;
 }
 
-html.kiosk-on section[data-view] .js-qtext {
+html.kiosk-on body:not(.pia-v2) section[data-view] .js-qtext {
   font-size: clamp(24px, 3.1vw, 40px) !important;
   line-height: 1.5 !important;
   margin-bottom: 30px !important;
 }
 
-html.kiosk-on section[data-view] h2 {
+html.kiosk-on body:not(.pia-v2) section[data-view] h2 {
   font-size: clamp(22px, 2.4vw, 32px) !important;
 }
 
-html.kiosk-on section[data-view] [id^="choices-"] {
+html.kiosk-on body:not(.pia-v2) section[data-view] [id^="choices-"] {
   gap: 14px !important;
 }
-html.kiosk-on section[data-view] [id^="choices-"] button {
+html.kiosk-on body:not(.pia-v2) section[data-view] [id^="choices-"] button {
   min-height: 64px !important;
   font-size: 1.25rem !important;
   padding: 18px 26px !important;
@@ -91,12 +91,12 @@ html.kiosk-on section[data-view] [id^="choices-"] button {
 }
 
 /* 진행률 바 — 멀리서도 보이게 */
-html.kiosk-on section[data-view] [role="progressbar"] {
+html.kiosk-on body:not(.pia-v2) section[data-view] [role="progressbar"] {
   height: 8px !important;
 }
 
 /* 자유대화(채팅) — 말풍선/입력창 확대 */
-html.kiosk-on #chat-input {
+html.kiosk-on body:not(.pia-v2) #chat-input {
   font-size: 1.15rem !important;
   min-height: 56px !important;
 }
@@ -178,3 +178,20 @@ html.kiosk-on #kiosk-home-btn {
   border-radius: 999px;
   pointer-events: none;
 }
+
+
+/* =========================================================
+   AI PIA (KRDS 적용, body.pia-v2) — 키오스크 전용 확대
+   KRDS 규격(터치 88px·문항 38px·진행바 16px)을 유지한 채
+   대형 터치 모니터에서 한 단계만 키운다.
+   ========================================================= */
+html.kiosk-on body.pia-v2{
+  --pia-f-display:64px; --pia-f-h1:58px; --pia-f-h2:40px; --pia-f-q:44px;
+  --pia-f-bodyL:32px;  --pia-f-body:29px; --pia-f-btn:34px; --pia-f-cap:24px;
+  --pia-touch:96px; --pia-touch-cta:112px; --pia-touch-choice:104px;
+  --pia-safe:72px;
+}
+html.kiosk-on body.pia-v2 .pia-choice{ min-height:var(--pia-touch-choice); }
+html.kiosk-on body.pia-v2 .pia-prog__bar{ height:20px; }
+html.kiosk-on body.pia-v2 .pia-hdr__in{ min-height:96px; }
+html.kiosk-on body.pia-v2 .pia-hdr-btn{ min-height:72px; }
