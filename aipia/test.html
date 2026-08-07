@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://text.pollinations.ai">
 <link rel="dns-prefetch" href="https://ko.wikipedia.org">
 <script src="https://cdn.tailwindcss.com"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js" integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG" crossorigin="anonymous"></script>
 <style>
   body { font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", "맑은 고딕", sans-serif; }
   [aria-pressed="true"] { background:#1f2937; color:#fff; }
@@ -8094,7 +8094,7 @@ function _piaEnsureSB(){
     if(_piaSB){res(_piaSB);return;}
     function mk(){ try{ _piaSB=window.supabase.createClient('https://ushtyxnmqclzgdnynusm.supabase.co','sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'); }catch(e){ _piaSB=null; } res(_piaSB); }
     if(window.supabase&&window.supabase.createClient){ mk(); return; }
-    var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.js'; sc.integrity='sha384-0x8XPoHt08aHZj+RHs8ojmhZ5IDsTLjPgblgWdriayWriqv9dic3Vkv1K2+UqgZV'; sc.crossOrigin='anonymous';
     sc.onload=mk; sc.onerror=function(){ res(null); }; document.head.appendChild(sc);
   });
 }
@@ -9938,7 +9938,7 @@ window._ttsClean=function(s){
         cb(nm||null);
       }).catch(function(){cb(null);}); }catch(e){cb(null);} }
     if(window.supabase&&window.supabase.createClient) return go();
-    var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.js'; s.integrity='sha384-0x8XPoHt08aHZj+RHs8ojmhZ5IDsTLjPgblgWdriayWriqv9dic3Vkv1K2+UqgZV'; s.crossOrigin='anonymous';
     s.onload=go; s.onerror=function(){cb(null);}; document.head.appendChild(s);
   }
   function fill(){ if(!acctName) return; var n=document.getElementById('pf-name');
