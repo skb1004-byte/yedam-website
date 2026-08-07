@@ -10433,7 +10433,7 @@ window.PIA.botImg=function(kind,alt){
 /* 오래된 서비스워커·캐시 때문에 옛 화면이 보이는 문제 자가 복구.
    빌드 태그가 바뀌면 캐시를 비우고 서비스워커를 갱신한 뒤 한 번만 새로고침한다. */
 (function(){
-  var BUILD='20260807-krds-4';
+  var BUILD='20260807-krds-5';
   /* 예전 버전에서 기기에 영구 저장된 교사 플래그를 제거 (키오스크 결과지 선행 노출 원인) */
   try{ localStorage.removeItem('pia_aud_teacher'); }catch(e){}
   try{
@@ -10528,7 +10528,8 @@ window.PIA.botImg=function(kind,alt){
     try{ localStorage.setItem('pia_tts', PIA.ttsOn?'1':'0'); }catch(e){}
     if(PIA.ttsOn){
       var _t = PIA.currentReadText() || '음성 안내를 켰습니다.';
-      PIA._lastRead = _t;           // 감시 로직이 같은 문구를 또 읽지 않도록 기록
+      /* 감시 로직이 같은 문구를 또 읽지 않도록 같은 기준으로 기록 */
+      PIA._lastRead = (PIA._norm ? PIA._norm(_t) : _t);
       PIA.speak(_t);
     }
     else { try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} }
@@ -10639,6 +10640,8 @@ window.PIA.botImg=function(kind,alt){
     result:'검사 결과가 나왔어요.'
   };
   PIA._lastRead='';
+  /* 같은 문구인지 판정할 때 쓰는 정규화 — 공백 차이로 중복 낭독되던 문제 방지 */
+  PIA._norm=function(t){ return String(t||'').replace(/\s+/g,' ').trim(); };
   PIA.autoRead=function(){
     try{
       var s=document.querySelector('section[data-view]:not(.hidden)'); if(!s) return;
@@ -10647,8 +10650,8 @@ window.PIA.botImg=function(kind,alt){
       if(NO_READ[v]) return;                       // 동의·입력 화면은 낭독 금지
       var q=s.querySelector('.pia-q');              // 검사 문항 우선
       if(q){
-        var t=q.textContent.trim();
-        if(t && t!==PIA._lastRead){ PIA._lastRead=t; PIA.speak(t); }
+        var t=PIA._norm(q.textContent);
+        if(t && t!==PIA._norm(PIA._lastRead)){ PIA._lastRead=t; PIA.speak(t); }
         return;
       }
       if(TIP[v]){ PIA.speak(TIP[v]); return; }
