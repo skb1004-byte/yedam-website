@@ -213,6 +213,7 @@ tbody tr.rs{background:#eef2ff}
 </style>
 <link rel="stylesheet" href="kiosk.css">
 <script src="kiosk.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.js" integrity="sha384-0x8XPoHt08aHZj+RHs8ojmhZ5IDsTLjPgblgWdriayWriqv9dic3Vkv1K2+UqgZV" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -223,10 +224,9 @@ tbody tr.rs{background:#eef2ff}
       <h1>㈜예담정보통신</h1>
       <p>AI 에듀테크 · 관리자 포털</p>
     </div>
-    <label class="login-lbl" for="pw">비밀번호</label>
-    <input type="password" class="login-inp" id="pw" placeholder="비밀번호 입력" autocomplete="current-password">
-    <button class="login-btn" onclick="doLogin()">로그인</button>
-    <div class="login-err" id="login-err">비밀번호가 올바르지 않습니다</div>
+    <p class="login-lbl" style="text-align:center;line-height:1.6">운영자 Google 계정으로 로그인하세요.<br>등록된 관리 권한이 있는 계정만 입장할 수 있습니다.</p>
+    <button class="login-btn" id="gl-btn" onclick="doLogin()">Google로 관리자 로그인</button>
+    <div class="login-err" id="login-err">관리 권한이 없는 계정입니다</div>
   </div>
 </div>
 
@@ -684,17 +684,43 @@ function saveData(){
 }
 
 /* ═══ AUTH ═══ */
-var PASS='yedam2026!';
+/* 소스에 평문 비밀번호를 두지 않는다.
+   pia-admin.html과 동일하게 Supabase Google OAuth 로그인 후
+   pia_my_profile RPC로 서버측 역할(role)을 확인해서 입장을 허용한다. */
+var ADMIN_ROLES=['super_admin','org_admin'];
+var _sb=null;
+function sbClient(){
+  if(!_sb){ _sb=window.supabase.createClient('https://ushtyxnmqclzgdnynusm.supabase.co','sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'); }
+  return _sb;
+}
+function loginErr(msg){ var e=document.getElementById('login-err'); e.textContent=msg; e.style.display='block'; }
 function doLogin(){
-  if(document.getElementById('pw').value===PASS){
-    localStorage.setItem(SK,Date.now());showApp();
-  } else {
-    var e=document.getElementById('login-err');e.style.display='block';
-    setTimeout(function(){e.style.display='none';},3000);
+  try{ sbClient().auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}}); }
+  catch(err){ console.error('admin login failed', err); loginErr('로그인 모듈을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
+}
+function doLogout(){
+  localStorage.removeItem(SK);
+  try{ sbClient().auth.signOut(); }catch(err){ console.error('admin logout failed', err); }
+  location.reload();
+}
+async function checkAdmin(){
+  try{
+    var s=await sbClient().auth.getSession();
+    var ses=s&&s.data&&s.data.session;
+    if(!ses){ return; }
+    var r=await sbClient().rpc('pia_my_profile');
+    var role=(r&&r.data&&r.data[0]&&r.data[0].role)||'individual';
+    if(ADMIN_ROLES.indexOf(role)<0){
+      loginErr('관리 권한이 없는 계정입니다: '+(ses.user.email||''));
+      return;
+    }
+    localStorage.setItem(SK,Date.now());
+    showApp();
+  }catch(err){
+    console.error('admin auth check failed', err);
+    loginErr('권한 확인에 실패했습니다. 새로고침 해 주세요.');
   }
 }
-document.getElementById('pw').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
-function doLogout(){localStorage.removeItem(SK);document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('pw').value='';}
 function showApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
@@ -703,7 +729,7 @@ function showApp(){
   document.getElementById('dash-sub').textContent='yedam.kr 운영 현황 · '+d;
   loadData();initAll();loadSettings();
 }
-(function(){if(localStorage.getItem(SK))showApp();})();
+checkAdmin();
 
 /* ═══ INIT ═══ */
 function initAll(){renderPia();renderTrials();renderInqs();renderPartners();updateKpi();}
