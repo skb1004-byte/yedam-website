@@ -10433,7 +10433,7 @@ window.PIA.botImg=function(kind,alt){
 /* 오래된 서비스워커·캐시 때문에 옛 화면이 보이는 문제 자가 복구.
    빌드 태그가 바뀌면 캐시를 비우고 서비스워커를 갱신한 뒤 한 번만 새로고침한다. */
 (function(){
-  var BUILD='20260807-krds-2';
+  var BUILD='20260807-krds-3';
   /* 예전 버전에서 기기에 영구 저장된 교사 플래그를 제거 (키오스크 결과지 선행 노출 원인) */
   try{ localStorage.removeItem('pia_aud_teacher'); }catch(e){}
   try{
@@ -10618,14 +10618,16 @@ window.PIA.botImg=function(kind,alt){
 </script>
 <script id="pia-voice">
 /* ===== 음성 안내 정책 =====
-   · 자동 낭독: AI 대화 화면에서만 (진입 인사 + AI 질문)
-   · 홈/동의/입력/문항/결과: 자동 낭독 없음
-   · 헤더 '음성 안내' OFF 상태에서는 어떤 화면에서도 소리 없음
+   · 기본값 OFF — 켜기 전에는 어떤 화면에서도 소리가 나지 않는다
+   · AI 대화 화면에 들어가면 자동으로 켜진다 (사용자가 직접 끈 적이 없을 때)
+   · 켜져 있으면 검사 문항·안내 문구를 읽어 준다 (키오스크 접근성)
+   · 동의·정보입력·설정·전체결과지는 개인정보가 섞이므로 낭독하지 않는다
 */
 (function(){
   var PIA=window.PIA;
-  /* 자동 낭독 허용 화면: AI 대화만. 그 외는 헤더 '음성 안내'를 켠 뒤 눌러야 낭독 */
-  var AUTO_OK={ chat:1 };
+  /* 음성 안내를 켜면 검사 문항·안내를 읽어 준다.
+     동의·입력 화면은 개인정보가 섞이므로 낭독하지 않는다. */
+  var NO_READ={ consent:1, setup:1, settings:1, fullreport:1 };
   var GREET='안녕하세요! 나를 알아보는 AI 진로검사예요. 검사 시작하기를 눌러 주세요.';
   var TIP={
     chat:'편하게 이야기해 주세요. 정답은 없어요.',
@@ -10633,14 +10635,19 @@ window.PIA.botImg=function(kind,alt){
     mindintro:'마음 건강 확인은 선택이에요. 원하지 않으면 하지 않아도 괜찮아요.',
     result:'검사 결과가 나왔어요.'
   };
+  PIA._lastRead='';
   PIA.autoRead=function(){
     try{
       var s=document.querySelector('section[data-view]:not(.hidden)'); if(!s) return;
       var v=s.dataset.view;
-      if(!PIA.ttsOn) return;                       // 토글 OFF면 낭독 안 함
-      if(!AUTO_OK[v]) return;                      // 대화 화면 외에는 자동 낭독 안 함
+      if(!PIA.ttsOn) return;                       // 토글 OFF면 어디서도 소리 없음
+      if(NO_READ[v]) return;                       // 동의·입력 화면은 낭독 금지
       var q=s.querySelector('.pia-q');              // 검사 문항 우선
-      if(q){ PIA.speak(q.textContent.trim()); return; }
+      if(q){
+        var t=q.textContent.trim();
+        if(t && t!==PIA._lastRead){ PIA._lastRead=t; PIA.speak(t); }
+        return;
+      }
       if(TIP[v]){ PIA.speak(TIP[v]); return; }
       var h=s.querySelector('.pia-h1,.pia-display');
       if(h) PIA.speak(h.textContent.replace(/\s+/g,' ').trim());
@@ -11605,6 +11612,43 @@ window._ttsClean=function(s){
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(go,600); });
   else setTimeout(go,600);
+})();
+</script>
+<script id="pia-readwatch">
+/* 같은 화면에서 다음 문항으로 넘어갈 때도 읽어 주고,
+   '음성 안내'를 켜는 즉시 현재 문항을 읽어 준다. (키오스크 접근성) */
+(function(){
+  function readNow(){
+    try{ if(window.PIA && PIA.ttsOn && PIA.autoRead) PIA.autoRead(); }catch(e){}
+  }
+  function watch(){
+    try{
+      if(!window.MutationObserver) return;
+      var mo=new MutationObserver(function(){ setTimeout(readNow, 250); });
+      document.querySelectorAll('section[data-view]').forEach(function(sec){
+        mo.observe(sec, { childList:true, subtree:true, characterData:true });
+      });
+    }catch(e){ if(window.console) console.error('문항 낭독 감지 실패:', e); }
+  }
+  /* 음성 안내 토글 직후 현재 문구를 바로 읽어 준다 */
+  try{
+    var _t = window.PIA && PIA.toggleFontSize ? null : null;
+    var iv=setInterval(function(){
+      if(window.PIA && typeof PIA.toggleTTS==='function'){
+        clearInterval(iv);
+        var o=PIA.toggleTTS;
+        PIA.toggleTTS=function(){
+          var r=o.apply(this, arguments);
+          try{ PIA._lastRead=''; }catch(e){}
+          setTimeout(readNow, 120);
+          return r;
+        };
+      }
+    }, 200);
+    setTimeout(function(){ clearInterval(iv); }, 8000);
+  }catch(e){}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(watch,800); });
+  else setTimeout(watch,800);
 })();
 </script>
 </body></html>
