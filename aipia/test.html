@@ -5570,7 +5570,9 @@ function piaSampleReport(){
 }
 function piaViewRecord(){
   try{
-    var raw=localStorage.getItem('pia_view_record'); if(!raw) return;
+    var raw=localStorage.getItem('pia_view_record');
+    try{ localStorage.removeItem('pia_view_record'); }catch(_e){}  /* 공용 키오스크 개인정보 잔존 방지: 읽는 즉시 삭제(1회용) */
+    if(!raw) return;
     var rec=JSON.parse(raw);
     if(rec.results) state.results=Object.assign(state.results||{}, rec.results);
     state.profile=rec.profile||{name:rec.name||'', grade:rec.grade||'', class:rec.klass||rec.class||'', school:rec.school||'', createdAt:Date.now()};
