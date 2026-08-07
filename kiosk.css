@@ -181,17 +181,7 @@ html.kiosk-on #kiosk-home-btn {
 
 
 /* =========================================================
-   AI PIA (KRDS 적용, body.pia-v2) — 키오스크 전용 확대
-   KRDS 규격(터치 88px·문항 38px·진행바 16px)을 유지한 채
-   대형 터치 모니터에서 한 단계만 키운다.
+   AI PIA (KRDS 적용, body.pia-v2)
+   글자·터치 크기는 aipia/test.html 안에서 화면 높이에 맞춰
+   자동으로 계산하므로 여기서 고정값을 주지 않는다.
    ========================================================= */
-html.kiosk-on body.pia-v2{
-  --pia-f-display:64px; --pia-f-h1:58px; --pia-f-h2:40px; --pia-f-q:44px;
-  --pia-f-bodyL:32px;  --pia-f-body:29px; --pia-f-btn:34px; --pia-f-cap:24px;
-  --pia-touch:96px; --pia-touch-cta:112px; --pia-touch-choice:104px;
-  --pia-safe:72px;
-}
-html.kiosk-on body.pia-v2 .pia-choice{ min-height:var(--pia-touch-choice); }
-html.kiosk-on body.pia-v2 .pia-prog__bar{ height:20px; }
-html.kiosk-on body.pia-v2 .pia-hdr__in{ min-height:96px; }
-html.kiosk-on body.pia-v2 .pia-hdr-btn{ min-height:72px; }
