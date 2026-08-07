@@ -94,7 +94,7 @@ function locCell(o){
   var f=fileOf(o.source); if(!f) return '<span class="mono">—</span>';
   var ln=o.lineno?(':'+o.lineno):''; var cl=o.colno?(':'+o.colno):'';
   var url=REPO+f+(o.lineno?('#L'+o.lineno):'');
-  return '<span class="loc mono"><a href="'+url+'" target="_blank" rel="noopener">'+esc(f)+ln+cl+'</a></span>';
+  return '<span class="loc mono"><a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(f)+ln+cl+'</a></span>';
 }
 
 function show(el,on){ document.getElementById(el).classList[on?'remove':'add']('hide'); }
