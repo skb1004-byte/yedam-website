@@ -10433,7 +10433,7 @@ window.PIA.botImg=function(kind,alt){
 /* 오래된 서비스워커·캐시 때문에 옛 화면이 보이는 문제 자가 복구.
    빌드 태그가 바뀌면 캐시를 비우고 서비스워커를 갱신한 뒤 한 번만 새로고침한다. */
 (function(){
-  var BUILD='20260807-krds-6';
+  var BUILD='20260807-krds-7';
   /* 예전 버전에서 기기에 영구 저장된 교사 플래그를 제거 (키오스크 결과지 선행 노출 원인) */
   try{ localStorage.removeItem('pia_aud_teacher'); }catch(e){}
   try{
@@ -10540,14 +10540,33 @@ window.PIA.botImg=function(kind,alt){
   PIA.speak = function(t){
     if(!t) return;
     if(!('speechSynthesis' in window)){ if(window.console) console.error('이 브라우저는 음성 합성을 지원하지 않습니다.'); return; }
+    var notified=false;
+    function notifyFail(why){
+      if(notified) return; notified=true;
+      var msg='이 기기에서 음성이 재생되지 않습니다. 소리(볼륨)와 한국어 음성 설치 상태를 확인해 주세요.';
+      try{
+        var ko=(speechSynthesis.getVoices()||[]).filter(function(v){ return /ko/i.test(v.lang); });
+        if(!ko.length) msg='이 기기에 한국어 음성이 설치되어 있지 않아 읽어 줄 수 없습니다.';
+      }catch(e){}
+      if(window.console) console.error('[음성 안내]', msg, '(원인:'+why+')');
+      try{ if(window.PIA && PIA.toast) PIA.toast(msg, 6000); }catch(e){}
+    }
     function say(){
       try{
         var u=new SpeechSynthesisUtterance(String(t));
         u.lang='ko-KR'; u.rate=0.95; u.pitch=1.05;
         if(typeof window.piaApplyVoice==='function') window.piaApplyVoice(u);
-        u.onerror=function(e){ if(window.console) console.error('음성 재생 실패:', (e&&e.error)||e); };
+        var ok=false;
+        u.onstart=function(){ ok=true; };
+        u.onerror=function(e){
+          var why=(e&&e.error)||'unknown';
+          if(window.console) console.error('음성 재생 실패:', why);
+          if(why!=='interrupted' && why!=='canceled') notifyFail(why);
+        };
         try{ speechSynthesis.cancel(); }catch(e){}
         speechSynthesis.speak(u);
+        /* 발화 시작 신호가 없으면 소리가 안 난 것으로 보고 안내 */
+        setTimeout(function(){ if(!ok && PIA.ttsOn) notifyFail('nostart'); }, 1800);
       }catch(e){ if(window.console) console.error('음성 재생 오류:', e); }
     }
     try{
