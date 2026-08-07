@@ -10423,6 +10423,44 @@ window.PIA.botImg=function(kind,alt){
   if(typeof window.showToast!=='function') window.showToast=PIA.toast;
 })();
 </script>
+<script id="pia-swfix">
+/* 오래된 서비스워커·캐시 때문에 옛 화면이 보이는 문제 자가 복구.
+   빌드 태그가 바뀌면 캐시를 비우고 서비스워커를 갱신한 뒤 한 번만 새로고침한다. */
+(function(){
+  var BUILD='20260807-krds-1';
+  try{
+    var prev=null;
+    try{ prev=localStorage.getItem('pia_build'); }catch(e){}
+    if(prev!==BUILD){
+      try{ localStorage.setItem('pia_build', BUILD); }catch(e){}
+      if(window.caches && caches.keys){
+        caches.keys().then(function(keys){
+          return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+        }).catch(function(){});
+      }
+      if(navigator.serviceWorker && navigator.serviceWorker.getRegistrations){
+        navigator.serviceWorker.getRegistrations().then(function(rs){
+          rs.forEach(function(r){ try{ r.update(); }catch(e){} });
+        }).catch(function(){});
+      }
+    }
+  }catch(e){ if(window.console) console.error('빌드 갱신 확인 실패:', e); }
+
+  /* 서비스워커가 새 버전으로 바뀌면 한 번만 새로고침 */
+  try{
+    if(navigator.serviceWorker){
+      var reloaded=false;
+      navigator.serviceWorker.addEventListener('controllerchange', function(){
+        if(reloaded) return; reloaded=true;
+        try{ location.reload(); }catch(e){}
+      });
+      navigator.serviceWorker.addEventListener('message', function(ev){
+        if(ev.data && ev.data.type==='SW_UPDATED' && !reloaded){ reloaded=true; try{ location.reload(); }catch(e){} }
+      });
+    }
+  }catch(e){}
+})();
+</script>
 <script id="pia-comp">
 /* ============================================================
    AI PIA — 공통 UI 컴포넌트 (KRDS)
