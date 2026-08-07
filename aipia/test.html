@@ -686,7 +686,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
       <span id="chat-aistatus"></span>
       <select id="chat-grade" onchange="setGrade(this.value); if(window.renderChatStarter) renderChatStarter();" aria-hidden="true" tabindex="-1"><option value="elem">초등</option><option value="mid" selected>중등</option><option value="high">고등</option><option value="univ">대학생</option><option value="adult">일반인</option></select>
       <label><input id="chat-tts" type="checkbox" checked /> 응답 음성 재생</label>
-      <label><input id="chat-gtts" type="checkbox" checked /> 자연 음성</label>
+      <label><input id="chat-gtts" type="checkbox" /> 자연 음성(외부)</label>
       <select id="chat-voice" aria-hidden="true" tabindex="-1"></select>
     </div>
   </div>
@@ -10433,7 +10433,7 @@ window.PIA.botImg=function(kind,alt){
 /* 오래된 서비스워커·캐시 때문에 옛 화면이 보이는 문제 자가 복구.
    빌드 태그가 바뀌면 캐시를 비우고 서비스워커를 갱신한 뒤 한 번만 새로고침한다. */
 (function(){
-  var BUILD='20260807-krds-5';
+  var BUILD='20260807-krds-6';
   /* 예전 버전에서 기기에 영구 저장된 교사 플래그를 제거 (키오스크 결과지 선행 노출 원인) */
   try{ localStorage.removeItem('pia_aud_teacher'); }catch(e){}
   try{
@@ -10534,12 +10534,35 @@ window.PIA.botImg=function(kind,alt){
     }
     else { try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} }
   };
+  /* 브라우저 내장 음성을 직접 사용한다.
+     외부 TTS(구글 번역 음성)는 학교·키오스크 망에서 오류 없이 조용히 실패해
+     소리가 전혀 나지 않는 일이 있어 기본 경로에서 제외했다. */
   PIA.speak = function(t){
     if(!t) return;
-    try{ if(typeof window.piaSpeak==='function'){ window.piaSpeak(String(t)); return; } }catch(e){}
-    try{ var u=new SpeechSynthesisUtterance(String(t)); u.lang='ko-KR'; u.rate=.95;
-      if(typeof window.piaApplyVoice==='function') window.piaApplyVoice(u);
-      speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){}
+    if(!('speechSynthesis' in window)){ if(window.console) console.error('이 브라우저는 음성 합성을 지원하지 않습니다.'); return; }
+    function say(){
+      try{
+        var u=new SpeechSynthesisUtterance(String(t));
+        u.lang='ko-KR'; u.rate=0.95; u.pitch=1.05;
+        if(typeof window.piaApplyVoice==='function') window.piaApplyVoice(u);
+        u.onerror=function(e){ if(window.console) console.error('음성 재생 실패:', (e&&e.error)||e); };
+        try{ speechSynthesis.cancel(); }catch(e){}
+        speechSynthesis.speak(u);
+      }catch(e){ if(window.console) console.error('음성 재생 오류:', e); }
+    }
+    try{
+      var vs=speechSynthesis.getVoices();
+      if(!vs || !vs.length){
+        /* 음성 목록이 아직 준비되지 않았으면 준비된 뒤에 읽는다 */
+        var done=false;
+        var once=function(){ if(done) return; done=true;
+          try{ speechSynthesis.removeEventListener('voiceschanged', once); }catch(e){} say(); };
+        try{ speechSynthesis.addEventListener('voiceschanged', once); }catch(e){}
+        setTimeout(once, 800);
+        return;
+      }
+      say();
+    }catch(e){ say(); }
   };
   PIA.currentReadText = function(){
     var s=document.querySelector('section[data-view]:not(.hidden)'); if(!s) return '';
