@@ -477,8 +477,8 @@ button:not(:disabled):active{transform:scale(.985)}
 #detailed-result .rounded-2xl,#detailed-result .bg-white,#extended-sections .rounded-2xl{box-shadow:0 18px 46px -32px rgba(20,20,19,.26)}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(217,119,87,.18)}
 </style>
-<link rel="stylesheet" href="../kiosk.css?v=20260808g">
-<script src="../kiosk.js?v=20260808g" defer></script>
+<link rel="stylesheet" href="../kiosk.css?v=20260808h">
+<script src="../kiosk.js?v=20260808h" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -3307,7 +3307,13 @@ const TOPIC_KW = [
 
 const PROVIDERS = {
   LOCAL: { endpoint:'', model:'', label:'로컬 규칙형' },
-  AUTO_FREE: { endpoint:'https://text.pollinations.ai/openai', model:'openai', label:'자동 무료 (키 불필요)' },
+  /* 자동 무료 = 자체 Cloudflare Worker 프록시.
+     예전에는 pollinations 를 직접 불렀는데 2026-08 현재 402(Payment Required)
+     를 반환하고 "legacy API deprecated" 안내가 붙었다.
+     Worker 는 Gemini→Groq→Cerebras→OpenRouter→HF→GitHub 순으로 자동 폴백하고
+     키는 Cloudflare Secret 에만 있어 브라우저로 나가지 않는다.
+     요청·응답 형식이 OpenAI 호환이라 기존 호출부를 그대로 쓴다. */
+  AUTO_FREE: { endpoint:'https://lucky-sun-025e.songkb9.workers.dev', model:'', label:'자동 무료 (서버 프록시·키 불필요)' },
   ONDEVICE: { endpoint:'', model:'onnx-community/Qwen2.5-0.5B-Instruct', label:'온디바이스(브라우저)' },
   HYPERCLOVA: { endpoint:'https://clovastudio.stream.ntruss.com/v1/chat-completions/HCX-005', model:'HCX-005', label:'HyperCLOVA X' },
   SOLAR: { endpoint:'https://api.upstage.ai/v1/solar/chat/completions', model:'solar-1-mini-chat', label:'Upstage SOLAR' },
@@ -3343,7 +3349,7 @@ let state = {
     sjt: { answers: [], dims: {}, order: [], adaptive: false },
     conv: { turns: 0, dims: {}, riskHist: [], topics: {}, transcript: [] }
   },
-  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'ai-proxy.php', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'7a81155d537a4d4d95a3eec0cbf7a3be', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
+  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'7a81155d537a4d4d95a3eec0cbf7a3be', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
 };
 
 function load() {
@@ -5456,40 +5462,32 @@ async function autoConnectFreeAI() {
      키는 소스에 넣지 않는다. localStorage(pia_v3_cfg)에만 저장한다.
      소스에 박으면 공개 저장소에 그대로 노출된다(커리어넷 키가 그랬다). */
   if (_isKioskDevice()) {
-    const _gk = (state.cfg && state.cfg.apiKeys && state.cfg.apiKeys.GEMINI_FLASH) || '';
-    if (_gk) {
-      state.cfg = Object.assign({}, state.cfg, {
-        mode:'GEMINI_FLASH', key:_gk,
-        endpoint:(PROVIDERS.GEMINI_FLASH && PROVIDERS.GEMINI_FLASH.endpoint) || '',
-        model:(PROVIDERS.GEMINI_FLASH && PROVIDERS.GEMINI_FLASH.model) || 'gemini-2.5-flash'
-      });
-      save();
-      const msK = el('cfg-mode'); if (msK) msK.value = 'GEMINI_FLASH';
-      const csK = el('cfg-status'); if (csK) csK.textContent = '🖥 키오스크 기본: Gemini 2.5 Flash (무료 1,500요청/일)';
-      if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 Gemini 2.5 Flash 연결</span>';
-      return;
-    }
-    const _pk = !!(state.cfg && state.cfg.proxy && state.cfg.proxy.trim());
-    if (_pk) {
-      state.cfg = Object.assign({}, state.cfg, { mode:'GITHUB_MODELS', key:'',
-        endpoint:(PROVIDERS.GITHUB_MODELS && PROVIDERS.GITHUB_MODELS.endpoint) || '',
-        model:(PROVIDERS.GITHUB_MODELS && PROVIDERS.GITHUB_MODELS.model) || 'openai/gpt-4o-mini' });
-      save();
-      const msP = el('cfg-mode'); if (msP) msP.value = 'GITHUB_MODELS';
-      const csP = el('cfg-status'); if (csP) csP.textContent = '🖥 키오스크 기본: GitHub Models(프록시 경유·키는 서버 보관)';
-      if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 GitHub Models(프록시)</span>';
-      return;
-    }
-    state.cfg = Object.assign({}, state.cfg, { mode:'AUTO_FREE', key:'',
-      endpoint:(PROVIDERS.AUTO_FREE && PROVIDERS.AUTO_FREE.endpoint) || 'https://text.pollinations.ai/openai',
-      model:(state.cfg.freeModel || 'openai') });
+    /* 키오스크 기본 엔진 = 자체 Worker 프록시(AUTO_FREE).
+
+       왜 프록시인가
+         · 키가 브라우저로 나가지 않는다. 이 저장소는 공개라 소스에 키를
+           박으면 그대로 노출된다(커리어넷 키가 그 상태였다).
+         · Worker 가 Gemini→Groq→Cerebras→OpenRouter→HF→GitHub 순으로
+           자동 폴백한다. 한 곳이 막혀도 대화가 끊기지 않는다.
+         · 브라우저 CORS 제약을 받지 않는다(huggingface 직접 호출은 차단된다).
+         실측(2026-08-08): Worker 응답 598ms · 공급자 groq · 한국어 정상.
+
+       사용자가 설정에서 개인 키를 저장했다면 위쪽 분기에서 이미 그것을
+       존중하고 여기까지 오지 않는다. */
+    state.cfg = Object.assign({}, state.cfg, {
+      mode:'AUTO_FREE', key:'',
+      endpoint:(PROVIDERS.AUTO_FREE && PROVIDERS.AUTO_FREE.endpoint) || PIA_CHAT_PROXY,
+      model:''
+    });
     save();
-    const msF = el('cfg-mode'); if (msF) msF.value = 'AUTO_FREE';
-    const csF = el('cfg-status'); if (csF) csF.textContent = '🖥 키오스크 기본: 무료 AI — 설정에서 Gemini 키를 넣으면 더 안정적입니다';
-    if (badge) badge.innerHTML = '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚡ 무료 AI · Gemini 키 권장</span>';
+    const msK = el('cfg-mode'); if (msK) msK.value = 'AUTO_FREE';
+    const csK = el('cfg-status'); if (csK) csK.textContent = '🖥 키오스크 기본: 서버 프록시(6개 공급자 자동 폴백·키 불필요)';
+    if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 AI 연결 확인 중…</span>';
     try {
       const r = await callLLMFree('안녕','한 단어로만 답해.');
-      if (badge && !(r && r.trim())) badge.innerHTML = '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚠ 무료 AI 불안정 — 설정에서 Gemini 키를 넣어 주세요</span>';
+      if (badge) badge.innerHTML = (r && r.trim())
+        ? '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 AI 연결됨</span>'
+        : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚠ AI 연결 실패 — 로컬 규칙형으로 진행합니다</span>';
     } catch(e) {}
     return;
   }
