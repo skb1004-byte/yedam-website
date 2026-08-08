@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/favicon_256.png">
 <meta name="description" content="예담 키오스크 홈 — AI PIA 학생 인적성검사, 맘(MOM) 인지건강 확인, 선생님 도우미, 두뇌 놀이터를 한 화면에서.">
-<link rel="stylesheet" href="kiosk.css?v=20260808h">
+<link rel="stylesheet" href="kiosk.css?v=20260808i">
 <style>
   html, body {
     margin: 0;
@@ -501,6 +501,13 @@
       function go(el) {
         var url = el.getAttribute('data-kiosk-go');
         if (!url) return;
+
+        /* 이동해도 전체화면으로 계속 쓰겠다는 뜻을 남긴다.
+           브라우저는 페이지를 옮기면 전체화면을 반드시 푼다(표준 동작이라
+           막을 수 없다). 그래서 도착한 페이지의 kiosk.js 가 이 표시를 보고
+           첫 터치에 조용히 다시 들어간다 — 안내판 없이. */
+        try { sessionStorage.setItem('kiosk_fs_wanted', '1'); } catch (e) {}
+
         // 이동 직전에 전체화면 진입을 시도한다(사용자 제스처 안에서만 허용됨)
         try {
           var r = document.documentElement.requestFullscreen ||
@@ -542,6 +549,6 @@
       document.fonts.ready.then(syncKioskDividers);
     }
   </script>
-  <script src="kiosk.js?v=20260808h" defer></script>
+  <script src="kiosk.js?v=20260808i" defer></script>
 </body>
 </html>

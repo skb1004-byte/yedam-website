@@ -83,6 +83,27 @@
      (누르자마자 다시 들어가 버리면 종료가 불가능해지므로). */
   var suppressUntil = 0;
 
+  /* ── 전체화면 상태를 페이지 이동 사이에 기억한다 ──────────────────────
+     브라우저는 페이지를 옮기면 전체화면을 반드시 푼다. 표준 동작이라
+     막을 방법이 없다(실측: 키오스크 홈에서 전체화면 진입 → 타일 터치 →
+     /aipia/test 도착 시 fullscreenElement 가 null).
+
+     그래서 "이 세션은 전체화면으로 쓰기로 했다"는 사실만 기억해 두고,
+     새 페이지에서 사용자의 첫 조작이 들어오는 순간 조용히 다시 들어간다.
+     안내판을 다시 띄우지 않으므로 이용자 눈에는 그냥 전체화면이 이어지는
+     것처럼 보인다.
+
+     sessionStorage 를 쓰는 이유: 탭을 닫으면 지워진다. 다음 이용자가
+     "왜 전체화면이지?" 하는 일이 없도록 그 세션에만 남긴다. */
+  var FS_WANT = 'kiosk_fs_wanted';
+  function wantFullscreen(on) {
+    try { on ? sessionStorage.setItem(FS_WANT, '1') : sessionStorage.removeItem(FS_WANT); }
+    catch (e) {}
+  }
+  function isFullscreenWanted() {
+    try { return sessionStorage.getItem(FS_WANT) === '1'; } catch (e) { return false; }
+  }
+
   function autoEnter(e) {
     if (isFullscreen()) return;
     if (Date.now() < suppressUntil) return;
@@ -102,10 +123,18 @@
        (키오스크 홈 진입 시에는 안내판이 첫 터치를 따로 받으므로
         전체화면 진입 자체는 그대로 보장된다.) */
     var t = e && e.target;
-    if (t && t.closest && t.closest(
-        'a, button, [role="link"], [role="button"], [data-kiosk-go], input, select, textarea, label')) {
-      return;
-    }
+    var onControl = !!(t && t.closest && t.closest(
+      'a, button, [role="link"], [role="button"], [data-kiosk-go], input, select, textarea, label'));
+
+    /* 누를 수 있는 것을 누른 경우
+         pointerdown 단계에서는 들어가지 않는다(위 설명대로 클릭이 취소된다).
+         대신 click 단계에서는 들어간다. 그때는 이미 클릭 처리가 끝난 뒤라
+         레이아웃이 움직여도 취소될 것이 없고, 클릭은 브라우저가 인정하는
+         사용자 제스처라 전체화면 진입이 허용된다.
+       빈 곳을 누른 경우
+         어느 단계든 바로 들어간다. */
+    if (onControl && e && e.type !== 'click') return;
+
     requestFS();
   }
 
@@ -139,8 +168,11 @@
     fsBtn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
-      // 사용자가 직접 종료를 눌렀다면 3초 동안 자동 재진입을 막는다
-      if (isFullscreen()) suppressUntil = Date.now() + 3000;
+      /* 사용자가 직접 종료를 눌렀다면 3초 동안 자동 재진입을 막고,
+         "전체화면으로 쓴다"는 기억도 지운다. 그러지 않으면 다음 터치에
+         곧바로 다시 들어가 종료를 할 수 없게 된다. */
+      if (isFullscreen()) { suppressUntil = Date.now() + 3000; wantFullscreen(false); }
+      else wantFullscreen(true);
       toggleFS();
     });
 
@@ -210,6 +242,10 @@
   function ensureEnterOverlay() {
     if (isFramed || !isKioskHomePage) return;   // 키오스크 홈에서만
     if (isFullscreen() || enterOverlay) return;
+    /* 이미 "전체화면으로 쓴다"고 정해진 세션이면 안내판을 다시 띄우지 않는다.
+       검사를 마치고 홈으로 돌아올 때마다 안내판이 뜨면 성가시다.
+       이 경우 첫 터치에서 autoEnter 가 조용히 다시 들어간다. */
+    if (isFullscreenWanted()) return;
     // 이미 전체화면으로 실행 중(--kiosk)이면 브라우저 창과 화면 크기가 같다.
     // 이 경우 안내판은 방해만 되므로 띄우지 않는다.
     if (window.innerHeight >= screen.height - 2) return;
@@ -228,6 +264,7 @@
 
     function start(e) {
       if (e) { e.preventDefault(); e.stopPropagation(); }
+      wantFullscreen(true);   /* 페이지를 옮겨도 이 뜻을 기억한다 */
       requestFS();
       removeOverlay();
     }
