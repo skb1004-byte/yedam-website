@@ -475,8 +475,8 @@ button:not(:disabled):active{transform:scale(.985)}
 #detailed-result .rounded-2xl,#detailed-result .bg-white,#extended-sections .rounded-2xl{box-shadow:0 18px 46px -32px rgba(20,20,19,.26)}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(217,119,87,.18)}
 </style>
-<link rel="stylesheet" href="../kiosk.css?v=20260808n">
-<script src="../kiosk.js?v=20260808n" defer></script>
+<link rel="stylesheet" href="../kiosk.css?v=20260808p">
+<script src="../kiosk.js?v=20260808p" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -8372,10 +8372,30 @@ function sendResultToAdmin(opts){
   const base=piaApiBase();
   _adminSig=sig;
   try{ piaSaveSupabase(rec); }catch(e){}
-  fetch((base||'')+'/api/results',{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(rec)})
+  fetch((base||'')+'/api/results',{method:'POST',headers:_piaIngestHeaders(),body:JSON.stringify(rec)})
     .then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
     .then(()=>{ if(opts.toast){ try{ toast('결과가 관리자 서버에 저장되었습니다.'); }catch(e){} } })
     .catch(()=>{ _adminSig=''; _piaOutboxPut(rec); });
+}
+/* 결과 전송 헤더.
+   지금 POST /api/results 는 인증이 없다. 주소만 알면 누구나 가짜 결과를
+   넣을 수 있다는 뜻이다. 서버는 이미 x-ingest-token 헤더를 받도록 CORS 에
+   열어 두었으므로(실측: access-control-allow-headers 에 포함), 토큰이
+   설정된 기기만 그 헤더를 붙여 보낸다.
+
+   토큰을 소스에 박지 않는 이유
+     이 파일은 공개 저장소에 그대로 올라간다. 박아 두면 토큰이 아니다.
+     현장 키오스크에만 아래 한 줄로 넣어 두고 쓴다.
+       localStorage.setItem('pia_ingest_token','발급받은값')
+   토큰이 없으면 헤더를 붙이지 않는다. 그러면 사전 요청(preflight)도 생기지
+   않아 일반 방문자의 저장 경로는 지금과 완전히 같다. */
+function _piaIngestHeaders(){
+  const h = {'Content-Type':'text/plain;charset=UTF-8'};
+  try{
+    const t = (localStorage.getItem('pia_ingest_token')||'').trim();
+    if(t) h['x-ingest-token'] = t;
+  }catch(e){ console.error('ingest 토큰 조회 실패:', e); }
+  return h;
 }
 function _piaOutboxPut(rec){
   try{ const ob=JSON.parse(localStorage.getItem('pia_admin_outbox')||'[]');
@@ -8386,7 +8406,7 @@ function flushAdminOutbox(){
   const base=piaApiBase();
   let ob; try{ ob=JSON.parse(localStorage.getItem('pia_admin_outbox')||'[]'); }catch(e){ return; }
   if(!ob.length) return;
-  Promise.all(ob.map(rec=>fetch((base||'')+'/api/results',{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(rec)}).then(r=>r.ok).catch(()=>false)))
+  Promise.all(ob.map(rec=>fetch((base||'')+'/api/results',{method:'POST',headers:_piaIngestHeaders(),body:JSON.stringify(rec)}).then(r=>r.ok).catch(()=>false)))
     .then(res=>{ if(res.length && res.every(Boolean)) localStorage.removeItem('pia_admin_outbox'); });
 }
 let _adminSyncTimer=null;

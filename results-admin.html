@@ -94,8 +94,8 @@ a.link{color:var(--rust);text-decoration:none;font-weight:700}
 .filterbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:12px}
 @media print{header,.noprint{display:none!important}.card{box-shadow:none;border:1px solid #ccc}}
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260808n">
-<script src="kiosk.js?v=20260808n" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260808p">
+<script src="kiosk.js?v=20260808p" defer></script>
 </head>
 <body>
 <header>
@@ -273,7 +273,7 @@ let chartG=null,chartT=null,chartR=null,chartTr=null,chartM=null,chartB=null;
 // === 관리자에서 학생별 결과지(본인/학부모/선생님) 출력 ===
 async function openViewerFor(id, aud){
   var rec=FULL[id];
-  if(!rec){ try{ var r=await fetch(apiUrl({admin:PW,id:id})); var j=await r.json(); if(j.ok&&j.result){ rec=j.result; FULL[id]=rec; } }catch(e){} }
+  if(!rec){ try{ var r=await apiFetch({id:id}); var j=await r.json(); if(j.ok&&j.result){ rec=j.result; FULL[id]=rec; } }catch(e){} }
   if(!rec){ alert('결과를 불러오지 못했습니다. 로그인 상태를 확인하세요.'); return; }
   try{ localStorage.setItem('pia_view_record', JSON.stringify(rec)); }
   catch(e){ alert('결과 데이터 전달 실패: '+e.message); return; }
@@ -288,6 +288,38 @@ function apiUrl(params){
   const u=new URL(b+'/api/results');
   for(const k in params) if(params[k]!=null) u.searchParams.set(k,params[k]);
   return u.toString();
+}
+
+/* 관리자 비밀번호를 주소가 아니라 헤더로 보낸다.
+   예전에는 ?admin=<비밀번호> 로 붙여 보냈다. 쿼리스트링은
+     · 서버 접근 로그에 그대로 남고
+     · 브라우저 방문 기록에 남고
+     · 화면 공유나 어깨너머로 주소창에 보인다
+   서버는 이미 x-admin-password 헤더를 받도록 CORS 에 열어 두었다(실측:
+   access-control-allow-headers 에 x-admin-password, x-ingest-token 포함).
+
+   혹시 서버가 아직 헤더를 안 읽는 구버전이면 401 이 오는데, 그때 한 번만
+   옛 방식으로 다시 시도하고 그 사실을 콘솔에 남긴다. 화면이 죽지 않게 하려는
+   안전장치이고, 서버 확인이 끝나면 이 되돌림 경로는 지운다. */
+let _adminHeaderOK = null;   // null=아직 모름, true=헤더로 됨, false=구버전
+async function apiFetch(params, init){
+  const opt = Object.assign({}, init);
+  opt.headers = Object.assign({}, opt.headers, PW ? {'x-admin-password': PW} : {});
+  let r;
+  try{
+    r = await fetch(apiUrl(params), opt);
+  }catch(e){
+    console.error('관리자 API 호출 실패:', e);
+    throw e;
+  }
+  if(r.status === 401 && PW && _adminHeaderOK !== true){
+    console.error('서버가 x-admin-password 헤더를 아직 읽지 않습니다. 옛 방식으로 재시도합니다.');
+    _adminHeaderOK = false;
+    const back = Object.assign({}, params, {admin: PW});
+    return fetch(apiUrl(back), init);
+  }
+  if(r.ok) _adminHeaderOK = true;
+  return r;
 }
 function setEnv(ok){ $('#envBadge').textContent= ok?'서버 연결됨':'서버 미연결'; $('#envBadge').classList.toggle('on',!!ok); }
 
@@ -306,7 +338,7 @@ async function login(){
   if(BASE) localStorage.setItem(LS_BASE,BASE);
   $('#loginMsg').textContent='확인 중…';
   try{
-    const r=await fetch(apiUrl({admin:PW,list:1}));
+    const r=await apiFetch({list:1});
     if(r.status===401){ $('#loginMsg').innerHTML='<span class="err">비밀번호가 틀립니다.</span>'; return; }
     if(r.status===503){ $('#loginMsg').innerHTML='<span class="err">서버에 비밀번호(ADMIN_PASSWORD)가 설정되지 않았습니다.</span>'; return; }
     const j=await r.json();
@@ -319,7 +351,7 @@ async function login(){
 async function reload(){
   if(!PW){return;}
   try{
-    const r=await fetch(apiUrl({admin:PW,list:1})); const j=await r.json();
+    const r=await apiFetch({list:1}); const j=await r.json();
     if(j.ok){ ingest(j.results||[]); if(deepLoaded) deepLoad(true); }
   }catch(e){}
 }
@@ -470,7 +502,7 @@ async function deepLoad(silent){
   $('#deepBtn').disabled=true;
   let done=0;
   for(const id of ids){
-    try{ const r=await fetch(apiUrl({admin:PW,id})); const j=await r.json(); if(j.ok&&j.result) FULL[id]=j.result; }catch(e){}
+    try{ const r=await apiFetch({id}); const j=await r.json(); if(j.ok&&j.result) FULL[id]=j.result; }catch(e){}
     done++; if(!silent) $('#deepMsg').textContent='불러오는 중… '+done+'/'+ids.length;
   }
   LIST=LIST.map(s=> FULL[s.id]? Object.assign({},FULL[s.id],{id:s.id}) : s);
@@ -507,7 +539,7 @@ async function openDetail(id){
   const d=$('#detail'); $('#dBody').innerHTML='<p class="muted">불러오는 중…</p>'; d.showModal();
   try{
     let rec=FULL[id];
-    if(!rec){ const r=await fetch(apiUrl({admin:PW,id})); const j=await r.json(); if(!j.ok){ $('#dBody').innerHTML='<p class="err">'+(j.error||'오류')+'</p>'; return;} rec=j.result; FULL[id]=rec; }
+    if(!rec){ const r=await apiFetch({id}); const j=await r.json(); if(!j.ok){ $('#dBody').innerHTML='<p class="err">'+(j.error||'오류')+'</p>'; return;} rec=j.result; FULL[id]=rec; }
     $('#dTitle').textContent=(rec.name||'익명')+' 결과';
     const b5=getBig5(rec); const mbti=big5Mbti(b5);
     let h='<div class="row" style="gap:8px;margin-bottom:12px;flex-wrap:wrap">'
@@ -555,14 +587,14 @@ function scoreSummary(R){
 
 async function delRec(id){
   if(!confirm('이 결과를 삭제할까요? 되돌릴 수 없습니다.')) return;
-  try{ const r=await fetch(apiUrl({admin:PW,del:id})); const j=await r.json();
+  try{ const r=await apiFetch({del:id}); const j=await r.json();
     if(j.ok){ delete FULL[id]; LIST=LIST.filter(s=>s.id!==id); paint(); } else alert(j.error||'삭제 실패'); }
   catch(e){ alert(e.message); }
 }
 async function bulkDel(){
   const ids=selectedIds(); if(!ids.length)return;
   if(!confirm(ids.length+'명의 결과를 삭제할까요? 되돌릴 수 없습니다.')) return;
-  for(const id of ids){ try{ await fetch(apiUrl({admin:PW,del:id})); delete FULL[id]; }catch(e){} }
+  for(const id of ids){ try{ await apiFetch({del:id}); delete FULL[id]; }catch(e){} }
   LIST=LIST.filter(s=>ids.indexOf(s.id)<0); paint();
 }
 
