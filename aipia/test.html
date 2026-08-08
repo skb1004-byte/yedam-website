@@ -3370,6 +3370,29 @@ function load() {
   /* 함수 미사용: 프록시 비움 — 모바일은 무료 AI 직접 호출 */ try { state.cfg.proxy=''; } catch(e){}
   var _mobDef=(typeof isMobile==='function'&&isMobile());
   if (!state.cfg || !state.cfg._engineChosen) { state.cfg = Object.assign({}, state.cfg, { mode: 'AUTO_FREE' }); }
+
+  /* 예전 설정 정리.
+
+     실제로 겪은 문제
+       브라우저에 예전 설정이 남아 있으면 거기 적힌 endpoint 가
+       PIA_CHAT_PROXY 보다 우선한다(callLLM 의 `cfg.endpoint || PIA_CHAT_PROXY`).
+       그래서 한 번이라도 접속했던 사람은 코드에서 pollinations 를 걷어낸 뒤에도
+       계속 죽은 주소(2026-08 기준 402 Payment Required)로 가고 있었다.
+       실측: pia_v3_cfg.endpoint = "https://text.pollinations.ai/openai".
+
+     새 사람은 멀쩡한데 예전 사람만 안 되는 종류의 고장이라 눈에 잘 안 띈다.
+     그래서 불러올 때 한 번 훑어 고친다. 사용자가 직접 넣은 개인 키·주소는
+     건드리지 않는다(모드가 AUTO_FREE 일 때만). */
+  try {
+    var DEAD = /(text\.pollinations\.ai|netlify\.app|\.workers\.dev)/i;
+    var ep = String((state.cfg && state.cfg.endpoint) || '');
+    if ((state.cfg.mode === 'AUTO_FREE' || !state.cfg.mode) && ep && DEAD.test(ep)) {
+      console.error('예전 AI 주소를 정리합니다:', ep, '→', PIA_CHAT_PROXY);
+      state.cfg.endpoint = PIA_CHAT_PROXY;
+      state.cfg.model = '';
+      try { localStorage.setItem(STORAGE.cfg, JSON.stringify(state.cfg)); } catch (e2) {}
+    }
+  } catch (e) { console.error('예전 설정 정리 실패:', e); }
 }
 function save() {
   try { localStorage.setItem(STORAGE.cfg, JSON.stringify(state.cfg)); } catch(e) {}
@@ -5461,7 +5484,7 @@ async function autoConnectFreeAI() {
       try { const r = await callLLM('안녕','한 단어로만 답해.'); if (badge && !(r&&r.trim())) badge.innerHTML = '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚠ 프록시/토큰 확인 — 실패 시 무료 AI→로컬</span>'; } catch(e) {}
       return;
     }
-    state.cfg = Object.assign({}, state.cfg, { mode:'AUTO_FREE', endpoint:(PROVIDERS.AUTO_FREE&&PROVIDERS.AUTO_FREE.endpoint)||'https://text.pollinations.ai/openai', model:(state.cfg.freeModel||'openai'), key:'' });
+    state.cfg = Object.assign({}, state.cfg, { mode:'AUTO_FREE', endpoint:(PROVIDERS.AUTO_FREE&&PROVIDERS.AUTO_FREE.endpoint)||PIA_CHAT_PROXY, model:'', key:'' });
     save();
     const msM = el('cfg-mode'); if (msM) msM.value = 'AUTO_FREE';
     const csM = el('cfg-status'); if (csM) csM.textContent = '📱 모바일 기본: 무료 AI 자동(키 불필요) — 프록시 설정 시 GitHub Models 경유';

@@ -157,7 +157,7 @@ var CFG_KEY='pia_v3_cfg';
 var $=function(s){return document.getElementById(s);};
 var PROVIDERS={
   ONDEVICE:{endpoint:'',model:''},
-  AUTO_FREE:{endpoint:'https://text.pollinations.ai/openai',model:'openai'},
+  AUTO_FREE:{endpoint:'https://api.yedam.kr/ai',model:''},   /* 죽은 pollinations → 자체 프록시 */
   LOCAL:{endpoint:'',model:''},
   GEMINI_FLASH:{endpoint:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',model:'gemini-2.5-flash'},
   SOLAR:{endpoint:'https://api.upstage.ai/v1/solar/chat/completions',model:'solar-1-mini-chat'},
