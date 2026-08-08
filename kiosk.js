@@ -15,8 +15,13 @@
     }
   })();
 
-  // kiosk-home.html(키오스크 메인 화면) 자기 자신에서는 "메인으로" 버튼이 필요 없음
-  var isKioskHomePage = /(^|\/)kiosk-home\.html$/.test(window.location.pathname);
+  /* kiosk-home(키오스크 메인 화면) 자기 자신에서는 "메인으로" 버튼이 필요 없다.
+     예전 정규식은 `.html` 확장자가 붙은 주소만 인식했는데,
+     GitHub Pages 가 /kiosk-home.html → /kiosk-home 으로 리다이렉트하기 때문에
+     실제 운영 주소에서는 판별에 실패해 메인 화면에도 "메인으로" 버튼이
+     떠서 하단 AI교육 배너를 가리고 있었다(실물 키오스크 사진에서 확인).
+     확장자 유무를 모두 인식하도록 고친다. */
+  var isKioskHomePage = /(^|\/)kiosk-home(\.html)?\/?$/.test(window.location.pathname);
 
   function detect() {
     try {
@@ -65,12 +70,35 @@
   }
 
   var fsBtn = null;
-  var autoTried = false;
+
+  /* 자동 전체화면 진입.
+     브라우저 정책상 사용자 제스처가 있어야 전체화면에 들어갈 수 있고,
+     페이지를 이동하면 전체화면이 풀린다. 예전에는 autoTried 플래그 때문에
+     한 번 시도한 뒤로는 다시 시도하지 않아서, 사용자가 [전체화면 종료]를
+     눌렀거나 페이지 이동으로 풀린 뒤에는 주소줄·작업표시줄이 계속 보였다.
+     이제는 "전체화면이 아닐 때 들어온 제스처"마다 다시 시도한다.
+     단 사용자가 직접 종료 버튼을 누른 직후에는 잠시 시도하지 않는다
+     (누르자마자 다시 들어가 버리면 종료가 불가능해지므로). */
+  var suppressUntil = 0;
 
   function autoEnter() {
-    if (autoTried || isFullscreen()) return;
-    autoTried = true;
+    if (isFullscreen()) return;
+    if (Date.now() < suppressUntil) return;
     requestFS();
+  }
+
+  /* 터치 후 링크에 포커스가 남아 있으면 브라우저가 화면 구석에 주소를
+     말풍선으로 띄운다(사진 좌하단의 https://yedam.kr/... 표시).
+     탭이 끝나면 포커스를 떼어 말풍선이 뜨지 않게 한다. */
+  function blurLinkSoon() {
+    setTimeout(function () {
+      try {
+        var el = document.activeElement;
+        if (el && (el.tagName === 'A' || el.tagName === 'BUTTON') && el.id !== 'kiosk-fs-btn') {
+          el.blur();
+        }
+      } catch (e) {}
+    }, 60);
   }
 
   function ensureFullscreenUI() {
@@ -89,24 +117,35 @@
     fsBtn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
+      // 사용자가 직접 종료를 눌렀다면 3초 동안 자동 재진입을 막는다
+      if (isFullscreen()) suppressUntil = Date.now() + 3000;
       toggleFS();
     });
 
     document.addEventListener('fullscreenchange', updateFsBtn);
     document.addEventListener('webkitfullscreenchange', updateFsBtn);
 
-    // 첫 사용자 제스처(터치/클릭) 시 자동으로 전체화면 진입 시도
+    // 사용자 제스처가 들어올 때마다 전체화면 진입 시도(이미 전체화면이면 아무것도 안 함)
+    document.addEventListener('pointerdown', autoEnter, true);
     document.addEventListener('click', autoEnter, true);
     document.addEventListener('touchstart', autoEnter, true);
+
+    // 링크 탭 후 주소 말풍선이 남지 않도록 포커스 해제
+    document.addEventListener('pointerup', blurLinkSoon, true);
+    document.addEventListener('touchend', blurLinkSoon, true);
   }
 
   function updateFsBtn() {
     if (!fsBtn) return;
+    /* 아이콘을 이모지·기호 문자로 넣지 않는다.
+       ⛶(U+26F6) · ⤢(U+2922) 는 Windows 키오스크 기본 폰트에 없어서
+       두부(□)로 렌더링된다. 실제로 렌더링 검증에서 □ 로 나왔다.
+       모양은 kiosk.css 의 ::before 가 순수 CSS 사각형으로 그린다. */
     if (isFullscreen()) {
-      fsBtn.textContent = '⤢ 전체화면 종료';
+      fsBtn.textContent = '전체화면 종료';
       fsBtn.classList.add('is-fs');
     } else {
-      fsBtn.textContent = '⛶ 전체화면으로 보기';
+      fsBtn.textContent = '전체화면으로 보기';
       fsBtn.classList.remove('is-fs');
     }
   }
@@ -117,8 +156,11 @@
     if (isFramed || isKioskHomePage || homeBtn) return;
     homeBtn = document.createElement('a');
     homeBtn.id = 'kiosk-home-btn';
-    homeBtn.href = window.location.origin + '/kiosk-home.html';
-    homeBtn.textContent = '🏠 메인으로';
+    /* 확장자 없는 주소를 직접 쓴다.
+       /kiosk-home.html 로 보내면 308 리다이렉트를 한 번 더 타서
+       전체화면이 풀릴 여지가 생긴다. */
+    homeBtn.href = window.location.origin + '/kiosk-home';
+    homeBtn.textContent = '메인으로';   /* 집 아이콘은 kiosk.css 의 ::before 가 그린다 */
     homeBtn.setAttribute('aria-label', '키오스크 메인 화면으로 이동');
     document.body.appendChild(homeBtn);
   }

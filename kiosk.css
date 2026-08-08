@@ -69,14 +69,20 @@ html.kiosk-on {
 #kiosk-fs-btn {
   display: none;
 }
+/* 위치를 좌하단으로 옮긴 이유:
+   실제 키오스크 사진을 보니 우하단에 콘텐츠가 몰려 있어(검사 진행 단계 아이콘,
+   선택검사 타일, AI교육 배너 설명) 이 버튼들이 그 위를 덮고 있었다.
+   좌하단은 네 장 모두 비어 있어 겹침이 없다. 크기도 줄였다. */
 html.kiosk-on #kiosk-fs-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   position: fixed;
-  right: 18px;
-  bottom: 18px;
+  left: 14px;
+  bottom: 14px;
   z-index: 99999;
+  opacity: 0.55;
+  transition: opacity 0.15s;
   background: rgba(17, 24, 39, 0.82);
   color: #fff;
   border: none;
@@ -92,6 +98,32 @@ html.kiosk-on #kiosk-fs-btn {
 html.kiosk-on #kiosk-fs-btn.is-fs {
   background: rgba(220, 38, 38, 0.85);
 }
+/* 아이콘을 CSS 로 그린다 — 폰트에 없는 기호를 쓰면 두부(□)가 된다.
+   평소: 빈 사각형(전체화면으로 들어가기) / 전체화면 중: 안이 찬 사각형(나가기) */
+html.kiosk-on #kiosk-fs-btn::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 13px;
+  height: 11px;
+  border: 2px solid currentColor;
+  border-radius: 2px;
+}
+html.kiosk-on #kiosk-fs-btn.is-fs::before {
+  background: currentColor;
+}
+
+/* "메인으로" 버튼의 집 아이콘.
+   🏠 이모지는 기기마다 모양이 제각각이고 흑백 폰트에서는 두부(□)가 되며,
+   CSS 삼각형+box-shadow 로 집을 흉내내면 지붕만 보이고 몸통이 어긋난다
+   (실제 렌더링에서 확인). 그래서 도형을 직접 그린 SVG 를 배경으로 깐다.
+   버튼 배경이 파랑, 글자가 흰색이므로 아이콘도 흰색 고정. */
+html.kiosk-on #kiosk-home-btn::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M12 3.2 1.8 12.1h3v8.7h5.1v-5.6h4.2v5.6h5.1v-8.7h3z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
 
 /* =========================================================
    "메인으로" (키오스크 홈 화면 복귀) 버튼 — 전체화면 버튼 바로 위에 쌓음
@@ -104,21 +136,30 @@ html.kiosk-on #kiosk-home-btn {
   align-items: center;
   gap: 6px;
   position: fixed;
-  right: 18px;
-  bottom: 84px;
+  left: 14px;
+  bottom: 66px;              /* 전체화면 버튼 바로 위 */
   z-index: 99999;
-  background: rgba(37, 99, 235, 0.88);
+  background: rgba(37, 99, 235, 0.92);
   color: #fff;
   border: none;
   border-radius: 999px;
-  padding: 14px 22px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   cursor: pointer;
+  min-height: 48px;          /* 터치 목표 최소 크기 */
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
+}
+html.kiosk-on #kiosk-home-btn:active { transform: scale(0.97); }
+html.kiosk-on #kiosk-fs-btn:active { opacity: 1; }
+
+/* 화면이 좁으면 두 버튼을 한 줄로 나란히 */
+@media (max-width: 560px) {
+  html.kiosk-on #kiosk-home-btn { bottom: 14px; left: 14px; padding: 10px 14px; font-size: 0.85rem; }
+  html.kiosk-on #kiosk-fs-btn   { bottom: 14px; left: auto; right: 14px; padding: 10px 14px; font-size: 0.8rem; }
 }
 
 /* =========================================================
@@ -167,9 +208,12 @@ html.kiosk-on body.mom-v2 #kiosk-fs-btn{
   right:16px; top:auto; bottom:16px; left:auto;
   padding:10px 16px; font-size:.86rem; opacity:.55;
 }
+/* left:auto 가 반드시 있어야 한다. 위쪽 기본 규칙이 left:14px 로 자리를 잡는데
+   여기서 right 만 덮어쓰면 left 와 right 가 동시에 살아 버튼이 화면 폭만큼
+   늘어난다(kiosk-home 에서 998px 짜리 막대가 됐던 것과 같은 원인). */
 html.kiosk-on body.pia-v2 #kiosk-home-btn,
 html.kiosk-on body.mom-v2 #kiosk-home-btn{
-  right:16px; bottom:62px; padding:10px 16px; font-size:.86rem; opacity:.72;
+  left:auto; right:16px; top:auto; bottom:62px; padding:10px 16px; font-size:.86rem; opacity:.72;
 }
 html.kiosk-on body.pia-v2 #kiosk-fs-btn:hover,
 html.kiosk-on body.pia-v2 #kiosk-home-btn:hover,
