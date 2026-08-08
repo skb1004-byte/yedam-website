@@ -1,0 +1,146 @@
+/* ==========================================================================
+   screen.css — 태블릿·노트북 공통 화면 규칙
+
+   왜 만들었나
+     kiosk.css 가 키오스크에 해 준 일을 태블릿·노트북에도 한다.
+     지금까지 이 두 기기는 "데스크톱도 키오스크도 아닌 사각지대" 였다.
+
+     실측(2026-08-08)에서 드러난 것
+       · 1366×768 노트북 — AI PIA 화면이 1,186px 넘침
+       · 1024×768 태블릿 — 1,038px 넘침
+       · 시간표 도구 — 44px 미만 터치 표적 71개
+     가로 넘침은 30번 측정에서 0건이었다. 폭이 아니라 **높이와 크기**가 문제다.
+
+   짝이 되는 파일
+     kiosk.js 가 <html> 에 dev-phone / dev-tablet / dev-laptop / dev-desktop
+     과 screen-short 를 붙인다. 이 파일은 그 클래스만 본다.
+
+   건드리지 않는 것
+     kiosk-on(키오스크)과 dev-phone(휴대폰)에는 아무 것도 하지 않는다.
+     이미 각각 kiosk.css 와 기존 모바일 스타일이 맡고 있다.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 글자 최소 크기
+
+   태블릿은 손에 들고 약 40cm, 노트북은 약 50cm 거리에서 본다.
+   키오스크(1m 이상, 서서)보다 가깝지만 휴대폰보다는 멀다.
+   본문 15px 을 바닥으로 잡는다. 이보다 작으면 학교 현장에서 읽기 힘들다.
+   -------------------------------------------------------------------------- */
+html.dev-tablet:not(.kiosk-on) body,
+html.dev-laptop:not(.kiosk-on) body {
+  font-size: max(15px, 1rem);
+  line-height: 1.6;
+}
+
+/* 보조 문구까지 15px 로 끌어올린다. 캡션·주석이 12~13px 로 깔려 있었다. */
+html.dev-tablet:not(.kiosk-on) .mut,
+html.dev-tablet:not(.kiosk-on) .cap,
+html.dev-tablet:not(.kiosk-on) small,
+html.dev-laptop:not(.kiosk-on) .mut,
+html.dev-laptop:not(.kiosk-on) .cap,
+html.dev-laptop:not(.kiosk-on) small {
+  font-size: max(14px, 0.9em);
+}
+
+/* --------------------------------------------------------------------------
+   2. 터치 표적
+
+   태블릿은 손가락으로 만진다. 노트북은 마우스라 44px 까지 필요하지 않지만,
+   터치 노트북도 있으므로 40px 은 준다.
+   표(table) 안은 예외로 둔다 — 시간표처럼 칸이 많은 화면에서 44px 을 강제하면
+   한 화면에 안 들어간다. 대신 칸 사이 간격을 벌려 오조작을 줄인다.
+   -------------------------------------------------------------------------- */
+html.dev-tablet:not(.kiosk-on) button,
+html.dev-tablet:not(.kiosk-on) .btn,
+html.dev-tablet:not(.kiosk-on) a.btn,
+html.dev-tablet:not(.kiosk-on) select,
+html.dev-tablet:not(.kiosk-on) input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+  min-height: 44px;
+}
+html.dev-laptop:not(.kiosk-on) button,
+html.dev-laptop:not(.kiosk-on) .btn,
+html.dev-laptop:not(.kiosk-on) a.btn,
+html.dev-laptop:not(.kiosk-on) select,
+html.dev-laptop:not(.kiosk-on) input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+  min-height: 40px;
+}
+
+html.dev-tablet:not(.kiosk-on) input[type="checkbox"],
+html.dev-tablet:not(.kiosk-on) input[type="radio"] {
+  width: 22px; height: 22px;
+}
+
+/* 표 안의 작은 버튼은 높이 대신 눌리는 면적으로 해결한다 */
+html.dev-tablet:not(.kiosk-on) td button,
+html.dev-tablet:not(.kiosk-on) th button,
+html.dev-tablet:not(.kiosk-on) td input,
+html.dev-tablet:not(.kiosk-on) td select {
+  min-height: 36px;
+  padding-top: 6px; padding-bottom: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   3. 이미지 — 잘림 금지
+
+   키오스크에서 배너가 잘려 나갔던 일이 있다(실물 사진에서 확인).
+   같은 실수를 반복하지 않도록 기본을 contain 으로 둔다.
+   배경처럼 채워야 하는 것만 .img-cover 로 예외를 준다.
+   -------------------------------------------------------------------------- */
+html.dev-tablet:not(.kiosk-on) img:not(.img-cover),
+html.dev-laptop:not(.kiosk-on) img:not(.img-cover) {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+html.dev-tablet:not(.kiosk-on) .img-cover,
+html.dev-laptop:not(.kiosk-on) .img-cover {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* --------------------------------------------------------------------------
+   4. 한 화면 — 세로가 짧은 기기
+
+   가로 태블릿(1024×768)과 보급형 노트북(1366×768)이 여기 해당한다.
+   높이가 820px 미만이면 화면 위아래 여백부터 줄인다.
+
+   100vh 가 아니라 100dvh 를 쓴다. 태블릿 브라우저는 주소창이 접혔다 펴지며
+   vh 가 실제 보이는 높이와 어긋난다.
+   -------------------------------------------------------------------------- */
+html.screen-short:not(.kiosk-on) body {
+  --screen-h: 100dvh;
+}
+@supports not (height: 100dvh) {
+  html.screen-short:not(.kiosk-on) body { --screen-h: 100vh; }
+}
+
+/* 한 화면에 담아야 하는 영역은 .fit-screen 을 붙인다 */
+html.screen-short:not(.kiosk-on) .fit-screen {
+  max-height: var(--screen-h);
+  overflow: auto;
+}
+
+/* --------------------------------------------------------------------------
+   5. 정사각 격자
+
+   aspect-ratio:1 은 컨테이너가 넓으면 칸이 화면보다 높아진다.
+   두뇌 놀이터에서 실제로 겪은 문제라 같은 방식으로 막는다.
+   -------------------------------------------------------------------------- */
+html.screen-short:not(.kiosk-on) .grid-square {
+  grid-auto-rows: 1fr;
+}
+html.screen-short:not(.kiosk-on) .grid-square > * {
+  aspect-ratio: auto;
+  min-height: 0;
+}
+
+/* --------------------------------------------------------------------------
+   6. 움직임 줄이기
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html.dev-tablet *, html.dev-laptop * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

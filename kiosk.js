@@ -6,6 +6,58 @@
 // 전체화면 진입을 한 번 시도한다.
 // iframe 안에 끼워진 페이지(예: kiosk-home.html의 4분할 타일)에서는 kiosk-on 감지만 하고
 // 전체화면 버튼/자동진입은 만들지 않는다 (최상위 페이지에만 하나만 있으면 됨).
+/* ── 기기 종류 판정 ───────────────────────────────────────────────
+   <html> 에 클래스를 붙인다. screen.css 가 이것만 보고 스타일을 건다.
+
+   폭만 보면 안 된다는 것이 이 판정의 핵심이다.
+     · 키오스크 1024×768 — 폭만 보면 데스크톱
+     · 태블릿 가로 1024×768 — 폭이 같지만 손가락으로 만진다
+     · 노트북 1366×768 — 폭은 크지만 세로가 짧다
+   그래서 폭 + 포인터 종류 + 높이를 같이 본다.
+
+   키오스크(kiosk-on)는 아래 detect() 가 따로 판정한다. 여기서는
+   키오스크로 잡힌 기기에 dev-* 를 붙이지 않는다 — 규칙이 겹치면
+   어느 쪽이 이겼는지 알기 어려워진다.
+
+   실측으로 드러난 문제(2026-08-08)
+     1366×768 노트북이 AI PIA 에서 세로 1,186px 넘쳤다. 원인은 글자 크기
+     축소 규칙이 max-width:1079px 이라 1366 이 안 걸려서, 키오스크용
+     세로 1080×1920 타이포그래피를 그대로 쓰고 있었기 때문이다. */
+(function () {
+  function classify() {
+    try {
+      var r = document.documentElement;
+      var w = window.innerWidth, h = window.innerHeight;
+      var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches;
+      var fine = window.matchMedia && window.matchMedia('(any-pointer: fine)').matches;
+
+      var kind;
+      if (w < 640) kind = 'phone';
+      else if (coarse && !fine) kind = 'tablet';        /* 손가락만 = 태블릿 */
+      else if (coarse && fine) kind = (w >= 1180 ? 'laptop' : 'tablet');  /* 터치 노트북 */
+      else if (w >= 1600) kind = 'desktop';
+      else kind = 'laptop';
+
+      ['phone', 'tablet', 'laptop', 'desktop'].forEach(function (k) {
+        r.classList.toggle('dev-' + k, k === kind && !r.classList.contains('kiosk-on'));
+      });
+
+      /* 세로가 짧은 기기 — 가로 태블릿·보급형 노트북이 여기 걸린다.
+         "한 화면에 안 들어온다" 문제가 거의 전부 여기서 난다. */
+      r.classList.toggle('screen-short', h < 820 && !r.classList.contains('kiosk-on'));
+    } catch (e) {
+      console.error('기기 판정 실패:', e);
+    }
+  }
+
+  classify();
+  window.addEventListener('resize', classify);
+  window.addEventListener('orientationchange', function () { setTimeout(classify, 300); });
+  /* 키오스크 판정이 나중에 붙으므로 한 번 더 돌려 겹치지 않게 한다 */
+  window.addEventListener('load', function () { setTimeout(classify, 100); });
+  window.piaClassifyDevice = classify;
+})();
+
 /* ── 결과 전송 토큰을 이 기기에 심는 통로 ───────────────────────────
    키오스크는 윈도우 PC + 터치 모니터다. 화면 키보드로 긴 주소를 치는 것은
    현실적이지 않으므로, 주소 한 번만 열리면 저장되게 한다.
