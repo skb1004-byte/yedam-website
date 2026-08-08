@@ -477,8 +477,8 @@ button:not(:disabled):active{transform:scale(.985)}
 #detailed-result .rounded-2xl,#detailed-result .bg-white,#extended-sections .rounded-2xl{box-shadow:0 18px 46px -32px rgba(20,20,19,.26)}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(217,119,87,.18)}
 </style>
-<link rel="stylesheet" href="../kiosk.css?v=20260808f">
-<script src="../kiosk.js?v=20260808f" defer></script>
+<link rel="stylesheet" href="../kiosk.css?v=20260808g">
+<script src="../kiosk.js?v=20260808g" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -2648,6 +2648,36 @@ async function callLLM(prompt, systemPrompt = '') {
 // 브라우저 온디바이스 추론 — Chrome 내장 Prompt API(Gemini Nano) 우선, 없으면 Transformers.js(WebGPU/WASM)
 let _ondevicePipe = null;
 let _ondeviceAllowDL = false; // 모바일은 대용량 모델 자동 다운로드 차단(버튼 먹통 방지) · 데스크톱+WebGPU에서만 활성
+
+/* 키오스크에서는 온디바이스 모델을 쓰지 않는다.
+
+   왜 이 판정이 따로 필요한가
+     isMobile() 은 화면 폭(<768px)만 본다. 그런데 키오스크는 1024x768 ·
+     1280x1024 라 "데스크톱"으로 잡히고, 그 결과 모델 다운로드가 허용된다.
+     실제로 재 보면 Qwen2.5-0.5B ONNX 는 q4 749MB · q4f16 460MB 이고,
+     POS 급 저사양 기기에서 이걸 받아 WASM 으로 추론하면
+       · 첫 실행에 수 분이 걸리고
+       · 추론이 매우 느리며
+       · 최악의 경우 브라우저가 죽는다(실측에서 페이지 종료 확인)
+     화면이 크다고 성능이 좋은 것은 아니라는 게 이 판정의 요지다. */
+function _isKioskDevice() {
+  try {
+    /* kiosk.js 가 붙이는 html.kiosk-on 만 보면 안 된다.
+       kiosk.js 는 defer 로 로드되므로 이 파일의 인라인 스크립트보다 늦게
+       실행된다. 실제로 그 순서 때문에 키오스크인데도 "데스크톱"으로
+       판정돼 모델 다운로드가 그대로 시작됐다(측정에서 11건 요청 확인).
+       그래서 클래스가 아직 없더라도 같은 조건을 직접 계산한다.
+       판정식은 kiosk.js 의 detect() 와 동일하게 맞춘다:
+         손가락 포인터(any-pointer: coarse) + 화면 긴 변 900px 이상 */
+    if (document.documentElement.classList.contains('kiosk-on')) return true;
+    var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches;
+    var big = Math.max(window.innerWidth, window.innerHeight) >= 900;
+    return !!(coarse && big);
+  } catch (e) { return false; }
+}
+function _ondeviceAllowed() {
+  return !(typeof isMobile === 'function' && isMobile()) && !_isKioskDevice();
+}
 async function callOnDevice(prompt, systemPrompt) {
   try {
     const LM = (typeof self!=='undefined' && self.LanguageModel) || (typeof window!=='undefined' && window.ai && window.ai.languageModel) || null;
@@ -5168,7 +5198,7 @@ function initSettings() {
     save();
     const label = (PROVIDERS[m] && PROVIDERS[m].label) || m;
     if (m === 'ONDEVICE') {
-      _ondeviceAllowDL = !(typeof isMobile==='function'&&isMobile());
+      _ondeviceAllowDL = _ondeviceAllowed();   /* 키오스크 제외 */
       el('cfg-status').textContent = '🖥 온디바이스 확인 중… (첫 응답 시 모델 준비될 수 있어요)';
       try { const r = await callOnDevice('안녕? 한 문장으로 자기소개 해줘.','한국어로만 짧게.'); el('cfg-status').textContent = (r && r.trim()) ? '✅ 온디바이스 동작 확인 — 인터넷·키 없이 자유대화에 사용됩니다.' : 'ℹ 온디바이스 준비/미지원 — 지원 브라우저(WebGPU 또는 Chrome 내장 AI)면 첫 대화에서 모델을 받아 이후 오프라인 동작, 아니면 로컬 규칙형으로 폴백.'; } catch(e) { el('cfg-status').textContent = 'ℹ 온디바이스 미지원 — 로컬 규칙형 폴백.'; }
       return;
@@ -5384,7 +5414,7 @@ async function autoConnectFreeAI() {
   const hasUserKey = !!(state.cfg && state.cfg.key && state.cfg.mode !== 'LOCAL' && state.cfg.mode !== 'AUTO_FREE' && state.cfg.mode !== 'ONDEVICE');
   if (savedCfg || hasUserKey) {
     const ms0 = el('cfg-mode'); if (ms0 && state.cfg.mode) ms0.value = state.cfg.mode;
-    if (state.cfg.mode === 'ONDEVICE' && !(typeof isMobile==='function'&&isMobile())) _ondeviceAllowDL = true; // 데스크톱만 모델 다운로드 허용(모바일은 내장 AI/무료 AI)
+    if (state.cfg.mode === 'ONDEVICE' && _ondeviceAllowed()) _ondeviceAllowDL = true; // 데스크톱만 허용(모바일·키오스크 제외)
     const lbl = (PROVIDERS[state.cfg.mode] && PROVIDERS[state.cfg.mode].label) || state.cfg.mode;
     if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">엔진: ' + lbl + '</span>';
     return;
@@ -5411,6 +5441,59 @@ async function autoConnectFreeAI() {
     try { const r = await callLLMFree('안녕','한 단어로만 답해.'); if (badge) badge.innerHTML = (r&&r.trim()) ? '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 무료 AI 연결됨</span>' : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚡ 무료 AI(혼잡 시 로컬 폴백)</span>'; } catch(e) {}
     return;
   }
+  /* ── 키오스크 기본 엔진 ───────────────────────────────────────────────
+     키오스크는 온디바이스를 못 쓴다(위 _isKioskDevice 주석 참고).
+     대신 이 순서로 고른다.
+
+       1) Gemini 키가 저장돼 있으면 Gemini 2.5 Flash
+          무료 1,500요청/일 · 한국어 품질이 가장 낫다.
+       2) 프록시가 설정돼 있으면 GitHub Models(키는 서버 보관)
+       3) 둘 다 없으면 무료 AI(키 불필요) — 다만 pollinations 는 2026-08
+          현재 402(Payment Required)를 반환하고 "legacy API deprecated"
+          안내가 붙었다. 이 경로는 언제 막혀도 이상하지 않으므로
+          최종적으로는 로컬 규칙형으로 폴백한다.
+
+     키는 소스에 넣지 않는다. localStorage(pia_v3_cfg)에만 저장한다.
+     소스에 박으면 공개 저장소에 그대로 노출된다(커리어넷 키가 그랬다). */
+  if (_isKioskDevice()) {
+    const _gk = (state.cfg && state.cfg.apiKeys && state.cfg.apiKeys.GEMINI_FLASH) || '';
+    if (_gk) {
+      state.cfg = Object.assign({}, state.cfg, {
+        mode:'GEMINI_FLASH', key:_gk,
+        endpoint:(PROVIDERS.GEMINI_FLASH && PROVIDERS.GEMINI_FLASH.endpoint) || '',
+        model:(PROVIDERS.GEMINI_FLASH && PROVIDERS.GEMINI_FLASH.model) || 'gemini-2.5-flash'
+      });
+      save();
+      const msK = el('cfg-mode'); if (msK) msK.value = 'GEMINI_FLASH';
+      const csK = el('cfg-status'); if (csK) csK.textContent = '🖥 키오스크 기본: Gemini 2.5 Flash (무료 1,500요청/일)';
+      if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 Gemini 2.5 Flash 연결</span>';
+      return;
+    }
+    const _pk = !!(state.cfg && state.cfg.proxy && state.cfg.proxy.trim());
+    if (_pk) {
+      state.cfg = Object.assign({}, state.cfg, { mode:'GITHUB_MODELS', key:'',
+        endpoint:(PROVIDERS.GITHUB_MODELS && PROVIDERS.GITHUB_MODELS.endpoint) || '',
+        model:(PROVIDERS.GITHUB_MODELS && PROVIDERS.GITHUB_MODELS.model) || 'openai/gpt-4o-mini' });
+      save();
+      const msP = el('cfg-mode'); if (msP) msP.value = 'GITHUB_MODELS';
+      const csP = el('cfg-status'); if (csP) csP.textContent = '🖥 키오스크 기본: GitHub Models(프록시 경유·키는 서버 보관)';
+      if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 GitHub Models(프록시)</span>';
+      return;
+    }
+    state.cfg = Object.assign({}, state.cfg, { mode:'AUTO_FREE', key:'',
+      endpoint:(PROVIDERS.AUTO_FREE && PROVIDERS.AUTO_FREE.endpoint) || 'https://text.pollinations.ai/openai',
+      model:(state.cfg.freeModel || 'openai') });
+    save();
+    const msF = el('cfg-mode'); if (msF) msF.value = 'AUTO_FREE';
+    const csF = el('cfg-status'); if (csF) csF.textContent = '🖥 키오스크 기본: 무료 AI — 설정에서 Gemini 키를 넣으면 더 안정적입니다';
+    if (badge) badge.innerHTML = '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚡ 무료 AI · Gemini 키 권장</span>';
+    try {
+      const r = await callLLMFree('안녕','한 단어로만 답해.');
+      if (badge && !(r && r.trim())) badge.innerHTML = '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚠ 무료 AI 불안정 — 설정에서 Gemini 키를 넣어 주세요</span>';
+    } catch(e) {}
+    return;
+  }
+
   state.cfg = Object.assign({}, state.cfg, { mode:'ONDEVICE' });
   save();
   const ms = el('cfg-mode'); if (ms) ms.value = 'ONDEVICE';
@@ -5418,7 +5501,7 @@ async function autoConnectFreeAI() {
   // 브라우저 내장 Prompt API(Gemini Nano) 가용성만 가볍게 확인 (모델 다운로드 X)
   let builtin = false;
   try { const LM = (self.LanguageModel) || (window.ai && window.ai.languageModel); if (LM) { let a='readily'; try { a = LM.availability ? await LM.availability() : 'readily'; } catch(e){} builtin = a && a !== 'no' && a !== 'unavailable'; } } catch(e) {}
-  if (builtin && !(typeof isMobile==='function'&&isMobile())) _ondeviceAllowDL = true;
+  if (builtin && _ondeviceAllowed()) _ondeviceAllowDL = true;
   if (badge) badge.innerHTML = builtin
     ? '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 온디바이스(브라우저 내장 AI) 연결됨</span>'
     : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 기본 · 미지원 시 로컬 규칙형 자동 폴백</span>';
@@ -5677,7 +5760,7 @@ async function autoEnableOnDevice(){
     if (typeof isMobile==='function' && isMobile()) { window._ondeviceLazy=true; return; } // 모바일은 온디바이스 자동기동 안 함(무료 AI 사용)
     const hasChrome = !!((typeof self!=='undefined' && self.LanguageModel) || (typeof window!=='undefined' && window.ai && window.ai.languageModel));
     const hasGPU = !!(typeof navigator!=='undefined' && navigator.gpu);
-    window._ondeviceReady = false; window._ondeviceWarming = true; var _isMob=(typeof isMobile==='function'&&isMobile()); _ondeviceAllowDL = !_isMob;
+    window._ondeviceReady = false; window._ondeviceWarming = true; _ondeviceAllowDL = _ondeviceAllowed();
     function badge(html){ try{ var b=document.getElementById('chat-aistatus'); if(b) b.innerHTML=html; }catch(_){} }
     function st(msg){ try{ var e=document.getElementById('cfg-status'); if(e) e.textContent=msg; }catch(_){} }
     badge('<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 연결 시도 중…</span>');
