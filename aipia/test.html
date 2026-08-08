@@ -475,8 +475,8 @@ button:not(:disabled):active{transform:scale(.985)}
 #detailed-result .rounded-2xl,#detailed-result .bg-white,#extended-sections .rounded-2xl{box-shadow:0 18px 46px -32px rgba(20,20,19,.26)}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(217,119,87,.18)}
 </style>
-<link rel="stylesheet" href="../kiosk.css?v=20260808q">
-<script src="../kiosk.js?v=20260808q" defer></script>
+<link rel="stylesheet" href="../kiosk.css?v=20260808r">
+<script src="../kiosk.js?v=20260808r" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -2711,7 +2711,7 @@ async function callOnDevice(prompt, systemPrompt) {
   return null;
 }
 
-const PIA_CHAT_PROXY = 'https://lucky-sun-025e.songkb9.workers.dev';
+const PIA_CHAT_PROXY = 'https://api.yedam.kr/ai';
 function _escHtml(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
 // 키 불필요 무료 게이트웨이 직접 호출 (cfg 무관 · 자유대화 자동 연결용)
 async function callLLMFree(prompt, systemPrompt) {
@@ -3312,7 +3312,7 @@ const PROVIDERS = {
      Worker 는 Gemini→Groq→Cerebras→OpenRouter→HF→GitHub 순으로 자동 폴백하고
      키는 Cloudflare Secret 에만 있어 브라우저로 나가지 않는다.
      요청·응답 형식이 OpenAI 호환이라 기존 호출부를 그대로 쓴다. */
-  AUTO_FREE: { endpoint:'https://lucky-sun-025e.songkb9.workers.dev', model:'', label:'자동 무료 (서버 프록시·키 불필요)' },
+  AUTO_FREE: { endpoint:'https://api.yedam.kr/ai', model:'', label:'자동 무료 (서버 프록시·키 불필요)' },
   ONDEVICE: { endpoint:'', model:'onnx-community/Qwen2.5-0.5B-Instruct', label:'온디바이스(브라우저)' },
   HYPERCLOVA: { endpoint:'https://clovastudio.stream.ntruss.com/v1/chat-completions/HCX-005', model:'HCX-005', label:'HyperCLOVA X' },
   SOLAR: { endpoint:'https://api.upstage.ai/v1/solar/chat/completions', model:'solar-1-mini-chat', label:'Upstage SOLAR' },
@@ -5029,7 +5029,7 @@ async function hfTranscribe(file){
 
    사용자가 설정에서 개인 키를 저장했다면 그 키를 붙여 보낸다.
    Worker 는 apikey 파라미터가 이미 있으면 덮어쓰지 않는다. */
-var CAREERNET_WORKER = 'https://lucky-sun-025e.songkb9.workers.dev';
+var CAREERNET_WORKER = 'https://api.yedam.kr/ai';
 var CAREERNET_KEY = '';   // 소스에 키를 두지 않는다. Worker Secret 이 담당한다.
 
 /* 커리어넷 API 주소를 만들어 Worker fwd 로 감싼다.

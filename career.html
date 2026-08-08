@@ -55,8 +55,8 @@ button:disabled{opacity:.5;cursor:default}
 .hide{display:none}
 @media (max-width:520px){ .wrap{padding:12px} .tabs button{font-size:13px;padding:10px 6px} }
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260808q">
-<script src="kiosk.js?v=20260808q" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260808r">
+<script src="kiosk.js?v=20260808r" defer></script>
 </head>
 <body>
 <header>
@@ -90,15 +90,16 @@ button:disabled{opacity:.5;cursor:default}
 (function () {
   'use strict';
 
-  /* 커리어넷 공개 API 호출은 모두 Cloudflare Worker 의 fwd 를 거친다.
+  /* 커리어넷 공개 API 호출은 모두 자체 서버(api.yedam.kr/ai)의 fwd 를 거친다.
        · 커리어넷은 CORS 를 막아 두어 브라우저에서 직접 못 부른다
-       · 인증키는 Worker Secret(CAREERNET_KEY)에만 있고 이 파일에는 없다
-       · Worker 의 GOV_HOSTS 허용 목록에 career.go.kr 만 들어 있다
+       · 인증키는 서버 .env 에만 있고 이 파일에는 없다
+       · 서버의 GOV_HOSTS 허용 목록 밖 주소는 403 이다
+       · 서버에 키가 아직 없으면 기존 Cloudflare Worker 로 위임된다(이전 기간용)
      매뉴얼 v4.1 기준 주소
        직업백과 목록 /cnet/front/openapi/jobs.json
        직업백과 상세 /cnet/front/openapi/job.json?seq=
        학과정보      /cnet/openapi/getOpenApi?svcType=api&svcCode=MAJOR|MAJOR_VIEW */
-  var WORKER = 'https://lucky-sun-025e.songkb9.workers.dev';
+  var WORKER = 'https://api.yedam.kr/ai';
 
   function fwd(target) {
     return WORKER + '?task=fwd&url=' + encodeURIComponent(target);
