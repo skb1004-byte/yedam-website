@@ -6,6 +6,73 @@
 // 전체화면 진입을 한 번 시도한다.
 // iframe 안에 끼워진 페이지(예: kiosk-home.html의 4분할 타일)에서는 kiosk-on 감지만 하고
 // 전체화면 버튼/자동진입은 만들지 않는다 (최상위 페이지에만 하나만 있으면 됨).
+/* ── 결과 전송 토큰을 이 기기에 심는 통로 ───────────────────────────
+   키오스크는 윈도우 PC + 터치 모니터다. 화면 키보드로 긴 주소를 치는 것은
+   현실적이지 않으므로, 주소 한 번만 열리면 저장되게 한다.
+
+     https://yedam.kr/...?settoken=<토큰>     저장
+     https://yedam.kr/...?settoken=           해제
+     https://yedam.kr/...?checktoken=1        이 기기에 들어 있는지 확인
+
+   저장한 뒤 주소에서 즉시 지운다. 뒤로가기 기록·화면 공유·어깨너머로
+   토큰이 남지 않게 하려는 것이다.
+
+   kiosk.js 는 전 페이지에 실려 있으므로 키오스크 시작 화면(kiosk-home)에서
+   열어도 되고, 검사 화면에서 열어도 된다. localStorage 는 주소(오리진)
+   단위라 어느 페이지에서 넣든 같은 값을 쓴다. */
+(function () {
+  function say(msg) {
+    var d = document.createElement('div');
+    d.setAttribute('role', 'status');
+    d.style.cssText = 'position:fixed;left:50%;top:24px;transform:translateX(-50%);'
+      + 'z-index:2147483647;background:#141413;color:#fff;padding:14px 20px;'
+      + 'border-radius:12px;font:600 16px/1.5 system-ui,-apple-system,sans-serif;'
+      + 'box-shadow:0 8px 28px rgba(0,0,0,.28);max-width:88vw;text-align:center';
+    d.textContent = msg;
+    function show() {
+      document.body.appendChild(d);
+      setTimeout(function () { d.remove(); }, 6000);
+    }
+    if (document.body) show();
+    else document.addEventListener('DOMContentLoaded', show);
+  }
+
+  try {
+    var sp = new URLSearchParams(window.location.search);
+    var touched = false;
+
+    if (sp.has('settoken')) {
+      var v = (sp.get('settoken') || '').trim();
+      if (v) {
+        localStorage.setItem('pia_ingest_token', v);
+        say('이 기기에 전송 토큰을 저장했습니다.');
+      } else {
+        localStorage.removeItem('pia_ingest_token');
+        say('이 기기의 전송 토큰을 지웠습니다.');
+      }
+      sp.delete('settoken');
+      touched = true;
+    }
+
+    if (sp.has('checktoken')) {
+      var cur = localStorage.getItem('pia_ingest_token') || '';
+      say(cur
+        ? '전송 토큰 있음 (끝 4자리 ' + cur.slice(-4) + ')'
+        : '전송 토큰 없음 — 이 기기는 아직 설정되지 않았습니다.');
+      sp.delete('checktoken');
+      touched = true;
+    }
+
+    if (touched) {
+      var q = sp.toString();
+      window.history.replaceState(null, '',
+        window.location.pathname + (q ? '?' + q : '') + window.location.hash);
+    }
+  } catch (e) {
+    console.error('전송 토큰 처리 실패:', e);
+  }
+})();
+
 (function () {
   var isFramed = (function () {
     try {

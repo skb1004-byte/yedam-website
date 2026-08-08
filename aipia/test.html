@@ -2675,6 +2675,24 @@ function _isKioskDevice() {
 function _ondeviceAllowed() {
   return !(typeof isMobile === 'function' && isMobile()) && !_isKioskDevice();
 }
+/* 브라우저에 내장 AI(Prompt API)가 지금 바로 쓸 수 있는 상태인가.
+   'downloadable' / 'downloading' 도 결국 브라우저가 알아서 받는 것이라
+   우리가 대용량 파일을 내려받게 하는 것과는 다르다. 다만 첫 응답이
+   늦을 수 있으므로 'available' 만 즉시 사용으로 본다. */
+async function _piaBuiltinAvailable() {
+  try {
+    const LM = (typeof self !== 'undefined' && self.LanguageModel)
+            || (typeof window !== 'undefined' && window.ai && window.ai.languageModel);
+    if (!LM) return false;
+    if (!LM.availability) return true;
+    const a = await LM.availability();
+    return a === 'available' || a === 'readily';
+  } catch (e) {
+    console.error('내장 AI 확인 실패:', e);
+    return false;
+  }
+}
+
 async function callOnDevice(prompt, systemPrompt) {
   try {
     const LM = (typeof self!=='undefined' && self.LanguageModel) || (typeof window!=='undefined' && window.ai && window.ai.languageModel) || null;
@@ -5478,6 +5496,27 @@ async function autoConnectFreeAI() {
 
        사용자가 설정에서 개인 키를 저장했다면 위쪽 분기에서 이미 그것을
        존중하고 여기까지 오지 않는다. */
+    /* 키오스크에도 브라우저 내장 AI 가 있으면 그것을 먼저 쓴다.
+
+       예전에는 키오스크면 무조건 서버 프록시로 갔다. 그 판단의 근거는
+       "키오스크는 저사양이라 큰 모델을 못 돌린다" 였는데, 내장 AI 는
+       **받을 것이 없다**. 이미 브라우저에 들어 있는 모델을 부르는 것이라
+       저사양 논리가 적용되지 않는다. 실측(크롬 151, 2026-08-08):
+       세션 생성 9.3초(최초 1회) · 응답 1.5~2.2초 · 한국어 정상.
+
+       내장 AI 가 되면 인터넷도 서버도 키도 필요 없다. 학교 망이 막혀도,
+       우리 서버가 죽어도 대화가 된다. 안 되는 기기는 그대로 서버로 간다.
+       큰 모델 다운로드는 여기서도 열지 않는다. */
+    if (await _piaBuiltinAvailable()) {
+      state.cfg = Object.assign({}, state.cfg, { mode:'ONDEVICE' });
+      save();
+      _ondeviceAllowDL = false;
+      const msB = el('cfg-mode'); if (msB) msB.value = 'ONDEVICE';
+      const csB = el('cfg-status'); if (csB) csB.textContent = '🖥 키오스크: 브라우저 내장 AI 사용 — 서버·인터넷·키 불필요';
+      if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 온디바이스(브라우저 내장 AI) 연결됨</span>';
+      return;
+    }
+
     state.cfg = Object.assign({}, state.cfg, {
       mode:'AUTO_FREE', key:'',
       endpoint:(PROVIDERS.AUTO_FREE && PROVIDERS.AUTO_FREE.endpoint) || PIA_CHAT_PROXY,
@@ -5512,15 +5551,7 @@ async function autoConnectFreeAI() {
 
      큰 모델을 굳이 받고 싶으면 설정에서 온디바이스를 직접 고르면 된다.
      기본값으로는 받지 않는다. */
-  let builtin = false;
-  try {
-    const LM = (self.LanguageModel) || (window.ai && window.ai.languageModel);
-    if (LM) {
-      let a = 'readily';
-      try { a = LM.availability ? await LM.availability() : 'readily'; } catch (e) {}
-      builtin = a && a !== 'no' && a !== 'unavailable';
-    }
-  } catch (e) {}
+  const builtin = await _piaBuiltinAvailable();
 
   if (builtin) {
     state.cfg = Object.assign({}, state.cfg, { mode:'ONDEVICE' });
@@ -8392,7 +8423,8 @@ function sendResultToAdmin(opts){
   const base=piaApiBase();
   _adminSig=sig;
   try{ piaSaveSupabase(rec); }catch(e){}
-  fetch((base||'')+'/api/results',{method:'POST',headers:_piaIngestHeaders(),body:JSON.stringify(rec)})
+  _piaEnsureTicket()
+    .then(()=> fetch((base||'')+'/api/results',{method:'POST',headers:_piaIngestHeaders(),body:JSON.stringify(rec)}))
     .then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
     .then(()=>{ if(opts.toast){ try{ toast('결과가 관리자 서버에 저장되었습니다.'); }catch(e){} } })
     .catch(()=>{ _adminSig=''; _piaOutboxPut(rec); });
@@ -8409,41 +8441,51 @@ function sendResultToAdmin(opts){
        localStorage.setItem('pia_ingest_token','발급받은값')
    토큰이 없으면 헤더를 붙이지 않는다. 그러면 사전 요청(preflight)도 생기지
    않아 일반 방문자의 저장 경로는 지금과 완전히 같다. */
-/* 키오스크에 토큰을 넣는 통로.
-   현장 기기마다 개발자도구를 열어 localStorage 를 만질 수는 없다.
-   그래서 관리자가 주소 한 번만 열면(또는 QR 로 찍으면) 저장되게 한다.
+/* 저장 증표(티켓).
+   서버가 몇 분짜리 서명값을 내주고, 저장할 때 그걸 같이 보낸다.
+   원본 열쇠는 서버 밖으로 안 나오므로 화면 소스를 봐도 얻을 게 없다.
 
-     https://yedam.kr/aipia/test.html?settoken=<토큰>
+   지금은 티켓 발급에 아무 관문이 없다 — 즉 보안 효과는 거의 없고,
+   나중에 발급 앞에 사람 확인을 붙이기 위한 배관이다. 이 파일은 그때도 안 고친다.
 
-   저장한 뒤에는 주소에서 즉시 지운다. 뒤로가기 기록·화면 공유·어깨너머로
-   토큰이 남지 않게 하려는 것이다. ?settoken= 를 값 없이 열면 해제된다. */
-(function _piaTokenBootstrap(){
+   기기에 직접 심어 둔 토큰(localStorage.pia_ingest_token)이 있으면 그게 우선이다.
+   키오스크처럼 확실히 우리 기기인 곳에는 그 방식을 쓸 수 있다. */
+var _piaTicket = { v: '', exp: 0 };
+var _piaTicketPending = null;
+
+function _piaEnsureTicket(){
   try{
-    var sp = new URLSearchParams(location.search);
-    if(!sp.has('settoken')) return;
-    var v = (sp.get('settoken')||'').trim();
-    if(v){ localStorage.setItem('pia_ingest_token', v); }
-    else { localStorage.removeItem('pia_ingest_token'); }
-    sp.delete('settoken');
-    var q = sp.toString();
-    history.replaceState(null, '', location.pathname + (q ? '?'+q : '') + location.hash);
-    setTimeout(function(){
-      try{ toast(v ? '이 기기에 전송 토큰을 저장했습니다.' : '이 기기의 전송 토큰을 지웠습니다.'); }
-      catch(e){ console.error('토큰 안내 표시 실패:', e); }
-    }, 800);
-  }catch(e){
-    console.error('전송 토큰 설정 실패:', e);
-  }
-})();
+    if (localStorage.getItem('pia_ingest_token')) return Promise.resolve();   // 심어 둔 토큰 우선
+  }catch(e){ /* localStorage 차단 환경 */ }
+
+  var now = Date.now();
+  if (_piaTicket.v && now < _piaTicket.exp - 60000) return Promise.resolve();
+  if (_piaTicketPending) return _piaTicketPending;
+
+  var base = piaApiBase() || '';
+  _piaTicketPending = fetch(base + '/api/results?ticket=1')
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if (j && j.ok && j.ticket) {
+        _piaTicket.v = j.ticket;
+        _piaTicket.exp = now + (j.ttl || 1800) * 1000;
+      }
+    })
+    .catch(function(e){ console.error('저장 티켓 발급 실패:', e); })
+    .then(function(){ _piaTicketPending = null; });
+  return _piaTicketPending;
+}
 
 function _piaIngestHeaders(){
-  const h = {'Content-Type':'text/plain;charset=UTF-8'};
+  var h = {'Content-Type':'text/plain;charset=UTF-8'};
   try{
-    const t = (localStorage.getItem('pia_ingest_token')||'').trim();
-    if(t) h['x-ingest-token'] = t;
+    var t = (localStorage.getItem('pia_ingest_token')||'').trim();
+    if(t){ h['x-ingest-token'] = t; return h; }
   }catch(e){ console.error('ingest 토큰 조회 실패:', e); }
+  if(_piaTicket.v) h['x-ingest-token'] = _piaTicket.v;
   return h;
 }
+
 function _piaOutboxPut(rec){
   try{ const ob=JSON.parse(localStorage.getItem('pia_admin_outbox')||'[]');
     const i=ob.findIndex(x=>x.id===rec.id); if(i>=0)ob[i]=rec; else ob.push(rec);
@@ -8453,8 +8495,11 @@ function flushAdminOutbox(){
   const base=piaApiBase();
   let ob; try{ ob=JSON.parse(localStorage.getItem('pia_admin_outbox')||'[]'); }catch(e){ return; }
   if(!ob.length) return;
-  Promise.all(ob.map(rec=>fetch((base||'')+'/api/results',{method:'POST',headers:_piaIngestHeaders(),body:JSON.stringify(rec)}).then(r=>r.ok).catch(()=>false)))
-    .then(res=>{ if(res.length && res.every(Boolean)) localStorage.removeItem('pia_admin_outbox'); });
+  /* 밀린 결과 재전송도 티켓을 먼저 확보한 뒤에 보낸다. */
+  _piaEnsureTicket().then(()=>
+    Promise.all(ob.map(rec=>fetch((base||'')+'/api/results',{method:'POST',headers:_piaIngestHeaders(),body:JSON.stringify(rec)}).then(r=>r.ok).catch(()=>false)))
+      .then(res=>{ if(res.length && res.every(Boolean)) localStorage.removeItem('pia_admin_outbox'); })
+  );
 }
 let _adminSyncTimer=null;
 function scheduleAdminSync(){ if(_adminSyncTimer) return; _adminSyncTimer=setTimeout(()=>{ _adminSyncTimer=null; try{ sendResultToAdmin(); }catch(e){} }, 1500); }
