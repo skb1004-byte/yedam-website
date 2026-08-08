@@ -6,8 +6,6 @@
 <title>AI PIA v4 — 7-Track 통합검사 + 결과지</title>
 <link rel="preconnect" href="/vendor/tailwind-3.4.17.js">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preconnect" href="https://text.pollinations.ai">
-<link rel="dns-prefetch" href="https://ko.wikipedia.org">
 <script src="/vendor/tailwind-3.4.17.js"></script>
 <script defer src="/vendor/chart-4.4.1.umd.js"></script>
 <style>
@@ -475,8 +473,8 @@ button:not(:disabled):active{transform:scale(.985)}
 #detailed-result .rounded-2xl,#detailed-result .bg-white,#extended-sections .rounded-2xl{box-shadow:0 18px 46px -32px rgba(20,20,19,.26)}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(217,119,87,.18)}
 </style>
-<link rel="stylesheet" href="../kiosk.css?v=20260808s">
-<script src="../kiosk.js?v=20260808s" defer></script>
+<link rel="stylesheet" href="../kiosk.css?v=20260808t">
+<script src="../kiosk.js?v=20260808t" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -2572,7 +2570,7 @@ async function callLLM(prompt, systemPrompt = '') {
       });
     } else if (mode === 'AUTO_FREE') {
       // 키 불필요·CORS 무료 LLM 게이트웨이 (Pollinations · OpenAI 호환)
-      url = cfg.endpoint || 'https://text.pollinations.ai/openai';
+      url = cfg.endpoint || PIA_CHAT_PROXY;
       headers = { 'Content-Type':'application/json' };
       body = JSON.stringify({ model: cfg.model || 'openai', messages, max_tokens: 250, temperature: 0.7, referrer: 'ai-pia', private: true });
     } else if (mode === 'TOGETHER') {
@@ -2732,29 +2730,10 @@ async function callLLMFree(prompt, systemPrompt) {
       if (c0 && c0.trim()) return c0.trim();
     }
   } catch(e) {}
-  // 1차: OpenAI 호환 POST (Pollinations · 키 불필요)
-  try {
-    const ctrl = new AbortController(); const t = setTimeout(function(){ ctrl.abort(); }, 15000);
-    const res = await fetch('https://text.pollinations.ai/openai', {
-      method:'POST', headers:{ 'Content-Type':'application/json' }, signal: ctrl.signal,
-      body: JSON.stringify({ model:(state.cfg&&state.cfg.freeModel)||'openai', messages, max_tokens:300, temperature:0.7, referrer:'ai-pia', private:true })
-    });
-    clearTimeout(t);
-    if (res.ok) {
-      const data = await res.json();
-      const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-      if (c && c.trim()) return c.trim();
-    }
-  } catch(e) {}
-  // 2차: 단순 GET (plain text) — 1차 실패/레이트리밋 시
-  try {
-    const ctrl2 = new AbortController(); const t2 = setTimeout(function(){ ctrl2.abort(); }, 15000);
-    const u = 'https://text.pollinations.ai/' + encodeURIComponent(prompt)
-      + '?model=' + encodeURIComponent((state.cfg&&state.cfg.freeModel)||'openai') + '&referrer=ai-pia' + (systemPrompt ? '&system=' + encodeURIComponent(systemPrompt) : '');
-    const res2 = await fetch(u, { signal: ctrl2.signal });
-    clearTimeout(t2);
-    if (res2.ok) { const txt = await res2.text(); if (txt && txt.trim()) return txt.trim(); }
-  } catch(e) {}
+  /* 예전에는 여기서 pollinations 를 직접 두 번 더 불렀다. 이제 뺀다.
+     0차 프록시가 이미 6개 공급자를 차례로 훑고, 그것마저 실패하면 서버가
+     한 번 더 다른 경로로 시도한다. 브라우저가 우리가 통제하지 않는 곳으로
+     따로 나갈 이유가 없다. 여기까지 왔다면 호출부가 규칙형 답변으로 받는다. */
   return null;
 }
 
@@ -3348,7 +3327,7 @@ let state = {
     sjt: { answers: [], dims: {}, order: [], adaptive: false },
     conv: { turns: 0, dims: {}, riskHist: [], topics: {}, transcript: [] }
   },
-  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
+  cfg: { mode:'ONDEVICE', endpoint:'https://api.yedam.kr/ai', key:'', model:'openai', proxy:'', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
 };
 
 function load() {
@@ -5304,19 +5283,9 @@ function initSettings() {
       save();
       el('cfg-status').textContent = '무료 모델: ' + freeModelSel.value;
     });
-    (async function(){
-      try {
-        const res = await fetch('https://text.pollinations.ai/models');
-        if (!res.ok) return;
-        const list = await res.json();
-        const names = Array.isArray(list) ? list.map(function(m){ return (typeof m === 'string') ? m : (m.name || m.id || m.model); }).filter(Boolean) : [];
-        if (names.length) {
-          const cur = freeModelSel.value;
-          freeModelSel.innerHTML = names.slice(0,30).map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('');
-          freeModelSel.value = names.indexOf(cur) >= 0 ? cur : (names.indexOf('openai')>=0?'openai':names[0]);
-        }
-      } catch(e) {}
-    })();
+    /* 예전에는 pollinations 에서 무료 모델 목록을 받아 드롭다운을 채웠다.
+       그 한 줄 때문에 설정 화면을 열 때마다 외부로 나갔다. 목록은 고정값으로 둔다. */
+
   }
   // Apply
   modeSel.value = state.cfg.mode || 'LOCAL';
@@ -6480,7 +6449,7 @@ async function fillAiSummary(audience, d){
       tb.textContent='번역 중…';
       try {
         const q = String(text).slice(0,480);
-        const r = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(q) + '&langpair=ko%7Cen');
+        const r = await fetch(PIA_CHAT_PROXY + '?task=tr&langpair=ko%7Cen&q=' + encodeURIComponent(q));
         const j = await r.json();
         const en = j && j.responseData && j.responseData.translatedText;
         if(en){ const p=document.createElement('p'); p.className='text-xs text-slate-500 mt-2 italic'; p.textContent='EN: ' + en; card.appendChild(p); tb.remove(); }
