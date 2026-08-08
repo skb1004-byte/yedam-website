@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/favicon_256.png">
 <meta name="description" content="예담 키오스크 홈 — AI PIA 학생 인적성검사, 맘(MOM) 인지건강 확인, 선생님 도우미, 두뇌 놀이터를 한 화면에서.">
-<link rel="stylesheet" href="kiosk.css?v=20260808c">
+<link rel="stylesheet" href="kiosk.css?v=20260808d">
 <style>
   html, body {
     margin: 0;
@@ -279,24 +279,36 @@
        공용 kiosk.css 는 left+bottom 으로 자리를 잡는데, 여기서 top+right 만
        덮어쓰면 left 와 right 가 동시에 살아남아 버튼이 화면 폭만큼
        늘어난다(실제로 1024x768 에서 998px 짜리 막대가 됐다). */
+  /* ── 좌상단 두 버튼("홈페이지" · "전체화면") 정렬 ──────────────────
+     실물 사진에서 두 버튼의 높이·여백·모서리가 서로 달라 계단처럼
+     어긋나 보였다. 왼쪽 끝만 맞추면 부족하고, 크기 자체를 통일해야
+     한 덩어리로 보인다. 아래 값은 두 규칙에 똑같이 준다. */
+  .kiosk-back,
   html.kiosk-on #kiosk-fs-btn {
-    left: 18px;
+    left: 14px;
     right: auto;
-    top: 78px;
     bottom: auto;
-    padding: 8px 14px;
-    font-size: 0.78rem;
-    opacity: 0.45;          /* 타일 위에 얹히므로 평소엔 흐리게 */
+    height: 44px;            /* 두 버튼 높이를 못 박는다 */
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    box-sizing: border-box;
+  }
+  .kiosk-back { top: 14px; }
+  html.kiosk-on #kiosk-fs-btn {
+    top: 66px;               /* 14 + 44 + 8 = 딱 8px 간격 */
+    opacity: 0.45;           /* 타일 위에 얹히므로 평소엔 흐리게 */
   }
   html.kiosk-on #kiosk-fs-btn:hover,
   html.kiosk-on #kiosk-fs-btn:active { opacity: 1; }
   html.kiosk-on #kiosk-fs-btn.is-fs { opacity: 0.6; }
 
   /* 창 높이가 작으면(주소줄·작업표시줄이 보이는 창 모드) 타일 제목이 위로
-     올라와 이 버튼과 겹친다. 그때는 "홈페이지" 링크와 한 줄로 나란히 둔다. */
+     올라와 이 버튼과 겹친다. 그때는 두 버튼을 한 줄로 나란히 둔다. */
   @media (max-height: 700px) {
-    .kiosk-back { min-height: 40px; padding: 0 14px; font-size: 0.85rem; }
-    html.kiosk-on #kiosk-fs-btn { left: 118px; top: 18px; }
+    html.kiosk-on #kiosk-fs-btn { left: 108px; top: 14px; }
   }
 
   @media (max-width: 720px) {
@@ -395,17 +407,17 @@
     .kiosk-bottom-feat-t  { font-size: clamp(0.85rem, 2.6vmin, 1.6rem); }
     .kiosk-bottom-feat-d  { font-size: clamp(0.7rem, 2vmin, 1.25rem); }
   }
+  /* 크기·위치는 위쪽 "좌상단 두 버튼 정렬" 규칙에서 통일해 정한다.
+     여기서는 색과 테두리만 담당한다. */
   .kiosk-back{
-    position:fixed; left:18px; top:18px; z-index:60;
-    display:flex; align-items:center; min-height:52px;
-    padding:0 20px; border-radius:12px; text-decoration:none;
+    position:fixed; z-index:60;
+    display:flex; align-items:center; text-decoration:none;
     background:rgba(255,255,255,.86); color:#3d3d3a;
-    font-size:1rem; font-weight:700; border:1px solid rgba(0,0,0,.08);
+    border:1px solid rgba(0,0,0,.08);
     backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
   }
   .kiosk-back:hover{ background:#fff; color:#141413; }
   .kiosk-back:focus-visible{ outline:3px solid #246BEB; outline-offset:2px; }
-  @media (max-width:720px){ .kiosk-back{ left:10px; top:10px; min-height:44px; padding:0 14px; font-size:.9rem; } }
 </style>
 </head>
 <body>
@@ -531,6 +543,6 @@
       document.fonts.ready.then(syncKioskDividers);
     }
   </script>
-  <script src="kiosk.js?v=20260808c" defer></script>
+  <script src="kiosk.js?v=20260808d" defer></script>
 </body>
 </html>

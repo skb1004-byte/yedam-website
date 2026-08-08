@@ -82,9 +82,29 @@
      (누르자마자 다시 들어가 버리면 종료가 불가능해지므로). */
   var suppressUntil = 0;
 
-  function autoEnter() {
+  function autoEnter(e) {
     if (isFullscreen()) return;
     if (Date.now() < suppressUntil) return;
+
+    /* 누를 수 있는 것을 눌렀을 때는 전체화면에 들어가지 않는다.
+
+       왜 이 예외가 필요한가
+         예전에는 pointerdown 이 들어오면 무조건 전체화면에 들어갔다.
+         그런데 전체화면 진입은 그 순간 화면 크기를 바꾼다. 손가락을 대는
+         사이에 레이아웃이 움직여 버리니, 손가락을 뗄 때는 이미 그 자리에
+         버튼이 없다. 브라우저는 "누른 요소"와 "뗀 요소"가 다르면 click 을
+         만들지 않는다. 그래서 "메인으로"를 눌러도 아무 일이 안 일어나고,
+         한 번 더 눌러야 했다(실사용에서 보고된 증상).
+
+       이제 링크·버튼을 누를 때는 그 동작이 먼저 끝나게 두고,
+       전체화면 복구는 빈 곳을 눌렀을 때만 한다.
+       (키오스크 홈 진입 시에는 안내판이 첫 터치를 따로 받으므로
+        전체화면 진입 자체는 그대로 보장된다.) */
+    var t = e && e.target;
+    if (t && t.closest && t.closest(
+        'a, button, [role="link"], [role="button"], [data-kiosk-go], input, select, textarea, label')) {
+      return;
+    }
     requestFS();
   }
 
@@ -144,6 +164,25 @@
     // 링크 탭 후 주소 말풍선이 남지 않도록 포커스 해제
     document.addEventListener('pointerup', blurLinkSoon, true);
     document.addEventListener('touchend', blurLinkSoon, true);
+
+    /* 화면을 만지는 동안에는 고정 버튼을 흐리게 한다.
+       검사 화면은 세로로 긴 폼이라 버튼이 어느 구석에 있든 선택지를 덮는데,
+       사람이 화면을 보고 고르는 중에는 버튼이 시야를 가리지 않는 편이 낫다.
+       버튼 자신을 누를 때는 흐려지면 안 되므로 그때는 제외한다.
+       (실제 스타일은 kiosk.css 의 body.kiosk-touching 규칙이 담당) */
+    var touchTimer = null;
+    function markTouching(e) {
+      var t = e && e.target;
+      if (t && t.closest && t.closest('#kiosk-fs-btn, #kiosk-home-btn')) return;
+      document.body.classList.add('kiosk-touching');
+      clearTimeout(touchTimer);
+      touchTimer = setTimeout(function () {
+        document.body.classList.remove('kiosk-touching');
+      }, 2500);
+    }
+    document.addEventListener('pointerdown', markTouching, true);
+    document.addEventListener('touchstart', markTouching, true);
+    document.addEventListener('scroll', function () { markTouching(null); }, true);
   }
 
   /* ── 진입 안내 오버레이 ──────────────────────────────────────────────

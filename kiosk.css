@@ -254,18 +254,43 @@ html.kiosk-on #kiosk-fs-btn:active { opacity: 1; }
      이 키오스크는 맘(MOM)·두뇌 놀이터로 어르신이 쓰는 화면이므로
      최소치가 아니라 권장치를 따른다.
    padding 만 줄였더니 높이가 41px 로 떨어져 기준에 미달했었다(측정치). */
+/* 검사 화면에서는 두 버튼의 크기를 못 박아 한 덩어리로 보이게 한다.
+   실물 사진에서 "메인으로"(작음)와 "전체화면 종료"(큼)가 서로 크기가 달라
+   계단처럼 어긋나 보였고, 그 상태로 선택지("중학교 이상")를 덮고 있었다. */
 html.kiosk-on body.pia-v2 #kiosk-fs-btn,
-html.kiosk-on body.mom-v2 #kiosk-fs-btn{
-  right:16px; top:auto; bottom:16px; left:auto;
-  padding:10px 16px; font-size:.86rem; opacity:.55; min-height:48px;
+html.kiosk-on body.mom-v2 #kiosk-fs-btn,
+html.kiosk-on body.pia-v2 #kiosk-home-btn,
+html.kiosk-on body.mom-v2 #kiosk-home-btn{
+  left:auto; right:14px; top:auto;
+  height:44px; min-height:44px; padding:0 14px;
+  font-size:.8rem; border-radius:12px; box-sizing:border-box;
 }
+html.kiosk-on body.pia-v2 #kiosk-fs-btn,
+html.kiosk-on body.mom-v2 #kiosk-fs-btn{ bottom:14px; opacity:.4; }
 /* left:auto 가 반드시 있어야 한다. 위쪽 기본 규칙이 left:14px 로 자리를 잡는데
    여기서 right 만 덮어쓰면 left 와 right 가 동시에 살아 버튼이 화면 폭만큼
    늘어난다(kiosk-home 에서 998px 짜리 막대가 됐던 것과 같은 원인). */
 html.kiosk-on body.pia-v2 #kiosk-home-btn,
 html.kiosk-on body.mom-v2 #kiosk-home-btn{
-  left:auto; right:16px; top:auto; bottom:68px; padding:10px 16px; font-size:.86rem; opacity:.72; min-height:48px;
+  bottom:66px;   /* 14 + 44 + 8 = 전체화면 버튼 바로 위, 간격 8px */
+  opacity:.7;
 }
+
+/* 검사·설문 화면은 세로로 긴 폼이라 어느 구석에 두든 선택지를 덮는다
+   (실물 사진에서 "중학교 이상" 버튼 위에 얹혀 있었다).
+   손가락이 화면에 닿아 있는 동안 — 즉 읽거나 고르는 중에는 —
+   두 버튼을 거의 투명하게 만들어 방해하지 않게 하고,
+   손을 떼면 다시 보이게 한다. 누르는 순간에는 불투명해진다. */
+html.kiosk-on body.pia-v2.kiosk-touching #kiosk-fs-btn,
+html.kiosk-on body.mom-v2.kiosk-touching #kiosk-fs-btn,
+html.kiosk-on body.pia-v2.kiosk-touching #kiosk-home-btn,
+html.kiosk-on body.mom-v2.kiosk-touching #kiosk-home-btn{
+  opacity:.12;
+}
+html.kiosk-on body.pia-v2 #kiosk-fs-btn:active,
+html.kiosk-on body.mom-v2 #kiosk-fs-btn:active,
+html.kiosk-on body.pia-v2 #kiosk-home-btn:active,
+html.kiosk-on body.mom-v2 #kiosk-home-btn:active{ opacity:1 !important; }
 
 /* ── 터치 목표 보정 ────────────────────────────────────────────────────
    키오스크는 손가락으로 쓰는 화면인데, 마우스 기준으로 만든 작은 텍스트
