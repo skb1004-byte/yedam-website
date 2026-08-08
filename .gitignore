@@ -1,0 +1,43 @@
+# ============================================================
+#  yedam-website — 공개 저장소입니다 (GitHub Pages)
+#  여기에 올라가는 것은 전부 인터넷에 공개됩니다.
+#  개인정보·백업·비밀값이 절대 커밋되지 않도록 막습니다.
+# ============================================================
+
+# 서버 백업 일체 (학생 개인정보·DB 덤프·함수 소스 포함)
+_backup/
+_pgtools/
+netlify-data/
+
+# DB 덤프·아카이브
+*.dump
+*.sql
+*.sql.gz
+
+# 로컬 작업용 스크립트·로그
+_pia_deploy*.bat
+_supabase_*.bat
+_supabase_*.ps1
+_netlify_*.bat
+_netlify_*.ps1
+_deploy*.txt
+_kioskroot/
+_dump_log.txt
+_export_log.txt
+_fix_log.txt
+
+# 비밀값
+.env
+.env.*
+*.key
+*.pem
+secrets.json
+
+# OS·편집기 부산물
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+*~
+.vscode/
+.idea/

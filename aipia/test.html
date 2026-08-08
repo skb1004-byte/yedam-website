@@ -8139,7 +8139,12 @@ function blinkAutosave() {
 }
 
 // ===== 결과 관리자 서버 전송 (Netlify API) =====
-const PIA_API_DEFAULT = 'https://brilliant-macaron-4b3ed2.netlify.app'; // 배포 시 실제 API 주소로 치환됨
+/* 결과 API 기본 주소.
+   2026-08-08 Netlify → IDC 자체 서버(Cloudflare Tunnel)로 이전.
+   localStorage.pia_api_base 가 있으면 그 값이 우선하므로,
+   문제가 생기면 아래 한 줄로 즉시 되돌릴 수 있다.
+     localStorage.setItem('pia_api_base','https://brilliant-macaron-4b3ed2.netlify.app') */
+const PIA_API_DEFAULT = 'https://api.yedam.kr';
 function piaApiBase(){
   try{ const o=(localStorage.getItem('pia_api_base')||'').trim(); let b=o||PIA_API_DEFAULT;
     if(!b || b.indexOf('__')===0) return ''; return b.replace(/\/+$/,''); }

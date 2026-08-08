@@ -611,7 +611,7 @@ $('#selAll').onchange=e=>{ $$('.selOne').forEach(c=>c.checked=e.target.checked);
 ['#search','#fGrade','#fSchool','#fType','#fRel','#fFrom','#fTo'].forEach(s=>{ const el=$(s); el.addEventListener(el.tagName==='INPUT'&&el.type==='text'?'input':'change',paint); });
 $$('th[data-k]').forEach(th=>th.addEventListener('click',()=>{ const k=th.dataset.k; if(sortKey===k)sortDir*=-1; else {sortKey=k;sortDir=(k==='savedAt')?-1:1;} paint(); }));
 $('#autoref').onchange=e=>{ if(e.target.checked){ autoTimer=setInterval(reload,60000); } else { clearInterval(autoTimer); autoTimer=null; } };
-window.addEventListener('DOMContentLoaded',()=>{ const b=localStorage.getItem(LS_BASE)||'https://brilliant-macaron-4b3ed2.netlify.app'; $('#apiBase').value=b; });
+window.addEventListener('DOMContentLoaded',()=>{ const b=localStorage.getItem(LS_BASE)||'https://api.yedam.kr'; $('#apiBase').value=b; });
 
   // 통합결과지 샘플 출력 (검사 화면 실제 렌더러 재사용)
   (function(){

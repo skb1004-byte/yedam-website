@@ -61,7 +61,16 @@ a{color:var(--rust);font-weight:700;text-decoration:none}
 </div>
 
 <script>
-var API_BASE='https://brilliant-macaron-4b3ed2.netlify.app'; // 결과 API 주소
+/* 결과 API 주소. 2026-08-08 Netlify → IDC 자체 서버로 이전.
+   다른 페이지(test.html · results-admin.html)와 달리 여기만 주소가 고정이라
+   문제가 생겨도 되돌릴 방법이 없었다. 같은 localStorage 키를 보도록 맞춘다. */
+var API_BASE = (function(){
+  try{
+    var o = (localStorage.getItem('pia_api_base')||'').trim();
+    if(o) return o.replace(/\/+$/,'');
+  }catch(e){}
+  return 'https://api.yedam.kr';
+})();
 function api(params){ var b=API_BASE.replace(/\/+$/,''); var u=new URL(b+'/api/results');
   for(var k in params){ if(params[k]!=null) u.searchParams.set(k,params[k]); } return u.toString(); }
 var $=function(s){return document.querySelector(s);};
