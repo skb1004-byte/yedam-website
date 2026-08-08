@@ -78,8 +78,6 @@ html.kiosk-on #kiosk-fs-btn {
   align-items: center;
   gap: 6px;
   position: fixed;
-  left: 14px;
-  bottom: 14px;
   z-index: 99999;
   opacity: 0.55;
   transition: opacity 0.15s;
@@ -136,8 +134,6 @@ html.kiosk-on #kiosk-home-btn {
   align-items: center;
   gap: 6px;
   position: fixed;
-  left: 14px;
-  bottom: 66px;              /* 전체화면 버튼 바로 위 */
   z-index: 99999;
   background: rgba(37, 99, 235, 0.92);
   color: #fff;
@@ -155,12 +151,6 @@ html.kiosk-on #kiosk-home-btn {
 }
 html.kiosk-on #kiosk-home-btn:active { transform: scale(0.97); }
 html.kiosk-on #kiosk-fs-btn:active { opacity: 1; }
-
-/* 화면이 좁으면 두 버튼을 한 줄로 나란히 */
-@media (max-width: 560px) {
-  html.kiosk-on #kiosk-home-btn { bottom: 14px; left: 14px; padding: 10px 14px; font-size: 0.85rem; }
-  html.kiosk-on #kiosk-fs-btn   { bottom: 14px; left: auto; right: 14px; padding: 10px 14px; font-size: 0.8rem; }
-}
 
 /* =========================================================
    진입 안내 오버레이 — 키오스크 홈에서 첫 터치를 받아 전체화면으로 들어간다
@@ -243,10 +233,54 @@ html.kiosk-on #kiosk-fs-btn:active { opacity: 1; }
 /* =========================================================
    고정 버튼 겹침 방지
    ---------------------------------------------------------
-   전체화면·메인복귀 버튼은 화면 우측 하단에 뜨는데, 검사 화면의
-   "다음/이전" 버튼이나 홈의 키오스크 진입 버튼과 같은 자리를 다툽니다.
-   검사 화면에서는 우측 상단으로 비켜 세웁니다.
+   위치는 CSS 가 아니라 kiosk.js 가 정합니다.
+   페이지마다 비어 있는 모서리가 다르기 때문입니다. 실측하면
+     회사 홈      좌하=솔루션 보기 · 우하=도입 담당자 · 우상=빈자리
+     AI PIA 검사  좌하=빈자리     · 우하=버튼      · 우상=음성 안내
+     맘 검사      네 모서리 모두 콘텐츠
+     키오스크 홈  네 모서리 모두 빈자리
+   처럼 제각각이라, CSS 로 한 자리를 못 박으면 어딘가는 반드시 덮습니다.
+   kiosk.js 의 placeButtons() 가 화면을 열 때 네 모서리를 훑어 가장 빈 곳을
+   고르고 body 에 kiosk-corner-bl/br/tl/tr 을 붙입니다.
+   여기서는 그 클래스에 따른 좌표만 정의합니다.
    ========================================================= */
+
+/* 전체화면 버튼 자리 — body.kiosk-corner-* */
+html.kiosk-on body.kiosk-corner-bl #kiosk-fs-btn { left:14px;  right:auto; bottom:14px; top:auto; }
+html.kiosk-on body.kiosk-corner-br #kiosk-fs-btn { right:14px; left:auto;  bottom:14px; top:auto; }
+html.kiosk-on body.kiosk-corner-tl #kiosk-fs-btn { left:14px;  right:auto; top:14px;    bottom:auto; }
+html.kiosk-on body.kiosk-corner-tr #kiosk-fs-btn { right:14px; left:auto;  top:14px;    bottom:auto; }
+
+/* "메인으로" 자리 — body.kiosk-hcorner-* (전체화면 버튼과 다를 수 있다) */
+html.kiosk-on body.kiosk-hcorner-bl #kiosk-home-btn { left:14px;  right:auto; bottom:14px; top:auto; }
+html.kiosk-on body.kiosk-hcorner-br #kiosk-home-btn { right:14px; left:auto;  bottom:14px; top:auto; }
+html.kiosk-on body.kiosk-hcorner-tl #kiosk-home-btn { left:14px;  right:auto; top:14px;    bottom:auto; }
+html.kiosk-on body.kiosk-hcorner-tr #kiosk-home-btn { right:14px; left:auto;  top:14px;    bottom:auto; }
+
+/* 두 버튼이 같은 모서리를 골랐을 때만 세로로 쌓는다(간격 8px) */
+html.kiosk-on body.kiosk-corner-bl.kiosk-hcorner-bl #kiosk-home-btn { bottom:70px; }
+html.kiosk-on body.kiosk-corner-br.kiosk-hcorner-br #kiosk-home-btn { bottom:70px; }
+html.kiosk-on body.kiosk-corner-tl.kiosk-hcorner-tl #kiosk-fs-btn   { top:70px; }
+html.kiosk-on body.kiosk-corner-tr.kiosk-hcorner-tr #kiosk-fs-btn   { top:70px; }
+
+/* 자리를 못 정했을 때(스크립트가 아직 안 돌았을 때)의 기본값 */
+html.kiosk-on body:not([class*="kiosk-corner-"]) #kiosk-fs-btn   { left:14px; bottom:14px; }
+html.kiosk-on body:not([class*="kiosk-hcorner-"]) #kiosk-home-btn { left:14px; bottom:70px; }
+
+/* 네 모서리가 모두 콘텐츠로 차 있는 화면(맘 검사·두뇌 놀이터·회사 홈)에서는
+   덮는 것을 완전히 피할 수 없다. 그럴 때는 평소 흐리게 두어 아래 글자가
+   비쳐 보이게 하고, 손을 대면 진해지게 한다. 완전히 가리는 것보다 낫다. */
+html.kiosk-on #kiosk-fs-btn   { opacity:.4; }
+html.kiosk-on #kiosk-home-btn { opacity:.78; }
+html.kiosk-on #kiosk-fs-btn:hover,   html.kiosk-on #kiosk-fs-btn:active,
+html.kiosk-on #kiosk-home-btn:hover, html.kiosk-on #kiosk-home-btn:active { opacity:1; }
+
+/* 이미 전체화면이면 "전체화면으로 보기"는 할 일이 끝났다.
+   그런데도 구석을 차지하고 콘텐츠를 가릴 이유가 없으므로 거의 투명하게 둔다.
+   빠져나올 방법은 남겨야 하니 손을 대면 진해진다. */
+html.kiosk-on body.kiosk-is-fs #kiosk-fs-btn { opacity:.12; }
+html.kiosk-on body.kiosk-is-fs #kiosk-fs-btn:hover,
+html.kiosk-on body.kiosk-is-fs #kiosk-fs-btn:active { opacity:1; }
 /* 48px 인 이유:
      WCAG 2.1 AA 의 최소는 44px 이지만, 구글 머티리얼 접근성 가이드와
      한국지능정보사회진흥원(NIA) 배리어프리 키오스크 UI 가이드는 48dp
@@ -261,20 +295,11 @@ html.kiosk-on body.pia-v2 #kiosk-fs-btn,
 html.kiosk-on body.mom-v2 #kiosk-fs-btn,
 html.kiosk-on body.pia-v2 #kiosk-home-btn,
 html.kiosk-on body.mom-v2 #kiosk-home-btn{
-  left:auto; right:14px; top:auto;
   height:44px; min-height:44px; padding:0 14px;
   font-size:.8rem; border-radius:12px; box-sizing:border-box;
 }
 html.kiosk-on body.pia-v2 #kiosk-fs-btn,
-html.kiosk-on body.mom-v2 #kiosk-fs-btn{ bottom:14px; opacity:.4; }
-/* left:auto 가 반드시 있어야 한다. 위쪽 기본 규칙이 left:14px 로 자리를 잡는데
-   여기서 right 만 덮어쓰면 left 와 right 가 동시에 살아 버튼이 화면 폭만큼
-   늘어난다(kiosk-home 에서 998px 짜리 막대가 됐던 것과 같은 원인). */
-html.kiosk-on body.pia-v2 #kiosk-home-btn,
-html.kiosk-on body.mom-v2 #kiosk-home-btn{
-  bottom:66px;   /* 14 + 44 + 8 = 전체화면 버튼 바로 위, 간격 8px */
-  opacity:.7;
-}
+html.kiosk-on body.mom-v2 #kiosk-fs-btn{ opacity:.4; }
 
 /* 검사·설문 화면은 세로로 긴 폼이라 어느 구석에 두든 선택지를 덮는다
    (실물 사진에서 "중학교 이상" 버튼 위에 얹혀 있었다).
@@ -317,19 +342,13 @@ html.kiosk-on body.mom-v2 #kiosk-home-btn:hover{ opacity:1; }
 html.kiosk-on body.pia-v2:has(.pia-modal) #kiosk-fs-btn,
 html.kiosk-on body.pia-v2:has(.pia-modal) #kiosk-home-btn{ display:none !important; }
 
-/* ── 회사 홈페이지(index.html) ────────────────────────────────────────
-   이 페이지에는 이미 전용 "키오스크" 진입 버튼(#ydKioskEntry)이 우하단에
-   크게 있다. 그런데 공용 "메인으로" 버튼까지 좌측에 떠서 같은 곳으로 가는
-   버튼이 둘이 되고, 본문("㈜예담정보통신은 비상교육·현대NGV…")을 덮었다
-   (실물 사진에서 확인).
-   → 이 페이지에서만 "메인으로" 를 감춘다. 기능은 #ydKioskEntry 가 한다. */
+
+/* 회사 홈페이지(index.html)에는 이미 전용 "키오스크 홈" 버튼(#ydKioskEntry)이
+   우하단에 크게 있다. 공용 "메인으로"까지 띄우면 같은 곳으로 가는 버튼이 둘이
+   되고, 이 페이지는 네 모서리가 모두 카드·버튼으로 차 있어 반드시 무언가를
+   덮는다(검증에서 "도입 담당자" 카드를 덮는 것으로 잡혔다).
+   → 이 페이지에서는 "메인으로"를 감춘다. 기능은 #ydKioskEntry 가 한다. */
 html.kiosk-on body:has(#ydKioskEntry) #kiosk-home-btn{ display:none !important; }
-/* 전체화면 버튼은 남기되, 좌하단에서 본문을 덜 가리도록 작게 줄인다 */
-html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn{
-  bottom:18px; padding:10px 16px; font-size:.84rem; opacity:.45;
-}
-html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn:hover,
-html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn:active{ opacity:1; }
 
 /* 오류신고 "💬 문의" 버튼(err-cs.js 의 .errcs-fab)은 right:16px bottom:16px 에
    고정돼 있어, 같은 우하단에 있는 "키오스크 홈"(208x77) 과 정확히 겹쳤다.

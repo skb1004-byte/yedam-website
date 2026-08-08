@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/favicon_256.png">
 <meta name="description" content="예담 키오스크 홈 — AI PIA 학생 인적성검사, 맘(MOM) 인지건강 확인, 선생님 도우미, 두뇌 놀이터를 한 화면에서.">
-<link rel="stylesheet" href="kiosk.css?v=20260808d">
+<link rel="stylesheet" href="kiosk.css?v=20260808e">
 <style>
   html, body {
     margin: 0;
@@ -279,16 +279,19 @@
        공용 kiosk.css 는 left+bottom 으로 자리를 잡는데, 여기서 top+right 만
        덮어쓰면 left 와 right 가 동시에 살아남아 버튼이 화면 폭만큼
        늘어난다(실제로 1024x768 에서 998px 짜리 막대가 됐다). */
-  /* ── 좌상단 두 버튼("홈페이지" · "전체화면") 정렬 ──────────────────
-     실물 사진에서 두 버튼의 높이·여백·모서리가 서로 달라 계단처럼
-     어긋나 보였다. 왼쪽 끝만 맞추면 부족하고, 크기 자체를 통일해야
-     한 덩어리로 보인다. 아래 값은 두 규칙에 똑같이 준다. */
-  .kiosk-back,
-  html.kiosk-on #kiosk-fs-btn {
-    left: 14px;
-    right: auto;
-    bottom: auto;
-    height: 44px;            /* 두 버튼 높이를 못 박는다 */
+  /* ── 좌상단 두 버튼("홈페이지" · "전체화면") ────────────────────────
+     이 페이지는 타일이 화면을 가득 채워 어느 구석이든 타일 위에 얹힌다.
+     그래서 두 버튼을 좌상단에 세로로 쌓되, 크기를 똑같이 맞춰
+     한 덩어리로 보이게 한다(예전에는 높이 52 vs 44, 여백 20 vs 14 로
+     달라서 계단처럼 어긋나 보였다).
+     자리 자체는 kiosk.js 의 자동 배치가 정하지만, 이 화면만은
+     타일 제목을 피해 좌상단으로 고정하는 편이 안정적이다. */
+  html.kiosk-on body #kiosk-fs-btn,
+  .kiosk-back {
+    left: 14px !important;
+    right: auto !important;
+    bottom: auto !important;
+    height: 44px;
     min-height: 44px;
     padding: 0 16px;
     border-radius: 12px;
@@ -297,118 +300,21 @@
     box-sizing: border-box;
   }
   .kiosk-back { top: 14px; }
-  html.kiosk-on #kiosk-fs-btn {
-    top: 66px;               /* 14 + 44 + 8 = 딱 8px 간격 */
-    opacity: 0.45;           /* 타일 위에 얹히므로 평소엔 흐리게 */
+  html.kiosk-on body #kiosk-fs-btn {
+    top: 66px !important;   /* 14 + 44 + 8 = 간격 정확히 8px */
+    opacity: 0.45;
   }
   html.kiosk-on #kiosk-fs-btn:hover,
   html.kiosk-on #kiosk-fs-btn:active { opacity: 1; }
-  html.kiosk-on #kiosk-fs-btn.is-fs { opacity: 0.6; }
+  /* 이미 전체화면이면 더 흐리게 — 할 일이 끝난 버튼이다 */
+  html.kiosk-on body.kiosk-is-fs #kiosk-fs-btn { opacity: 0.15; }
 
-  /* 창 높이가 작으면(주소줄·작업표시줄이 보이는 창 모드) 타일 제목이 위로
-     올라와 이 버튼과 겹친다. 그때는 두 버튼을 한 줄로 나란히 둔다. */
+  /* 창 모드(주소줄·작업표시줄이 보이는 상태)에서는 뷰포트가 낮아
+     타일 제목이 위로 올라오므로 두 버튼을 한 줄로 나란히 둔다. */
   @media (max-height: 700px) {
-    html.kiosk-on #kiosk-fs-btn { left: 108px; top: 14px; }
+    html.kiosk-on body #kiosk-fs-btn { left: 108px !important; top: 14px !important; }
   }
 
-  @media (max-width: 720px) {
-    .kiosk-bottom-right { display: none; }
-  }
-
-  /* =====================================================================
-     화면비에 따른 자동 배치
-     ---------------------------------------------------------------------
-     세로형(높이 > 폭) : 위 2×2(폭 꽉) + 아래 배너            — 기존과 동일
-     가로형(폭 ≥ 높이) : 왼쪽 2×2(높이 기준) + 오른쪽 배너(세로)
-                         → 예전에 우측 40%가 비던 문제를 없앤다
-     ===================================================================== */
-
-  /* ── 세로형 ───────────────────────────────────────── */
-  @media (max-aspect-ratio: 1/1) {
-    .kiosk-square-grid { --tile-size: calc((100vw - 24px) / 2); }
-    /* 타일이 화면 높이의 절반을 넘으면 배너가 사라지므로 상한을 둔다 */
-    @supports (height: 1dvh) {
-      .kiosk-square-grid { --tile-size: min(calc((100vw - 24px) / 2), 40dvh); }
-    }
-  }
-
-  /* ── 가로형 ───────────────────────────────────────── */
-  @media (min-aspect-ratio: 1/1) {
-    .kiosk-page { flex-direction: row; }
-
-    .kiosk-top { flex: 0 0 auto; align-items: center; }
-
-    /* 타일 크기는 "화면 세로"만으로 정한다.
-       예전에는 배너에 364px 을 남기려고 타일을 줄였는데, 그 결과 그리드가
-       화면 세로의 89% 밖에 못 써서 위아래로 42px 씩 검은 띠가 남았다
-       (실물 사진에서 "전체가 꽉 차지 않는다"고 지적된 부분).
-       이제 그리드가 세로를 100% 채우고, 배너는 남는 폭을 전부 가져간다.
-         1024x768  → 타일 372 · 그리드 752 · 배너 248
-         1280x1024 → 타일 500 · 그리드 1008 · 배너 248
-         1920x1080 → 타일 528 · 그리드 1064 · 배너 832
-       배너가 좁아지는 만큼 아래에서 내부 배치를 세로 1열로 바꾼다. */
-    .kiosk-square-grid {
-      --tile-size: calc((100vh - 24px) / 2);
-    }
-
-    .kiosk-bottom {
-      flex: 1 1 auto;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 4%;
-      min-width: 0;
-      /* 배너가 248px 로 좁아졌으므로 좌우 여백을 비율(4%)이 아니라
-         고정값으로 잡는다. 4% 는 좁은 폭에서 너무 작아 글자가 가장자리에
-         붙고, 넓은 폭(1920 기준 832px)에서는 33px 로 과해진다. */
-      padding: 16px 18px;
-    }
-
-    /* 좁은 배너에서는 글자를 화면(vmin)이 아니라 배너 폭에 맞춘다.
-       vmin 기준이면 1280x1024 에서 배너는 248px 인데 글자만 커져 넘친다. */
-    .kiosk-bottom-badge   { font-size: clamp(0.6rem, 1.1vw, 0.95rem); }
-    .kiosk-bottom-title   { font-size: clamp(1.2rem, 3vw, 2.8rem); }
-    .kiosk-bottom-tagline { font-size: clamp(0.68rem, 1.35vw, 1.2rem); }
-    .kiosk-bottom-cta     { font-size: clamp(0.62rem, 1.2vw, 1.05rem); }
-    .kiosk-bottom-feat-t  { font-size: clamp(0.62rem, 1.2vw, 1.05rem); }
-    .kiosk-bottom-feat-d  { font-size: clamp(0.54rem, 1vw, 0.88rem); }
-
-    /* 가로형에서는 특징 4개를 세로 1열로 쌓아 좁은 폭에서도 안 잘리게 */
-    .kiosk-bottom-right {
-      grid-template-columns: 1fr;
-      gap: 0.6em;
-      width: 100%;
-    }
-
-    .kiosk-bottom-left { flex: 0 0 auto; width: 100%; }
-  }
-
-  /* 배너 글자도 화면이 아니라 배너 높이에 맞춰 자동 조절 */
-  .kiosk-bottom-badge   { font-size: clamp(0.62rem, 1.9vmin, 1rem); }
-  .kiosk-bottom-title   { font-size: clamp(1.25rem, 5.2vmin, 2.8rem); word-break: keep-all; }
-  .kiosk-bottom-tagline { font-size: clamp(0.68rem, 2.2vmin, 1.15rem); word-break: keep-all; }
-  /* nowrap 을 뺀 이유:
-     가로형에서 배너 칸이 좁아지면 "AI 교육 프로그램 자세히 보기 →" 가
-     줄바꿈을 못 해 배너 밖으로 삐져나갔다(1024x768 에서 오른쪽 화면 밖
-     1045px 지점까지 나감). 이제 필요하면 단어 단위로 접힌다. */
-  .kiosk-bottom-cta     { font-size: clamp(0.62rem, 2vmin, 1.05rem); word-break: keep-all; max-width: 100%; }
-  .kiosk-bottom-feat-t  { font-size: clamp(0.62rem, 2vmin, 1.05rem); word-break: keep-all; }
-  .kiosk-bottom-feat-d  { font-size: clamp(0.52rem, 1.55vmin, 0.85rem); word-break: keep-all; }
-
-  /* 세로 화면에서는 배너가 화면 아래 절반 가까이(1080x1920 기준 1064x832)를
-     차지하는데, 위 clamp 상한(2.8rem 등)에 걸려 글자가 작은 채로 남아
-     배너 안이 텅 비어 보였다. 세로형에서만 상한을 풀어 배너를 채운다.
-     가로형은 배너가 좁은 세로 칼럼이라 지금 크기가 맞으므로 건드리지 않는다. */
-  @media (max-aspect-ratio: 1/1) {
-    .kiosk-bottom-badge   { font-size: clamp(0.75rem, 2.4vmin, 1.5rem); }
-    .kiosk-bottom-title   { font-size: clamp(1.5rem, 7vmin, 5rem); }
-    .kiosk-bottom-tagline { font-size: clamp(0.9rem, 3vmin, 2.2rem); }
-    .kiosk-bottom-cta     { font-size: clamp(0.85rem, 2.7vmin, 1.8rem); }
-    .kiosk-bottom-feat-t  { font-size: clamp(0.85rem, 2.6vmin, 1.6rem); }
-    .kiosk-bottom-feat-d  { font-size: clamp(0.7rem, 2vmin, 1.25rem); }
-  }
-  /* 크기·위치는 위쪽 "좌상단 두 버튼 정렬" 규칙에서 통일해 정한다.
-     여기서는 색과 테두리만 담당한다. */
   .kiosk-back{
     position:fixed; z-index:60;
     display:flex; align-items:center; text-decoration:none;
@@ -543,6 +449,6 @@
       document.fonts.ready.then(syncKioskDividers);
     }
   </script>
-  <script src="kiosk.js?v=20260808d" defer></script>
+  <script src="kiosk.js?v=20260808e" defer></script>
 </body>
 </html>

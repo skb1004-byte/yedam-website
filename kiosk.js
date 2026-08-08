@@ -33,6 +33,7 @@
         ensureFullscreenUI();
         ensureHomeButton();
         ensureEnterOverlay();
+        placeButtons();
       }
       return isKiosk;
     } catch (e) {
@@ -245,6 +246,12 @@
     if (isFullscreen()) removeOverlay();
     else if (Date.now() >= suppressUntil) ensureEnterOverlay();
 
+    /* 이미 전체화면이면 이 버튼은 할 일이 끝났다.
+       그런데도 화면 구석을 계속 차지하고 콘텐츠를 가릴 이유가 없다.
+       빠져나올 방법은 남겨야 하므로 아주 흐리게(kiosk.css 가 0.12) 두고,
+       손을 대면 진해진다 — 관리자는 찾을 수 있고 이용자 눈에는 안 띈다. */
+    document.body.classList.toggle('kiosk-is-fs', isFullscreen());
+
     if (!fsBtn) return;
     /* 아이콘을 이모지·기호 문자로 넣지 않는다.
        ⛶(U+26F6) · ⤢(U+2922) 는 Windows 키오스크 기본 폰트에 없어서
@@ -257,6 +264,93 @@
       fsBtn.textContent = '전체화면으로 보기';
       fsBtn.classList.remove('is-fs');
     }
+  }
+
+  /* ── 버튼 자리 자동 선택 ────────────────────────────────────────────
+     페이지마다 비어 있는 모서리가 다르다. 실제로 재 보면
+       회사 홈      좌하=솔루션 보기  우하=도입 담당자  우상=빈자리
+       AI PIA 검사  좌하=빈자리      우하=버튼        우상=음성 안내
+       맘 검사      네 모서리 모두 콘텐츠
+       키오스크 홈  네 모서리 모두 빈자리
+     처럼 제각각이라 CSS 로 한 자리를 못 박으면 어딘가는 반드시 덮는다.
+     그래서 화면을 열 때 네 모서리를 실제로 훑어 가장 빈 곳을 고른다. */
+  /* 후보는 아래 두 모서리뿐이다.
+     위쪽 두 모서리를 후보에 넣었더니 거의 모든 페이지에서 상단 헤더·홈 링크
+     ("← yedam.kr 홈", 회사 홈의 메뉴 버튼)를 덮었다. 헤더는 어느 페이지에나
+     있고 가장 자주 눌리는 곳이라, 자리 계산이 조금 어긋나도 사고가 크다.
+     아래쪽은 본문 끝이라 최악의 경우에도 안내 문구를 가리는 정도다. */
+  var CORNERS = ['bl', 'br'];               // 좌하 · 우하
+  var chosenCorner = null;
+
+  /* 두 버튼을 한 덩어리로 놓으면(높이 112px) 어느 모서리든 뭔가에 닿기
+     쉽다. 그래서 각 버튼을 따로 재서 각자 가장 빈 모서리에 놓는다.
+     같은 모서리를 고르면 세로로 쌓고, 다르면 각자 자리로 간다. */
+  function cornerScore(corner, BW, BH) {
+    var M = 14;
+    var x = (corner === 'bl' || corner === 'tl') ? M : innerWidth - BW - M;
+    var y = (corner === 'tl' || corner === 'tr') ? M : innerHeight - BH - M;
+    var hits = 0;
+    for (var i = 0; i <= 2; i++) {
+      for (var j = 0; j <= 2; j++) {
+        var els;
+        try { els = document.elementsFromPoint(x + BW * i / 2, y + BH * j / 2); }
+        catch (e) { continue; }
+        for (var k = 0; k < els.length; k++) {
+          var el = els[k];
+          if (el.id === 'kiosk-fs-btn' || el.id === 'kiosk-home-btn') continue;
+          if (getComputedStyle(el).position === 'fixed') continue;
+          var tag = el.tagName;
+          // 누를 수 있는 것을 덮는 건 글자를 덮는 것보다 훨씬 나쁘다
+          if (tag === 'A' || tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT') { hits += 5; break; }
+          if (!el.childElementCount && el.textContent.trim().length > 1) { hits += 1; break; }
+        }
+      }
+    }
+    return hits;
+  }
+
+  function bestCorner(BW, BH, skip) {
+    var best = null, bestScore = Infinity;
+    for (var i = 0; i < CORNERS.length; i++) {
+      if (CORNERS[i] === skip) continue;
+      var s = cornerScore(CORNERS[i], BW, BH);
+      if (s < bestScore) { bestScore = s; best = CORNERS[i]; }
+      if (s === 0) break;   // 완전히 빈 자리를 찾으면 더 볼 필요 없다
+    }
+    return { corner: best, score: bestScore };
+  }
+
+  function placeButtons() {
+    if (isFramed) return;
+    if (!document.body) return;
+    if (!document.documentElement.classList.contains('kiosk-on')) return;
+    /* 측정은 "그려진 뒤"에 해야 한다.
+       예전에는 스크립트가 실행되는 즉시 쟀는데, 그때는 글꼴·이미지가 아직
+       안 들어와 레이아웃이 확정되지 않은 상태라 빈 자리로 잘못 읽혔다
+       (검증에서 "← yedam.kr 홈" 링크를 빈자리로 판정한 원인). */
+
+    // 1) 두 버튼을 함께 놓을 수 있는 완전히 빈 모서리가 있으면 그게 최선이다
+    var both = bestCorner(180, 112, null);
+    if (both.score === 0) {
+      applyCorner('kiosk-corner-', both.corner);
+      applyCorner('kiosk-hcorner-', both.corner);
+      return;
+    }
+
+    /* 2) 두 버튼을 함께 놓을 빈 모서리가 없으면 서로 다른 모서리로 흩어 놓는다.
+       한 모서리에 세로로 쌓으면 높이가 112px 이 되어 위쪽 버튼이 상단 링크
+       ("← yedam.kr 홈" 등)에 걸린다 — 검증에서 반복해서 잡힌 패턴이다.
+       흩어 놓으면 각자 52px 만 차지하므로 훨씬 잘 들어간다. */
+    var fs = bestCorner(180, 52, null);
+    var home = bestCorner(180, 52, fs.corner);   // fs 가 쓴 모서리는 제외
+    applyCorner('kiosk-corner-', fs.corner);
+    applyCorner('kiosk-hcorner-', home.corner || fs.corner);
+  }
+
+  function applyCorner(prefix, corner) {
+    if (!corner) return;
+    CORNERS.forEach(function (c) { document.body.classList.remove(prefix + c); });
+    document.body.classList.add(prefix + corner);
   }
 
   var homeBtn = null;
@@ -275,6 +369,20 @@
   }
 
   detect();
+
+  /* 자리 계산을 레이아웃이 확정된 뒤에 다시 한다.
+       load        : 이미지·글꼴이 들어온 뒤
+       fonts.ready : 웹폰트 적용으로 글자 크기가 바뀐 뒤
+       +600ms      : 스크립트가 만드는 화면(검사 문항 등)이 그려진 뒤
+     매번 자리를 새로 고르면 버튼이 튀어 보이므로, placeButtons() 안에서
+     이미 같은 자리면 아무것도 하지 않는다. */
+  window.addEventListener('load', function () { placeButtons(); });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { placeButtons(); });
+  }
+  setTimeout(placeButtons, 600);
+  setTimeout(placeButtons, 1800);
+
   window.addEventListener('resize', detect);
   window.addEventListener('orientationchange', detect);
   window.isKioskMode = detect;
