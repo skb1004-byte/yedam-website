@@ -473,8 +473,8 @@ button:not(:disabled):active{transform:scale(.985)}
 #detailed-result .rounded-2xl,#detailed-result .bg-white,#extended-sections .rounded-2xl{box-shadow:0 18px 46px -32px rgba(20,20,19,.26)}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(217,119,87,.18)}
 </style>
-<link rel="stylesheet" href="../kiosk.css?v=20260808t">
-<script src="../kiosk.js?v=20260808t" defer></script>
+<link rel="stylesheet" href="../kiosk.css?v=20260808u">
+<script src="../kiosk.js?v=20260808u" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -3327,7 +3327,7 @@ let state = {
     sjt: { answers: [], dims: {}, order: [], adaptive: false },
     conv: { turns: 0, dims: {}, riskHist: [], topics: {}, transcript: [] }
   },
-  cfg: { mode:'ONDEVICE', endpoint:'https://api.yedam.kr/ai', key:'', model:'openai', proxy:'', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
+  cfg: { mode:'AUTO_FREE', endpoint:'https://api.yedam.kr/ai', key:'', model:'openai', proxy:'', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
 };
 
 function load() {
@@ -5213,6 +5213,8 @@ function initSettings() {
     save();
     const label = (PROVIDERS[m] && PROVIDERS[m].label) || m;
     if (m === 'ONDEVICE') {
+      /* 사용자가 설정에서 직접 고른 경우다. 큰 모델을 받아도 된다. */
+      window._ondeviceUserChosen = true;
       _ondeviceAllowDL = _ondeviceAllowed();   /* 키오스크 제외 */
       el('cfg-status').textContent = '🖥 온디바이스 확인 중… (첫 응답 시 모델 준비될 수 있어요)';
       try { const r = await callOnDevice('안녕? 한 문장으로 자기소개 해줘.','한국어로만 짧게.'); el('cfg-status').textContent = (r && r.trim()) ? '✅ 온디바이스 동작 확인 — 인터넷·키 없이 자유대화에 사용됩니다.' : 'ℹ 온디바이스 준비/미지원 — 지원 브라우저(WebGPU 또는 Chrome 내장 AI)면 첫 대화에서 모델을 받아 이후 오프라인 동작, 아니면 로컬 규칙형으로 폴백.'; } catch(e) { el('cfg-status').textContent = 'ℹ 온디바이스 미지원 — 로컬 규칙형 폴백.'; }
@@ -5419,7 +5421,10 @@ async function autoConnectFreeAI() {
   const hasUserKey = !!(state.cfg && state.cfg.key && state.cfg.mode !== 'LOCAL' && state.cfg.mode !== 'AUTO_FREE' && state.cfg.mode !== 'ONDEVICE');
   if (savedCfg || hasUserKey) {
     const ms0 = el('cfg-mode'); if (ms0 && state.cfg.mode) ms0.value = state.cfg.mode;
-    if (state.cfg.mode === 'ONDEVICE' && _ondeviceAllowed()) _ondeviceAllowDL = true; // 데스크톱만 허용(모바일·키오스크 제외)
+    if (state.cfg.mode === 'ONDEVICE' && _ondeviceAllowed()) {
+      window._ondeviceUserChosen = true;   /* 저장된 설정 = 사용자가 고른 것 */
+      _ondeviceAllowDL = true;             // 데스크톱만 허용(모바일·키오스크 제외)
+    }
     const lbl = (PROVIDERS[state.cfg.mode] && PROVIDERS[state.cfg.mode].label) || state.cfg.mode;
     if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">엔진: ' + lbl + '</span>';
     return;
@@ -5491,17 +5496,60 @@ async function autoConnectFreeAI() {
     return;
   }
 
-  state.cfg = Object.assign({}, state.cfg, { mode:'ONDEVICE' });
-  save();
-  const ms = el('cfg-mode'); if (ms) ms.value = 'ONDEVICE';
-  const cs = el('cfg-status'); if (cs) cs.textContent = '🖥 온디바이스(브라우저) 기본 적용 — 키 불필요';
-  // 브라우저 내장 Prompt API(Gemini Nano) 가용성만 가볍게 확인 (모델 다운로드 X)
+  /* 데스크톱 기본값.
+
+     예전에는 여기서 무조건 ONDEVICE 를 켰다. 그러면 브라우저가
+     huggingface 에서 ONNX 모델을 통째로 내려받는다. 실측하면
+     q4 749MB · q4f16 460MB 다. 처음 들어온 사람에게 그만한 짐을
+     말없이 지우는 것이고, 그 사이 화면은 멈춘 것처럼 보인다.
+     실제로 이 경로에서 브라우저가 죽는 것을 관찰했다.
+
+     이제 이렇게 고른다.
+       1) 브라우저에 내장 AI(Prompt API · Gemini Nano)가 있으면 그것
+          이미 기기에 있는 모델이라 우리가 받게 하는 것이 없다. 가장 좋다.
+       2) 없으면 자체 서버 프록시
+          키가 브라우저로 나가지 않고, 서버가 여러 공급자를 자동으로 훑는다.
+
+     큰 모델을 굳이 받고 싶으면 설정에서 온디바이스를 직접 고르면 된다.
+     기본값으로는 받지 않는다. */
   let builtin = false;
-  try { const LM = (self.LanguageModel) || (window.ai && window.ai.languageModel); if (LM) { let a='readily'; try { a = LM.availability ? await LM.availability() : 'readily'; } catch(e){} builtin = a && a !== 'no' && a !== 'unavailable'; } } catch(e) {}
-  if (builtin && _ondeviceAllowed()) _ondeviceAllowDL = true;
-  if (badge) badge.innerHTML = builtin
-    ? '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 온디바이스(브라우저 내장 AI) 연결됨</span>'
-    : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 기본 · 미지원 시 로컬 규칙형 자동 폴백</span>';
+  try {
+    const LM = (self.LanguageModel) || (window.ai && window.ai.languageModel);
+    if (LM) {
+      let a = 'readily';
+      try { a = LM.availability ? await LM.availability() : 'readily'; } catch (e) {}
+      builtin = a && a !== 'no' && a !== 'unavailable';
+    }
+  } catch (e) {}
+
+  if (builtin) {
+    state.cfg = Object.assign({}, state.cfg, { mode:'ONDEVICE' });
+    save();
+    const ms = el('cfg-mode'); if (ms) ms.value = 'ONDEVICE';
+    const cs = el('cfg-status'); if (cs) cs.textContent = '🖥 브라우저 내장 AI 사용 — 다운로드·키 불필요';
+    /* 내장 API 로만 쓴다. 큰 모델 다운로드는 열지 않는다. */
+    _ondeviceAllowDL = false;
+    if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 온디바이스(브라우저 내장 AI) 연결됨</span>';
+    return;
+  }
+
+  state.cfg = Object.assign({}, state.cfg, {
+    mode:'AUTO_FREE', key:'',
+    endpoint:(PROVIDERS.AUTO_FREE && PROVIDERS.AUTO_FREE.endpoint) || PIA_CHAT_PROXY,
+    model:''
+  });
+  save();
+  const ms = el('cfg-mode'); if (ms) ms.value = 'AUTO_FREE';
+  const cs = el('cfg-status'); if (cs) cs.textContent = '🌐 서버 프록시 사용 — 키 불필요 · 다운로드 없음';
+  if (badge) badge.innerHTML = '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 AI 연결 확인 중…</span>';
+  try {
+    const r = await callLLMFree('안녕', '한 단어로만 답해.');
+    if (badge) badge.innerHTML = (r && r.trim())
+      ? '<span class="pill bg-emerald-100 text-emerald-800 text-[10px]">🟢 AI 연결됨</span>'
+      : '<span class="pill bg-amber-100 text-amber-800 text-[10px]">⚠ AI 연결 실패 — 로컬 규칙형으로 진행합니다</span>';
+  } catch (e) {
+    console.error('AI 연결 확인 실패:', e);
+  }
 }
 
 function piaPaperScan(){
@@ -5757,7 +5805,10 @@ async function autoEnableOnDevice(){
     if (typeof isMobile==='function' && isMobile()) { window._ondeviceLazy=true; return; } // 모바일은 온디바이스 자동기동 안 함(무료 AI 사용)
     const hasChrome = !!((typeof self!=='undefined' && self.LanguageModel) || (typeof window!=='undefined' && window.ai && window.ai.languageModel));
     const hasGPU = !!(typeof navigator!=='undefined' && navigator.gpu);
-    window._ondeviceReady = false; window._ondeviceWarming = true; _ondeviceAllowDL = _ondeviceAllowed();
+    window._ondeviceReady = false; window._ondeviceWarming = true;
+    /* 큰 모델(460~749MB) 다운로드는 사용자가 직접 온디바이스를 고른 경우에만 연다.
+       브라우저 내장 AI 때문에 여기 들어온 사람에게는 열지 않는다. */
+    _ondeviceAllowDL = !!window._ondeviceUserChosen && _ondeviceAllowed();
     function badge(html){ try{ var b=document.getElementById('chat-aistatus'); if(b) b.innerHTML=html; }catch(_){} }
     function st(msg){ try{ var e=document.getElementById('cfg-status'); if(e) e.textContent=msg; }catch(_){} }
     badge('<span class="pill bg-amber-100 text-amber-800 text-[10px]">🖥 온디바이스 연결 시도 중…</span>');
