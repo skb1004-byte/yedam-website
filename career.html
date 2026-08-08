@@ -55,8 +55,8 @@ button:disabled{opacity:.5;cursor:default}
 .hide{display:none}
 @media (max-width:520px){ .wrap{padding:12px} .tabs button{font-size:13px;padding:10px 6px} }
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260808r">
-<script src="kiosk.js?v=20260808r" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260808s">
+<script src="kiosk.js?v=20260808s" defer></script>
 </head>
 <body>
 <header>
@@ -117,8 +117,12 @@ button:disabled{opacity:.5;cursor:default}
     return fwd('https://www.career.go.kr/cnet/front/openapi/jobs.json?' +
       qs({ searchJobNm: word || '', pageIndex: page || 1 }));
   }
-  function jobUrl(seq) {
-    return fwd('https://www.career.go.kr/cnet/front/openapi/job.json?' + qs({ seq: seq }));
+  /* 상세 조회의 seq 파라미터에는 목록의 seq 가 아니라 job_cd 를 넣어야 한다.
+     매뉴얼이 "seq Number[필수] 직업코드" 라고 적어 두어 헷갈리는데, 목록 응답에는
+     seq(고유번호)와 job_cd(직업코드)가 따로 있고 상세가 원하는 것은 job_cd 다.
+     실측 — 간병인: seq=704 → 전부 빈 배열 / job_cd=353 → 하는일 5건·흥미 2건 */
+  function jobUrl(jobCd) {
+    return fwd('https://www.career.go.kr/cnet/front/openapi/job.json?' + qs({ seq: jobCd }));
   }
   function majorsUrl(word, page) {
     return fwd('https://www.career.go.kr/cnet/openapi/getOpenApi?' + qs({
@@ -222,7 +226,7 @@ button:disabled{opacity:.5;cursor:default}
     out.innerHTML = '<div class="card"><h2>관련 직업 ' + (j.count || list.length) + '개 중 ' + list.length + '개</h2>' +
       '<div class="sub">직업을 누르면 하는 일과 필요한 역량을 볼 수 있습니다.</div>' +
       list.map(function (it) {
-        return '<button class="item" type="button" data-seq="' + esc(it.seq) + '">' +
+        return '<button class="item" type="button" data-seq="' + esc(it.job_cd) + '">' +
           '<span class="nm">' + esc(it.job_nm) + '</span>' +
           '<span class="meta">' + esc(it.aptit_name || it.top_nm || '') +
           (it.wage ? ' · 평균연봉 ' + esc(it.wage) : '') + '</span>' +
@@ -231,10 +235,10 @@ button:disabled{opacity:.5;cursor:default}
       }).join('') + '</div>';
   }
 
-  async function showJob(seq) {
+  async function showJob(jobCd) {
     loading('직업 정보를 불러오는 중입니다…');
     var j;
-    try { j = await getJson(jobUrl(seq)); }
+    try { j = await getJson(jobUrl(jobCd)); }
     catch (e) { fail(e.message); return; }
 
     var b = j.baseInfo || {};
