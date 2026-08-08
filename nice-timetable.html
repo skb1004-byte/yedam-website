@@ -195,7 +195,21 @@ function renderClasses(){
   });
 }
 /* ---- NEIS 학급현황 자동 ---- */
-var NEIS_KEY='6a290550fd57438f8374bc8ed7feabfd'; // 서버 내장 개방 API 키
+/* NEIS 는 우리 서버(api.yedam.kr)를 거쳐 부른다.
+   키를 서버가 붙여 주므로 이 파일에는 키가 없다.
+   서버가 응답하지 않으면 NEIS 를 직접 부르지 않는다 — 키가 없으니 실패한다.
+   실패는 화면에 그대로 드러나게 두고 콘솔에 남긴다. */
+var NEIS_PROXY='https://api.yedam.kr/ai';
+function neisUrl(path, params){
+  var qs=[];
+  for (var k in params){
+    if (!Object.prototype.hasOwnProperty.call(params,k)) continue;
+    if (params[k]===undefined || params[k]===null || params[k]==='') continue;
+    qs.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
+  }
+  var target='https://open.neis.go.kr/hub/'+path+'?Type=json&'+qs.join('&');
+  return NEIS_PROXY+'?task=fwd&url='+encodeURIComponent(target);
+}
 function saveSchool(o){ try{ localStorage.setItem('pia_school', JSON.stringify(o)); }catch(e){} }
 function loadSchool(){ try{ var v=localStorage.getItem('pia_school'); return v?JSON.parse(v):null; }catch(e){ return null; } }
 function saveState(){ try{ localStorage.setItem('pia_tt', JSON.stringify({classes:classes, subs:subs, events:events, D:($('#days')||{}).value, P:($('#periods')||{}).value})); }catch(e){} }
@@ -207,13 +221,12 @@ async function neisAuto(){
   var nm=($('#neisSchool').value||'').trim();
   var msg=$('#neisMsg'); if(!nm){ msg.textContent='학교명을 입력하세요.'; return; }
   msg.style.color='#94a3b8'; msg.textContent='NEIS 조회 중…';
-  var K=NEIS_KEY; var base='https://open.neis.go.kr/hub/';
-  try{
-    var si=await neisJson(base+'schoolInfo?Type=json&pIndex=1&pSize=5&KEY='+encodeURIComponent(K)+'&SCHUL_NM='+encodeURIComponent(nm));
+    try{
+    var si=await neisJson(neisUrl('schoolInfo',{pIndex:1,pSize:5,SCHUL_NM:nm}));
     var rows=(si.schoolInfo&&si.schoolInfo[1]&&si.schoolInfo[1].row)||[];
     if(!rows.length){ msg.style.color='#b91c1c'; msg.textContent='학교를 찾지 못했습니다. 이름을 정확히 입력하거나 학년별 반 수를 직접 넣으세요.'; return; }
     var s=rows[0]; var ay=new Date().getFullYear();
-    var ci=await neisJson(base+'classInfo?Type=json&pIndex=1&pSize=1000&KEY='+encodeURIComponent(K)+'&ATPT_OFCDC_SC_CODE='+s.ATPT_OFCDC_SC_CODE+'&SD_SCHUL_CODE='+s.SD_SCHUL_CODE+'&AY='+ay);
+    var ci=await neisJson(neisUrl('classInfo',{pIndex:1,pSize:1000,ATPT_OFCDC_SC_CODE:s.ATPT_OFCDC_SC_CODE,SD_SCHUL_CODE:s.SD_SCHUL_CODE,AY:ay}));
     var crows=(ci.classInfo&&ci.classInfo[1]&&ci.classInfo[1].row)||[];
     if(!crows.length){ msg.style.color='#b91c1c'; msg.textContent='학급 정보가 없습니다. 학교명을 정확히 입력하거나 학년별 반 수를 직접 넣으세요.'; return; }
     var byGrade={};
@@ -235,8 +248,7 @@ async function neisAuto(){
 async function neisResolveSchool(){
   if(window._neisSchool) return window._neisSchool;
   var nm=($('#neisSchool').value||'').trim(); if(!nm) return null;
-  var K=NEIS_KEY;
-  var si=await neisJson('https://open.neis.go.kr/hub/schoolInfo?Type=json&pIndex=1&pSize=5&KEY='+encodeURIComponent(K)+'&SCHUL_NM='+encodeURIComponent(nm));
+  var si=await neisJson(neisUrl('schoolInfo',{pIndex:1,pSize:5,SCHUL_NM:nm}));
   var rows=(si.schoolInfo&&si.schoolInfo[1]&&si.schoolInfo[1].row)||[]; if(!rows.length) return null;
   var s=rows[0]; window._neisSchool={A:s.ATPT_OFCDC_SC_CODE,S:s.SD_SCHUL_CODE,kind:s.SCHUL_KND_SC_NM||'',nm:s.SCHUL_NM,ay:new Date().getFullYear(),fg:'1',fc:'1'};
   saveSchool(window._neisSchool);
@@ -251,11 +263,11 @@ async function neisSubjects(){
   M('#94a3b8','NEIS 시간표 조회 중…');
   try{
     var sc=await neisResolveSchool(); if(!sc){ M('#b91c1c','먼저 ① 에서 학교명을 입력하세요.'); return; }
-    var K=NEIS_KEY; var ep=_ttEp(sc.kind);
+    var ep=_ttEp(sc.kind);
     var mon=mondayOf(new Date()); var fri=new Date(mon); fri.setDate(fri.getDate()+4);
     var sem=(function(){var m=new Date().getMonth()+1;return (m>=3&&m<=7)?'1':'2';})();
     async function pull(SEM){
-      var u='https://open.neis.go.kr/hub/'+ep+'?Type=json&pIndex=1&pSize=300&KEY='+encodeURIComponent(K)+'&ATPT_OFCDC_SC_CODE='+sc.A+'&SD_SCHUL_CODE='+sc.S+'&AY='+sc.ay+'&SEM='+SEM+'&GRADE='+sc.fg+'&CLASS_NM='+encodeURIComponent(sc.fc)+'&TI_FROM_YMD='+_ymd(mon)+'&TI_TO_YMD='+_ymd(fri);
+      var u=neisUrl(ep,{pIndex:1,pSize:300,ATPT_OFCDC_SC_CODE:sc.A,SD_SCHUL_CODE:sc.S,AY:sc.ay,SEM:SEM,GRADE:sc.fg,CLASS_NM:sc.fc,TI_FROM_YMD:_ymd(mon),TI_TO_YMD:_ymd(fri)});
       var j=await neisJson(u); return (j[ep]&&j[ep][1]&&j[ep][1].row)||[];
     }
     var rows=await pull(sem); if(!rows.length) rows=await pull(sem==='1'?'2':'1');
@@ -281,8 +293,8 @@ async function neisSchedule(){
   M('#94a3b8','NEIS 학사일정 조회 중…');
   try{
     var sc=await neisResolveSchool(); if(!sc){ M('#b91c1c','먼저 ① 에서 학교명을 입력하세요.'); return; }
-    var K=NEIS_KEY; var y=parseInt($('#calYear').value,10)||sc.ay;
-    var u='https://open.neis.go.kr/hub/SchoolSchedule?Type=json&pIndex=1&pSize=1000&KEY='+encodeURIComponent(K)+'&ATPT_OFCDC_SC_CODE='+sc.A+'&SD_SCHUL_CODE='+sc.S+'&AA_FROM_YMD='+y+'0101&AA_TO_YMD='+y+'1231';
+    var y=parseInt($('#calYear').value,10)||sc.ay;
+    var u=neisUrl('SchoolSchedule',{pIndex:1,pSize:1000,ATPT_OFCDC_SC_CODE:sc.A,SD_SCHUL_CODE:sc.S,AA_FROM_YMD:y+'0101',AA_TO_YMD:y+'1231'});
     var j=await neisJson(u); var rows=(j.SchoolSchedule&&j.SchoolSchedule[1]&&j.SchoolSchedule[1].row)||[];
     if(!rows.length){ M('#b91c1c','학사일정 데이터가 없습니다. 직접 추가하세요.'); return; }
     var added=0;

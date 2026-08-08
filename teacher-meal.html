@@ -97,13 +97,27 @@ details .db{margin-top:6px;line-height:1.8}
 
 <script>
 function $(s){return document.querySelector(s);}
-var NEIS_KEY='6a290550fd57438f8374bc8ed7feabfd'; // 서버 내장 개방 API 키(시간표 도구와 공용)
+/* NEIS 는 우리 서버(api.yedam.kr)를 거쳐 부른다.
+   키를 서버가 붙여 주므로 이 파일에는 키가 없다.
+   서버가 응답하지 않으면 NEIS 를 직접 부르지 않는다 — 키가 없으니 실패한다.
+   실패는 화면에 그대로 드러나게 두고 콘솔에 남긴다. */
+var NEIS_PROXY='https://api.yedam.kr/ai';
+function neisUrl(path, params){
+  var qs=[];
+  for (var k in params){
+    if (!Object.prototype.hasOwnProperty.call(params,k)) continue;
+    if (params[k]===undefined || params[k]===null || params[k]==='') continue;
+    qs.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
+  }
+  var target='https://open.neis.go.kr/hub/'+path+'?Type=json&'+qs.join('&');
+  return NEIS_PROXY+'?task=fwd&url='+encodeURIComponent(target);
+}
 var ALLERG={1:'난류',2:'우유',3:'메밀',4:'땅콩',5:'대두',6:'밀',7:'고등어',8:'게',9:'새우',10:'돼지고기',11:'복숭아',12:'토마토',13:'아황산류',14:'호두',15:'닭고기',16:'쇠고기',17:'오징어',18:'조개류(굴·전복·홍합 포함)',19:'잣'};
 function saveSchool(o){ try{ localStorage.setItem('pia_school', JSON.stringify(o)); }catch(e){} }
 function loadSchool(){ try{ var v=localStorage.getItem('pia_school'); return v?JSON.parse(v):null; }catch(e){ return null; } }
 async function neisJson(url){ var r=await fetch(url); return r.json(); }
 async function resolveSchoolByName(nm){
-  var si=await neisJson('https://open.neis.go.kr/hub/schoolInfo?Type=json&pIndex=1&pSize=5&KEY='+encodeURIComponent(NEIS_KEY)+'&SCHUL_NM='+encodeURIComponent(nm));
+  var si=await neisJson(neisUrl('schoolInfo',{pIndex:1,pSize:5,SCHUL_NM:nm}));
   var rows=(si.schoolInfo&&si.schoolInfo[1]&&si.schoolInfo[1].row)||[];
   if(!rows.length) return null;
   var s=rows[0];
@@ -259,7 +273,7 @@ async function loadMeal(){
   if(!sc||!sc.A||!sc.S){ area.innerHTML=''; return; }
   area.innerHTML='<div class="empty mut">불러오는 중…</div>';
   try{
-    var u='https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&KEY='+encodeURIComponent(NEIS_KEY)+'&ATPT_OFCDC_SC_CODE='+sc.A+'&SD_SCHUL_CODE='+sc.S+'&MLSV_YMD='+curYMD;
+    var u=neisUrl('mealServiceDietInfo',{ATPT_OFCDC_SC_CODE:sc.A,SD_SCHUL_CODE:sc.S,MLSV_YMD:curYMD});
     var j=await neisJson(u);
     var rows=(j.mealServiceDietInfo&&j.mealServiceDietInfo[1]&&j.mealServiceDietInfo[1].row)||[];
     if(!rows.length){
@@ -281,7 +295,7 @@ async function findNext(dir){
   for(var i=0;i<20;i++){
     y=shiftYMD(y,dir);
     try{
-      var u='https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&KEY='+encodeURIComponent(NEIS_KEY)+'&ATPT_OFCDC_SC_CODE='+sc.A+'&SD_SCHUL_CODE='+sc.S+'&MLSV_YMD='+y;
+      var u=neisUrl('mealServiceDietInfo',{ATPT_OFCDC_SC_CODE:sc.A,SD_SCHUL_CODE:sc.S,MLSV_YMD:y});
       var j=await neisJson(u);
       var rows=(j.mealServiceDietInfo&&j.mealServiceDietInfo[1]&&j.mealServiceDietInfo[1].row)||[];
       if(rows.length){ curYMD=y; loadMeal(); return; }
