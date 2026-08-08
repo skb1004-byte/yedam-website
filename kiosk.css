@@ -149,7 +149,7 @@ html.kiosk-on #kiosk-home-btn {
   text-decoration: none;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  min-height: 48px;          /* 터치 목표 최소 크기 */
+  min-height: 48px;          /* 터치 목표 권장 크기(NIA·머티리얼) */
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
@@ -160,6 +160,50 @@ html.kiosk-on #kiosk-fs-btn:active { opacity: 1; }
 @media (max-width: 560px) {
   html.kiosk-on #kiosk-home-btn { bottom: 14px; left: 14px; padding: 10px 14px; font-size: 0.85rem; }
   html.kiosk-on #kiosk-fs-btn   { bottom: 14px; left: auto; right: 14px; padding: 10px 14px; font-size: 0.8rem; }
+}
+
+/* =========================================================
+   진입 안내 오버레이 — 키오스크 홈에서 첫 터치를 받아 전체화면으로 들어간다
+   (브라우저가 사용자 조작 없는 전체화면 진입을 막기 때문에 필요하다)
+   ========================================================= */
+#kiosk-enter-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 14, 20, 0.92);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#kiosk-enter-overlay:focus-visible { outline: 4px solid #5FE3D6; outline-offset: -8px; }
+.kiosk-enter-inner { text-align: center; color: #fff; padding: 24px; }
+/* 손가락 아이콘도 폰트에 없는 기호 대신 CSS 로 그린다 */
+.kiosk-enter-ico {
+  width: 76px; height: 76px; margin: 0 auto 22px;
+  border: 5px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  position: relative;
+  animation: kiosk-tap 1.6s ease-in-out infinite;
+}
+.kiosk-enter-ico::after {
+  content: "";
+  position: absolute; inset: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+}
+@keyframes kiosk-tap {
+  0%, 100% { transform: scale(1);    opacity: 0.85; }
+  50%      { transform: scale(0.86); opacity: 1; }
+}
+.kiosk-enter-t { font-size: clamp(1.5rem, 4.4vmin, 3rem); font-weight: 900; letter-spacing: -0.01em; }
+.kiosk-enter-d { font-size: clamp(0.95rem, 2.4vmin, 1.6rem); margin-top: 12px; opacity: 0.82; }
+
+/* 움직임에 민감한 이용자를 위해 애니메이션을 끈다 */
+@media (prefers-reduced-motion: reduce) {
+  .kiosk-enter-ico { animation: none; }
 }
 
 /* =========================================================
@@ -203,17 +247,41 @@ html.kiosk-on #kiosk-fs-btn:active { opacity: 1; }
    "다음/이전" 버튼이나 홈의 키오스크 진입 버튼과 같은 자리를 다툽니다.
    검사 화면에서는 우측 상단으로 비켜 세웁니다.
    ========================================================= */
+/* 48px 인 이유:
+     WCAG 2.1 AA 의 최소는 44px 이지만, 구글 머티리얼 접근성 가이드와
+     한국지능정보사회진흥원(NIA) 배리어프리 키오스크 UI 가이드는 48dp
+     (실물 약 9mm, 권장 7~10mm)를 권한다.
+     이 키오스크는 맘(MOM)·두뇌 놀이터로 어르신이 쓰는 화면이므로
+     최소치가 아니라 권장치를 따른다.
+   padding 만 줄였더니 높이가 41px 로 떨어져 기준에 미달했었다(측정치). */
 html.kiosk-on body.pia-v2 #kiosk-fs-btn,
 html.kiosk-on body.mom-v2 #kiosk-fs-btn{
   right:16px; top:auto; bottom:16px; left:auto;
-  padding:10px 16px; font-size:.86rem; opacity:.55;
+  padding:10px 16px; font-size:.86rem; opacity:.55; min-height:48px;
 }
 /* left:auto 가 반드시 있어야 한다. 위쪽 기본 규칙이 left:14px 로 자리를 잡는데
    여기서 right 만 덮어쓰면 left 와 right 가 동시에 살아 버튼이 화면 폭만큼
    늘어난다(kiosk-home 에서 998px 짜리 막대가 됐던 것과 같은 원인). */
 html.kiosk-on body.pia-v2 #kiosk-home-btn,
 html.kiosk-on body.mom-v2 #kiosk-home-btn{
-  left:auto; right:16px; top:auto; bottom:62px; padding:10px 16px; font-size:.86rem; opacity:.72;
+  left:auto; right:16px; top:auto; bottom:68px; padding:10px 16px; font-size:.86rem; opacity:.72; min-height:48px;
+}
+
+/* ── 터치 목표 보정 ────────────────────────────────────────────────────
+   키오스크는 손가락으로 쓰는 화면인데, 마우스 기준으로 만든 작은 텍스트
+   링크가 그대로 남아 있었다(측정: 선생님도우미 "홈" 12x21px,
+   "로그아웃" 48x21px). 손가락으로는 사실상 못 누른다.
+   글자 크기는 그대로 두고 눌리는 영역만 44px 로 넓힌다. */
+html.kiosk-on a.link,
+html.kiosk-on .topbar a,
+html.kiosk-on .hbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 48px;   /* "홈" 처럼 글자가 짧아도 가로 48px 확보 */
+  padding-left: 12px;
+  padding-right: 12px;
 }
 html.kiosk-on body.pia-v2 #kiosk-fs-btn:hover,
 html.kiosk-on body.pia-v2 #kiosk-home-btn:hover,

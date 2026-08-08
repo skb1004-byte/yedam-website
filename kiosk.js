@@ -32,6 +32,7 @@
       if (isKiosk) {
         ensureFullscreenUI();
         ensureHomeButton();
+        ensureEnterOverlay();
       }
       return isKiosk;
     } catch (e) {
@@ -135,7 +136,66 @@
     document.addEventListener('touchend', blurLinkSoon, true);
   }
 
+  /* ── 진입 안내 오버레이 ──────────────────────────────────────────────
+     "키오스크 홈에 들어가면 자동으로 전체화면" 요구에 대한 답.
+
+     브라우저는 페이지가 열렸다는 이유만으로 전체화면에 들어가지 못하게
+     막는다. 사용자의 실제 조작(터치·클릭·키입력) 안에서 호출해야만 허용된다.
+     악성 사이트가 몰래 화면을 점령하는 걸 막는 규칙이라 우회할 수 없다.
+
+     그래서 화면 전체를 덮는 안내판을 띄우고, 어디를 눌러도 그 터치를
+     전체화면 진입에 쓴다. 키오스크는 사람이 와서 화면을 만지는 것으로
+     시작하므로, 이용자 입장에서는 "들어가자마자 전체화면"과 같다.
+
+     작업표시줄까지 완전히 없애려면 크롬을 --kiosk 로 띄워야 한다
+     (저장소의 키오스크-실행.bat). 그 경우 이 안내판은 뜨지 않는다. */
+  var enterOverlay = null;
+
+  function removeOverlay() {
+    if (!enterOverlay) return;
+    enterOverlay.remove();
+    enterOverlay = null;
+  }
+
+  function ensureEnterOverlay() {
+    if (isFramed || !isKioskHomePage) return;   // 키오스크 홈에서만
+    if (isFullscreen() || enterOverlay) return;
+    // 이미 전체화면으로 실행 중(--kiosk)이면 브라우저 창과 화면 크기가 같다.
+    // 이 경우 안내판은 방해만 되므로 띄우지 않는다.
+    if (window.innerHeight >= screen.height - 2) return;
+
+    enterOverlay = document.createElement('div');
+    enterOverlay.id = 'kiosk-enter-overlay';
+    enterOverlay.innerHTML =
+      '<div class="kiosk-enter-inner">' +
+      '<div class="kiosk-enter-ico" aria-hidden="true"></div>' +
+      '<div class="kiosk-enter-t">화면을 터치해 주세요</div>' +
+      '<div class="kiosk-enter-d">전체 화면으로 시작합니다</div>' +
+      '</div>';
+    enterOverlay.setAttribute('role', 'button');
+    enterOverlay.setAttribute('tabindex', '0');
+    enterOverlay.setAttribute('aria-label', '화면을 터치하면 전체 화면으로 시작합니다');
+
+    function start(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      requestFS();
+      removeOverlay();
+    }
+    enterOverlay.addEventListener('click', start);
+    enterOverlay.addEventListener('touchstart', start, { passive: false });
+    enterOverlay.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') start(e);
+    });
+
+    document.body.appendChild(enterOverlay);
+    try { enterOverlay.focus(); } catch (e) {}
+  }
+
   function updateFsBtn() {
+    // 전체화면에서 빠져나오면 안내판을 다시 띄운다
+    if (isFullscreen()) removeOverlay();
+    else if (Date.now() >= suppressUntil) ensureEnterOverlay();
+
     if (!fsBtn) return;
     /* 아이콘을 이모지·기호 문자로 넣지 않는다.
        ⛶(U+26F6) · ⤢(U+2922) 는 Windows 키오스크 기본 폰트에 없어서

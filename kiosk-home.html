@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/favicon_256.png">
 <meta name="description" content="예담 키오스크 홈 — AI PIA 학생 인적성검사, 맘(MOM) 인지건강 확인, 선생님 도우미, 두뇌 놀이터를 한 화면에서.">
-<link rel="stylesheet" href="kiosk.css">
+<link rel="stylesheet" href="kiosk.css?v=20260808">
 <style>
   html, body {
     margin: 0;
@@ -76,6 +76,16 @@
     transform: scale(0.985);
   }
 
+  /* <a> 대신 role="link" 인 <div> 로 바뀌었으므로 손가락 커서와
+     키보드 초점 테두리를 직접 준다. <a> 가 공짜로 주던 것들이다. */
+  .kiosk-tile,
+  .kiosk-bottom { cursor: pointer; }
+  .kiosk-tile:focus-visible,
+  .kiosk-bottom:focus-visible {
+    outline: 4px solid #fff;
+    outline-offset: -6px;
+  }
+
   .kiosk-tile-1 { background: linear-gradient(135deg, #8B7CF6 0%, #4C3FA6 100%); }
   .kiosk-tile-2 { background: linear-gradient(135deg, #FF7A6E 0%, #DD3444 100%); }
   .kiosk-tile-3 { background: linear-gradient(135deg, #4FCB8F 0%, #178B57 100%); }
@@ -139,7 +149,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 3%;
-    background: linear-gradient(120deg, #0B1B45 0%, #122A5E 60%, #0E2050 100%);
+    /* 딥틸(청록).
+       예전 남색(#0B1B45~#122A5E)은 옆의 두뇌 놀이터 파랑, 대각선의 AI PIA
+       보라와 같은 파랑 계열이라 실물 키오스크에서 배너가 타일에 묻혔다.
+       딥틸은 인접 3색(빨강·초록·파랑) 어디와도 계열이 겹치지 않고,
+       채도가 낮고 어두워 초록 타일과도 명도로 확실히 갈린다.
+       흰 글씨 대비 7.95:1 로 WCAG AA(본문 4.5) 를 넘긴다. */
+    background: linear-gradient(120deg, #062F33 0%, #0E5A5E 60%, #083C42 100%);
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
@@ -159,7 +175,7 @@
     width: 46%;
     height: 160%;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(90, 150, 255, 0.18), transparent 70%);
+    background: radial-gradient(circle, rgba(95, 227, 214, 0.18), transparent 70%);
     pointer-events: none;
   }
 
@@ -179,7 +195,7 @@
   .kiosk-bottom-badge {
     display: inline-block;
     align-self: flex-start;
-    background: #3B6BEF;
+    background: #12968F;
     color: #fff;
     font-weight: 700;
     font-size: clamp(0.64rem, 2vh, 0.9rem);
@@ -195,7 +211,7 @@
     margin-bottom: 0.25em;
   }
 
-  .kiosk-bottom-title .accent { color: #6FC3FF; }
+  .kiosk-bottom-title .accent { color: #5FE3D6; }
 
   .kiosk-bottom-tagline {
     font-size: clamp(0.7rem, 2.35vh, 1.05rem);
@@ -204,7 +220,7 @@
     margin-bottom: 0.5em;
   }
 
-  .kiosk-bottom-tagline .hl { color: #6FC3FF; font-weight: 700; }
+  .kiosk-bottom-tagline .hl { color: #5FE3D6; font-weight: 700; }
 
   .kiosk-bottom-cta {
     align-self: flex-start;
@@ -212,7 +228,7 @@
     align-items: center;
     gap: 0.35em;
     background: #fff;
-    color: #12296B;
+    color: #06333A;
     font-weight: 700;
     font-size: clamp(0.64rem, 2.1vh, 0.95rem);
     padding: 0.45em 1.1em;
@@ -237,7 +253,7 @@
     width: 0.45em;
     height: 0.45em;
     border-radius: 50%;
-    background: #6FC3FF;
+    background: #5FE3D6;
     margin-top: 0.55em;
     flex: 0 0 auto;
   }
@@ -375,37 +391,39 @@
   <div class="kiosk-page">
     <div class="kiosk-top">
       <div class="kiosk-square-grid">
-        <a class="kiosk-tile kiosk-tile-1" href="aipia/test.html"
-           onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
+        <div class="kiosk-tile kiosk-tile-1" role="link" tabindex="0"
+             data-kiosk-go="aipia/test.html" aria-label="AI PIA 학생 인적성검사 시작">
           <div class="kiosk-tile-title">AI PIA</div>
           <div class="kiosk-tile-divider"></div>
           <div class="kiosk-tile-sub">학생 인적성검사</div>
           <div class="kiosk-tile-desc">AI 기반 맞춤형 인적성검사로<br>학생의 성향과 잠재력을 분석해요</div>
-        </a>
-        <a class="kiosk-tile kiosk-tile-2" href="mom/test.html"
-           onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
+        </div>
+        <div class="kiosk-tile kiosk-tile-2" role="link" tabindex="0"
+             data-kiosk-go="mom/test.html" aria-label="맘(MOM) 부모님 인지건강 테스트 시작">
           <div class="kiosk-tile-title">MOM</div>
           <div class="kiosk-tile-divider"></div>
           <div class="kiosk-tile-sub">부모님 인지건강 테스트</div>
           <div class="kiosk-tile-desc">부모님의 기억력과 인지기능을<br>쉽고 간편하게 확인해요</div>
-        </a>
-        <a class="kiosk-tile kiosk-tile-3" href="teacher-hub.html"
-           onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
+        </div>
+        <div class="kiosk-tile kiosk-tile-3" role="link" tabindex="0"
+             data-kiosk-go="teacher-hub.html" aria-label="선생님 도우미 열기">
           <div class="kiosk-tile-title">선생님 도우미</div>
           <div class="kiosk-tile-divider"></div>
           <div class="kiosk-tile-sub">선생님 지원 솔루션</div>
           <div class="kiosk-tile-desc">수업 준비부터 평가까지,<br>스마트한 선생님 업무를 지원해요</div>
-        </a>
-        <a class="kiosk-tile kiosk-tile-4" href="mom-play.html"
-           onclick="try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);}catch(e){}">
+        </div>
+        <div class="kiosk-tile kiosk-tile-4" role="link" tabindex="0"
+             data-kiosk-go="mom-play.html" aria-label="두뇌 놀이터 열기">
           <div class="kiosk-tile-title">두뇌 놀이터</div>
           <div class="kiosk-tile-divider"></div>
           <div class="kiosk-tile-sub">부모님·어르신 두뇌훈련</div>
           <div class="kiosk-tile-desc">재미있는 게임과 활동으로<br>두뇌를 건강하게 훈련해요</div>
-        </a>
+        </div>
       </div>
     </div>
-    <a class="kiosk-bottom" href="https://aiedu.visang.com/" target="_blank" rel="noopener">
+    <div class="kiosk-bottom" role="link" tabindex="0"
+         data-kiosk-go="https://aiedu.visang.com/" data-kiosk-newtab="1"
+         aria-label="비상교육 AI 교육 프로그램 안내 페이지 열기 (새 창)">
       <div class="kiosk-bottom-left">
         <span class="kiosk-bottom-badge">비상한 AI 교육!</span>
         <div class="kiosk-bottom-title">AI <span class="accent">교육</span></div>
@@ -430,10 +448,53 @@
           <span><span class="kiosk-bottom-feat-t">글로벌 교육</span><br><span class="kiosk-bottom-feat-d">세계적 수준의 글로벌 교육 경험</span></span>
         </div>
       </div>
-    </a>
+    </div>
   </div>
 
   <script>
+    /* ── 타일·배너 이동 ────────────────────────────────────────────────
+       왜 <a href> 를 안 쓰는가
+         브라우저는 링크를 누르는 동안 화면 구석에 목적지 주소를 띄운다
+         (실물 키오스크 사진 좌하단의 https://yedam.kr/aipia/test.html).
+         이건 브라우저 UI 라서 CSS·JS 로 감출 방법이 없고, href 가 아예
+         없어야만 뜨지 않는다.
+       접근성은 어떻게 지키는가
+         role="link" 로 스크린리더에 링크로 알리고, tabindex="0" 으로
+         키보드 초점을 받게 하고, Enter·Space 를 클릭과 똑같이 처리한다.
+         각 요소에 aria-label 로 목적지를 말로 적어 뒀다.
+         잃는 것은 "새 탭으로 열기"(가운데 클릭·Ctrl+클릭)뿐인데,
+         키오스크에서는 쓰지 않는 기능이다. */
+    (function () {
+      function go(el) {
+        var url = el.getAttribute('data-kiosk-go');
+        if (!url) return;
+        // 이동 직전에 전체화면 진입을 시도한다(사용자 제스처 안에서만 허용됨)
+        try {
+          var r = document.documentElement.requestFullscreen ||
+                  document.documentElement.webkitRequestFullscreen;
+          if (r) { var pr = r.call(document.documentElement); if (pr && pr.catch) pr.catch(function () {}); }
+        } catch (e) {}
+
+        if (el.hasAttribute('data-kiosk-newtab')) {
+          // noopener: 새 창이 window.opener 로 이 페이지를 조작하지 못하게 막는다
+          var w = window.open(url, '_blank', 'noopener');
+          if (!w) location.href = url;   // 팝업이 막히면 같은 창으로
+        } else {
+          location.href = url;
+        }
+      }
+
+      document.querySelectorAll('[data-kiosk-go]').forEach(function (el) {
+        el.addEventListener('click', function () { go(el); });
+        el.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();   // Space 로 화면이 스크롤되는 것 방지
+            go(el);
+          }
+        });
+      });
+    })();
+
     function syncKioskDividers() {
       document.querySelectorAll('.kiosk-tile-title').forEach(function (title) {
         var divider = title.nextElementSibling;
@@ -448,6 +509,6 @@
       document.fonts.ready.then(syncKioskDividers);
     }
   </script>
-  <script src="kiosk.js" defer></script>
+  <script src="kiosk.js?v=20260808" defer></script>
 </body>
 </html>
