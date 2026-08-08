@@ -121,8 +121,16 @@ h2.title .em{color:var(--rust)}
   max-width:var(--maxw);margin:0 auto;padding:0 32px;
   height:68px;display:flex;align-items:center;justify-content:space-between;gap:24px;
 }
-.hdr-logo{display:flex;align-items:center;height:100%}
-.hdr-logo img{height:30px;width:auto}
+/* 로고가 화면에서 사라져 있었다(2026-08-09 실측). 폭 1920 에서도 0px.
+   원인은 순환 참조다. 전역 규칙 `img{max-width:100%}` 가 걸려 있는데,
+   .hdr-logo 는 flex 항목이라 폭이 **자식(img) 크기로** 정해지고,
+   그 img 의 max-width:100% 는 다시 **부모 폭**을 기준으로 삼는다.
+   서로를 기다리다 0 으로 주저앉는다. max-width:none 을 주면 109px 로
+   바로 복원되는 것을 확인했다.
+   flex-shrink:0 은 메뉴가 늘어나 헤더가 좁아져도 로고부터 찌그러지지
+   않게 하려는 것이다. 실제로 그렇게 눌리고 있었다. */
+.hdr-logo{display:flex;align-items:center;height:100%;flex-shrink:0}
+.hdr-logo img{height:30px;width:auto;max-width:none}
 .nav{display:flex;align-items:center;gap:24px;flex-shrink:0}
 .nav a{
   font-family:var(--font-ui);font-size:.94rem;font-weight:500;color:var(--ink-soft);
@@ -134,7 +142,10 @@ h2.title .em{color:var(--rust)}
 }
 .nav a:hover{color:var(--ink)}
 .nav a:hover::after{transform:scaleX(1)}
-.hdr-cta{display:inline-flex}
+/* "AI PIA 검사" 버튼이 폭 72px 로 눌려 글자가 세로 3줄로 쪼개져 있었다.
+   nav 와 hdr-auth 만 flex-shrink:0 이라, 줄어들 수 있는 로고와 이 버튼이
+   대신 희생되고 있었다. 버튼은 사이트의 주 행동 유도라 안 줄인다. */
+.hdr-cta{display:inline-flex;flex-shrink:0;white-space:nowrap}
 .burger{
   display:none;width:44px;height:44px;border:none;background:none;cursor:pointer;
   flex-direction:column;justify-content:center;align-items:center;gap:5px;
@@ -444,9 +455,9 @@ h1{line-height:1.12}
 /* 스크롤 시 네비 그림자(프리미엄 디테일) */
 (function(){try{var n=document.querySelector('.nav');if(!n)return;var on=function(){n.classList.toggle('yd-scrolled',(window.scrollY||0)>24);};window.addEventListener('scroll',on,{passive:true});on();}catch(e){}})();
 </script>
-<link rel="stylesheet" href="kiosk.css?v=20260809c">
-<link rel="stylesheet" href="screen.css?v=20260809c">
-<script src="kiosk.js?v=20260809c" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260809d">
+<link rel="stylesheet" href="screen.css?v=20260809d">
+<script src="kiosk.js?v=20260809d" defer></script>
 </head>
 <body>
 
@@ -1127,6 +1138,6 @@ html.kiosk-on #ydKioskEntry svg{ width:30px; height:30px; flex-shrink:0; }
   }catch(e){}
 })();
 </script>
-<script src="err-cs.js?v=20260809c" defer></script>
+<script src="err-cs.js?v=20260809d" defer></script>
 </body>
 </html>
