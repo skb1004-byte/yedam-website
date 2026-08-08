@@ -66,11 +66,27 @@
   }
 
   function infer() {
-    var w = window.innerWidth;
+    var w = window.innerWidth, h = window.innerHeight;
     var mq = window.matchMedia;
     var coarse = mq && mq('(any-pointer: coarse)').matches;   /* 손가락 */
     var fine   = mq && mq('(any-pointer: fine)').matches;     /* 마우스·펜 */
     var touches = navigator.maxTouchPoints || 0;
+
+    /* User-Agent Client Hints — 크로미움 계열이 주는 구조화된 힌트.
+       UA 문자열 파싱보다 낫지만 사파리·파이어폭스에는 없어 보조로만 쓴다.
+       mobile:false 이고 마우스가 있으면 노트북/데스크톱이 거의 확실하다. */
+    try {
+      var uad = navigator.userAgentData;
+      if (uad && uad.mobile === false && fine) {
+        return (w >= 1600 ? 'desktop' : 'laptop');
+      }
+    } catch (e) { }
+
+    /* 세로로 긴 화면 + 손가락만 = 세로형 키오스크 가능성.
+       다만 우리 키오스크는 가로(1024×768·1280×1024)라 이 신호로는 안 잡힌다.
+       그래서 이것만 믿지 않고 태블릿으로 돌린다 — 키오스크는 표시로 정한다.
+       세로 태블릿과 세로 키오스크는 브라우저가 주는 정보로 구별되지 않는다. */
+    var portraitTouch = (h > w) && coarse && !fine;
 
     /* 아이패드는 iPadOS 13 부터 기본이 "데스크톱 사이트 요청" 이라
        스스로를 맥으로 소개한다(navigator.platform === 'MacIntel').
@@ -91,7 +107,12 @@
        화면을 만질 수 있어도 주 입력은 트랙패드다. */
     if (fine) return (w >= 1600 ? 'desktop' : 'laptop');
     /* 마우스가 없고 손가락만 있다 */
-    if (coarse || touches >= 5) return 'tablet';
+    if (coarse || touches >= 5 || portraitTouch) return 'tablet';
+
+    /* 여기까지 왔으면 확신이 없다. 이때는 **넓은 쪽이 아니라 안전한 쪽**을
+       고른다 — 터치 친화적인 태블릿 규칙이 마우스 사용자에게는 조금 클 뿐
+       불편하지 않지만, 반대로 데스크톱 규칙을 터치 기기에 주면 못 누른다. */
+    if (touches > 0) return 'tablet';
     return (w >= 1600 ? 'desktop' : 'laptop');
   }
 
