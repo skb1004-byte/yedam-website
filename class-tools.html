@@ -592,7 +592,7 @@ $('addTeam').addEventListener('click', function(){
   $('teamName').value='';
   renderBoard();
 });
-$('teamName').addEventListener('keydown', function(e){ if(e.key==='Enter') $('addTeam').click(); });
+$('teamName').addEventListener('keydown', function(e){ if(e.key==='Enter' && !e.isComposing && e.keyCode!==229) $('addTeam').click(); });
 $('sortBoard').addEventListener('click', function(){
   board.sort(function(a,b){ return b.score - a.score; });
   renderBoard();

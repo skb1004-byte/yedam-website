@@ -4,18 +4,18 @@
    - 가로/세로 모두 대응 (orientation 분기 최소화, 대부분 반응형 단위로 처리)
    ========================================================================== */
 
-html.kiosk-on body {
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) {
   font-size: 17px;
 }
 
 /* 버튼·링크형 버튼 — 터치 오조작 방지용 최소 크기 확보 */
-html.kiosk-on button,
-html.kiosk-on a.btn,
-html.kiosk-on .btn,
-html.kiosk-on .btn-primary,
-html.kiosk-on .btn-ghost,
-html.kiosk-on input[type="button"],
-html.kiosk-on input[type="submit"] {
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) button,
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) a.btn,
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) .btn,
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) .btn-primary,
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) .btn-ghost,
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) input[type="button"],
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) input[type="submit"] {
   min-height: 52px;
   min-width: 52px;
   font-size: 1.08em;
@@ -23,13 +23,10 @@ html.kiosk-on input[type="submit"] {
 }
 
 /* 입력 요소 */
-html.kiosk-on input[type="text"],
-html.kiosk-on input[type="email"],
-html.kiosk-on input[type="tel"],
-html.kiosk-on input[type="date"],
-html.kiosk-on input[type="password"],
-html.kiosk-on select,
-html.kiosk-on textarea {
+/* type 속성이 없는 <input> 도 잡도록 :not() 으로 제외 방식을 바꿨다 */
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="file"]),
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) select,
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) textarea {
   min-height: 50px;
   font-size: 1.08em;
   padding: 10px 14px;
@@ -47,8 +44,8 @@ html.kiosk-on .tile .t {
 }
 
 /* 체크박스·라디오 — 손가락으로 누르기 쉽게 */
-html.kiosk-on input[type="checkbox"],
-html.kiosk-on input[type="radio"] {
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) input[type="checkbox"],
+html.kiosk-on body:not(.pia-v2):not(.mom-v2) input[type="radio"] {
   width: 22px;
   height: 22px;
 }
@@ -59,51 +56,12 @@ html.kiosk-on {
 }
 
 /* =========================================================
-   AI PIA / MOM 검사류 — 문항이 화면을 꽉 채우도록 확대
-   (section[data-view] + .js-qtext + choices-* 패턴 공용)
+   검사 화면(AI PIA / 맘 MOM) 스타일은 여기에 없습니다
+   ---------------------------------------------------------
+   두 화면은 각자 파일 안에서 화면 크기에 맞춰 글자·여백·터치 크기를
+   계산합니다. 예전에 여기 있던 확대 규칙은 그 계산과 충돌하기만 하고
+   실제로 적용되는 페이지도 없어 제거했습니다.
    ========================================================= */
-html.kiosk-on body:not(.pia-v2) section[data-view]:not(.hidden):not([data-view="home"]):not([data-view="result"]):not([data-view="fullreport"]):not([data-view="settings"]) {
-  min-height: calc(100vh - 150px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: clamp(24px, 4vw, 56px) clamp(20px, 6vw, 90px) !important;
-}
-
-html.kiosk-on body:not(.pia-v2) section[data-view] .js-qtext {
-  font-size: clamp(24px, 3.1vw, 40px) !important;
-  line-height: 1.5 !important;
-  margin-bottom: 30px !important;
-}
-
-html.kiosk-on body:not(.pia-v2) section[data-view] h2 {
-  font-size: clamp(22px, 2.4vw, 32px) !important;
-}
-
-html.kiosk-on body:not(.pia-v2) section[data-view] [id^="choices-"] {
-  gap: 14px !important;
-}
-html.kiosk-on body:not(.pia-v2) section[data-view] [id^="choices-"] button {
-  min-height: 64px !important;
-  font-size: 1.25rem !important;
-  padding: 18px 26px !important;
-  border-radius: 14px !important;
-}
-
-/* 진행률 바 — 멀리서도 보이게 */
-html.kiosk-on body:not(.pia-v2) section[data-view] [role="progressbar"] {
-  height: 8px !important;
-}
-
-/* 자유대화(채팅) — 말풍선/입력창 확대 */
-html.kiosk-on body:not(.pia-v2) #chat-input {
-  font-size: 1.15rem !important;
-  min-height: 56px !important;
-}
-html.kiosk-on #chat-send {
-  min-height: 56px !important;
-  font-size: 1.1rem !important;
-}
 
 /* =========================================================
    전체화면(Fullscreen API) 전환 버튼 — 키오스크 모드에서만 표시
@@ -181,7 +139,47 @@ html.kiosk-on #kiosk-home-btn {
 
 
 /* =========================================================
-   AI PIA (KRDS 적용, body.pia-v2)
-   글자·터치 크기는 aipia/test.html 안에서 화면 높이에 맞춰
-   자동으로 계산하므로 여기서 고정값을 주지 않는다.
+   새 화면(body.pia-v2 = AI PIA, body.mom-v2 = 맘 MOM)
+   ---------------------------------------------------------
+   이 두 화면은 각자 파일 안에서
+     · 화면 크기·비율로 프리셋을 고르고 (pia-sc-portrait / wide / compact)
+     · 글자·여백·터치 크기를 그 프리셋의 토큰으로 정하고
+     · 그래도 넘치면 zoom 으로 통째 축소
+   하는 방식을 씁니다.
+
+   따라서 이 파일이 고정 px 를 주면 그 계산이 어긋납니다.
+   위쪽 규칙에 :not(.pia-v2):not(.mom-v2) 를 붙여 둔 이유입니다.
+   새 화면용 스타일을 여기에 추가하지 마세요.
+
+   여기 남겨도 되는 것: 전체화면 버튼, 메인 복귀 버튼, 키오스크 홈 타일
+   (셀렉터가 id 기반이라 검사 화면 레이아웃에 영향을 주지 않습니다)
    ========================================================= */
+
+/* =========================================================
+   고정 버튼 겹침 방지
+   ---------------------------------------------------------
+   전체화면·메인복귀 버튼은 화면 우측 하단에 뜨는데, 검사 화면의
+   "다음/이전" 버튼이나 홈의 키오스크 진입 버튼과 같은 자리를 다툽니다.
+   검사 화면에서는 우측 상단으로 비켜 세웁니다.
+   ========================================================= */
+html.kiosk-on body.pia-v2 #kiosk-fs-btn,
+html.kiosk-on body.mom-v2 #kiosk-fs-btn{
+  right:16px; top:auto; bottom:16px; left:auto;
+  padding:10px 16px; font-size:.86rem; opacity:.55;
+}
+html.kiosk-on body.pia-v2 #kiosk-home-btn,
+html.kiosk-on body.mom-v2 #kiosk-home-btn{
+  right:16px; bottom:62px; padding:10px 16px; font-size:.86rem; opacity:.72;
+}
+html.kiosk-on body.pia-v2 #kiosk-fs-btn:hover,
+html.kiosk-on body.pia-v2 #kiosk-home-btn:hover,
+html.kiosk-on body.mom-v2 #kiosk-fs-btn:hover,
+html.kiosk-on body.mom-v2 #kiosk-home-btn:hover{ opacity:1; }
+
+/* 모달이 열려 있으면 시스템 버튼을 감춘다 (모달 z-index 9000 < 99999) */
+html.kiosk-on body.pia-v2:has(.pia-modal) #kiosk-fs-btn,
+html.kiosk-on body.pia-v2:has(.pia-modal) #kiosk-home-btn{ display:none !important; }
+
+/* 회사 홈페이지: 키오스크 진입 버튼과 겹치지 않게 위로 올린다 */
+html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn{ bottom:118px; }
+html.kiosk-on body:has(#ydKioskEntry) #kiosk-home-btn{ bottom:184px; }

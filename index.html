@@ -464,6 +464,7 @@ h1{line-height:1.12}
       <a href="aipia/index.html">AI PIA</a>
       <a href="mom/index.html">맘(MOM)</a>
       <a href="teacher-meal.html">오늘의 급식</a>
+      <a href="kiosk-home.html">키오스크 홈</a>
       <a href="#record">실적</a>
       <a href="#clients">파트너</a>
       <a href="#contact">문의</a>
@@ -517,6 +518,30 @@ h1{line-height:1.12}
 })();
 </script>
 
+
+<!-- 키오스크 기기에서만 보이는 키오스크 홈 진입 버튼 (kiosk.js가 html.kiosk-on 부여) -->
+<style>
+#ydKioskEntry{ display:none; }
+html.kiosk-on #ydKioskEntry{
+  display:flex; align-items:center; gap:14px;
+  position:fixed; right:24px; bottom:24px; z-index:940;
+  padding:20px 30px; border-radius:18px; text-decoration:none;
+  background:#141413; color:#faf9f5; font-family:var(--font-ui);
+  font-size:1.35rem; font-weight:800; letter-spacing:-.01em;
+  box-shadow:0 16px 44px rgba(20,20,19,.32);
+  min-height:76px; box-sizing:border-box;
+}
+html.kiosk-on #ydKioskEntry:hover{ background:#000; }
+html.kiosk-on #ydKioskEntry svg{ width:30px; height:30px; flex-shrink:0; }
+@media (max-width:760px){ html.kiosk-on #ydKioskEntry{ left:14px; right:14px; bottom:14px; justify-content:center; } }
+</style>
+<a href="kiosk-home.html" id="ydKioskEntry" aria-label="키오스크 홈 화면으로 이동">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+  </svg>
+  키오스크 홈
+</a>
+
 <!-- mobile sheet -->
 <div class="sheet" id="sheet">
   <a href="#about" class="sheet-link">회사소개</a>
@@ -524,6 +549,7 @@ h1{line-height:1.12}
   <a href="aipia/index.html" class="sheet-link">AI PIA</a>
   <a href="mom/index.html" class="sheet-link">맘(MOM)</a>
   <a href="teacher-meal.html" class="sheet-link">오늘의 급식</a>
+  <a href="kiosk-home.html" class="sheet-link">키오스크 홈</a>
   <a href="#record" class="sheet-link">실적</a>
   <a href="#clients" class="sheet-link">파트너</a>
   <a href="#contact" class="sheet-link">문의</a>

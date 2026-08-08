@@ -619,7 +619,7 @@ function renderCal(){
 /* ---- init ---- */
 $('#days').onchange=updateHourSum; $('#periods').oninput=updateHourSum;
 $('#calYear').oninput=renderCal;
-$('#clsInput').addEventListener('keydown',function(e){ if(e.key==='Enter') addClass(); });
+$('#clsInput').addEventListener('keydown',function(e){ if(e.key==='Enter' && !e.isComposing && e.keyCode!==229) addClass(); });
 initGradeInputs();
 (function(){ var sc=loadSchool(); if(sc&&sc.nm){ var f=$('#neisSchool'); if(f) f.value=sc.nm; if(sc.A&&sc.S) window._neisSchool=sc; var m=$('#neisMsg'); if(m){ m.style.color='#788c5d'; m.textContent='저장된 학교: '+sc.nm+' — 버튼을 누르면 바로 반영됩니다'; } } })();
 (function(){

@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/favicon_256.png">
+<meta name="description" content="예담 키오스크 홈 — AI PIA 학생 인적성검사, 맘(MOM) 인지건강 확인, 선생님 도우미, 두뇌 놀이터를 한 화면에서.">
 <link rel="stylesheet" href="kiosk.css">
 <style>
   html, body {
@@ -246,9 +247,21 @@
   @media (max-width: 720px) {
     .kiosk-bottom-right { display: none; }
   }
+  .kiosk-back{
+    position:fixed; left:18px; top:18px; z-index:60;
+    display:flex; align-items:center; min-height:52px;
+    padding:0 20px; border-radius:12px; text-decoration:none;
+    background:rgba(255,255,255,.86); color:#3d3d3a;
+    font-size:1rem; font-weight:700; border:1px solid rgba(0,0,0,.08);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  }
+  .kiosk-back:hover{ background:#fff; color:#141413; }
+  .kiosk-back:focus-visible{ outline:3px solid #246BEB; outline-offset:2px; }
+  @media (max-width:720px){ .kiosk-back{ left:10px; top:10px; min-height:44px; padding:0 14px; font-size:.9rem; } }
 </style>
 </head>
 <body>
+  <a class="kiosk-back" href="index.html" aria-label="회사 홈페이지로 이동">홈페이지</a>
   <div class="kiosk-page">
     <div class="kiosk-top">
       <div class="kiosk-square-grid">
@@ -325,6 +338,6 @@
       document.fonts.ready.then(syncKioskDividers);
     }
   </script>
-  <script src="kiosk.js"></script>
+  <script src="kiosk.js" defer></script>
 </body>
 </html>

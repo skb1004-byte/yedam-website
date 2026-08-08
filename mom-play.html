@@ -240,8 +240,13 @@ function endRound(){
     else if(rec.better) extra=' · 첫 기록으로 저장!';
     else if(rec.prev>=0) extra=' · 지금까지 최고 '+rec.prev+'점';
   }catch(e){}
-  /* 만점이면 다음 판 난이도 자동 승급 (적응형 훈련) */
-  if(pct>=1&&level<3){
+  /* 적응형 난이도 — 잘하면 올리고, 많이 틀리면 내린다 */
+  if(pct<0.4 && level>1){
+    level=level-1;
+    document.querySelectorAll('.lvl').forEach(function(x){x.classList.toggle('sel',parseInt(x.dataset.l,10)===level);});
+    $('#dMsg').textContent=$('#dMsg').textContent+' 다음 판은 조금 쉬워져요.';
+  }
+  else if(pct>=1&&level<3){
     level=level+1;
     document.querySelectorAll('.lvl').forEach(function(x){x.classList.toggle('sel',parseInt(x.dataset.l,10)===level);});
     $('#dMsg').textContent=$('#dMsg').textContent+' 다음 판은 한 단계 어려워져요!';
@@ -435,7 +440,7 @@ GAMES.pair={
 GAMES.num={
   start:function(){
     $('#gTitle').textContent='🔢 숫자 찾기';
-    ROUNDS=1; score=0;
+    ROUNDS=1; score=0; var ncMiss=0;
     var N=level===1?6:level===2?9:12;
     var cols=N<=6?3:N<=9?3:4;
     var host=$('#gHost');
@@ -447,8 +452,13 @@ GAMES.num={
       c.addEventListener('click',function(){
         if(parseInt(c.textContent,10)===next){
           c.classList.add('done'); next++;
-          if(next>N){ score=ROUNDS; feed(true); setTimeout(endRound,700); }
-        } else { feed(false); }
+          if(next>N){
+            /* 오답 없이 끝냈을 때만 만점 — 난이도 자동 조절의 근거가 된다 */
+            score=(ncMiss===0)?ROUNDS:0;
+            $('#gScore').textContent = ncMiss===0 ? '한 번도 안 틀렸어요' : ('틀린 횟수 '+ncMiss+'번');
+            feed(true); setTimeout(endRound,700);
+          }
+        } else { ncMiss++; feed(false); }
       });
       grid.appendChild(c);
     });
