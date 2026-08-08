@@ -477,8 +477,8 @@ button:not(:disabled):active{transform:scale(.985)}
 #detailed-result .rounded-2xl,#detailed-result .bg-white,#extended-sections .rounded-2xl{box-shadow:0 18px 46px -32px rgba(20,20,19,.26)}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(217,119,87,.18)}
 </style>
-<link rel="stylesheet" href="../kiosk.css?v=20260808i">
-<script src="../kiosk.js?v=20260808i" defer></script>
+<link rel="stylesheet" href="../kiosk.css?v=20260808j">
+<script src="../kiosk.js?v=20260808j" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -3349,7 +3349,7 @@ let state = {
     sjt: { answers: [], dims: {}, order: [], adaptive: false },
     conv: { turns: 0, dims: {}, riskHist: [], topics: {}, transcript: [] }
   },
-  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'7a81155d537a4d4d95a3eec0cbf7a3be', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
+  cfg: { mode:'ONDEVICE', endpoint:'https://text.pollinations.ai/openai', key:'', model:'openai', proxy:'', freeModel:'openai', grade:'mid', easy:false, apiKeys:{}, careernet:'', hfToken:'', hfEmotionModel:'matthewburke/korean_sentiment', hfSttModel:'openai/whisper-large-v3', hfLlmModel:'Qwen/Qwen2.5-7B-Instruct', ondeviceModel:'onnx-community/Qwen2.5-0.5B-Instruct' }
 };
 
 function load() {
@@ -5017,8 +5017,39 @@ async function hfTranscribe(file){
     if(!res.ok) return null; const j=await res.json(); return j.text || (Array.isArray(j)&&j[0]&&j[0].text) || '';
   }catch(e){ return null; }
 }
-var CAREERNET_PROXY='https://ushtyxnmqclzgdnynusm.supabase.co/functions/v1/careernet';
-var CAREERNET_KEY='7a81155d537a4d4d95a3eec0cbf7a3be'; // 커리어넷 공공데이터 OpenAPI 키 (기본값)
+/* ── 커리어넷 OpenAPI 호출 ────────────────────────────────────────────
+   예전에는 인증키를 이 파일에 평문으로 박아 뒀다. 이 저장소는 공개라
+   키가 그대로 노출됐다(라이브 소스에서도 보였다).
+
+   이제 Cloudflare Worker 의 fwd(정부 API 프록시)를 경유한다.
+     · Worker 가 career.go.kr 요청에 CAREERNET_KEY 를 자동으로 붙인다
+       (worker.js: tu.searchParams.set('apikey', env.CAREERNET_KEY))
+     · 키는 Cloudflare Secret 에만 있고 브라우저로 나가지 않는다
+     · 허용 호스트 목록(GOV_HOSTS)이 있어 아무 주소나 못 부른다
+     · 커리어넷은 CORS 를 막아 두어 어차피 프록시가 필요하다
+
+   사용자가 설정에서 개인 키를 저장했다면 그 키를 붙여 보낸다.
+   Worker 는 apikey 파라미터가 이미 있으면 덮어쓰지 않는다. */
+var CAREERNET_WORKER = 'https://lucky-sun-025e.songkb9.workers.dev';
+var CAREERNET_KEY = '';   // 소스에 키를 두지 않는다. Worker Secret 이 담당한다.
+
+/* 커리어넷 API 주소를 만들어 Worker fwd 로 감싼다.
+   op: 'list' | 'questions' | 'report' | 'raw'
+   key 가 빈 문자열이면 apikey 를 붙이지 않는다 → Worker 가 채운다. */
+function careernetUrl(op, q, key, rawUrl) {
+  var base = 'https://www.career.go.kr/inspct/openapi/test';
+  var target;
+  if (op === 'raw') target = rawUrl || '';
+  else if (op === 'list') target = base;
+  else if (op === 'questions') target = base + '/questions?q=' + encodeURIComponent(q || '');
+  else if (op === 'report') target = base + '/report';
+  else target = base;
+
+  if (key && target.indexOf('apikey=') < 0) {
+    target += (target.indexOf('?') >= 0 ? '&' : '?') + 'apikey=' + encodeURIComponent(key);
+  }
+  return CAREERNET_WORKER + '?task=fwd&url=' + encodeURIComponent(target);
+}
 var CN_ACTIVE=null; // 커리어넷 검사 렌더 대상 컨테이너(설정 패널 또는 홈 모달)
 function initCareernet(){
   var i=el('cfg-careernet'); if(!i) return;
@@ -5093,7 +5124,7 @@ async function careernetLoadQuestions(q){
   if(!key){ if(out) out.textContent='⚠ 먼저 커리어넷 API 키를 저장하세요.'; return; }
   if(out) out.textContent='🔌 q='+q+' 문항 불러오는 중…';
   try{
-    var r=await fetch(CAREERNET_PROXY+'?op=questions&key='+encodeURIComponent(key)+'&q='+encodeURIComponent(q),{headers:{'apikey':'sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'}});
+    var r=await fetch(careernetUrl('questions', q, key));
     var j=await r.json();
     if(j&&j.SUCC_YN==='Y'&&j.RESULT){ var arr=Array.isArray(j.RESULT)?j.RESULT:[j.RESULT];
       if(out) out.innerHTML='✅ '+arr.length+'문항 수신 · 첫 문항: <i>'+String((arr[0]&&arr[0].question)||'').replace(/<[^>]+>/g,' ').slice(0,80)+'</i>'; }
@@ -5102,10 +5133,10 @@ async function careernetLoadQuestions(q){
 }
 async function careernetRunTest(q, name){
   var box=CN_ACTIVE||document.getElementById('careernet-result'); if(!box) return;
-  var AK='sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
+  /* AK(Supabase 공개키)는 더 이상 쓰지 않는다 — 커리어넷은 Worker fwd 경유 */
   var key=(state.cfg&&state.cfg.careernet)||CAREERNET_KEY;
   box.classList.remove('hidden'); box.innerHTML='🔌 '+name+' 문항 불러오는 중…';
-  var j; try{ j=await fetch(CAREERNET_PROXY+'?op=questions&key='+encodeURIComponent(key)+'&q='+encodeURIComponent(q),{headers:{'apikey':AK}}).then(function(r){return r.json();}); }
+  var j; try{ j=await fetch(careernetUrl('questions', q, key)).then(function(r){return r.json();}); }
   catch(e){ box.textContent='⚠ 문항 오류: '+e.message; return; }
   if(!j||j.SUCC_YN!=='Y'||!j.RESULT){ box.textContent='⚠ 문항 로드 실패'; return; }
   var qs=Array.isArray(j.RESULT)?j.RESULT:[j.RESULT];
@@ -5126,7 +5157,7 @@ async function careernetRunTest(q, name){
     msg.style.color='#555'; msg.textContent='결과 생성 중…';
     var body={ apikey:key, qestrnSeq:String(q), trgetSe:document.getElementById('cn-trget').value, gender:document.getElementById('cn-gender').value, grade:'4', startDtm:Date.now(), answers:parts.join(' ') };
     try{
-      var r=await fetch(CAREERNET_PROXY+'?op=report&key='+encodeURIComponent(key),{method:'POST',headers:{'apikey':AK,'Content-Type':'application/json'},body:JSON.stringify(body)});
+      var r=await fetch(careernetUrl('report', '', key),{method:'POST',headers:{'Content-Type':'application/json','x-fwd-method':'POST'},body:JSON.stringify(body)});
       var rj=await r.json();
       if(rj&&rj.SUCC_YN==='Y'&&rj.RESULT&&rj.RESULT.url){
         try{ var arr=JSON.parse(localStorage.getItem('pia_cn_results')||'[]'); arr=arr.filter(function(x){return String(x.q)!==String(q);}); arr.push({q:String(q),name:name,url:rj.RESULT.url,seq:rj.RESULT.inspctSeq,ts:Date.now()}); localStorage.setItem('pia_cn_results',JSON.stringify(arr)); }catch(_){}
@@ -5940,8 +5971,8 @@ async function catTestItem(btn){
   var _url=ep, _hdrs=headers;
   if(useProxy){
     var _tgt=ep; if(key && !/apikey=|serviceKey=/i.test(ep)) _tgt+=(ep.indexOf('?')>=0?'&':'?')+'apikey='+encodeURIComponent(key);
-    _url=CAREERNET_PROXY+'?op=raw&url='+encodeURIComponent(_tgt);
-    _hdrs={'apikey':'sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'};
+    _url=careernetUrl('raw', '', '', _tgt);
+    _hdrs={};   /* Worker 는 별도 인증 헤더가 필요 없다 */
   }
   var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},12000);
   try{
