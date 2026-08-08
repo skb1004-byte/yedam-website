@@ -7,9 +7,7 @@
 <meta name="description" content="선생님도우미 — 생기부·평어·세특 작성, 학생 검사 결과지, NEIS 시간표까지 초등 담임 교사를 위한 무료 도구 모음. 설치·로그인 없이 바로 사용합니다.">
 <link rel="canonical" href="https://yedam.kr/teacher-hub.html">
 <title>AI PIA · 선생님도우미</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/fonts/fonts.css">
 <link rel="icon" href="images/favicon_256.png">
 <style>
 :root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--sky:#6a9bcc;--ok:#788c5d;--okbg:#eef3e6;--red:#b91c1c}
@@ -47,8 +45,8 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
 .cta-btn{flex-shrink:0;background:#fff;color:var(--rust2);font-weight:800;font-size:14.5px;text-align:center;line-height:1.35;padding:14px 18px;border-radius:14px}
 @media(max-width:640px){.grid{grid-template-columns:1fr}.cta{flex-direction:column;align-items:stretch;text-align:center}.cta-btn{margin-top:4px}}
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260808m">
-<script src="kiosk.js?v=20260808m" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260808n">
+<script src="kiosk.js?v=20260808n" defer></script>
 </head>
 <body>
 <header>
@@ -149,7 +147,7 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
   <p class="note" style="margin-top:16px">※ 나이스 자동 전송은 보안망 특성상 불가하며, 본 도구는 편성·문구 생성·복사를 돕습니다.</p>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.js" integrity="sha384-0x8XPoHt08aHZj+RHs8ojmhZ5IDsTLjPgblgWdriayWriqv9dic3Vkv1K2+UqgZV" crossorigin="anonymous"></script>
+<script src="/vendor/supabase-js-2.112.1.umd.js"></script>
 <script>
 if(!window.supabase||!window.supabase.createClient){
   document.body.insertAdjacentHTML('afterbegin','<div style="background:#fef2f2;color:#b91c1c;padding:12px 16px;font-size:14px;text-align:center;border-bottom:1px solid #fecaca">네트워크 문제로 로그인 모듈을 불러오지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.</div>');

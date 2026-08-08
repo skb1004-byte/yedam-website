@@ -4,12 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!-- redeploy-trigger-20260806-1123 -->
 <title>AI PIA v4 — 7-Track 통합검사 + 결과지</title>
-<link rel="preconnect" href="https://cdn.tailwindcss.com">
+<link rel="preconnect" href="/vendor/tailwind-3.4.17.js">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://text.pollinations.ai">
 <link rel="dns-prefetch" href="https://ko.wikipedia.org">
-<script src="https://cdn.tailwindcss.com"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js" integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG" crossorigin="anonymous"></script>
+<script src="/vendor/tailwind-3.4.17.js"></script>
+<script defer src="/vendor/chart-4.4.1.umd.js"></script>
 <style>
   body { font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", "맑은 고딕", sans-serif; }
   [aria-pressed="true"] { background:#1f2937; color:#fff; }
@@ -187,9 +187,7 @@ html { scroll-behavior: smooth; }
 @keyframes piaBlink { 0%,80%,100% { opacity:.25; transform:translateY(0); } 40% { opacity:1; transform:translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } .pia-typing > span { animation:none; } }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/fonts/fonts.css">
 <style id="claude-theme">
 :root{
   --c-cream:#faf9f5;--c-paper:#fffdf8;--c-ink:#141413;--c-clay:#d97757;--c-clay-d:#c4623f;
@@ -477,8 +475,8 @@ button:not(:disabled):active{transform:scale(.985)}
 #detailed-result .rounded-2xl,#detailed-result .bg-white,#extended-sections .rounded-2xl{box-shadow:0 18px 46px -32px rgba(20,20,19,.26)}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(217,119,87,.18)}
 </style>
-<link rel="stylesheet" href="../kiosk.css?v=20260808m">
-<script src="../kiosk.js?v=20260808m" defer></script>
+<link rel="stylesheet" href="../kiosk.css?v=20260808n">
+<script src="../kiosk.js?v=20260808n" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -8301,7 +8299,7 @@ function _piaEnsureSB(){
     if(_piaSB){res(_piaSB);return;}
     function mk(){ try{ _piaSB=window.supabase.createClient('https://ushtyxnmqclzgdnynusm.supabase.co','sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102'); }catch(e){ _piaSB=null; } res(_piaSB); }
     if(window.supabase&&window.supabase.createClient){ mk(); return; }
-    var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.js'; sc.integrity='sha384-0x8XPoHt08aHZj+RHs8ojmhZ5IDsTLjPgblgWdriayWriqv9dic3Vkv1K2+UqgZV'; sc.crossOrigin='anonymous';
+    var sc=document.createElement('script'); sc.src='/vendor/supabase-js-2.112.1.umd.js';
     sc.onload=mk; sc.onerror=function(){ res(null); }; document.head.appendChild(sc);
   });
 }
@@ -8714,7 +8712,7 @@ function _piaLoadQRLib(){
   return new Promise(function(resolve){
     if(window.QRCode){ resolve(true); return; }
     var s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.src='/vendor/qrcode-1.0.0.min.js';
     s.onload=function(){ resolve(!!window.QRCode); };
     s.onerror=function(){ resolve(false); };
     document.head.appendChild(s);
@@ -10099,8 +10097,7 @@ body:not(.dark-mode){
 </style>
 
 <style id="no-anon-style">#pf-skip{display:none!important}</style>
-<link rel="preconnect" href="https://cdn.jsdelivr.net">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="/vendor/fonts/pretendard.css">
 <style id="pia-token">
 /* ============================================================
    AI PIA — KRDS Design Token (Portrait Kiosk 1080x1920)
@@ -12110,7 +12107,7 @@ window._ttsClean=function(s){
         cb(nm||null);
       }).catch(function(){cb(null);}); }catch(e){cb(null);} }
     if(window.supabase&&window.supabase.createClient) return go();
-    var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.js'; s.integrity='sha384-0x8XPoHt08aHZj+RHs8ojmhZ5IDsTLjPgblgWdriayWriqv9dic3Vkv1K2+UqgZV'; s.crossOrigin='anonymous';
+    var s=document.createElement('script'); s.src='/vendor/supabase-js-2.112.1.umd.js';
     s.onload=go; s.onerror=function(){cb(null);}; document.head.appendChild(s);
   }
   function fill(){ if(!acctName) return; var n=document.getElementById('pf-name');

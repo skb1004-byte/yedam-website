@@ -9,6 +9,10 @@ _backup/
 _pgtools/
 netlify-data/
 
+# IDC 자체 서버로 올릴 코드. GitHub Pages 로 공개될 이유가 없고,
+# .env 가 같은 폴더에 놓이므로 통째로 막는다.
+_server/
+
 # DB 덤프·아카이브
 *.dump
 *.sql

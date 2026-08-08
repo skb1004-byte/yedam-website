@@ -30,7 +30,7 @@
     }
     _sbTry = true;
     var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.src = '/vendor/supabase-js-2.112.1.umd.js';
     s.onload = make; s.onerror = function () { cb(null); };
     document.head.appendChild(s);
   }

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI PIA · 로그인 / 회원가입</title>
 <link rel="icon" href="images/favicon_256.png">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/fonts/fonts.css">
 <style>
 :root{--ink:#141413;--ink-soft:#3d3d3a;--paper:#faf9f5;--line:#e3e0d6;--rust:#d97757;
   --sh:0 16px 44px rgba(20,20,19,.10);--font-head:'Poppins','Noto Sans KR',sans-serif;--font-ui:'Noto Sans KR',-apple-system,sans-serif;}
@@ -27,8 +27,8 @@ button:hover{filter:brightness(.97)}
 a{color:var(--rust);font-weight:700;text-decoration:none}
 .cfgwarn{display:none;background:#fff5e8;border:1px solid #f0d98a;color:#7a5b00;font-size:12px;padding:10px;border-radius:10px;margin-bottom:16px;text-align:left;line-height:1.6}
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260808m">
-<script src="kiosk.js?v=20260808m" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260808n">
+<script src="kiosk.js?v=20260808n" defer></script>
 </head>
 <body>
 <div class="box">
@@ -52,7 +52,7 @@ a{color:var(--rust);font-weight:700;text-decoration:none}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.js" integrity="sha384-0x8XPoHt08aHZj+RHs8ojmhZ5IDsTLjPgblgWdriayWriqv9dic3Vkv1K2+UqgZV" crossorigin="anonymous"></script>
+<script src="/vendor/supabase-js-2.112.1.umd.js"></script>
 <script>
 // ===== Supabase 연결 정보 (Supabase 프로젝트 생성 후 채우기) =====
 var SUPABASE_URL = 'https://ushtyxnmqclzgdnynusm.supabase.co';

@@ -25,9 +25,7 @@
 {"@context":"https://schema.org","@type":"Organization","name":"㈜예담정보통신","alternateName":"YEDAM","url":"https://yedam.kr/","logo":"https://yedam.kr/images/logo_horizontal.png","image":"https://yedam.kr/images/hero_masterplan.jpg","description":"AI 에듀테크·교육 IT 전문기업. AI PIA, AI ClassBoard, AREX-Climbing, AI 디지털 간판.","telephone":"+82-2-2261-4528","email":"skb1004@gmail.com","taxID":"127-86-57189","founder":{"@type":"Person","name":"송규봉"},"address":{"@type":"PostalAddress","streetAddress":"금천구 가산디지털1로 212 코오롱디지털타워애스턴 1405호","addressLocality":"서울특별시","addressCountry":"KR"},"sameAs":[]}
 </script>
 <link rel="icon" href="images/favicon_256.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/fonts/fonts.css">
 <style>
 /* ========== DESIGN TOKENS (YEDAM × Claude) ========== */
 :root{
@@ -446,8 +444,8 @@ h1{line-height:1.12}
 /* 스크롤 시 네비 그림자(프리미엄 디테일) */
 (function(){try{var n=document.querySelector('.nav');if(!n)return;var on=function(){n.classList.toggle('yd-scrolled',(window.scrollY||0)>24);};window.addEventListener('scroll',on,{passive:true});on();}catch(e){}})();
 </script>
-<link rel="stylesheet" href="kiosk.css?v=20260808m">
-<script src="kiosk.js?v=20260808m" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260808n">
+<script src="kiosk.js?v=20260808n" defer></script>
 </head>
 <body>
 
@@ -1110,7 +1108,7 @@ html.kiosk-on #ydKioskEntry svg{ width:30px; height:30px; flex-shrink:0; }
   document.addEventListener('keydown',function(e){if(!lb.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')prev();if(e.key==='ArrowRight')next();});
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.js" integrity="sha384-0x8XPoHt08aHZj+RHs8ojmhZ5IDsTLjPgblgWdriayWriqv9dic3Vkv1K2+UqgZV" crossorigin="anonymous"></script>
+<script src="/vendor/supabase-js-2.112.1.umd.js"></script>
 <script>
 (function(){
   var URL='https://ushtyxnmqclzgdnynusm.supabase.co';

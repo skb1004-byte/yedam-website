@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI PIA · 마이페이지</title>
 <link rel="icon" href="images/favicon_256.png">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/fonts/fonts.css">
 <style>
 :root{--ink:#141413;--ink-soft:#3d3d3a;--paper:#faf9f5;--paper-2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust-deep:#c4623f;--warn:#c0392b;--moss:#788c5d;
   --sh:0 2px 10px rgba(20,20,19,.05),0 14px 40px rgba(20,20,19,.08);--font-head:'Poppins','Noto Sans KR',sans-serif;--font-ui:'Noto Sans KR',-apple-system,sans-serif;}
@@ -32,8 +32,8 @@ button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;font:inherit
 .danger{border-color:#e9c8c0;background:#fdf4f2}
 .cfgwarn{display:none;background:#fff5e8;border:1px solid #f0d98a;color:#7a5b00;font-size:13px;padding:12px;border-radius:10px}
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260808m">
-<script src="kiosk.js?v=20260808m" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260808n">
+<script src="kiosk.js?v=20260808n" defer></script>
 </head>
 <body>
 <header>
@@ -87,7 +87,7 @@ button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;font:inherit
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.js" integrity="sha384-0x8XPoHt08aHZj+RHs8ojmhZ5IDsTLjPgblgWdriayWriqv9dic3Vkv1K2+UqgZV" crossorigin="anonymous"></script>
+<script src="/vendor/supabase-js-2.112.1.umd.js"></script>
 <script>
 // ===== Supabase 연결 정보 (login.html 과 동일하게 채우기) =====
 var SUPABASE_URL = 'https://ushtyxnmqclzgdnynusm.supabase.co';
