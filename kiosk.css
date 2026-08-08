@@ -292,6 +292,16 @@ html.kiosk-on body.mom-v2 #kiosk-home-btn:hover{ opacity:1; }
 html.kiosk-on body.pia-v2:has(.pia-modal) #kiosk-fs-btn,
 html.kiosk-on body.pia-v2:has(.pia-modal) #kiosk-home-btn{ display:none !important; }
 
-/* 회사 홈페이지: 키오스크 진입 버튼과 겹치지 않게 위로 올린다 */
-html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn{ bottom:118px; }
-html.kiosk-on body:has(#ydKioskEntry) #kiosk-home-btn{ bottom:184px; }
+/* ── 회사 홈페이지(index.html) ────────────────────────────────────────
+   이 페이지에는 이미 전용 "키오스크" 진입 버튼(#ydKioskEntry)이 우하단에
+   크게 있다. 그런데 공용 "메인으로" 버튼까지 좌측에 떠서 같은 곳으로 가는
+   버튼이 둘이 되고, 본문("㈜예담정보통신은 비상교육·현대NGV…")을 덮었다
+   (실물 사진에서 확인).
+   → 이 페이지에서만 "메인으로" 를 감춘다. 기능은 #ydKioskEntry 가 한다. */
+html.kiosk-on body:has(#ydKioskEntry) #kiosk-home-btn{ display:none !important; }
+/* 전체화면 버튼은 남기되, 좌하단에서 본문을 덜 가리도록 작게 줄인다 */
+html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn{
+  bottom:18px; padding:10px 16px; font-size:.84rem; opacity:.45;
+}
+html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn:hover,
+html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn:active{ opacity:1; }

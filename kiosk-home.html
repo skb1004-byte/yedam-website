@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/favicon_256.png">
 <meta name="description" content="예담 키오스크 홈 — AI PIA 학생 인적성검사, 맘(MOM) 인지건강 확인, 선생님 도우미, 두뇌 놀이터를 한 화면에서.">
-<link rel="stylesheet" href="kiosk.css?v=20260808">
+<link rel="stylesheet" href="kiosk.css?v=20260808b">
 <style>
   html, body {
     margin: 0;
@@ -284,8 +284,19 @@
     right: auto;
     top: 78px;
     bottom: auto;
-    padding: 10px 16px;
-    font-size: 0.85rem;
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    opacity: 0.45;          /* 타일 위에 얹히므로 평소엔 흐리게 */
+  }
+  html.kiosk-on #kiosk-fs-btn:hover,
+  html.kiosk-on #kiosk-fs-btn:active { opacity: 1; }
+  html.kiosk-on #kiosk-fs-btn.is-fs { opacity: 0.6; }
+
+  /* 창 높이가 작으면(주소줄·작업표시줄이 보이는 창 모드) 타일 제목이 위로
+     올라와 이 버튼과 겹친다. 그때는 "홈페이지" 링크와 한 줄로 나란히 둔다. */
+  @media (max-height: 700px) {
+    .kiosk-back { min-height: 40px; padding: 0 14px; font-size: 0.85rem; }
+    html.kiosk-on #kiosk-fs-btn { left: 118px; top: 18px; }
   }
 
   @media (max-width: 720px) {
@@ -509,6 +520,6 @@
       document.fonts.ready.then(syncKioskDividers);
     }
   </script>
-  <script src="kiosk.js?v=20260808" defer></script>
+  <script src="kiosk.js?v=20260808b" defer></script>
 </body>
 </html>

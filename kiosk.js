@@ -126,6 +126,16 @@
     document.addEventListener('fullscreenchange', updateFsBtn);
     document.addEventListener('webkitfullscreenchange', updateFsBtn);
 
+    /* 안내판 재등장 조건 보강.
+       예전에는 fullscreenchange 때만 다시 확인해서, 사용자가 [전체화면 종료]
+       를 누른 뒤 3초 억제 시간이 지나도 아무 이벤트가 없으면 안내판이
+       영영 안 떴다. 창 크기 변화·탭 복귀·주기 확인을 함께 건다. */
+    window.addEventListener('resize', function () { if (!isFullscreen()) ensureEnterOverlay(); });
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && !isFullscreen()) ensureEnterOverlay();
+    });
+    setInterval(function () { if (!isFullscreen()) ensureEnterOverlay(); }, 4000);
+
     // 사용자 제스처가 들어올 때마다 전체화면 진입 시도(이미 전체화면이면 아무것도 안 함)
     document.addEventListener('pointerdown', autoEnter, true);
     document.addEventListener('click', autoEnter, true);
