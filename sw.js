@@ -3,7 +3,7 @@
 //  - 활성화 시 이전 캐시를 전부 비우고 열려 있는 창을 강제로 새로고침한다.
 //  - HTML은 물론 CSS/JS도 네트워크 우선으로 가져오고, 오프라인일 때만 캐시를 쓴다.
 //  - 이미지·폰트만 캐시 우선으로 두어 로딩 속도를 지킨다.
-const CACHE_NAME = 'yedam-cache-v6';
+const CACHE_NAME = 'yedam-cache-v7';
 const CORE_ASSETS = ['/', '/index.html', '/manifest.json', '/images/favicon_256.png'];
 
 self.addEventListener('install', (event) => {

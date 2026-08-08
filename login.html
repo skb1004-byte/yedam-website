@@ -27,9 +27,9 @@ button:hover{filter:brightness(.97)}
 a{color:var(--rust);font-weight:700;text-decoration:none}
 .cfgwarn{display:none;background:#fff5e8;border:1px solid #f0d98a;color:#7a5b00;font-size:12px;padding:10px;border-radius:10px;margin-bottom:16px;text-align:left;line-height:1.6}
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260809a">
-<link rel="stylesheet" href="screen.css?v=20260809a">
-<script src="kiosk.js?v=20260809a" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260809b">
+<link rel="stylesheet" href="screen.css?v=20260809b">
+<script src="kiosk.js?v=20260809b" defer></script>
 </head>
 <body>
 <div class="box">
@@ -80,6 +80,6 @@ $('#google').onclick=function(){ start('google'); };
 // 이미 로그인돼 있으면 마이페이지로
 if(sb){ sb.auth.getSession().then(function(r){ if(r.data && r.data.session){ location.replace('mypage.html'); } }); }
 </script>
-<script src="err-cs.js?v=20260809a" defer></script>
+<script src="err-cs.js?v=20260809b" defer></script>
 </body>
 </html>

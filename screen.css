@@ -155,7 +155,46 @@ html.dev-tablet:not(.kiosk-on) th select {
 }
 
 /* --------------------------------------------------------------------------
-   6. 움직임 줄이기
+   6. 헤더·푸터의 작은 링크
+
+   실측(2026-08-09, 배포본 기준)에서 유일하게 남은 **실제 기준 위반**이다.
+     · 회사 홈 푸터  footer.ft > … > span > a   36×19px, 이웃 간격 16px
+     · 시간표 도구   header > a.link            12~72×21px
+   WCAG 2.5.8(AA)은 표적 최소 24×24 CSS px 을 요구하고, 그보다 작으면
+   서로 24px 간격이 있어야 봐주는데 **둘 다 실패**했다(간격 16px).
+
+   왜 세로 여백만 주나
+     인라인 요소의 세로 padding 은 줄 높이(line box)를 늘리지 않으면서
+     클릭·터치 판정 영역에는 반영된다. 즉 **레이아웃을 안 건드리고**
+     표적만 키울 수 있다. display 를 inline-block 으로 바꾸면 줄바꿈과
+     구분자(·) 정렬이 틀어질 수 있어 택하지 않았다.
+     19px + 4px×2 = 27px ≥ 24px.
+
+   왜 header·footer·nav 로만 한정하나
+     본문 문장 속 링크에까지 걸면 글줄 사이 히트 영역이 서로 겹쳐
+     엉뚱한 링크가 눌린다. 문제가 난 곳만 짚는다.
+   -------------------------------------------------------------------------- */
+html.dev-tablet:not(.kiosk-on) header a,
+html.dev-tablet:not(.kiosk-on) footer a,
+html.dev-tablet:not(.kiosk-on) nav a,
+html.dev-laptop:not(.kiosk-on) header a,
+html.dev-laptop:not(.kiosk-on) footer a,
+html.dev-laptop:not(.kiosk-on) nav a {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+/* 체크박스는 22px 로 두었었다. WCAG 2.5.8 의 24px 을 2px 차이로 밑돈다.
+   동의 화면은 <label> 이 감싸고 있어 실효 표적이 935×65px 이라 위반은
+   아니지만, 체크 표시 자체를 손가락으로 노리는 사용자가 있다. 24px 로
+   올린다. 비용이 사실상 없다. */
+html.dev-tablet:not(.kiosk-on) input[type="checkbox"],
+html.dev-tablet:not(.kiosk-on) input[type="radio"] {
+  width: 24px; height: 24px;
+}
+
+/* --------------------------------------------------------------------------
+   7. 움직임 줄이기
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html.dev-tablet *, html.dev-laptop * {
