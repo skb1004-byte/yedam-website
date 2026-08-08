@@ -477,8 +477,8 @@ button:not(:disabled):active{transform:scale(.985)}
 #detailed-result .rounded-2xl,#detailed-result .bg-white,#extended-sections .rounded-2xl{box-shadow:0 18px 46px -32px rgba(20,20,19,.26)}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(217,119,87,.18)}
 </style>
-<link rel="stylesheet" href="../kiosk.css?v=20260808j">
-<script src="../kiosk.js?v=20260808j" defer></script>
+<link rel="stylesheet" href="../kiosk.css?v=20260808k">
+<script src="../kiosk.js?v=20260808k" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -1962,8 +1962,9 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
   
 
   <div class="border-t border-slate-200 pt-4">
-    <h3 class="font-semibold text-sm mb-2">🧭 커리어넷 진로심리검사 연동</h3>
-    <p class="text-xs text-slate-500 mb-3">커리어넷(career.go.kr) OpenAPI 인증키를 저장하면 공식 진로심리검사(직업적성·직업흥미·직업가치관·진로성숙도 등) 목록을 불러올 수 있어요. 브라우저 직접 호출은 CORS로 막혀 Supabase 프록시를 경유합니다. 키 발급: career.go.kr → OpenAPI 센터.</p>
+    <h3 class="font-semibold text-sm mb-2">🧭 커리어넷 연동</h3>
+    <p class="text-xs text-slate-500 mb-2"><b>직업백과·학과정보</b>는 별도 키 입력 없이 <a href="../career.html" class="text-blue-600 underline">직업·학과 찾기</a> 페이지에서 바로 쓸 수 있어요. 인증키는 서버(Cloudflare Worker Secret)에만 있고 브라우저로 나가지 않습니다.</p>
+    <p class="text-xs text-slate-500 mb-3">아래는 <b>진로심리검사</b> 연동입니다. 커리어넷에서 진로심리검사 API를 따로 승인받은 인증키가 있어야 동작합니다(직업백과·학과정보 승인만으로는 열리지 않습니다). 브라우저 직접 호출은 CORS로 막혀 Worker 프록시를 경유합니다. 키 발급: career.go.kr → OpenAPI 센터.</p>
     <label class="block mb-2"><span class="text-xs text-slate-600">커리어넷 API 키</span>
       <input id="cfg-careernet" type="password" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="커리어넷 인증키" /></label>
     <div class="flex flex-wrap gap-2 items-center mb-2">

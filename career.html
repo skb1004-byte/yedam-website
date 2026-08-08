@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index,follow">
+<meta name="description" content="관심 키워드로 관련 직업과 학과를 찾고, 그 일에 필요한 역량·흥미·진로탐색 활동을 한눈에 봅니다. 커리어넷(한국직업능력연구원) 공개 API 자료.">
+<link rel="canonical" href="https://yedam.kr/career.html">
+<title>AI PIA · 직업·학과 찾기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="icon" href="images/favicon_256.png">
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--sky:#6a9bcc;--ok:#788c5d;--okbg:#eef3e6;--red:#b91c1c;--redbg:#fdecec}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.6;word-break:keep-all}
+header{background:rgba(250,249,245,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+.brand{font-weight:800;display:flex;align-items:center;gap:8px}
+.brand .dot{width:24px;height:24px;border-radius:7px;background:var(--rust);display:grid;place-items:center;color:#fff;font-size:13px}
+.sp{flex:1}
+a.link{color:var(--rust);font-weight:700;text-decoration:none;font-size:13px}
+.wrap{max-width:840px;margin:0 auto;padding:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.card h2{font-size:15px;margin-bottom:4px}
+.card .sub{font-size:12px;color:var(--ink2);margin-bottom:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input{font:inherit;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff;min-height:44px}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--ink);color:#fff;min-height:44px}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+button.rust{background:var(--rust)}
+button.sm{padding:6px 12px;font-size:12px;min-height:36px}
+button:hover{opacity:.93}
+button:disabled{opacity:.5;cursor:default}
+.mut{color:var(--ink2);font-size:12px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tabs button{flex:1;background:#fff;color:var(--ink2);border:1px solid var(--line)}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips button{background:var(--paper2);color:var(--ink2);border:1px solid var(--line);font-size:12px;padding:6px 12px;min-height:36px;font-weight:600}
+.chips button:hover{background:#fff}
+.item{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:8px;color:var(--ink);font-weight:400;display:block;min-height:48px}
+.item:hover{border-color:var(--rust);background:#fffdfb}
+.item .nm{font-weight:800;font-size:15px;display:block;margin-bottom:2px}
+.item .meta{font-size:11.5px;color:var(--ink2);display:block}
+.item .desc{font-size:12.5px;color:var(--ink2);display:block;margin-top:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.sec{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.sec:first-child{border-top:0;padding-top:0;margin-top:0}
+.sec h3{font-size:13px;font-weight:800;margin-bottom:6px;color:var(--rust2)}
+.sec p,.sec li{font-size:13.5px;color:var(--ink2);line-height:1.75}
+.sec ul{padding-left:18px}
+.kv{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.kv span{background:var(--paper2);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--ink2)}
+.empty{text-align:center;padding:34px 10px;color:var(--ink2)}
+.empty .ic{font-size:34px;margin-bottom:8px}
+.err{background:var(--redbg);color:var(--red);border-radius:10px;padding:12px 14px;font-size:13px}
+.hide{display:none}
+@media (max-width:520px){ .wrap{padding:12px} .tabs button{font-size:13px;padding:10px 6px} }
+</style>
+<link rel="stylesheet" href="kiosk.css?v=20260808k">
+<script src="kiosk.js?v=20260808k" defer></script>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot">P</span>직업·학과 찾기</div>
+  <span class="sp"></span>
+  <a class="link" href="index.html">홈</a>
+  <a class="link" href="aipia/test.html" style="margin-left:12px">AI PIA 검사</a>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h2>🔎 관심 있는 키워드로 찾아보기</h2>
+    <div class="sub">직업 이름·학과 이름·하고 싶은 일을 넣어 보세요. 관련 직업과 그 일에 필요한 역량을 함께 보여줍니다.</div>
+    <div class="tabs">
+      <button id="tabJob" class="on" type="button">직업 백과</button>
+      <button id="tabMajor" type="button">학과 정보</button>
+    </div>
+    <div class="row">
+      <input type="search" id="q" placeholder="예: 디자이너, 간호, 로봇, 심리" style="flex:1;min-width:180px;font-size:16px" autocomplete="off">
+      <button class="rust" id="go" type="button">검색</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="out"></div>
+
+  <p class="mut" style="margin-top:6px">※ 직업·학과 정보의 출처는 커리어넷(한국직업능력연구원) 공개 API입니다. 원자료를 가공 없이 그대로 보여 주며, 최신 내용은 career.go.kr 에서 확인하세요.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* 커리어넷 공개 API 호출은 모두 Cloudflare Worker 의 fwd 를 거친다.
+       · 커리어넷은 CORS 를 막아 두어 브라우저에서 직접 못 부른다
+       · 인증키는 Worker Secret(CAREERNET_KEY)에만 있고 이 파일에는 없다
+       · Worker 의 GOV_HOSTS 허용 목록에 career.go.kr 만 들어 있다
+     매뉴얼 v4.1 기준 주소
+       직업백과 목록 /cnet/front/openapi/jobs.json
+       직업백과 상세 /cnet/front/openapi/job.json?seq=
+       학과정보      /cnet/openapi/getOpenApi?svcType=api&svcCode=MAJOR|MAJOR_VIEW */
+  var WORKER = 'https://lucky-sun-025e.songkb9.workers.dev';
+
+  function fwd(target) {
+    return WORKER + '?task=fwd&url=' + encodeURIComponent(target);
+  }
+  function qs(obj) {
+    var out = [];
+    for (var k in obj) {
+      if (!Object.prototype.hasOwnProperty.call(obj, k)) continue;
+      if (obj[k] === '' || obj[k] === null || obj[k] === undefined) continue;
+      out.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]));
+    }
+    return out.join('&');
+  }
+  function jobsUrl(word, page) {
+    return fwd('https://www.career.go.kr/cnet/front/openapi/jobs.json?' +
+      qs({ searchJobNm: word || '', pageIndex: page || 1 }));
+  }
+  function jobUrl(seq) {
+    return fwd('https://www.career.go.kr/cnet/front/openapi/job.json?' + qs({ seq: seq }));
+  }
+  function majorsUrl(word, page) {
+    return fwd('https://www.career.go.kr/cnet/openapi/getOpenApi?' + qs({
+      svcType: 'api', svcCode: 'MAJOR', contentType: 'json',
+      gubun: 'univ_list', searchTitle: word || '', thisPage: page || 1, perPage: 20
+    }));
+  }
+  function majorUrl(seq) {
+    return fwd('https://www.career.go.kr/cnet/openapi/getOpenApi?' + qs({
+      svcType: 'api', svcCode: 'MAJOR_VIEW', contentType: 'json',
+      gubun: 'univ_list', majorSeq: seq
+    }));
+  }
+
+  var el = function (id) { return document.getElementById(id); };
+  var out = el('out'), input = el('q');
+  var mode = 'job';
+
+  var SAMPLES = {
+    job: ['디자이너', '간호', '로봇', '심리', '요리', '프로그래머', '경찰', '수의사'],
+    major: ['컴퓨터', '간호', '디자인', '기계', '심리', '체육', '유아교육', '항공']
+  };
+
+  function drawChips() {
+    el('chips').innerHTML = SAMPLES[mode].map(function (w) {
+      return '<button type="button" data-w="' + w + '">' + w + '</button>';
+    }).join('');
+  }
+
+  function setMode(m) {
+    mode = m;
+    el('tabJob').classList.toggle('on', m === 'job');
+    el('tabMajor').classList.toggle('on', m === 'major');
+    input.placeholder = (m === 'job')
+      ? '예: 디자이너, 간호, 로봇, 심리'
+      : '예: 컴퓨터공학, 간호학, 시각디자인';
+    drawChips();
+    out.innerHTML = '';
+  }
+
+  function esc(s) {
+    return String(s === null || s === undefined ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  /* 커리어넷 상세 응답에는 <br>, <strong> 같은 태그가 섞여 온다.
+     그대로 넣으면 안 되므로 태그를 지우고 순수 문장만 쓴다. */
+  function plain(s) {
+    return String(s === null || s === undefined ? '' : s)
+      .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ').replace(/[ \t]+/g, ' ').trim();
+  }
+  function loading(msg) { out.innerHTML = '<div class="empty"><div class="ic">⏳</div>' + esc(msg) + '</div>'; }
+  function fail(msg) { out.innerHTML = '<div class="card"><div class="err">' + esc(msg) + '</div></div>'; }
+
+  /* 응답이 배열일 수도, 단일 객체일 수도, 없을 수도 있다. 항상 배열로 만든다. */
+  function arr(v) { return v === null || v === undefined ? [] : (Array.isArray(v) ? v : [v]); }
+
+  /* 커리어넷은 인증 실패도 HTTP 200 으로 돌려준다. 본문 안에 코드가 들어 있다.
+       직업백과  {"hashMap":{"code":"-2","message":"인증키 없습니다."}}
+       학과정보  {"result":{"content":[{"code":"-2","message":"인증키 없습니다."}]}}
+     이걸 잡지 않으면 "검색 결과 없음"으로 보여서 원인을 못 찾는다. */
+  function apiError(j) {
+    if (!j) return null;
+    var n = j.hashMap || (j.result && arr(j.result.content)[0]) || null;
+    if (n && n.code !== undefined && String(n.code) !== '0') {
+      return { code: String(n.code), message: n.message || '' };
+    }
+    return null;
+  }
+
+  async function getJson(url) {
+    var r = await fetch(url, { cache: 'no-store' });
+    var txt = await r.text();
+    var j;
+    try { j = JSON.parse(txt); }
+    catch (e) { throw new Error('응답을 읽지 못했습니다 (HTTP ' + r.status + ')'); }
+    if (!r.ok) throw new Error((j && (j.error || j.message)) || ('요청이 거부되었습니다 (HTTP ' + r.status + ')'));
+    var er = apiError(j);
+    if (er) {
+      if (er.code === '-2') {
+        throw new Error('커리어넷 인증키가 서버에 아직 등록되지 않았습니다. 관리자에게 알려 주세요. (커리어넷 응답: ' + er.message + ')');
+      }
+      throw new Error('커리어넷에서 요청을 거절했습니다 — ' + (er.message || ('코드 ' + er.code)));
+    }
+    return j;
+  }
+
+  /* ── 직업 백과 ─────────────────────────────────────────────── */
+  async function searchJobs(word) {
+    loading('직업을 찾는 중입니다…');
+    var j;
+    try { j = await getJson(jobsUrl(word, 1)); }
+    catch (e) { fail(e.message + ' — 잠시 후 다시 시도해 주세요.'); return; }
+
+    var list = arr(j.jobs);
+    if (!list.length) {
+      out.innerHTML = '<div class="empty"><div class="ic">🔍</div>“' + esc(word) + '” 와 맞는 직업을 찾지 못했습니다.<br>더 짧은 낱말로 찾아보세요.</div>';
+      return;
+    }
+    out.innerHTML = '<div class="card"><h2>관련 직업 ' + (j.count || list.length) + '개 중 ' + list.length + '개</h2>' +
+      '<div class="sub">직업을 누르면 하는 일과 필요한 역량을 볼 수 있습니다.</div>' +
+      list.map(function (it) {
+        return '<button class="item" type="button" data-seq="' + esc(it.seq) + '">' +
+          '<span class="nm">' + esc(it.job_nm) + '</span>' +
+          '<span class="meta">' + esc(it.aptit_name || it.top_nm || '') +
+          (it.wage ? ' · 평균연봉 ' + esc(it.wage) : '') + '</span>' +
+          (it.work ? '<span class="desc">' + esc(plain(it.work)) + '</span>' : '') +
+          '</button>';
+      }).join('') + '</div>';
+  }
+
+  async function showJob(seq) {
+    loading('직업 정보를 불러오는 중입니다…');
+    var j;
+    try { j = await getJson(jobUrl(seq)); }
+    catch (e) { fail(e.message); return; }
+
+    var b = j.baseInfo || {};
+    var works = arr(j.workList).map(function (x) { return plain(x.work); }).filter(Boolean);
+    var ints = arr(j.interestList).map(function (x) { return plain(x.interest); }).filter(Boolean);
+    var res = arr(j.researchList).map(function (x) { return plain(x.research); }).filter(Boolean);
+    var ready = arr(j.jobReadyList).map(function (x) { return plain(x.recruit); }).filter(Boolean);
+
+    function block(title, items) {
+      if (!items.length) return '';
+      return '<div class="sec"><h3>' + title + '</h3><ul>' +
+        items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
+    }
+
+    out.innerHTML = '<div class="card">' +
+      '<button class="ghost sm" type="button" id="back" style="margin-bottom:12px">← 목록으로</button>' +
+      '<h2 style="font-size:20px">' + esc(b.job_nm || '') + '</h2>' +
+      '<div class="kv" style="margin-top:8px">' +
+      (b.aptit_name ? '<span>' + esc(b.aptit_name) + '</span>' : '') +
+      (b.wage ? '<span>평균연봉 ' + esc(plain(b.wage)) + '</span>' : '') +
+      (b.satisfication ? '<span>직업만족도 ' + esc(b.satisfication) + '</span>' : '') +
+      (b.wlb ? '<span>일·가정균형 ' + esc(b.wlb) + '</span>' : '') +
+      '</div>' +
+      block('하는 일', works) +
+      block('필요한 흥미·적성', ints) +
+      block('지금 해 볼 진로탐색 활동', res) +
+      block('입직 및 취업 방법', ready) +
+      (b.rel_job_nm ? '<div class="sec"><h3>관련 직업</h3><p>' + esc(plain(b.rel_job_nm)) + '</p></div>' : '') +
+      '</div>';
+    el('back').addEventListener('click', function () { run(); });
+  }
+
+  /* ── 학과 정보 ─────────────────────────────────────────────── */
+  async function searchMajors(word) {
+    loading('학과를 찾는 중입니다…');
+    var j;
+    try { j = await getJson(majorsUrl(word, 1)); }
+    catch (e) { fail(e.message + ' — 잠시 후 다시 시도해 주세요.'); return; }
+
+    var ds = j.dataSearch || j;
+    var list = arr(ds.content);
+    if (!list.length) {
+      out.innerHTML = '<div class="empty"><div class="ic">🔍</div>“' + esc(word) + '” 와 맞는 학과를 찾지 못했습니다.</div>';
+      return;
+    }
+    out.innerHTML = '<div class="card"><h2>관련 학과 ' + list.length + '개</h2>' +
+      '<div class="sub">학과를 누르면 배우는 내용과 진출 분야를 볼 수 있습니다.</div>' +
+      list.map(function (it) {
+        return '<button class="item" type="button" data-major="' + esc(it.majorSeq) + '">' +
+          '<span class="nm">' + esc(it.mClass) + '</span>' +
+          '<span class="meta">' + esc(it.lClass || '') + '</span>' +
+          (it.facilName ? '<span class="desc">' + esc(plain(it.facilName)) + '</span>' : '') +
+          '</button>';
+      }).join('') + '</div>';
+  }
+
+  async function showMajor(seq) {
+    loading('학과 정보를 불러오는 중입니다…');
+    var j;
+    try { j = await getJson(majorUrl(seq)); }
+    catch (e) { fail(e.message); return; }
+
+    var ds = j.dataSearch || j;
+    var c = arr(ds.content)[0] || {};
+    var subs = arr(c.main_subject && c.main_subject.content).map(function (x) {
+      return plain(x.SBJECT_NM) + (x.SBJECT_SUMRY ? ' — ' + plain(x.SBJECT_SUMRY) : '');
+    }).filter(Boolean);
+    var fields = arr(c.enter_field && c.enter_field.content).map(function (x) {
+      return plain(x.gradeuate) + (x.description ? ' — ' + plain(x.description) : '');
+    }).filter(Boolean);
+    var acts = arr(c.career_act && c.career_act.content).map(function (x) {
+      return plain(x.act_name) + (x.act_description ? ' — ' + plain(x.act_description) : '');
+    }).filter(Boolean);
+
+    function block(title, items) {
+      if (!items.length) return '';
+      return '<div class="sec"><h3>' + title + '</h3><ul>' +
+        items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
+    }
+    function para(title, text) {
+      var t = plain(text);
+      if (!t) return '';
+      return '<div class="sec"><h3>' + title + '</h3><p>' + esc(t) + '</p></div>';
+    }
+
+    out.innerHTML = '<div class="card">' +
+      '<button class="ghost sm" type="button" id="back" style="margin-bottom:12px">← 목록으로</button>' +
+      '<h2 style="font-size:20px">' + esc(c.major || '') + '</h2>' +
+      '<div class="kv" style="margin-top:8px">' +
+      (c.salary ? '<span>졸업 후 임금 ' + esc(plain(c.salary)) + '</span>' : '') +
+      (c.employment ? '<span>취업률 ' + esc(plain(c.employment)) + '</span>' : '') +
+      '</div>' +
+      para('학과 개요', c.summary) +
+      para('필요한 흥미와 적성', c.interest) +
+      block('대학에서 배우는 주요 과목', subs) +
+      block('졸업 후 진출 분야', fields) +
+      block('지금 해 볼 진로탐색 활동', acts) +
+      para('관련 직업', c.job) +
+      para('관련 자격', c.qualifications) +
+      '</div>';
+    el('back').addEventListener('click', function () { run(); });
+  }
+
+  /* ── 실행 ──────────────────────────────────────────────────── */
+  function run() {
+    var w = (input.value || '').trim();
+    if (!w) { out.innerHTML = ''; input.focus(); return; }
+    if (mode === 'job') searchJobs(w); else searchMajors(w);
+  }
+
+  el('go').addEventListener('click', run);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') run(); });
+  el('tabJob').addEventListener('click', function () { setMode('job'); run(); });
+  el('tabMajor').addEventListener('click', function () { setMode('major'); run(); });
+
+  el('chips').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('button[data-w]');
+    if (!b) return;
+    input.value = b.getAttribute('data-w');
+    run();
+  });
+
+  out.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('button[data-seq], button[data-major]');
+    if (!t) return;
+    if (t.hasAttribute('data-seq')) showJob(t.getAttribute('data-seq'));
+    else showMajor(t.getAttribute('data-major'));
+  });
+
+  setMode('job');
+
+  // 주소에 ?q=검색어 가 있으면 바로 찾아 준다 (AI PIA 결과에서 넘어오는 경로)
+  try {
+    var p = new URLSearchParams(location.search);
+    var qv = p.get('q');
+    if (p.get('tab') === 'major') setMode('major');
+    if (qv) { input.value = qv; run(); }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

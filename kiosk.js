@@ -23,6 +23,15 @@
      확장자 유무를 모두 인식하도록 고친다. */
   var isKioskHomePage = /(^|\/)kiosk-home(\.html)?\/?$/.test(window.location.pathname);
 
+  /* 회사 홈페이지 메인(index.html)에는 전용 "키오스크 홈" 버튼(#ydKioskEntry)이
+     따로 있다. 여기는 일반 방문자도 보는 화면이므로
+       · [전체화면으로 보기] 버튼을 두지 않는다
+       · 빈 곳을 눌렀다고 전체화면에 들어가지 않는다
+     전체화면은 [키오스크 홈]을 눌러 키오스크 모드로 들어갈 때부터 시작한다. */
+  function isKioskEntryPage() {
+    return !!document.getElementById('ydKioskEntry');
+  }
+
   function detect() {
     try {
       var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches;
@@ -33,6 +42,7 @@
         ensureFullscreenUI();
         ensureHomeButton();
         ensureEnterOverlay();
+        bindKioskEntry();
         placeButtons();
       }
       return isKiosk;
@@ -152,8 +162,29 @@
     }, 60);
   }
 
+  /* 메인의 [키오스크 홈] 버튼 — 이 터치가 키오스크 모드의 시작점이다.
+     여기서 "이 세션은 전체화면으로 쓴다"는 뜻을 남긴다.
+     전체화면 자체는 페이지를 옮기면 브라우저가 반드시 풀기 때문에
+     (실측: 이동 전 true → 이동 후 false) 여기서 켜 봐야 유지되지 않는다.
+     대신 키오스크 홈에 도착하면 화면 전체가 안내판이 되어 첫 터치로 들어간다. */
+  var entryBound = false;
+  function bindKioskEntry() {
+    if (entryBound) return;
+    var btn = document.getElementById('ydKioskEntry');
+    if (!btn) return;
+    entryBound = true;
+    btn.addEventListener('click', function () { wantFullscreen(true); }, true);
+    btn.addEventListener('pointerdown', function () { wantFullscreen(true); }, true);
+    /* 이 페이지는 ensureFullscreenUI 를 건너뛰므로 포커스 해제만 따로 건다
+       (링크를 탭한 뒤 좌하단에 주소 말풍선이 남는 것을 막는다). */
+    document.addEventListener('pointerup', blurLinkSoon, true);
+    document.addEventListener('touchend', blurLinkSoon, true);
+  }
+
   function ensureFullscreenUI() {
     if (isFramed) return;
+    /* 회사 홈페이지 메인에서는 전체화면 버튼도, 빈 곳 터치 자동 진입도 없다. */
+    if (isKioskEntryPage()) return;
     if (fsBtn) {
       updateFsBtn();
       return;
@@ -242,10 +273,14 @@
   function ensureEnterOverlay() {
     if (isFramed || !isKioskHomePage) return;   // 키오스크 홈에서만
     if (isFullscreen() || enterOverlay) return;
-    /* 이미 "전체화면으로 쓴다"고 정해진 세션이면 안내판을 다시 띄우지 않는다.
-       검사를 마치고 홈으로 돌아올 때마다 안내판이 뜨면 성가시다.
-       이 경우 첫 터치에서 autoEnter 가 조용히 다시 들어간다. */
-    if (isFullscreenWanted()) return;
+    /* 사용자가 방금 [전체화면 종료]를 눌렀다면 잠시 띄우지 않는다.
+       그러지 않으면 종료하자마자 안내판이 다시 떠서 종료를 할 수 없다. */
+    if (Date.now() < suppressUntil) return;
+    /* 예전에는 "이미 전체화면으로 쓰기로 한 세션"이면 안내판을 건너뛰었다.
+       그런데 그 경우 키오스크 홈이 창 모드 그대로 보였다 — 작업표시줄과
+       주소창이 노출된 실물 사진이 바로 그 상태다.
+       키오스크 홈은 사람이 반드시 화면을 만지는 곳이므로, 전체화면이
+       아니라면 언제나 안내판을 띄워 그 첫 터치를 전체화면 진입에 쓴다. */
     // 이미 전체화면으로 실행 중(--kiosk)이면 브라우저 창과 화면 크기가 같다.
     // 이 경우 안내판은 방해만 되므로 띄우지 않는다.
     if (window.innerHeight >= screen.height - 2) return;
@@ -256,7 +291,9 @@
       '<div class="kiosk-enter-inner">' +
       '<div class="kiosk-enter-ico" aria-hidden="true"></div>' +
       '<div class="kiosk-enter-t">화면을 터치해 주세요</div>' +
-      '<div class="kiosk-enter-d">전체 화면으로 시작합니다</div>' +
+      '<div class="kiosk-enter-d">' +
+      (isFullscreenWanted() ? '전체 화면으로 이어서 진행합니다' : '전체 화면으로 시작합니다') +
+      '</div>' +
       '</div>';
     enterOverlay.setAttribute('role', 'button');
     enterOverlay.setAttribute('tabindex', '0');

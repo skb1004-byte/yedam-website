@@ -350,6 +350,14 @@ html.kiosk-on body.pia-v2:has(.pia-modal) #kiosk-home-btn{ display:none !importa
    → 이 페이지에서는 "메인으로"를 감춘다. 기능은 #ydKioskEntry 가 한다. */
 html.kiosk-on body:has(#ydKioskEntry) #kiosk-home-btn{ display:none !important; }
 
+/* [전체화면으로 보기]도 이 페이지에서는 띄우지 않는다.
+   여기는 일반 방문자도 보는 회사 홈페이지다. 실물 사진에서 "키오스크 홈"
+   버튼 아래에 작게 붙어 있던 그 문구가 이것이다.
+   전체화면은 [키오스크 홈]을 눌러 키오스크 모드로 들어간 뒤에 시작한다.
+   (kiosk.js 도 이 페이지에서는 버튼 자체를 만들지 않는다. 이 규칙은
+    캐시된 옛 스크립트가 남아 있을 때를 위한 이중 안전장치다.) */
+html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn{ display:none !important; }
+
 /* 오류신고 "💬 문의" 버튼(err-cs.js 의 .errcs-fab)은 right:16px bottom:16px 에
    고정돼 있어, 같은 우하단에 있는 "키오스크 홈"(208x77) 과 정확히 겹쳤다.
    실물 사진에서 "키오ㅅ… 문의" 처럼 두 글자가 포개져 보였던 것이 이것이다.
