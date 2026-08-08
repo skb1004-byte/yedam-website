@@ -87,26 +87,35 @@ html.dev-tablet:not(.kiosk-on) td select {
    같은 실수를 반복하지 않도록 기본을 contain 으로 둔다.
    배경처럼 채워야 하는 것만 .img-cover 로 예외를 준다.
    -------------------------------------------------------------------------- */
-html.dev-tablet:not(.kiosk-on) img:not(.img-cover),
-html.dev-laptop:not(.kiosk-on) img:not(.img-cover) {
+/* 처음에는 height:auto + object-fit:contain 을 전역으로 걸었다. 그런데
+   회사 홈의 .hero-figure(16/11) · .sol-card-img(16/10) · .feat-media(4/3) 처럼
+   **고정 비율 상자 안에서 cover 로 채우는 이미지**까지 잡아채, 노트북에서
+   상자와 이미지 높이가 어긋나 빈 여백이 생겼다(검증에서 확인).
+
+   가로 넘침은 30번 측정에서 0건이었으므로 애초에 필요하지 않았다.
+   폭이 넘지 않게 막는 것만 남긴다. 높이와 object-fit 은 각 페이지가 정한다. */
+html.dev-tablet:not(.kiosk-on) img,
+html.dev-laptop:not(.kiosk-on) img {
   max-width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-html.dev-tablet:not(.kiosk-on) .img-cover,
-html.dev-laptop:not(.kiosk-on) .img-cover {
-  object-fit: cover;
-  object-position: center;
 }
 
 /* --------------------------------------------------------------------------
    4. 한 화면 — 세로가 짧은 기기
 
-   가로 태블릿(1024×768)과 보급형 노트북(1366×768)이 여기 해당한다.
-   높이가 820px 미만이면 화면 위아래 여백부터 줄인다.
+   가로 태블릿(1024×768)·보급형 노트북(1366×768)이 여기 해당한다.
 
-   100vh 가 아니라 100dvh 를 쓴다. 태블릿 브라우저는 주소창이 접혔다 펴지며
-   vh 가 실제 보이는 높이와 어긋난다.
+   처음에는 .fit-screen / .grid-square 라는 새 클래스를 전제로 규칙을 썼다가
+   지웠다. 그 클래스를 붙인 곳이 한 군데도 없어 **아무 효과가 없는 죽은
+   코드**였기 때문이다(검증에서 확인). 안 도는 코드를 남겨 두면 "했다"고
+   착각하게 된다.
+
+   대신 실제로 쓰이는 것만 남긴다.
+     · 여백 축소 — 값싼 수단부터 쓴다. 글자를 줄이면 읽기가 나빠지지만
+       여백은 줄여도 지장이 없다.
+     · AI PIA 는 자기 맞춤 엔진(--pia-fit)이 따로 돈다. 여기서 건드리지 않는다.
+
+   100dvh 를 쓰는 이유 — 태블릿 브라우저는 주소창이 접혔다 펴지며 vh 가
+   실제 보이는 높이와 어긋난다.
    -------------------------------------------------------------------------- */
 html.screen-short:not(.kiosk-on) body {
   --screen-h: 100dvh;
@@ -115,24 +124,34 @@ html.screen-short:not(.kiosk-on) body {
   html.screen-short:not(.kiosk-on) body { --screen-h: 100vh; }
 }
 
-/* 한 화면에 담아야 하는 영역은 .fit-screen 을 붙인다 */
-html.screen-short:not(.kiosk-on) .fit-screen {
-  max-height: var(--screen-h);
-  overflow: auto;
+/* 세로가 짧으면 큰 여백부터 줄인다 */
+html.screen-short:not(.kiosk-on) section,
+html.screen-short:not(.kiosk-on) .sec,
+html.screen-short:not(.kiosk-on) .card {
+  padding-top: min(var(--pad, 24px), 20px);
+  padding-bottom: min(var(--pad, 24px), 20px);
 }
 
 /* --------------------------------------------------------------------------
-   5. 정사각 격자
+   5. 조밀한 표는 최소 높이에서 제외
 
-   aspect-ratio:1 은 컨테이너가 넓으면 칸이 화면보다 높아진다.
-   두뇌 놀이터에서 실제로 겪은 문제라 같은 방식으로 막는다.
+   시간표 도구처럼 칸이 많은 화면에 44px 을 강제하면 세로로 길어져
+   "한 화면에 안 들어온다" 문제를 오히려 키운다. 표 안은 따로 잡는다.
+   앞서 dev-tablet 에만 예외가 있고 dev-laptop 에는 없어 어긋나 있었다.
    -------------------------------------------------------------------------- */
-html.screen-short:not(.kiosk-on) .grid-square {
-  grid-auto-rows: 1fr;
+html.dev-laptop:not(.kiosk-on) td button,
+html.dev-laptop:not(.kiosk-on) th button,
+html.dev-laptop:not(.kiosk-on) td input,
+html.dev-laptop:not(.kiosk-on) td select,
+html.dev-laptop:not(.kiosk-on) th input,
+html.dev-laptop:not(.kiosk-on) th select {
+  min-height: 32px;
+  padding-top: 4px; padding-bottom: 4px;
 }
-html.screen-short:not(.kiosk-on) .grid-square > * {
-  aspect-ratio: auto;
-  min-height: 0;
+html.dev-tablet:not(.kiosk-on) th input,
+html.dev-tablet:not(.kiosk-on) th select {
+  min-height: 36px;
+  padding-top: 6px; padding-bottom: 6px;
 }
 
 /* --------------------------------------------------------------------------

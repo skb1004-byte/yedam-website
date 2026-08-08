@@ -7,55 +7,136 @@
 // iframe 안에 끼워진 페이지(예: kiosk-home.html의 4분할 타일)에서는 kiosk-on 감지만 하고
 // 전체화면 버튼/자동진입은 만들지 않는다 (최상위 페이지에만 하나만 있으면 됨).
 /* ── 기기 종류 판정 ───────────────────────────────────────────────
-   <html> 에 클래스를 붙인다. screen.css 가 이것만 보고 스타일을 건다.
 
-   폭만 보면 안 된다는 것이 이 판정의 핵심이다.
-     · 키오스크 1024×768 — 폭만 보면 데스크톱
-     · 태블릿 가로 1024×768 — 폭이 같지만 손가락으로 만진다
-     · 노트북 1366×768 — 폭은 크지만 세로가 짧다
-   그래서 폭 + 포인터 종류 + 높이를 같이 본다.
+   조사해 보니(2026-08 기준) **태블릿과 터치 노트북을 100% 구분하는 방법은
+   없다.** UA 문자열은 하드웨어가 아니라 브라우저·OS 를 알려 줄 뿐이라,
+   같은 윈도우 태블릿과 윈도우 노트북이 똑같은 UA 를 낸다. 크기도 못 쓴다 —
+   아이패드와 우리 키오스크가 둘 다 1024×768 이다.
 
-   키오스크(kiosk-on)는 아래 detect() 가 따로 판정한다. 여기서는
-   키오스크로 잡힌 기기에 dev-* 를 붙이지 않는다 — 규칙이 겹치면
-   어느 쪽이 이겼는지 알기 어려워진다.
+   그래서 두 단계로 나눈다.
 
-   실측으로 드러난 문제(2026-08-08)
-     1366×768 노트북이 AI PIA 에서 세로 1,186px 넘쳤다. 원인은 글자 크기
-     축소 규칙이 max-width:1079px 이라 1366 이 안 걸려서, 키오스크용
-     세로 1080×1920 타이포그래피를 그대로 쓰고 있었기 때문이다. */
+   1단계  명시 신호 — 추측하지 않는다
+     키오스크는 **우리가 직접 설치한다.** 추측할 이유가 없다.
+     주소 한 번만 열면 그 기기에 기록되고 이후로는 그대로 쓴다.
+       ?device=kiosk | tablet | laptop | desktop | phone   설정
+       ?device=auto                                        해제(자동판정으로)
+     전송 토큰과 같이 넣을 수 있다.
+       ?device=kiosk&settoken=<토큰>
+
+   2단계  추론 — 표시가 없는 방문자 기기
+     화면 폭 + 포인터 종류 + 터치점 수를 같이 본다. 어느 하나만 보면 틀린다.
+       손가락만 있고 마우스가 없다      → 태블릿(또는 휴대폰)
+       마우스가 있다                    → 노트북/데스크톱 (터치 노트북 포함)
+
+   기존 키오스크가 멈추면 안 되므로, 예전 판정(손가락 + 긴 변 900px 이상)은
+   폴백으로 남겨 둔다. 표시를 해 둔 기기만 그것을 건너뛴다.
+
+   근거 — 실측(2026-08-08)에서 드러난 문제
+     1366×768 노트북이 AI PIA 에서 세로 1,186px 넘쳤다. 글자 축소 규칙이
+     max-width:1079px 이라 1366 이 안 걸려, 키오스크용 세로 1080×1920
+     타이포그래피를 그대로 쓰고 있었기 때문이다. */
 (function () {
+  var KEY = 'yd_device';
+  var VALID = { kiosk:1, tablet:1, laptop:1, desktop:1, phone:1 };
+
+  function forced() {
+    try {
+      var v = (localStorage.getItem(KEY) || '').trim();
+      return VALID[v] ? v : '';
+    } catch (e) { return ''; }
+  }
+
+  /* 주소로 들어온 표시를 저장하고 주소에서는 지운다.
+     뒤로가기 기록·화면 공유에 남지 않게 하려는 것이다. */
+  function readFlag() {
+    try {
+      var sp = new URLSearchParams(window.location.search);
+      if (!sp.has('device')) return;
+      var v = (sp.get('device') || '').trim().toLowerCase();
+      if (v === 'auto' || v === '') localStorage.removeItem(KEY);
+      else if (VALID[v]) localStorage.setItem(KEY, v);
+      else { console.error('알 수 없는 기기 표시:', v); return; }
+      sp.delete('device');
+      var q = sp.toString();
+      window.history.replaceState(null, '',
+        window.location.pathname + (q ? '?' + q : '') + window.location.hash);
+    } catch (e) {
+      console.error('기기 표시 처리 실패:', e);
+    }
+  }
+
+  function infer() {
+    var w = window.innerWidth;
+    var mq = window.matchMedia;
+    var coarse = mq && mq('(any-pointer: coarse)').matches;   /* 손가락 */
+    var fine   = mq && mq('(any-pointer: fine)').matches;     /* 마우스·펜 */
+    var touches = navigator.maxTouchPoints || 0;
+
+    /* 아이패드는 iPadOS 13 부터 기본이 "데스크톱 사이트 요청" 이라
+       스스로를 맥으로 소개한다(navigator.platform === 'MacIntel').
+       진짜 맥은 터치를 못 하므로 터치점 수로 가른다. 널리 쓰이는 판별법이다. */
+    try {
+      if (/MacIntel/.test(navigator.platform || '') && touches > 1) return 'tablet';
+    } catch (e) { }
+
+    /* 안드로이드 태블릿은 UA 에 Android 가 있고 Mobile 이 없다.
+       (휴대폰은 'Android ... Mobile', 태블릿은 'Mobile' 이 빠진다) */
+    try {
+      var ua = navigator.userAgent || '';
+      if (/Android/.test(ua) && !/Mobile/.test(ua)) return 'tablet';
+    } catch (e) { }
+
+    if (w < 640) return 'phone';
+    /* 마우스가 붙어 있으면 태블릿이 아니다. 터치 노트북도 여기로 온다 —
+       화면을 만질 수 있어도 주 입력은 트랙패드다. */
+    if (fine) return (w >= 1600 ? 'desktop' : 'laptop');
+    /* 마우스가 없고 손가락만 있다 */
+    if (coarse || touches >= 5) return 'tablet';
+    return (w >= 1600 ? 'desktop' : 'laptop');
+  }
+
   function classify() {
     try {
       var r = document.documentElement;
-      var w = window.innerWidth, h = window.innerHeight;
-      var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches;
-      var fine = window.matchMedia && window.matchMedia('(any-pointer: fine)').matches;
+      var f = forced();
+      var kind = f || infer();
 
-      var kind;
-      if (w < 640) kind = 'phone';
-      else if (coarse && !fine) kind = 'tablet';        /* 손가락만 = 태블릿 */
-      else if (coarse && fine) kind = (w >= 1180 ? 'laptop' : 'tablet');  /* 터치 노트북 */
-      else if (w >= 1600) kind = 'desktop';
-      else kind = 'laptop';
+      /* 표시가 kiosk 면 kiosk.css 가 그대로 받도록 클래스를 켠다.
+         표시가 kiosk 가 아니면(태블릿 등) 예전 크기 추측이 가로채지 못하게 끈다. */
+      if (f === 'kiosk') r.classList.add('kiosk-on');
+      else if (f) r.classList.remove('kiosk-on');
 
+      var isKiosk = r.classList.contains('kiosk-on');
       ['phone', 'tablet', 'laptop', 'desktop'].forEach(function (k) {
-        r.classList.toggle('dev-' + k, k === kind && !r.classList.contains('kiosk-on'));
+        r.classList.toggle('dev-' + k, !isKiosk && k === kind);
       });
+      r.classList.toggle('dev-forced', !!f);
 
-      /* 세로가 짧은 기기 — 가로 태블릿·보급형 노트북이 여기 걸린다.
+      /* 세로가 짧은 기기 — 가로 태블릿·보급형 노트북.
          "한 화면에 안 들어온다" 문제가 거의 전부 여기서 난다. */
-      r.classList.toggle('screen-short', h < 820 && !r.classList.contains('kiosk-on'));
+      r.classList.toggle('screen-short', !isKiosk && window.innerHeight < 820);
     } catch (e) {
       console.error('기기 판정 실패:', e);
     }
   }
 
+  readFlag();
   classify();
   window.addEventListener('resize', classify);
   window.addEventListener('orientationchange', function () { setTimeout(classify, 300); });
-  /* 키오스크 판정이 나중에 붙으므로 한 번 더 돌려 겹치지 않게 한다 */
-  window.addEventListener('load', function () { setTimeout(classify, 100); });
+  /* 아래 detect() 가 kiosk-on 을 나중에 붙이므로 한 번 더 돌려 맞춘다 */
+  window.addEventListener('load', function () { setTimeout(classify, 120); });
   window.piaClassifyDevice = classify;
+  window.piaDeviceInfo = function () {
+    var r = document.documentElement;
+    return {
+      표시: forced() || '(없음)',
+      추론: infer(),
+      적용: (r.className.match(/kiosk-on|dev-\w+|screen-short/g) || []).join(' '),
+      화면: window.innerWidth + '×' + window.innerHeight,
+      터치점: navigator.maxTouchPoints || 0
+    };
+  };
 })();
 
 /* ── 결과 전송 토큰을 이 기기에 심는 통로 ───────────────────────────
@@ -153,9 +234,26 @@
 
   function detect() {
     try {
-      var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches;
-      var big = Math.max(window.innerWidth, window.innerHeight) >= 900;
-      var isKiosk = !!(coarse && big);
+      /* 명시 표시(?device=)가 있으면 크기 추측을 하지 않는다.
+
+         왜 필요한가 — 예전 추측은 "손가락 + 긴 변 900px 이상 = 키오스크"였다.
+         그런데 아이패드(1024×768)·갤럭시탭이 정확히 그 조건에 걸린다.
+         그래서 태블릿이 전부 키오스크로 잡히고, 태블릿용 규칙이 한 줄도
+         적용되지 않았다(검증에서 확인). 표시가 있으면 그 말을 따른다. */
+      var forcedKind = '';
+      try { forcedKind = (localStorage.getItem('yd_device') || '').trim(); } catch (e) { }
+
+      var isKiosk;
+      if (forcedKind) {
+        isKiosk = (forcedKind === 'kiosk');
+      } else {
+        var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches;
+        var fine = window.matchMedia && window.matchMedia('(any-pointer: fine)').matches;
+        var big = Math.max(window.innerWidth, window.innerHeight) >= 900;
+        /* 마우스가 붙어 있으면 키오스크가 아니다 — 터치 노트북을 걸러낸다.
+           그래도 아이패드는 여전히 여기 걸린다. 그것이 표시를 두는 이유다. */
+        isKiosk = !!(coarse && !fine && big);
+      }
       document.documentElement.classList.toggle('kiosk-on', isKiosk);
       if (isKiosk) {
         ensureFullscreenUI();
