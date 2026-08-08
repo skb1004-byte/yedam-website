@@ -94,8 +94,8 @@ a.link{color:var(--rust);text-decoration:none;font-weight:700}
 .filterbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:12px}
 @media print{header,.noprint{display:none!important}.card{box-shadow:none;border:1px solid #ccc}}
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260808p">
-<script src="kiosk.js?v=20260808p" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260808q">
+<script src="kiosk.js?v=20260808q" defer></script>
 </head>
 <body>
 <header>
@@ -301,10 +301,17 @@ function apiUrl(params){
    혹시 서버가 아직 헤더를 안 읽는 구버전이면 401 이 오는데, 그때 한 번만
    옛 방식으로 다시 시도하고 그 사실을 콘솔에 남긴다. 화면이 죽지 않게 하려는
    안전장치이고, 서버 확인이 끝나면 이 되돌림 경로는 지운다. */
-let _adminHeaderOK = null;   // null=아직 모름, true=헤더로 됨, false=구버전
+let _adminHeaderOK = null;   // null=아직 모름, true=헤더로 됨, false=서버가 헤더를 안 읽음
 async function apiFetch(params, init){
   const opt = Object.assign({}, init);
   opt.headers = Object.assign({}, opt.headers, PW ? {'x-admin-password': PW} : {});
+
+  /* 서버가 헤더를 안 읽는다고 이미 판명났으면 곧장 옛 방식으로 간다.
+     매번 401 을 한 번씩 맞고 가는 낭비를 없앤다. */
+  if(_adminHeaderOK === false && PW){
+    return fetch(apiUrl(Object.assign({}, params, {admin: PW})), init);
+  }
+
   let r;
   try{
     r = await fetch(apiUrl(params), opt);
@@ -312,13 +319,22 @@ async function apiFetch(params, init){
     console.error('관리자 API 호출 실패:', e);
     throw e;
   }
-  if(r.status === 401 && PW && _adminHeaderOK !== true){
-    console.error('서버가 x-admin-password 헤더를 아직 읽지 않습니다. 옛 방식으로 재시도합니다.');
-    _adminHeaderOK = false;
-    const back = Object.assign({}, params, {admin: PW});
-    return fetch(apiUrl(back), init);
+  if(r.ok){ _adminHeaderOK = true; return r; }
+
+  /* 401 이 왔다고 곧바로 "서버가 구버전"이라고 단정하면 안 된다.
+     비밀번호가 그냥 틀려도 401 이기 때문이다(실측에서 이 둘을 구분하지 못해
+     엉뚱한 경고가 떴다). 옛 방식으로 한 번 더 물어보고 그 결과로 가른다.
+       옛 방식도 401  → 비밀번호가 틀린 것. 서버 판정은 보류한다.
+       옛 방식은 성공 → 서버가 헤더를 안 읽는 것. 그때만 구버전으로 기록한다. */
+  if(r.status === 401 && PW && _adminHeaderOK === null){
+    const back = await fetch(apiUrl(Object.assign({}, params, {admin: PW})), init);
+    if(back.ok){
+      _adminHeaderOK = false;
+      console.error('서버가 x-admin-password 헤더를 읽지 않습니다. '
+        + '지금은 비밀번호가 주소에 실려 나가므로 서버 쪽 수정이 필요합니다.');
+    }
+    return back;
   }
-  if(r.ok) _adminHeaderOK = true;
   return r;
 }
 function setEnv(ok){ $('#envBadge').textContent= ok?'서버 연결됨':'서버 미연결'; $('#envBadge').classList.toggle('on',!!ok); }
