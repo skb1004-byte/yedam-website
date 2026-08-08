@@ -184,6 +184,21 @@ html.dev-laptop:not(.kiosk-on) nav a {
   padding-bottom: 4px;
 }
 
+/* 세로만 늘렸더니 시간표·직업찾기의 "홈" 링크가 12×29px 로 남았다.
+   한 글자짜리라 폭이 모자란다. 이웃과 24px 이상 떨어져 있어 WCAG 의
+   간격 예외로 기준 자체는 통과하지만, 태블릿에서 손가락으로 노리기엔
+   12px 는 좁다. 가로 여백을 6px 씩 줘서 24px 을 채운다.
+
+   가로 여백은 세로와 달리 **줄 흐름을 밀어낸다**. 헤더 링크 사이가
+   12px 벌어지므로, 넣은 뒤 가로 넘침이 늘지 않는지 실측으로 확인했다. */
+html.dev-tablet:not(.kiosk-on) header a,
+html.dev-tablet:not(.kiosk-on) nav a,
+html.dev-laptop:not(.kiosk-on) header a,
+html.dev-laptop:not(.kiosk-on) nav a {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
 /* 체크박스는 22px 로 두었었다. WCAG 2.5.8 의 24px 을 2px 차이로 밑돈다.
    동의 화면은 <label> 이 감싸고 있어 실효 표적이 935×65px 이라 위반은
    아니지만, 체크 표시 자체를 손가락으로 노리는 사용자가 있다. 24px 로
