@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/favicon_256.png">
 <meta name="description" content="예담 키오스크 홈 — AI PIA 학생 인적성검사, 맘(MOM) 인지건강 확인, 선생님 도우미, 두뇌 놀이터를 한 화면에서.">
-<link rel="stylesheet" href="kiosk.css?v=20260808b">
+<link rel="stylesheet" href="kiosk.css?v=20260808c">
 <style>
   html, body {
     margin: 0;
@@ -326,19 +326,17 @@
 
     .kiosk-top { flex: 0 0 auto; align-items: center; }
 
-    /* 높이를 2등분한 정사각형. 다만 배너가 최소 26%는 갖도록 폭 상한도 건다 */
-    /* 타일이 세로를 꽉 채우면 오른쪽 배너에 남는 폭이 너무 얇아진다.
-       1024x768 에서 타일 370 → 그리드 748 → 배너 252px 밖에 안 남아
-       제목·태그라인·버튼이 전부 짓눌렸다.
-       그래서 "배너에 340px 은 남긴다"를 조건으로 타일 크기를 정한다.
-         1024 → 타일 330 · 배너 340
-         1280 → 타일 458 · 배너 340
-         1920 → 타일 528(세로 제한) · 배너 840 */
+    /* 타일 크기는 "화면 세로"만으로 정한다.
+       예전에는 배너에 364px 을 남기려고 타일을 줄였는데, 그 결과 그리드가
+       화면 세로의 89% 밖에 못 써서 위아래로 42px 씩 검은 띠가 남았다
+       (실물 사진에서 "전체가 꽉 차지 않는다"고 지적된 부분).
+       이제 그리드가 세로를 100% 채우고, 배너는 남는 폭을 전부 가져간다.
+         1024x768  → 타일 372 · 그리드 752 · 배너 248
+         1280x1024 → 타일 500 · 그리드 1008 · 배너 248
+         1920x1080 → 타일 528 · 그리드 1064 · 배너 832
+       배너가 좁아지는 만큼 아래에서 내부 배치를 세로 1열로 바꾼다. */
     .kiosk-square-grid {
-      --tile-size: min(
-        calc((100vh - 24px) / 2),
-        calc((100vw - 364px) / 2)
-      );
+      --tile-size: calc((100vh - 24px) / 2);
     }
 
     .kiosk-bottom {
@@ -348,7 +346,20 @@
       justify-content: center;
       gap: 4%;
       min-width: 0;
+      /* 배너가 248px 로 좁아졌으므로 좌우 여백을 비율(4%)이 아니라
+         고정값으로 잡는다. 4% 는 좁은 폭에서 너무 작아 글자가 가장자리에
+         붙고, 넓은 폭(1920 기준 832px)에서는 33px 로 과해진다. */
+      padding: 16px 18px;
     }
+
+    /* 좁은 배너에서는 글자를 화면(vmin)이 아니라 배너 폭에 맞춘다.
+       vmin 기준이면 1280x1024 에서 배너는 248px 인데 글자만 커져 넘친다. */
+    .kiosk-bottom-badge   { font-size: clamp(0.6rem, 1.1vw, 0.95rem); }
+    .kiosk-bottom-title   { font-size: clamp(1.2rem, 3vw, 2.8rem); }
+    .kiosk-bottom-tagline { font-size: clamp(0.68rem, 1.35vw, 1.2rem); }
+    .kiosk-bottom-cta     { font-size: clamp(0.62rem, 1.2vw, 1.05rem); }
+    .kiosk-bottom-feat-t  { font-size: clamp(0.62rem, 1.2vw, 1.05rem); }
+    .kiosk-bottom-feat-d  { font-size: clamp(0.54rem, 1vw, 0.88rem); }
 
     /* 가로형에서는 특징 4개를 세로 1열로 쌓아 좁은 폭에서도 안 잘리게 */
     .kiosk-bottom-right {
@@ -520,6 +531,6 @@
       document.fonts.ready.then(syncKioskDividers);
     }
   </script>
-  <script src="kiosk.js?v=20260808b" defer></script>
+  <script src="kiosk.js?v=20260808c" defer></script>
 </body>
 </html>

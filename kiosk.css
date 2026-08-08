@@ -305,3 +305,14 @@ html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn{
 }
 html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn:hover,
 html.kiosk-on body:has(#ydKioskEntry) #kiosk-fs-btn:active{ opacity:1; }
+
+/* 오류신고 "💬 문의" 버튼(err-cs.js 의 .errcs-fab)은 right:16px bottom:16px 에
+   고정돼 있어, 같은 우하단에 있는 "키오스크 홈"(208x77) 과 정확히 겹쳤다.
+   실물 사진에서 "키오ㅅ… 문의" 처럼 두 글자가 포개져 보였던 것이 이것이다.
+   z-index 는 문의(99998) 가 위라서 키오스크 홈 글자를 덮는다.
+   → 키오스크 모드에서만 문의 버튼을 키오스크 홈 위로 올려 세로로 쌓는다. */
+html.kiosk-on body:has(#ydKioskEntry) .errcs-fab{ bottom:112px; }
+@media (max-width:760px){
+  /* 좁은 화면에서는 키오스크 홈 버튼이 좌우로 늘어나므로 더 위로 */
+  html.kiosk-on body:has(#ydKioskEntry) .errcs-fab{ bottom:104px; }
+}

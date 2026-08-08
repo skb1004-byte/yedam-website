@@ -69,23 +69,30 @@ body{background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',-apple-
    가로 화면에서는 폭이 남으므로 3열로 펴서 한 화면에 담는다.
    .app 의 max-width:760px 도 같이 풀어야 3열이 실제로 넓어진다. */
 @media (min-aspect-ratio:1/1) and (min-width:900px){
-  .app{max-width:1180px;padding-bottom:16px}
-  .tiles{grid-template-columns:repeat(3,1fr)}
-  .tile{padding:14px 10px}
-  .tile .ic{font-size:2.1rem}
-  .tile .t{font-size:1.05rem}
-  .top{padding:10px 0 8px}
-  .card{padding:16px 18px;margin-bottom:10px}
-  .stamp{width:36px;height:36px;font-size:1.15rem}
-  /* 인사말·칭찬도장 카드가 세로를 많이 먹어 놀이 타일 아래쪽이 잘렸다.
-     문구는 그대로 두고 여백만 줄인다. */
-  .reco{padding:10px 14px;margin-bottom:10px}
-  .app{padding-bottom:8px}
-  .footer-note{margin-top:8px}
+  .app{max-width:1180px;padding:0 14px 8px}
+  /* 놀이 9개를 5열로 편다.
+     3열이면 3행(507px)이 되어 그 아래 "지난 기록" 카드와 안내문이 화면
+     밖으로 밀렸다(1024x768 에서 문서 942px / 화면 768px).
+     5열이면 2행으로 줄어 전체가 한 화면에 들어온다. */
+  .tiles{grid-template-columns:repeat(5,1fr);gap:9px}
+  .tile{padding:11px 6px}
+  .tile .ic{font-size:1.85rem}
+  .tile .t{font-size:.98rem;margin-top:3px}
+  .tile .d{font-size:.76rem}
+  .top{padding:8px 0 6px}
+  .top .logo{width:38px;height:38px;font-size:18px}
+  .top h1{font-size:1.1rem}
+  .card{padding:12px 16px;margin-bottom:9px}
+  .stamp{width:32px;height:32px;font-size:1rem}
+  .stamp-wrap{gap:6px}
+  .scoreline{font-size:.95rem;margin-bottom:6px}
+  /* 인사말 카드도 여백만 줄인다(문구는 그대로). */
+  .reco{padding:9px 14px;margin-bottom:9px;font-size:.95rem}
+  .footer-note{margin-top:6px;font-size:.8rem}
 }
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260808b">
-<script src="kiosk.js?v=20260808b" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260808c">
+<script src="kiosk.js?v=20260808c" defer></script>
 </head>
 <body>
 <div class="app">
