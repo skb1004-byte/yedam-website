@@ -601,16 +601,36 @@ function scoreSummary(R){
   return out;
 }
 
+/* 삭제는 DELETE 메서드로 보낸다.
+   GET 으로 지우면 주소만 눌러도(혹은 브라우저·크롤러가 미리 읽어도) 지워질 수 있다.
+   서버는 이미 DELETE 를 처리하므로, 구버전 서버에 걸린 경우에만 옛 GET 으로 물러선다. */
+let _adminDeleteVerb = null;   // null=미확인, 'DELETE', 'GET'
+
+async function apiDelete(id){
+  if(_adminDeleteVerb !== 'GET'){
+    try{
+      const r = await apiFetch({id: id}, {method: 'DELETE'});
+      if(r.ok || r.status === 401 || r.status === 403){ _adminDeleteVerb = 'DELETE'; return r; }
+      if(r.status !== 405 && r.status !== 400 && r.status !== 404){ return r; }
+    }catch(e){
+      console.error('DELETE 삭제 실패, 옛 방식으로 재시도:', e);
+    }
+  }
+  _adminDeleteVerb = 'GET';
+  console.error('서버가 DELETE 를 받지 않습니다. 옛 GET 방식으로 삭제합니다.');
+  return apiFetch({del: id});
+}
+
 async function delRec(id){
   if(!confirm('이 결과를 삭제할까요? 되돌릴 수 없습니다.')) return;
-  try{ const r=await apiFetch({del:id}); const j=await r.json();
+  try{ const r=await apiDelete(id); const j=await r.json();
     if(j.ok){ delete FULL[id]; LIST=LIST.filter(s=>s.id!==id); paint(); } else alert(j.error||'삭제 실패'); }
   catch(e){ alert(e.message); }
 }
 async function bulkDel(){
   const ids=selectedIds(); if(!ids.length)return;
   if(!confirm(ids.length+'명의 결과를 삭제할까요? 되돌릴 수 없습니다.')) return;
-  for(const id of ids){ try{ await apiFetch({del:id}); delete FULL[id]; }catch(e){} }
+  for(const id of ids){ try{ await apiDelete(id); delete FULL[id]; }catch(e){ console.error('삭제 실패 '+id, e); } }
   LIST=LIST.filter(s=>ids.indexOf(s.id)<0); paint();
 }
 

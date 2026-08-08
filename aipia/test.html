@@ -8409,6 +8409,33 @@ function sendResultToAdmin(opts){
        localStorage.setItem('pia_ingest_token','발급받은값')
    토큰이 없으면 헤더를 붙이지 않는다. 그러면 사전 요청(preflight)도 생기지
    않아 일반 방문자의 저장 경로는 지금과 완전히 같다. */
+/* 키오스크에 토큰을 넣는 통로.
+   현장 기기마다 개발자도구를 열어 localStorage 를 만질 수는 없다.
+   그래서 관리자가 주소 한 번만 열면(또는 QR 로 찍으면) 저장되게 한다.
+
+     https://yedam.kr/aipia/test.html?settoken=<토큰>
+
+   저장한 뒤에는 주소에서 즉시 지운다. 뒤로가기 기록·화면 공유·어깨너머로
+   토큰이 남지 않게 하려는 것이다. ?settoken= 를 값 없이 열면 해제된다. */
+(function _piaTokenBootstrap(){
+  try{
+    var sp = new URLSearchParams(location.search);
+    if(!sp.has('settoken')) return;
+    var v = (sp.get('settoken')||'').trim();
+    if(v){ localStorage.setItem('pia_ingest_token', v); }
+    else { localStorage.removeItem('pia_ingest_token'); }
+    sp.delete('settoken');
+    var q = sp.toString();
+    history.replaceState(null, '', location.pathname + (q ? '?'+q : '') + location.hash);
+    setTimeout(function(){
+      try{ toast(v ? '이 기기에 전송 토큰을 저장했습니다.' : '이 기기의 전송 토큰을 지웠습니다.'); }
+      catch(e){ console.error('토큰 안내 표시 실패:', e); }
+    }, 800);
+  }catch(e){
+    console.error('전송 토큰 설정 실패:', e);
+  }
+})();
+
 function _piaIngestHeaders(){
   const h = {'Content-Type':'text/plain;charset=UTF-8'};
   try{
