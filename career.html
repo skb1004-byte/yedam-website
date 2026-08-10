@@ -55,9 +55,9 @@ button:disabled{opacity:.5;cursor:default}
 .hide{display:none}
 @media (max-width:520px){ .wrap{padding:12px} .tabs button{font-size:13px;padding:10px 6px} }
 </style>
-<link rel="stylesheet" href="kiosk.css?v=20260809e">
-<link rel="stylesheet" href="screen.css?v=20260809e">
-<script src="kiosk.js?v=20260809e" defer></script>
+<link rel="stylesheet" href="kiosk.css?v=20260809f">
+<link rel="stylesheet" href="screen.css?v=20260809f">
+<script src="kiosk.js?v=20260809f" defer></script>
 </head>
 <body>
 <header>
@@ -76,7 +76,9 @@ button:disabled{opacity:.5;cursor:default}
       <button id="tabMajor" type="button">학과 정보</button>
     </div>
     <div class="row">
-      <input type="search" id="q" placeholder="예: 디자이너, 간호, 로봇, 심리" style="flex:1;min-width:180px;font-size:16px" autocomplete="off">
+      <!-- 이 화면에서 유일하게 이름이 없던 칸이다(2026-08-09 실측).
+           placeholder 는 이름을 대신하지 못한다 — 입력하는 순간 사라진다. -->
+      <input type="search" id="q" placeholder="예: 디자이너, 간호, 로봇, 심리" aria-label="직업·학과 검색어" style="flex:1;min-width:180px;font-size:16px" autocomplete="off">
       <button class="rust" id="go" type="button">검색</button>
     </div>
     <div class="chips" id="chips"></div>
