@@ -7,8 +7,8 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/favicon_256.png">
 <meta name="description" content="예담 키오스크 홈 — AI PIA 학생 인적성검사, 맘(MOM) 인지건강 확인, 선생님 도우미, 두뇌 놀이터를 한 화면에서.">
-<link rel="stylesheet" href="kiosk.css?v=20260809f">
-<link rel="stylesheet" href="screen.css?v=20260809f">
+<link rel="stylesheet" href="kiosk.css?v=20260810a">
+<link rel="stylesheet" href="screen.css?v=20260810a">
 <style>
   html, body {
     margin: 0;
@@ -98,6 +98,29 @@
      "부모님 인지건강 테스 / 트" 처럼 단어 중간에서 잘렸다.
      타일 한 변(--tile-size)에 비례시키면 어떤 해상도에서도 비율이 유지된다.
      계수는 가장 긴 제목("선생님 도우미" 6자+공백)이 안쪽 여백 안에 들어가도록 잡았다. */
+  /* 타일 일러스트.
+
+     경위(2026-08-09 조사) — 저장소에 타일용 이미지 10개(jpg·svg)가 있는데
+     어느 커밋에서도 페이지가 참조한 적이 없었다. jpg 는 글자가 그림에
+     박혀 있고, 그중 MOM 은 "부모님 치매테스트" — 규제 문제로 사이트에서
+     걷어낸 표현(작업 #37)이 그대로 남아 있었다. 그림에 글자를 구우면
+     이런 수정이 불가능해진다. 글자는 HTML 에 두는 지금 구조가 맞다.
+
+     그래서 svg 에서 **일러스트만** 꺼내 안에 심었다.
+       · 글자 없음 — 문구는 계속 HTML 에서 고친다
+       · 파일 요청 없음 — 인라인이라 로딩 지연·깨진 이미지가 없다
+       · aria-hidden — 낭독기에는 장식이므로 읽히지 않는다
+     원본 svg 의 파란·주황·초록 세부선은 지금 타일 색과 어긋나서
+     검정 반투명으로 바꿨다. 어떤 바탕색 위에서도 무늬로 보인다. */
+  .kiosk-tile-ico {
+    height: 24%;
+    max-height: 150px;
+    min-height: 0;
+    flex: 0 1 auto;
+    margin-bottom: 4%;
+  }
+  .kiosk-tile-ico svg { height: 100%; width: auto; display: block; }
+
   .kiosk-tile-title {
     font-weight: 900;
     font-size: calc(var(--tile-size) * 0.145);
@@ -427,6 +450,14 @@
       <div class="kiosk-square-grid">
         <div class="kiosk-tile kiosk-tile-1" role="link" tabindex="0"
              data-kiosk-go="aipia/test.html" aria-label="AI PIA 학생 인적성검사 시작">
+          <div class="kiosk-tile-ico" aria-hidden="true"><svg viewBox="-185 -205 370 410" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="0,-190 165,-95 165,95 0,190 -165,95 -165,-95" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="4"/>
+            <polygon points="0,-125 108,-63 108,63 0,125 -108,63 -108,-63" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="3"/>
+            <polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
+            <polygon points="0,-170 90,-40 130,90 -20,170 -150,60 -80,-100" fill="#ffffff" fill-opacity="0.85"/>
+            <circle cx="0" cy="-170" r="10" fill="#fff"/><circle cx="90" cy="-40" r="10" fill="#fff"/><circle cx="130" cy="90" r="10" fill="#fff"/>
+            <circle cx="-20" cy="170" r="10" fill="#fff"/><circle cx="-150" cy="60" r="10" fill="#fff"/><circle cx="-80" cy="-100" r="10" fill="#fff"/>
+          </svg></div>
           <div class="kiosk-tile-title">AI PIA</div>
           <div class="kiosk-tile-divider"></div>
           <div class="kiosk-tile-sub">학생 인적성검사</div>
@@ -434,6 +465,11 @@
         </div>
         <div class="kiosk-tile kiosk-tile-2" role="link" tabindex="0"
              data-kiosk-go="mom/test.html" aria-label="맘(MOM) 부모님 인지건강 테스트 시작">
+          <div class="kiosk-tile-ico" aria-hidden="true"><svg viewBox="-220 -210 440 420" xmlns="http://www.w3.org/2000/svg">
+            <path d="M -120,-40 C -150,-120 -80,-180 -20,-165 C 10,-190 70,-190 95,-155 C 160,-150 190,-90 165,-30 C 195,10 180,80 130,105 C 120,150 60,180 10,160 C -30,190 -100,175 -120,130 C -175,110 -190,40 -150,0 C -170,-30 -160,-60 -120,-40 Z" fill="#ffffff" fill-opacity="0.92"/>
+            <path d="M -70,-60 C -55,-90 -25,-95 -5,-70 C 15,-95 55,-85 60,-50 C 80,-40 85,-5 65,15 C 80,45 65,85 30,90 C 20,120 -20,130 -45,105 C -80,115 -115,90 -110,50 C -140,35 -140,-5 -115,-25 C -125,-45 -100,-70 -70,-60 Z" fill="none" stroke="#000000" stroke-width="3" stroke-opacity="0.18"/>
+            <polyline points="-190,140 -140,140 -110,90 -70,190 -30,60 10,140 60,140 100,80 140,140 210,140" fill="none" stroke="#000000" stroke-opacity="0.32" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg></div>
           <div class="kiosk-tile-title">MOM</div>
           <div class="kiosk-tile-divider"></div>
           <div class="kiosk-tile-sub">부모님 인지건강 테스트</div>
@@ -441,6 +477,21 @@
         </div>
         <div class="kiosk-tile kiosk-tile-3" role="link" tabindex="0"
              data-kiosk-go="teacher-hub.html" aria-label="선생님 도우미 열기">
+          <div class="kiosk-tile-ico" aria-hidden="true"><svg viewBox="-200 -215 400 370" xmlns="http://www.w3.org/2000/svg">
+            <path d="M -190,-40 C -120,-80 -40,-70 0,-30 L 0,140 C -40,100 -120,90 -190,130 Z" fill="#ffffff" fill-opacity="0.95"/>
+            <path d="M 190,-40 C 120,-80 40,-70 0,-30 L 0,140 C 40,100 120,90 190,130 Z" fill="#ffffff" fill-opacity="0.85"/>
+            <line x1="-150" y1="-20" x2="-30" y2="0" stroke="#000000" stroke-width="4" stroke-opacity="0.20"/>
+            <line x1="-150" y1="20" x2="-30" y2="40" stroke="#000000" stroke-width="4" stroke-opacity="0.20"/>
+            <line x1="-150" y1="60" x2="-30" y2="80" stroke="#000000" stroke-width="4" stroke-opacity="0.20"/>
+            <line x1="150" y1="-20" x2="30" y2="0" stroke="#000000" stroke-width="4" stroke-opacity="0.18"/>
+            <line x1="150" y1="20" x2="30" y2="40" stroke="#000000" stroke-width="4" stroke-opacity="0.18"/>
+            <g transform="translate(0,-160)">
+              <polygon points="0,-35 115,5 0,45 -115,5" fill="#ffffff"/>
+              <ellipse cx="0" cy="10" rx="55" ry="18" fill="#ffffff" fill-opacity="0.85"/>
+              <line x1="70" y1="12" x2="70" y2="65" stroke="#ffffff" stroke-width="5"/>
+              <circle cx="70" cy="72" r="8" fill="#ffffff"/>
+            </g>
+          </svg></div>
           <div class="kiosk-tile-title">선생님 도우미</div>
           <div class="kiosk-tile-divider"></div>
           <div class="kiosk-tile-sub">선생님 지원 솔루션</div>
@@ -448,6 +499,13 @@
         </div>
         <div class="kiosk-tile kiosk-tile-4" role="link" tabindex="0"
              data-kiosk-go="mom-play.html" aria-label="두뇌 놀이터 열기">
+          <div class="kiosk-tile-ico" aria-hidden="true"><svg viewBox="-240 -135 480 280" xmlns="http://www.w3.org/2000/svg">
+            <path d="M -220,20 C -230,-60 -170,-120 -90,-115 L 90,-115 C 170,-120 230,-60 220,20 C 215,90 150,130 100,95 L 60,60 L -60,60 L -100,95 C -150,130 -215,90 -220,20 Z" fill="#ffffff" fill-opacity="0.95"/>
+            <rect x="-165" y="-40" width="18" height="60" rx="6" fill="#000000" fill-opacity="0.26"/>
+            <rect x="-195" y="-10" width="78" height="18" rx="6" fill="#000000" fill-opacity="0.26"/>
+            <circle cx="110" cy="-35" r="18" fill="#000000" fill-opacity="0.26"/>
+            <circle cx="160" cy="10" r="18" fill="#000000" fill-opacity="0.26"/>
+          </svg></div>
           <div class="kiosk-tile-title">두뇌 놀이터</div>
           <div class="kiosk-tile-divider"></div>
           <div class="kiosk-tile-sub">부모님·어르신 두뇌훈련</div>
@@ -550,6 +608,6 @@
       document.fonts.ready.then(syncKioskDividers);
     }
   </script>
-  <script src="kiosk.js?v=20260809f" defer></script>
+  <script src="kiosk.js?v=20260810a" defer></script>
 </body>
 </html>
