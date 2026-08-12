@@ -4980,7 +4980,9 @@ function initChat() {
     function speakNext(){
       if(i>=parts.length){ _afterSpeak(); return; }
       var u=new SpeechSynthesisUtterance(parts[i]);
-      if(ttsVoice) u.voice=ttsVoice;
+      var _v=ttsVoice;
+      if(!_v){ try{ var _vs=speechSynthesis.getVoices()||[]; var _ko=_vs.filter(function(x){return ((x.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;}); _v=_ko.filter(function(x){return x.localService;})[0]||_ko[0]||null; if(_v) ttsVoice=_v; }catch(e){} }
+      if(_v) u.voice=_v;
       u.lang='ko-KR'; u.rate=rate; u.pitch=1.05;
       u.onend=function(){ i++; speakNext(); };
       u.onerror=function(){ i++; speakNext(); };
