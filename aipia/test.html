@@ -12631,7 +12631,6 @@ window._ttsClean=function(s){
 <script>
 (function(){
   function kioskOn(){ try{ return typeof _isKioskDevice==='function' ? _isKioskDevice() : false; }catch(e){ return false; } }
-  if(!kioskOn()) return;
   var CHO="ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ".split('');
   var JUNG="ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ".split('');
   var JONG=('_'+"ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ").split(''); JONG[0]='';
@@ -12725,7 +12724,7 @@ window._ttsClean=function(s){
     dock.addEventListener('click',function(e){ var b=e.target.closest('.osk-k'); if(!b) return; press(b.getAttribute('data-k')); });
     document.addEventListener('focusin',function(e){
       var el=e.target;
-      if(el&&el.tagName==='INPUT'&&/\bpia-in\b/.test(el.className||'')&&!el.readOnly&&el.type!=='password'){ show(el); }
+      if(el&&el.tagName==='INPUT'&&/\bpia-in\b/.test(el.className||'')&&!el.readOnly&&el.type!=='password'&&kioskOn()){ show(el); }
       else if(el && el!==dock && !(dock.contains(el))){ if(dock.classList.contains('on')) hide(); }
     });
   }
