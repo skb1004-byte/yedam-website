@@ -12609,4 +12609,128 @@ window._ttsClean=function(s){
   }catch(e){}
 })();
 </script>
+
+<!-- 키오스크 온스크린 한글 자판 (물리 키보드 대체) -->
+<style>
+#pia-osk{position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#eceff3;border-top:1px solid #cfd6df;
+  box-shadow:0 -6px 24px rgba(0,0,0,.14);padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  display:none;user-select:none;-webkit-user-select:none;touch-action:manipulation;font-family:inherit}
+#pia-osk.on{display:block}
+#pia-osk .osk-row{display:flex;gap:6px;justify-content:center;margin:6px 0}
+#pia-osk .osk-k{flex:1 1 0;min-width:0;height:52px;border:1px solid #c3cbd6;border-radius:9px;background:#fff;
+  font-size:22px;line-height:1;color:#1b2430;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 0 #c9d0da;cursor:pointer;font-weight:600}
+#pia-osk .osk-k:active{background:#dfe6ef;transform:translateY(1px)}
+#pia-osk .osk-k.wide{flex:2 2 0}
+#pia-osk .osk-k.fn{background:#d7dee8;font-size:15px;font-weight:700;color:#39424f}
+#pia-osk .osk-k.act{background:#246beb;color:#fff;border-color:#1d56bc}
+#pia-osk .osk-k.space{flex:5 5 0}
+#pia-osk .osk-k.done{background:#1f9d55;color:#fff;border-color:#178045;flex:1.6 1.6 0;font-size:16px}
+@media (max-width:520px){ #pia-osk .osk-k{height:46px;font-size:19px} }
+</style>
+<script>
+(function(){
+  function kioskOn(){ try{ return typeof _isKioskDevice==='function' ? _isKioskDevice() : false; }catch(e){ return false; } }
+  if(!kioskOn()) return;
+  var CHO="ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ".split('');
+  var JUNG="ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ".split('');
+  var JONG=('_'+"ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ").split(''); JONG[0]='';
+  var VOWJOIN={'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ','ㅡㅣ':'ㅢ'};
+  var JONGJOIN={'ㄱㅅ':'ㄳ','ㄴㅈ':'ㄵ','ㄴㅎ':'ㄶ','ㄹㄱ':'ㄺ','ㄹㅁ':'ㄻ','ㄹㅂ':'ㄼ','ㄹㅅ':'ㄽ','ㄹㅌ':'ㄾ','ㄹㅍ':'ㄿ','ㄹㅎ':'ㅀ','ㅂㅅ':'ㅄ'};
+  var JONGSPLIT={'ㄳ':['ㄱ','ㅅ'],'ㄵ':['ㄴ','ㅈ'],'ㄶ':['ㄴ','ㅎ'],'ㄺ':['ㄹ','ㄱ'],'ㄻ':['ㄹ','ㅁ'],'ㄼ':['ㄹ','ㅂ'],'ㄽ':['ㄹ','ㅅ'],'ㄾ':['ㄹ','ㅌ'],'ㄿ':['ㄹ','ㅍ'],'ㅀ':['ㄹ','ㅎ'],'ㅄ':['ㅂ','ㅅ']};
+  function iV(c){return JUNG.indexOf(c)>=0;}
+  function ciOf(c){return CHO.indexOf(c);} function jiOf(c){return JUNG.indexOf(c);} function kiOf(c){return JONG.indexOf(c);}
+  function nst(init){return {out:init||'',ci:-1,ji:-1,ki:0};}
+  function comp(s){ if(s.ci>=0&&s.ji>=0) return String.fromCharCode(0xAC00+(s.ci*21+s.ji)*28+s.ki); if(s.ci>=0) return CHO[s.ci]; if(s.ji>=0) return JUNG[s.ji]; return ''; }
+  function vOf(s){return s.out+comp(s);}
+  function cm(s){ s.out+=comp(s); s.ci=-1;s.ji=-1;s.ki=0; }
+  function feed(s,ch){
+    if(iV(ch)){
+      var vj=jiOf(ch);
+      if(s.ci>=0&&s.ji<0&&s.ki===0){ s.ji=vj; return; }
+      if(s.ci>=0&&s.ji>=0&&s.ki===0){ var j=VOWJOIN[JUNG[s.ji]+ch]; if(j){s.ji=jiOf(j);return;} cm(s); s.ji=vj; return; }
+      if(s.ci>=0&&s.ji>=0&&s.ki>0){ var jc=JONG[s.ki],mv,kp; if(JONGSPLIT[jc]){kp=JONGSPLIT[jc][0];mv=JONGSPLIT[jc][1];s.ki=kiOf(kp);} else {mv=jc;s.ki=0;} cm(s); s.ci=ciOf(mv); s.ji=vj; return; }
+      if(s.ji>=0){ var j2=VOWJOIN[JUNG[s.ji]+ch]; if(j2){s.ji=jiOf(j2);return;} cm(s); s.ji=vj; return; }
+      cm(s); s.ji=vj; return;
+    } else {
+      var cc=ciOf(ch), jc2=kiOf(ch);
+      if(s.ci<0&&s.ji<0){ if(cc>=0) s.ci=cc; else s.out+=ch; return; }
+      if(s.ci>=0&&s.ji<0){ cm(s); if(cc>=0) s.ci=cc; else s.out+=ch; return; }
+      if(s.ci>=0&&s.ji>=0&&s.ki===0){ if(jc2>0){s.ki=jc2;return;} cm(s); if(cc>=0) s.ci=cc; else s.out+=ch; return; }
+      if(s.ci>=0&&s.ji>=0&&s.ki>0){ var jj=JONGJOIN[JONG[s.ki]+ch]; if(jj){s.ki=kiOf(jj);return;} cm(s); if(cc>=0) s.ci=cc; else s.out+=ch; return; }
+      if(s.ji>=0&&s.ci<0){ cm(s); if(cc>=0) s.ci=cc; else s.out+=ch; return; }
+    }
+  }
+  function bsp(s){
+    if(s.ki>0){ var jc=JONG[s.ki]; s.ki=JONGSPLIT[jc]?kiOf(JONGSPLIT[jc][0]):0; return; }
+    if(s.ji>=0){ var jv=JUNG[s.ji]; var pr=Object.keys(VOWJOIN).filter(function(k){return VOWJOIN[k]===jv;})[0]; s.ji=pr?jiOf(pr[0]):-1; return; }
+    if(s.ci>=0){ s.ci=-1; return; }
+    if(s.out.length) s.out=s.out.slice(0,-1);
+  }
+  function lit(s,ch){ cm(s); s.out+=ch; }
+
+  var target=null, state=null, layer='ko', shift=false, dock=null;
+  var KO1=['ㅂ','ㅈ','ㄷ','ㄱ','ㅅ','ㅛ','ㅕ','ㅑ','ㅐ','ㅔ'];
+  var KO2=['ㅁ','ㄴ','ㅇ','ㄹ','ㅎ','ㅗ','ㅓ','ㅏ','ㅣ'];
+  var KO3=['ㅋ','ㅌ','ㅊ','ㅍ','ㅠ','ㅜ','ㅡ'];
+  var SHK={'ㅂ':'ㅃ','ㅈ':'ㅉ','ㄷ':'ㄸ','ㄱ':'ㄲ','ㅅ':'ㅆ','ㅐ':'ㅒ','ㅔ':'ㅖ'};
+  var EN1=['1','2','3','4','5','6','7','8','9','0'];
+  var EN2=['q','w','e','r','t','y','u','i','o','p'];
+  var EN3=['a','s','d','f','g','h','j','k','l'];
+  var EN4=['z','x','c','v','b','n','m'];
+
+  function keyEl(label,cls,data){ var b='<button type="button" class="osk-k'+(cls?(' '+cls):'')+'"'+(data!=null?(' data-k="'+data+'"'):'')+'>'+label+'</button>'; return b; }
+  function render(){
+    var h='';
+    if(layer==='ko'){
+      h+='<div class="osk-row">'+KO1.map(function(k){var d=shift&&SHK[k]?SHK[k]:k;return keyEl(d,'',d);}).join('')+'</div>';
+      h+='<div class="osk-row">'+KO2.map(function(k){var d=shift&&SHK[k]?SHK[k]:k;return keyEl(d,'',d);}).join('')+'</div>';
+      h+='<div class="osk-row">'+keyEl('⇧','fn'+(shift?' act':''),'__shift')+KO3.map(function(k){return keyEl(k,'',k);}).join('')+keyEl('⌫','fn','__bsp')+'</div>';
+      h+='<div class="osk-row">'+keyEl('123','fn','__num')+keyEl('스페이스','space','__space')+keyEl('완료','done','__done')+'</div>';
+    } else {
+      var r1=EN1, r2=EN2, r3=EN3, r4=EN4;
+      var mp=function(k){var d=(shift&&layer==='en')?k.toUpperCase():k;return keyEl(d,'',d);};
+      h+='<div class="osk-row">'+r1.map(mp).join('')+'</div>';
+      h+='<div class="osk-row">'+r2.map(mp).join('')+'</div>';
+      h+='<div class="osk-row">'+r3.map(mp).join('')+keyEl('⌫','fn','__bsp')+'</div>';
+      h+='<div class="osk-row">'+keyEl('⇧','fn'+(shift?' act':''),'__shift')+r4.map(mp).join('')+'</div>';
+      h+='<div class="osk-row">'+keyEl('가나','fn','__ko')+keyEl('스페이스','space','__space')+keyEl('완료','done','__done')+'</div>';
+    }
+    dock.innerHTML=h;
+  }
+  function sync(){ if(!target||!state) return; var v=vOf(state); target.value=v; try{ target.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){} }
+  function show(el){
+    target=el; state=nst(el.value||'');
+    layer=(el.id==='sv-code')?'en':'ko'; shift=false;
+    try{ el.inputMode='none'; }catch(e){}
+    render(); dock.classList.add('on');
+    try{ setTimeout(function(){ el.scrollIntoView({block:'center',behavior:'smooth'}); },60); }catch(e){}
+  }
+  function hide(){ dock.classList.remove('on'); if(target){ try{target.blur();}catch(e){} } target=null; state=null; }
+  function press(k){
+    if(k==='__done'){ hide(); return; }
+    if(k==='__shift'){ shift=!shift; render(); return; }
+    if(k==='__num'){ layer='num'; shift=false; render(); return; }
+    if(k==='__ko'){ layer='ko'; shift=false; render(); return; }
+    if(k==='__bsp'){ bsp(state); sync(); return; }
+    if(k==='__space'){ lit(state,' '); sync(); return; }
+    if(!state) return;
+    if(layer==='ko'){ feed(state,k); if(shift){ shift=false; render(); } }
+    else { lit(state,k); if(shift&&layer==='en'){ shift=false; render(); } }
+    sync();
+  }
+  function build(){
+    dock=document.createElement('div'); dock.id='pia-osk'; document.body.appendChild(dock);
+    dock.addEventListener('pointerdown',function(e){ var b=e.target.closest('.osk-k'); if(b){ e.preventDefault(); } },true);
+    dock.addEventListener('click',function(e){ var b=e.target.closest('.osk-k'); if(!b) return; press(b.getAttribute('data-k')); });
+    document.addEventListener('focusin',function(e){
+      var el=e.target;
+      if(el&&el.tagName==='INPUT'&&/\bpia-in\b/.test(el.className||'')&&!el.readOnly&&el.type!=='password'){ show(el); }
+      else if(el && el!==dock && !(dock.contains(el))){ if(dock.classList.contains('on')) hide(); }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build); else build();
+})();
+</script>
+
 </body></html>
