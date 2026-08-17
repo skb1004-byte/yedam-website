@@ -9662,7 +9662,9 @@ showView = function(name) {
   _origShow7(name);
   if (name === 'chat') {
     setTimeout(() => {
-      const skipAuto = isMobile() && state.results.conv.turns === 0;
+      /* 저사양 POS 키오스크는 진입 자동 마이크 획득(getUserMedia+AudioContext+실시간 FFT+음성인식)만으로도 CPU가 막혀 '응답 없는 페이지'가 뜬다. 키오스크·터치기기·모바일 첫진입은 자동시작하지 않고 '음성으로 시작' 탭으로만 시작한다(1회 clean start). 데스크톱(마우스)만 자동시작 유지. */
+      var _kioskOrTouch = (typeof _isKioskDevice==='function' && _isKioskDevice()) || !!(window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches);
+      const skipAuto = (isMobile() && state.results.conv.turns === 0) || _kioskOrTouch;
       if (!skipAuto && !_globalRecording) {
         _micWant = true;
         safeStartRecognition();
