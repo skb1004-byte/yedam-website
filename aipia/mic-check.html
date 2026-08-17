@@ -130,6 +130,11 @@
   // ---- 3. STT (탭과 동기적으로 start) ----
   $('btn-stt').onclick=function(){
     var log=$('stt-log');
+    // 2번(레벨측정)이 잡아둔 마이크 스트림을 먼저 놓는다.
+    // getUserMedia가 마이크를 점유한 채 음성인식을 켜면 안드로이드에서 aborted 로 끝난다.
+    try{ if(raf) cancelAnimationFrame(raf); }catch(e){}
+    try{ if(ac){ ac.close(); ac=null; } }catch(e){}
+    try{ if(micStream){ micStream.getTracks().forEach(function(t){t.stop();}); micStream=null; $('mic-bar').style.width='0'; } }catch(e){}
     if(!SR){ log.innerHTML='<span class="bad">음성인식 미지원</span>\n'+(app?('원인: '+app):'Chrome(안드로이드)·Safari(아이폰)로 열어 주세요.'); mark('stt',false); return; }
     var r; try{ r=new SR(); }catch(e){ log.innerHTML='<span class="bad">생성 실패: '+e.message+'</span>'; return; }
     r.lang='ko-KR'; r.interimResults=true; r.continuous=false; r.maxAlternatives=1;
