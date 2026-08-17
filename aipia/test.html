@@ -8006,6 +8006,44 @@ window.piaSendToRecord=function(){
     window.open('../teacher-writing.html','_blank');
   }catch(e){ try{ window.open('../teacher-writing.html','_blank'); }catch(_){} }
 };
+/* ── 결과지 보강(v3.9): 기존 점수를 재해석한 새 페이지. 문항·점수식 무변경, 데이터 없으면 '' 반환 ── */
+function _piaTopEntries(obj,n){ try{ return Object.entries(obj||{}).filter(function(e){return typeof e[1]==='number';}).sort(function(a,b){return b[1]-a[1];}).slice(0,n||5); }catch(e){ return []; } }
+function renderStrengthCoaching(){
+  try{
+    var sc=(state.results.via&&state.results.via.scores)||null; if(!sc) return '';
+    var top=_piaTopEntries(sc,5); if(!top.length) return '';
+    var TIP={'창의':'새로운 방식으로 문제를 푸는 기회를 찾아보세요 — 자유 주제 발표, 아이디어 노트.','호기심':'낯선 분야를 매주 하나씩 파보세요 — 다큐·전시·현장체험.','판단':'결정 전에 근거 3가지를 적어 비교하는 습관을 들여보세요.','학습열정':'관심 주제를 스스로 깊게 파는 자기주도 프로젝트를 잡아보세요.','통찰':'배운 것을 다른 사람에게 설명하며 큰 그림을 정리해 보세요.','용기':'어렵지만 옳은 선택을 연습해 보세요 — 발표 자원, 의견 말하기.','끈기':'큰 목표를 작은 단계로 쪼개 매일 조금씩 완주해 보세요.','정직':'약속·마감을 지키는 작은 신뢰를 쌓아보세요.','활력':'몸을 쓰는 활동으로 에너지를 발산하고 팀 분위기를 살려보세요.','열정':'몸을 쓰는 활동으로 에너지를 발산하고 팀 분위기를 살려보세요.','사랑':'가까운 사람에게 고마움을 자주 표현해 보세요.','친절':'주변의 어려움을 먼저 살피고 작은 도움을 건네보세요.','사회지능':'상대의 감정을 읽고 배려하는 대화를 연습해 보세요.','협동':'모둠 활동에서 역할을 나누고 조율하는 경험을 쌓아보세요.','팀워크':'모둠 활동에서 역할을 나누고 조율하는 경험을 쌓아보세요.','공정':'규칙을 공평하게 적용하는 상황을 주도해 보세요.','리더십':'작은 모임의 진행·정리를 맡아보세요.','용서':'갈등 후 관계를 회복하는 대화를 시도해 보세요.','겸손':'피드백을 열린 마음으로 받아 성장에 써보세요.','신중':'중요한 일은 계획을 세우고 위험을 미리 점검해 보세요.','자기조절':'집중·휴식 시간을 정해 루틴으로 만들어 보세요.','감상':'좋은 작품·자연을 음미하고 느낀 점을 기록해 보세요.','심미안':'좋은 작품·자연을 음미하고 느낀 점을 기록해 보세요.','감사':'하루 3가지 감사한 일을 적어보세요.','희망':'이루고 싶은 모습을 구체적으로 그리고 한 걸음씩 실행해 보세요.','유머':'분위기를 밝히는 역할로 팀의 긴장을 풀어보세요.','영성':'삶의 의미와 가치를 돌아보는 시간을 가져보세요.'};
+    var rows=top.map(function(e,i){ var name=e[0]; var tip=TIP[name]||'이 강점을 살릴 활동을 찾아 꾸준히 실천해 보세요.'; return '<div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #eee"><div style="flex:0 0 26px;height:26px;border-radius:8px;background:#788c5d;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">'+(i+1)+'</div><div style="flex:1"><b style="color:#3a4a2a">'+name+'</b><div style="font-size:12px;color:#555;margin-top:2px">'+tip+'</div></div></div>'; }).join('');
+    return '<div class="rounded-2xl border p-4" style="background:#f6f8f2;border-color:#d7e0c8"><h2 class="text-lg font-bold" style="color:#3a4a2a">🌱 나의 대표 강점 실천 코칭</h2><p class="text-xs" style="color:#5a6b45;margin:2px 0 8px">가장 높게 나온 강점 5가지를 학교·일상에서 이렇게 살려보세요.</p>'+rows+'</div>';
+  }catch(e){ return ''; }
+}
+function renderConvInsight(){
+  try{
+    var c=state.results.conv; if(!c||!c.turns||c.turns<2) return '';
+    var top=_piaTopEntries(c.topics,3).map(function(e){return e[0];});
+    var topicTxt= top.length? ('주로 <b>'+top.join(' · ')+'</b> 이야기에 관심을 보였어요.') : '다양한 주제로 편안하게 대화를 이어갔어요.';
+    return '<div class="rounded-2xl border p-4" style="background:#eef3fb;border-color:#c9dbf0"><h2 class="text-lg font-bold" style="color:#2c4a6b">💬 자유대화에서 본 나</h2><p class="text-xs" style="color:#3f5b78;margin:2px 0 8px">AI와 '+c.turns+'번 대화를 주고받았어요. '+topicTxt+'</p><p style="font-size:12px;color:#41597a;line-height:1.7">자유대화는 정답이 없는 편안한 이야기로, 관심사와 표현 방식을 살펴보는 참고 자료예요. 위 내용은 대화 흐름을 요약한 것이며 성격을 단정하지 않습니다.</p></div>';
+  }catch(e){ return ''; }
+}
+function render90DayPlan(){
+  try{
+    var t=(typeof inferIntegratedType==='function')?inferIntegratedType():null;
+    var career=(t&&t.careers&&t.careers.length)?t.careers.slice(0,3).join(' · '):'관심 분야';
+    function box(title,color,items){ return '<div style="flex:1;min-width:150px;border:1px solid '+color+';border-radius:12px;padding:10px"><div style="font-weight:700;color:'+color+';font-size:13px;margin-bottom:6px">'+title+'</div>'+items.map(function(x){return '<div style="font-size:11.5px;color:#444;padding:3px 0;display:flex;gap:6px"><span>☐</span><span>'+x+'</span></div>';}).join('')+'</div>'; }
+    var b1=box('진로 탐색','#c4623f',['추천 진로군('+career+') 중 하나를 골라 관련 직업 1개 조사','그 분야의 인물·영상 3개 찾아보기','학교 동아리·활동과 연결해보기']);
+    var b2=box('학습 습관','#5b8fd1',['약한 과목 1개, 주 3회 30분 루틴 만들기','오답노트·복습 방법 하나 정착시키기','집중·휴식 시간 정해 지키기']);
+    var b3=box('강점 활용','#788c5d',['대표 강점 1개를 쓸 활동에 참여하기','강점을 살린 작은 성취 기록하기','친구·가족에게 강점 피드백 받기']);
+    var b4=box('마음 관리','#7c6bb0',['수면·운동·식사 규칙 하나 지키기','스트레스 풀 나만의 방법 정하기','힘들 땐 믿을 어른에게 이야기하기']);
+    return '<div class="rounded-2xl border p-4" style="background:#fff;border-color:#e3ddcf"><h2 class="text-lg font-bold" style="color:#b45309">🗓️ 90일 성장 실행 플랜</h2><p class="text-xs" style="color:#8a6d3b;margin:2px 0 10px">결과를 행동으로 옮기는 3개월 체크리스트예요. 하나씩 실천하며 칸을 채워보세요.</p><div style="display:flex;flex-wrap:wrap;gap:8px">'+b1+b2+b3+b4+'</div></div>';
+  }catch(e){ return ''; }
+}
+function renderScaleGuide(){
+  try{
+    var rows=[['IPIP Big-Five-50','성격 5요인(개방성·성실성·외향성·우호성·신경성)','Goldberg(1992), IPIP'],['RIASEC','Holland 진로 흥미 6유형','Holland(1997)'],['VIA 강점','24개 성격강점','Peterson &amp; Seligman(2004)'],['Grit','끈기·근면','Duckworth(2007)'],['다중지능(MI)','8지능 자가평가','Gardner(1983)'],['CES-D / PHQ-A / GAD-7','정서 스크리닝(참고용)','Radloff(1977) 외'],['WHO-5 / RSES','웰빙·자존감','WHO(1998), Rosenberg(1965)']];
+    var tr=rows.map(function(r){return '<tr><td style="padding:5px 8px;border-bottom:1px solid #eee;font-weight:600">'+r[0]+'</td><td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:11.5px">'+r[1]+'</td><td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:10.5px;color:#888">'+r[2]+'</td></tr>';}).join('');
+    return '<div class="rounded-2xl border p-4" style="background:#fbfaf7;border-color:#e6e1d5"><h2 class="text-lg font-bold" style="color:#4a4a45">📚 검사 개요와 해석 안내</h2><p class="text-xs" style="color:#7a7565;margin:2px 0 8px">이 결과지는 아래 도구를 통합해 구성했습니다.</p><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr><th style="text-align:left;padding:5px 8px;background:#f1eee6">검사</th><th style="text-align:left;padding:5px 8px;background:#f1eee6">측정 내용</th><th style="text-align:left;padding:5px 8px;background:#f1eee6">근거</th></tr></thead><tbody>'+tr+'</tbody></table><p style="font-size:11px;color:#9a8f7a;margin-top:8px;line-height:1.6">※ 본 결과는 자기보고식 참고 자료로, 의학적·심리학적 <b>진단이 아닙니다</b>. 정서 지표에서 도움이 필요하다고 느끼면 전문기관·상담선생님과 상의하세요.</p></div>';
+  }catch(e){ return ''; }
+}
 function renderExtendedSections() {
   const big5 = state.results.big5.scores;
   const via = state.results.via.scores;
@@ -8041,6 +8079,10 @@ function renderExtendedSections() {
     ${(currentAudience==='teacher'&&audAllowed('teacher'))?renderTeacherToolkit():''}
     ${(currentAudience==='teacher'&&audAllowed('teacher'))?renderNiceCard():''}
     ${renderAccuracyPanel()}
+    ${renderStrengthCoaching()}
+    ${renderConvInsight()}
+    ${render90DayPlan()}
+    ${renderScaleGuide()}
     ${renderCareernetCard()}
     ${renderResultUsageGuide(currentAudience)}
     ${renderReliabilityStats()}
