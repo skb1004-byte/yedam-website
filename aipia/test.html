@@ -9315,6 +9315,8 @@ async function safeStartRecognition() {
   if (isMobile()) {
     // 모바일: SpeechRecognition이 마이크를 직접 점유하도록 보유 스트림 해제(동시 점유 충돌 방지)
     try { if (typeof releaseMicStream === 'function') releaseMicStream(); } catch(e) {}
+    // getUserMedia 해제 직후 곧바로 start 하면 안드로이드가 마이크를 아직 안 놓아 'aborted' 가 난다. 잠깐 기다린다.
+    await new Promise(function(r){ setTimeout(r, 300); });
   } else {
     await ensureMicStream();
     if (typeof resetVADPeak === 'function') resetVADPeak();

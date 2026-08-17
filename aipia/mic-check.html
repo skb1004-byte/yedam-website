@@ -136,13 +136,25 @@
     try{ if(ac){ ac.close(); ac=null; } }catch(e){}
     try{ if(micStream){ micStream.getTracks().forEach(function(t){t.stop();}); micStream=null; $('mic-bar').style.width='0'; } }catch(e){}
     if(!SR){ log.innerHTML='<span class="bad">음성인식 미지원</span>\n'+(app?('원인: '+app):'Chrome(안드로이드)·Safari(아이폰)로 열어 주세요.'); mark('stt',false); return; }
-    var r; try{ r=new SR(); }catch(e){ log.innerHTML='<span class="bad">생성 실패: '+e.message+'</span>'; return; }
-    r.lang='ko-KR'; r.interimResults=true; r.continuous=false; r.maxAlternatives=1;
-    log.textContent='듣는 중… “안녕하세요”라고 말해 주세요.';
-    r.onresult=function(ev){ var t=''; for(var i=ev.resultIndex;i<ev.results.length;i++){ t+=ev.results[i][0].transcript; } log.innerHTML='<span class="ok">인식됨:</span> '+t; mark('stt',true); };
-    r.onerror=function(ev){ log.innerHTML='<span class="bad">오류: '+ev.error+'</span>\n'+errHelp(ev.error); mark('stt',false); };
-    r.onend=function(){ /* keep last message */ };
-    try{ r.start(); }catch(e){ log.innerHTML='<span class="bad">시작 실패: '+e.name+'</span>\n'+errHelp(e.name); mark('stt',false); }
+    log.textContent='마이크 준비 중…';
+    var retried=false;
+    function go(){
+      var r; try{ r=new SR(); }catch(e){ log.innerHTML='<span class="bad">생성 실패: '+e.message+'</span>'; return; }
+      r.lang='ko-KR'; r.interimResults=true; r.continuous=false; r.maxAlternatives=1;
+      r.onstart=function(){ log.textContent='듣는 중… “안녕하세요”라고 말해 주세요.'; };
+      r.onresult=function(ev){ var t=''; for(var i=ev.resultIndex;i<ev.results.length;i++){ t+=ev.results[i][0].transcript; } log.innerHTML='<span class="ok">인식됨:</span> '+t; mark('stt',true); };
+      r.onerror=function(ev){
+        if(ev.error==='aborted' && !retried){ retried=true; log.textContent='마이크 정리 후 다시 시도 중…'; setTimeout(go,600); return; }
+        log.innerHTML='<span class="bad">오류: '+ev.error+'</span>\n'+errHelp(ev.error); mark('stt',false);
+      };
+      r.onend=function(){};
+      try{ r.start(); }catch(e){
+        if(/InvalidState|already/i.test(e.message||'') && !retried){ retried=true; setTimeout(go,600); return; }
+        log.innerHTML='<span class="bad">시작 실패: '+e.name+'</span>\n'+errHelp(e.name); mark('stt',false);
+      }
+    }
+    // getUserMedia 해제 직후 곧바로 start 하면 안드로이드가 마이크를 아직 안 놓아 aborted. 잠깐 기다린다.
+    setTimeout(go, 350);
   };
 
   // ---- 4. 스피커 ----
