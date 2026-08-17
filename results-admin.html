@@ -224,6 +224,7 @@ a.link{color:var(--rust);text-decoration:none;font-weight:700}
         <h2 class="sec">🧑‍🎓 학생 목록</h2>
         <span class="muted" id="listCount"></span>
         <span class="sp"></span>
+        <button class="sm" id="rosterBtn" style="background:var(--moss,#788c5d)">🖨 요약표 인쇄</button>
         <button class="ghost sm" id="csvBtn">CSV 내보내기</button>
         <button class="ghost sm" id="csvFullBtn">상세 CSV(점수포함)</button>
         <button class="ghost sm" id="jsonBtn">JSON 백업</button>
@@ -669,6 +670,38 @@ $('#pingBtn').onclick=ping;
 $('#reloadBtn').onclick=reload;
 $('#logoutBtn').onclick=()=>{PW='';deepLoaded=false;FULL={};$('#dash').classList.add('hidden');$('#loginCard').classList.remove('hidden');$('#pw').value='';$('#deepBody').classList.add('hidden');};
 $('#deepBtn').onclick=()=>deepLoad(false);
+function printRoster(){
+  var sel=selectedIds(); var list;
+  if(sel.length){ var m={}; sel.forEach(function(id){m[id]=1;}); list=LIST.filter(function(s){return m[s.id];}); }
+  else { list=filtered(); }
+  if(!list.length){ alert('출력할 학생이 없습니다. 필터를 조정하거나 학생을 선택하세요.'); return; }
+  var groups={};
+  list.forEach(function(s){ var sch=s.school||'(학교 미입력)'; var kl=(s.klass||s.class||'(반 미입력)'); var key=sch+' '+kl; (groups[key]=groups[key]||{school:sch,klass:kl,arr:[]}).arr.push(s); });
+  var keys=Object.keys(groups).sort();
+  var today=new Date().toISOString().slice(0,10);
+  var scope= sel.length? ('선택 '+list.length+'명') : ($('#fSchool').value? $('#fSchool').value : '전체');
+  var h='<div class="rp-cover"><div class="rp-title">AI PIA 검사 결과 요약표</div><div class="rp-sub">범위: '+esc(scope)+' · 총 '+list.length+'명 · 출력일 '+today+'</div><div class="rp-note">※ 신뢰도·정서주의는 참고용 지표이며 진단이 아닙니다.</div></div>';
+  keys.forEach(function(k){
+    var g=groups[k]; var arr=g.arr.slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'ko');});
+    var risk=arr.filter(function(s){return riskReasons(s).length;}).length;
+    var lowRel=arr.filter(function(s){return relRank(s)===0;}).length;
+    h+='<section class="rp-grp"><h2 class="rp-h">'+esc(g.school)+' · '+esc(g.klass)+' <span class="rp-cnt">'+arr.length+'명</span></h2><div class="rp-summary">정서주의 '+risk+'명 · 저신뢰 '+lowRel+'명</div><table class="rp-tbl"><thead><tr><th>번호</th><th>이름</th><th>학년</th><th>통합유형</th>'+(deepLoaded?'<th>추정유형</th>':'')+'<th>신뢰도</th><th>완료검사</th><th>대화턴</th><th>정서주의</th></tr></thead><tbody>';
+    arr.forEach(function(s,i){
+      var rr=relRank(s); var relTxt=rr===2?'높음':rr===1?'보통':rr===0?'낮음':'—'; var why=riskReasons(s); var t=getTurns(s);
+      h+='<tr><td>'+(i+1)+'</td><td class="nm">'+esc(s.name||'익명')+'</td><td>'+esc(s.grade||'')+'</td><td>'+esc(s.type||'')+'</td>'+(deepLoaded?('<td>'+esc(big5Mbti(getBig5(s))||'—')+'</td>'):'')+'<td class="'+(rr===0?'lo':'')+'">'+relTxt+'</td><td>'+(s.doneCount||0)+'</td><td>'+(t==null?'—':t)+'</td><td class="'+(why.length?'wn':'')+'">'+(why.length?('⚠ '+esc(why.join(' · '))):'—')+'</td></tr>';
+    });
+    h+='</tbody></table></section>';
+  });
+  var css='@page{size:A4;margin:12mm;}*{box-sizing:border-box;}body{font-family:"Noto Sans KR",-apple-system,sans-serif;color:#1b2430;margin:0;}.rp-cover{text-align:center;padding:28mm 0 10mm;}.rp-title{font-size:23px;font-weight:800;}.rp-sub{margin-top:8px;color:#555;font-size:13px;}.rp-note{margin-top:6px;color:#999;font-size:11px;}.rp-grp{margin-bottom:14px;}.rp-h{font-size:15px;border-bottom:2px solid #788c5d;padding-bottom:4px;margin:14px 0 4px;page-break-after:avoid;}.rp-cnt{font-size:12px;color:#788c5d;font-weight:600;}.rp-summary{font-size:11px;color:#666;margin-bottom:6px;}.rp-tbl{width:100%;border-collapse:collapse;font-size:11px;}.rp-tbl th{background:#f2efe8;border:1px solid #ddd;padding:4px 6px;}.rp-tbl td{border:1px solid #eee;padding:4px 6px;text-align:center;}.rp-tbl td.nm{text-align:left;font-weight:600;}.rp-tbl td.lo{color:#c0392b;font-weight:700;}.rp-tbl td.wn{color:#b26a00;text-align:left;font-size:10px;}thead{display:table-header-group;}tr{page-break-inside:avoid;}';
+  var doc='<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 결과 요약표</title><style>'+css+'</style></head><body>'+h+'</body></html>';
+  var pf=document.getElementById('rp-print-frame'); if(pf){ try{pf.remove();}catch(e){} }
+  var w=null, ifr=null;
+  try{ ifr=document.createElement('iframe'); ifr.id='rp-print-frame'; ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;'; document.body.appendChild(ifr); w=ifr.contentWindow; }catch(e){ w=null; }
+  if(!w){ w=window.open('','_blank'); if(!w){ alert('인쇄 창을 열 수 없습니다. 브라우저에서 팝업을 허용하세요.'); return; } }
+  w.document.open(); w.document.write(doc); w.document.close();
+  setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 400);
+}
+$('#rosterBtn').onclick=printRoster;
 $('#csvBtn').onclick=csvBasic;
 $('#csvFullBtn').onclick=csvFull;
 $('#jsonBtn').onclick=jsonBackup;
