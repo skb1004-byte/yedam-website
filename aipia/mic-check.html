@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>마이크·스피커 자가진단 — AI PIA</title>
+<style>
+  :root{ --ok:#178045; --bad:#c4341f; --warn:#b26a00; --line:#e2e6ec; --ink:#1b2430; --mut:#5b6675; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","맑은 고딕",system-ui,sans-serif;
+    color:var(--ink);background:#f5f7fa;line-height:1.6;padding:16px;max-width:560px;margin:0 auto}
+  h1{font-size:20px;margin:6px 0 2px}
+  .sub{color:var(--mut);font-size:13px;margin-bottom:16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:15px;margin:0 0 10px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px dashed #eef1f5;font-size:14px}
+  .row:last-child{border-bottom:none}
+  .k{color:var(--mut)}
+  .v{font-weight:700;text-align:right;word-break:break-all}
+  .ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+  button{width:100%;padding:14px;border:0;border-radius:12px;background:#246beb;color:#fff;font-size:16px;font-weight:700;margin-top:8px;cursor:pointer}
+  button.sec{background:#eef1f6;color:#28313d}
+  button:active{transform:translateY(1px)}
+  .meter{height:14px;border-radius:8px;background:#e9edf2;overflow:hidden;margin-top:10px}
+  .meter > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4ea16b,#178045);transition:width .06s}
+  .log{font-size:13px;white-space:pre-wrap;word-break:break-all;background:#0f1622;color:#cfe3ff;border-radius:10px;padding:10px;margin-top:10px;min-height:38px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .big{font-size:26px;line-height:1.3;padding:16px}
+  .hint{font-size:12px;color:var(--mut);margin-top:6px}
+  .pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .pill.ok{background:#e7f5ec;color:var(--ok)} .pill.bad{background:#fdecea;color:var(--bad)} .pill.warn{background:#fdf4e3;color:var(--warn)}
+</style>
+</head>
+<body>
+  <h1>마이크·스피커 자가진단</h1>
+  <p class="sub">이 화면을 <b>스마트폰</b>에서 열고 아래 버튼을 순서대로 눌러 주세요. 결과가 그대로 표시됩니다.</p>
+
+  <div class="card" id="env-card">
+    <h2>1. 이 브라우저 환경</h2>
+    <div id="env"></div>
+    <div class="hint" id="env-verdict"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. 마이크 하드웨어 (소리 들어오는지)</h2>
+    <button id="btn-mic">🎙️ 마이크 권한 요청 + 레벨 측정</button>
+    <div class="meter"><i id="mic-bar"></i></div>
+    <div class="log" id="mic-log">대기 중… 버튼을 누르면 권한을 물어봅니다.</div>
+    <div class="hint">막대가 목소리에 따라 움직이면 마이크 자체는 정상입니다.</div>
+  </div>
+
+  <div class="card">
+    <h2>3. 음성 인식 (STT · 말 → 글자)</h2>
+    <button id="btn-stt">🗣️ 말하기 테스트 (누르고 “안녕하세요” 말하기)</button>
+    <div class="log" id="stt-log">대기 중…</div>
+    <div class="hint">여기서 실패하면 그 <b>오류 이름</b>이 원인입니다(아래 해설 참고).</div>
+  </div>
+
+  <div class="card">
+    <h2>4. 스피커 (소리 나는지)</h2>
+    <button id="btn-beep" class="sec">🔔 삐- 소리 재생 (하드웨어 확인)</button>
+    <button id="btn-tts">🔊 음성 읽어주기 테스트 (TTS)</button>
+    <button id="btn-gtts" class="sec">🔊 대체 음성(구글) 테스트</button>
+    <div class="log" id="spk-log">대기 중…</div>
+    <div class="hint">무음 스위치·볼륨을 먼저 확인해 주세요(특히 아이폰 측면 무음 스위치).</div>
+  </div>
+
+  <div class="card">
+    <h2>5. 종합 판정</h2>
+    <div id="verdict" class="big">위 2·3·4를 눌러 주세요.</div>
+  </div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var ua=navigator.userAgent;
+  function inApp(){
+    var s=ua;
+    if(/KAKAOTALK/i.test(s)) return '카카오톡 인앱';
+    if(/NAVER\(inapp|NAVER /i.test(s)) return '네이버 앱';
+    if(/Instagram/i.test(s)) return '인스타그램 인앱';
+    if(/FBAN|FBAV|FB_IAB/i.test(s)) return '페이스북 인앱';
+    if(/Line\//i.test(s)) return '라인 인앱';
+    if(/DaumApps|Daum\//i.test(s)) return '다음 앱';
+    if(/; wv\)/.test(s)) return '안드로이드 웹뷰(인앱)';
+    return '';
+  }
+  var isIOS=/iphone|ipad|ipod/i.test(ua) || (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  var isSafari=/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(ua);
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var hasGUM=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
+  var hasTTS=('speechSynthesis'in window);
+  var app=inApp();
+
+  function line(k,v,cls){ return '<div class="row"><span class="k">'+k+'</span><span class="v '+(cls||'')+'">'+v+'</span></div>'; }
+  var envH='';
+  envH+=line('보안 연결(HTTPS)', window.isSecureContext?'예':'아니오', window.isSecureContext?'ok':'bad');
+  envH+=line('인앱 브라우저', app?app:'아님(정식 브라우저)', app?'bad':'ok');
+  envH+=line('음성인식(STT) 지원', SR?'지원':'미지원', SR?'ok':'bad');
+  envH+=line('마이크 API', hasGUM?'지원':'미지원', hasGUM?'ok':'bad');
+  envH+=line('음성읽기(TTS) 지원', hasTTS?'지원':'미지원', hasTTS?'ok':'bad');
+  envH+=line('기기', (isIOS?'iOS':(/android/i.test(ua)?'Android':'기타'))+(isSafari?' · Safari':''), '');
+  $('env').innerHTML=envH;
+
+  var verdict='';
+  if(app){ verdict='⚠ 지금 <b>'+app+'</b>으로 열려 있어요. 여기서는 마이크가 막히는 경우가 많습니다. 오른쪽 위 <b>···</b> 메뉴 → <b>다른 브라우저(Chrome/Safari)로 열기</b>를 눌러 다시 시도해 주세요.'; }
+  else if(!SR){ verdict='⚠ 이 브라우저는 음성인식을 지원하지 않습니다. Android는 <b>Chrome</b>, iPhone은 <b>Safari</b>로 열어 주세요.'; }
+  else { verdict='환경은 정상으로 보입니다. 아래 2·3·4 버튼으로 실제 동작을 확인해 주세요.'; }
+  $('env-verdict').innerHTML=verdict;
+
+  // ---- 2. 마이크 레벨 ----
+  var micStream=null, ac=null, an=null, raf=null;
+  $('btn-mic').onclick=function(){
+    var log=$('mic-log');
+    if(!hasGUM){ log.innerHTML='<span class="bad">이 브라우저는 마이크 API가 없습니다.</span>'; return; }
+    log.textContent='권한 요청 중…';
+    navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}}).then(function(st){
+      micStream=st;
+      var tr=st.getAudioTracks()[0];
+      log.innerHTML='<span class="ok">마이크 허용됨.</span> 장치: '+((tr&&tr.label)||'(이름없음)')+'\n말을 해보세요 — 아래 막대가 움직이면 정상입니다.';
+      var AC=window.AudioContext||window.webkitAudioContext;
+      ac=new AC(); var src=ac.createMediaStreamSource(st); an=ac.createAnalyser(); an.fftSize=512;
+      src.connect(an); var buf=new Uint8Array(an.fftSize);
+      (function loop(){ an.getByteTimeDomainData(buf); var s=0; for(var i=0;i<buf.length;i++){var v=(buf[i]-128)/128;s+=v*v;} var rms=Math.sqrt(s/buf.length); $('mic-bar').style.width=Math.min(100,Math.round(rms*400))+'%'; raf=requestAnimationFrame(loop); })();
+    }).catch(function(e){
+      log.innerHTML='<span class="bad">마이크 실패: '+e.name+'</span>\n'+errHelp(e.name);
+    });
+  };
+
+  // ---- 3. STT (탭과 동기적으로 start) ----
+  $('btn-stt').onclick=function(){
+    var log=$('stt-log');
+    if(!SR){ log.innerHTML='<span class="bad">음성인식 미지원</span>\n'+(app?('원인: '+app):'Chrome(안드로이드)·Safari(아이폰)로 열어 주세요.'); mark('stt',false); return; }
+    var r; try{ r=new SR(); }catch(e){ log.innerHTML='<span class="bad">생성 실패: '+e.message+'</span>'; return; }
+    r.lang='ko-KR'; r.interimResults=true; r.continuous=false; r.maxAlternatives=1;
+    log.textContent='듣는 중… “안녕하세요”라고 말해 주세요.';
+    r.onresult=function(ev){ var t=''; for(var i=ev.resultIndex;i<ev.results.length;i++){ t+=ev.results[i][0].transcript; } log.innerHTML='<span class="ok">인식됨:</span> '+t; mark('stt',true); };
+    r.onerror=function(ev){ log.innerHTML='<span class="bad">오류: '+ev.error+'</span>\n'+errHelp(ev.error); mark('stt',false); };
+    r.onend=function(){ /* keep last message */ };
+    try{ r.start(); }catch(e){ log.innerHTML='<span class="bad">시작 실패: '+e.name+'</span>\n'+errHelp(e.name); mark('stt',false); }
+  };
+
+  // ---- 4. 스피커 ----
+  $('btn-beep').onclick=function(){
+    var log=$('spk-log');
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext; var c=new AC();
+      if(c.state==='suspended'){ c.resume(); }
+      var o=c.createOscillator(), g=c.createGain(); o.type='sine'; o.frequency.value=880; g.gain.value=0.2;
+      o.connect(g); g.connect(c.destination); o.start(); setTimeout(function(){ o.stop(); }, 500);
+      log.innerHTML='<span class="ok">삐- 소리를 재생했습니다.</span> 들렸나요? 안 들리면 볼륨·무음스위치 문제입니다.'; mark('spk',true);
+    }catch(e){ log.innerHTML='<span class="bad">재생 실패: '+e.message+'</span>'; mark('spk',false); }
+  };
+  $('btn-tts').onclick=function(){
+    var log=$('spk-log');
+    if(!hasTTS){ log.innerHTML='<span class="bad">TTS 미지원</span>'; mark('spk',false); return; }
+    try{ speechSynthesis.cancel(); }catch(e){}
+    var u=new SpeechSynthesisUtterance('안녕하세요. 소리가 잘 들리나요?');
+    u.lang='ko-KR'; u.rate=0.95;
+    var vs=speechSynthesis.getVoices()||[]; var ko=vs.filter(function(v){return /ko/i.test(v.lang);}); var loc=ko.filter(function(v){return v.localService;})[0]||ko[0]; if(loc) u.voice=loc;
+    u.onstart=function(){ log.innerHTML='<span class="ok">읽기 시작됨</span> (음성: '+((u.voice&&u.voice.name)||'기본')+')'; mark('spk',true); };
+    u.onerror=function(ev){ log.innerHTML='<span class="bad">TTS 오류: '+ev.error+'</span>\n대체 음성(구글)을 눌러보세요.'; mark('spk',false); };
+    log.textContent='읽는 중…';
+    try{ speechSynthesis.speak(u); }catch(e){ log.innerHTML='<span class="bad">TTS 실패: '+e.message+'</span>'; }
+    setTimeout(function(){ if(!speechSynthesis.speaking && !/시작/.test(log.textContent)){ log.innerHTML='<span class="warn">소리가 안 났다면</span> 무음스위치·볼륨을 확인하거나 대체 음성(구글)을 눌러보세요.'; } }, 1500);
+  };
+  var ga=null;
+  $('btn-gtts').onclick=function(){
+    var log=$('spk-log');
+    try{ if(ga){ga.pause();ga=null;} }catch(e){}
+    var url='https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q='+encodeURIComponent('안녕하세요. 대체 음성 테스트입니다.');
+    ga=new Audio(url); log.textContent='대체 음성 재생 중…';
+    ga.onplaying=function(){ log.innerHTML='<span class="ok">대체 음성 재생됨.</span> 이게 들리면 스피커는 정상입니다.'; mark('spk',true); };
+    ga.onerror=function(){ log.innerHTML='<span class="bad">대체 음성 재생 실패</span> (네트워크 차단 가능)'; };
+    var p=ga.play(); if(p&&p.catch) p.catch(function(){ log.innerHTML='<span class="bad">재생이 막혔습니다</span> — 화면을 한 번 더 탭한 뒤 다시 시도해 주세요.'; });
+  };
+
+  // ---- 오류 해설 ----
+  function errHelp(name){
+    switch(String(name)){
+      case 'not-allowed': case 'NotAllowedError': case 'service-not-allowed':
+        return '→ 마이크 권한이 거부됨. 브라우저 설정에서 이 사이트의 마이크를 "허용"으로 바꿔 주세요. (인앱 브라우저면 정식 브라우저로 열기)';
+      case 'no-speech': return '→ 소리가 감지되지 않음. 더 크게, 마이크 가까이에서 말해 주세요.';
+      case 'audio-capture': case 'NotFoundError': return '→ 마이크 장치를 못 찾음. 다른 앱이 마이크를 쓰고 있지 않은지 확인해 주세요.';
+      case 'network': return '→ 네트워크 오류. 음성인식은 인터넷 연결이 필요합니다.';
+      case 'aborted': return '→ 중간에 취소됨. 다시 눌러 주세요.';
+      case 'NotReadableError': return '→ 마이크를 다른 앱이 점유 중입니다. 통화·녹음 앱을 종료해 주세요.';
+      default: return '→ 원인 코드: '+name;
+    }
+  }
+  // ---- 종합 판정 ----
+  var res={stt:null,spk:null};
+  function mark(k,v){ res[k]=v; paint(); }
+  function paint(){
+    var v=$('verdict');
+    if(app){ v.innerHTML='📵 <b>'+app+'</b>에서 열려 있어요.<br>정식 브라우저로 열면 대부분 해결됩니다.'; return; }
+    if(!SR){ v.innerHTML='📵 이 브라우저는 음성인식 미지원.<br>Android=Chrome, iPhone=Safari 권장.'; return; }
+    var parts=[];
+    if(res.stt===true) parts.push('🎤 마이크 정상');
+    else if(res.stt===false) parts.push('🎤 마이크 실패');
+    if(res.spk===true) parts.push('🔊 스피커 정상');
+    else if(res.spk===false) parts.push('🔊 스피커 실패');
+    v.innerHTML = parts.length? parts.join('<br>') : '위 3·4 버튼을 눌러 주세요.';
+  }
+})();
+</script>
+</body>
+</html>
