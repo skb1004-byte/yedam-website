@@ -5852,13 +5852,68 @@ function piaViewRecord(){
     try{ var _v=document.querySelector('section[data-view="result"]'); if(_v){ var _n=document.createElement('div'); _n.setAttribute('role','status'); _n.style.cssText='background:#eef3f9;border:1px solid #c4d8ec;color:#2c4a6b;padding:8px 14px;border-radius:10px;font-size:12.5px;margin:10px 0;'; var _aw=currentAudience==='teacher'?'\uC120\uC0DD\uB2D8\uC6A9':currentAudience==='parent'?'\uD559\uBD80\uBAA8\uC6A9':'\uBCF8\uC778\uC6A9'; _n.textContent='\uD83C\uDFEB \uAD00\uB9AC\uC790 \uC5F4\uB78C \u2014 '+(rec.name||'')+' \uACB0\uACFC\uC9C0('+_aw+'). \uC704 \uC778\uC1C4 \uBC84\uD2BC\uC73C\uB85C \uCD9C\uB825\uD558\uC138\uC694.'; _v.insertBefore(_n,_v.firstChild); } }catch(e){}
   }catch(e){ console.warn('view record fail', e); }
 }
+/* 여러 학생 결과지를 한 문서로 묶어 인쇄(반/학교 일괄). results-admin 이
+   pia_view_records(전체 레코드 배열)를 localStorage 에 넣고 ?view=records 로 연다.
+   원래 state 를 백업/복원하고 학생마다 try/catch 로 격리한다 — 이 함수는
+   ?view=records 에서만 실행되므로 일반 검사 흐름에는 영향이 없다. */
+async function piaBatchPrint(){
+  var raw=null;
+  try{ raw=localStorage.getItem('pia_view_records'); localStorage.removeItem('pia_view_records'); }catch(e){}
+  if(!raw) return;
+  var arr; try{ arr=JSON.parse(raw); }catch(e){ return; }
+  if(!Array.isArray(arr)||!arr.length) return;
+  var _a=new URLSearchParams(location.search).get('aud')||'teacher';
+  var _oR=state.results, _oP=state.profile, _oAud=(typeof currentAudience!=='undefined')?currentAudience:'student', _oSid=state.studentId;
+  function _c2img(cv){ var d=''; try{ var ch=(window.Chart&&Chart.getChart)?Chart.getChart(cv):null; if(ch&&ch.toBase64Image) d=ch.toBase64Image('image/png',1); }catch(e){} if(!d||d.length<200){ try{ d=cv.toDataURL('image/png'); }catch(e){ d=''; } } return (d&&d.length>200)?d:''; }
+  function _swap(srcCv,dstCv){ if(!dstCv||!dstCv.parentNode) return; var d=_c2img(srcCv); if(d){ var im=document.createElement('img'); im.src=d; im.style.maxWidth='100%'; dstCv.parentNode.replaceChild(im,dstCv); } else { var box=document.createElement('div'); box.style.cssText='padding:14px;text-align:center;color:#999;font-size:11px;'; box.textContent='(그래프는 화면에서 확인)'; dstCv.parentNode.replaceChild(box,dstCv); } }
+  function _snap(src){ if(!src) return null; var c=src.cloneNode(true); var sc=src.querySelectorAll('canvas'), dc=c.querySelectorAll('canvas'); for(var k=0;k<sc.length;k++){ _swap(sc[k],dc[k]); } try{ c.querySelectorAll('.no-print,[data-pia-lang-toggle],button').forEach(function(b){ try{b.remove();}catch(e){} }); }catch(e){} return c; }
+  var styles=''; document.querySelectorAll('style').forEach(function(st){ styles+='<style>'+st.textContent+'</style>'; });
+  var parts=[];
+  try{ if(window.Chart&&Chart.defaults){ Chart.defaults.animation=false; if('animations' in Chart.defaults) Chart.defaults.animations=false; } }catch(e){}
+  try{
+    for(var i=0;i<arr.length;i++){
+      var rec=arr[i];
+      try{
+        state.results=Object.assign({}, rec.results||{});
+        state.profile=rec.profile||{name:rec.name||'',grade:rec.grade||'',class:rec.klass||rec.class||'',school:rec.school||'',createdAt:Date.now()};
+        state.studentId=rec.name||rec.id;
+        var _allow=(rec&&Array.isArray(rec.allowedAudience)&&rec.allowedAudience.length)?rec.allowedAudience:((typeof _piaIsStaffSync==='function'&&_piaIsStaffSync())?['student','parent','teacher']:['student']);
+        currentAudience=(_allow.indexOf(_a)>=0)?_a:_allow[0];
+        try{ if(typeof renderResult==='function')renderResult(); }catch(e){}
+        try{ if(typeof renderDetailedResult==='function')renderDetailedResult(); }catch(e){}
+        try{ if(typeof renderExtendedSections==='function')renderExtendedSections(); }catch(e){}
+        await new Promise(function(r){ setTimeout(r,160); });
+        var repC=_snap(document.getElementById('pia-report'));
+        var detC=_snap(document.getElementById('detailed-result'));
+        var extC=_snap(document.getElementById('extended-sections'));
+        var an=(detC?detC.innerHTML:'')+(extC?extC.innerHTML:'');
+        var html='<div class="batch-student">'+(repC?repC.outerHTML:'')+(an?('<div class="aud-analysis">'+an+'</div>'):'')+'</div>';
+        parts.push(html);
+      }catch(e){ console.warn('batch item fail', e); }
+    }
+  } finally {
+    try{ state.results=_oR; state.profile=_oP; currentAudience=_oAud; state.studentId=_oSid;
+      if(typeof renderResult==='function')renderResult();
+      if(typeof renderDetailedResult==='function')renderDetailedResult();
+      if(typeof renderExtendedSections==='function')renderExtendedSections(); }catch(e){}
+  }
+  if(!parts.length){ alert('출력할 결과지가 없습니다.'); return; }
+  var css='@page{size:A4;margin:0;} html,body{margin:0;padding:0;background:#fff;} #pia-report{background:#fff!important;padding:0;margin:0;} #pia-report .page{width:210mm!important;min-height:0!important;height:auto!important;margin:0 auto!important;padding:14mm 13mm!important;box-shadow:none!important;border-radius:0!important;border:none!important;break-after:page;page-break-after:always;overflow:visible;} #pia-report canvas,#pia-report img{max-width:100%!important;} .batch-student{break-before:page;page-break-before:always;} .batch-student:first-child{break-before:auto;page-break-before:auto;} .aud-analysis{break-before:page;page-break-before:always;padding:14mm 13mm;background:#faf7f2;} .aud-analysis canvas,.aud-analysis img{max-width:100%!important;} .no-print{display:none!important;} #p-cover{display:flex;align-items:center;justify-content:center;min-height:255mm;}';
+  var doc='<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 결과지 묶음 ('+parts.length+'명)</title>'+styles+'<style>'+css+'</style></head><body>'+parts.join('')+'</body></html>';
+  var pf=document.getElementById('pia-batch-frame'); if(pf){ try{pf.remove();}catch(e){} }
+  var w=null, ifr=null;
+  try{ ifr=document.createElement('iframe'); ifr.id='pia-batch-frame'; ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;'; document.body.appendChild(ifr); w=ifr.contentWindow; }catch(e){ w=null; }
+  if(!w){ w=window.open('','_blank'); if(!w){ alert('인쇄 창을 열 수 없습니다. 브라우저에서 팝업을 허용하세요.'); return; } }
+  w.document.open(); w.document.write(doc); w.document.close();
+  setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 900);
+}
 load();
 initChat();
 initSettings();
 renderHome();
 showView('home');
 autoConnectFreeAI();
-try{ var _qp=new URLSearchParams(location.search); if(_qp.get('paper')==='1'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPaperScan(); }catch(e){} }, 200); }); } else if(_qp.get('print')==='items'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPrintItems(); }catch(e){} }, 150); }); } else if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } else if(_qp.get('view')==='record'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaViewRecord(); }catch(e){} }, 250); }); } }catch(e){}
+try{ var _qp=new URLSearchParams(location.search); if(_qp.get('paper')==='1'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPaperScan(); }catch(e){} }, 200); }); } else if(_qp.get('print')==='items'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPrintItems(); }catch(e){} }, 150); }); } else if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } else if(_qp.get('view')==='records'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaBatchPrint(); }catch(e){} }, 300); }); } else if(_qp.get('view')==='record'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaViewRecord(); }catch(e){} }, 250); }); } }catch(e){}
 async function autoEnableOnDevice(){
   try {
     if (!state.cfg || state.cfg.mode !== 'ONDEVICE') return;
