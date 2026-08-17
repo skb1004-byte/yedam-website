@@ -1131,6 +1131,20 @@ function renderResult(aud){
      +'<div class="notice">본 도구는 건강 확인 보조용입니다. 판정 문구를 진단으로 전달하지 마세요. 인쇄본에는 개인정보 취급에 유의하세요.</div>';
     host.innerHTML=h;
   }
+  try{ host.insertAdjacentHTML('beforeend', momLifestyleGuide(aud)); }catch(e){}
+}
+/* 결과지 보강: 인지건강 생활관리 가이드(근거 기반·비진단). 모든 뷰 공통 새 페이지. */
+function momLifestyleGuide(aud){
+  var cards=[
+    ['🏃 몸 움직이기','규칙적인 유산소·근력 운동은 두뇌 혈류와 기억에 도움이 됩니다. 하루 20~30분 걷기부터 시작해요.'],
+    ['🥗 잘 먹기','채소·과일·생선·견과류 중심 식사와 충분한 수분. 과도한 음주는 줄이세요.'],
+    ['😴 잘 자기','규칙적인 수면(7~8시간)은 기억 정리에 필수입니다. 취침·기상 시간을 일정하게 지켜요.'],
+    ['🧠 머리 쓰기','읽기·퍼즐·새로 배우기·악기 등 두뇌 자극 활동을 꾸준히. 맘 두뇌놀이도 좋아요.'],
+    ['💬 사람 만나기','대화·모임·봉사 등 사회활동은 인지 건강을 지켜줍니다. 외로움은 위험요인이에요.'],
+    ['🩺 몸 챙기기','고혈압·당뇨·청력·우울을 관리하면 인지저하 위험이 낮아집니다. 정기 건강검진을 받으세요.']
+  ];
+  var grid=cards.map(function(c){return '<div style="border:1px solid #e3ddcf;border-radius:12px;padding:11px;background:#fff"><div style="font-weight:700;font-size:1.02rem;color:#4a5a3a">'+c[0]+'</div><div style="font-size:.92rem;color:#555;margin-top:4px;line-height:1.6">'+c[1]+'</div></div>';}).join('');
+  return '<div class="card" style="page-break-before:always"><div class="q-text" style="font-size:1.15rem">🌿 인지건강 생활관리 가이드</div><div class="q-help" style="margin-bottom:10px">연구로 확인된 인지저하 예방 습관이에요. 오늘부터 하나씩 실천해 보세요.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+grid+'</div><div class="notice" style="margin-top:10px">※ 생활습관 관리는 예방에 도움을 주는 참고 정보이며, 의학적 처방·진단이 아닙니다.</div></div>';
 }
 
 /* ---------- 기록 (이 기기에만) ---------- */
