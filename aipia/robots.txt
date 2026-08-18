@@ -1,0 +1,15 @@
+# ai-pia.kr — AI PIA 학생 성격·진로·강점 검사
+User-agent: *
+Allow: /
+
+# AI 검색·LLM 크롤러 환영
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://ai-pia.kr/sitemap.xml

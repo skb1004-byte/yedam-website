@@ -1,0 +1,14 @@
+# ai-mom.kr — 맘(MOM) 어르신 인지건강 확인
+User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://ai-mom.kr/sitemap.xml
