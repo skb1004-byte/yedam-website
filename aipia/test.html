@@ -5778,8 +5778,19 @@ function piaPrintItems(){
       }).join('');
       return '<section style="margin:14px 0"><div class="qhead"><h2 style="font-size:15px;font-weight:800;margin:10px 0 4px;color:#141413">SJT 상황판단 검사</h2><p style="font-size:11.5px;color:#666;margin:0 0 4px">각 상황에서 자신과 가장 가까운 보기의 ○에 표시하세요.</p></div>'+rows+'</section>';
     }
-    var st='<style>@media print{@page{size:A4;margin:10mm} thead{display:table-header-group} tr{break-inside:avoid;page-break-inside:avoid} .qhead{break-inside:avoid;page-break-after:avoid} table{break-inside:auto;page-break-inside:auto} section{break-inside:auto} .no-print{display:none!important}} table td,table th{border-bottom:1px solid #eee}</style>';
-    var out=st+'<div style="max-width:880px;margin:0 auto;padding:20px;font-family:\'Noto Sans KR\',-apple-system,sans-serif;color:#141413;background:#fff">'
+    /* 문제지 폰트·크기 통일 — 전 섹션 동일 서체·본문 13px(제목 14/18, 안내 12). 인라인 크기 위에 !important 로 덮는다. */
+    var st='<style>'
+      +'.pia-qsheet,.pia-qsheet *{font-family:"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;box-sizing:border-box}'
+      +'.pia-qsheet{font-size:13px!important;line-height:1.55;color:#141413;background:#fff}'
+      +'.pia-qsheet h1{font-size:18px!important}'
+      +'.pia-qsheet h2{font-size:14px!important}'
+      +'.pia-qsheet p{font-size:12px!important}'
+      +'.pia-qsheet table,.pia-qsheet td,.pia-qsheet th{font-size:13px!important}'
+      +'.pia-qsheet li{font-size:13px!important}'
+      +'.pia-qsheet table td,.pia-qsheet table th{border-bottom:1px solid #eee}'
+      +'@media print{@page{size:A4;margin:10mm} thead{display:table-header-group} tr{break-inside:avoid;page-break-inside:avoid} .qhead{break-inside:avoid;page-break-after:avoid} table{break-inside:auto;page-break-inside:auto} section{break-inside:auto} .no-print{display:none!important}}'
+      +'</style>';
+    var out=st+'<div class="pia-qsheet" style="max-width:880px;margin:0 auto;padding:20px;font-family:\'Noto Sans KR\',-apple-system,sans-serif;color:#141413;background:#fff">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;border-bottom:2px solid #d97757;padding-bottom:8px">'
       +'<h1 style="font-size:20px;font-weight:800;margin:0">AI PIA · 전체 검사 문항지</h1>'
       +'<div class="no-print"><button onclick="window.print()" style="background:#d97757;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">🖨 인쇄</button></div></div>'
