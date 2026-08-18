@@ -421,6 +421,9 @@
 
   function ensureFullscreenUI() {
     if (isFramed) return;
+    /* PC(마우스·트랙패드 등 fine 포인터가 있는 기기)에서는 전체화면 버튼·팝업을
+       띄우지 않는다. 터치 전용 키오스크에서만 전체화면 UI를 쓴다. */
+    if (window.matchMedia && window.matchMedia('(any-pointer: fine)').matches) return;
     /* 회사 홈페이지 메인에서는 전체화면 버튼도, 빈 곳 터치 자동 진입도 없다. */
     if (isKioskEntryPage()) return;
     if (fsBtn) {
@@ -510,6 +513,7 @@
 
   function ensureEnterOverlay() {
     if (isFramed || !isKioskHomePage) return;   // 키오스크 홈에서만
+    if (window.matchMedia && window.matchMedia('(any-pointer: fine)').matches) return; // PC(마우스)엔 전체화면 팝업 없음
     if (isFullscreen() || enterOverlay) return;
     /* 사용자가 방금 [전체화면 종료]를 눌렀다면 잠시 띄우지 않는다.
        그러지 않으면 종료하자마자 안내판이 다시 떠서 종료를 할 수 없다. */

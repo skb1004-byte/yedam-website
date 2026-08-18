@@ -77,7 +77,7 @@ tr:hover td{background:#fcfbf7}
     <div class="kpi"><div class="l">최근 응시</div><div class="v" id="k-latest" style="font-size:15px;padding-top:6px">–</div></div>
   </div>
   <div class="card">
-    <div class="hd"><b>우리 반 학생</b><span class="note" id="count"></span></div>
+    <div class="hd"><b>우리 반 학생</b><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="note" id="count"></span><button class="ghost" id="rosterBtn" style="padding:6px 12px;font-size:12px">🖨 요약표 인쇄</button><button id="sheetsBtn" style="padding:6px 12px;font-size:12px">📄 학생별 결과지 일괄</button></div></div>
     <div class="empty" id="empty">불러오는 중…</div>
     <table id="tbl" class="hide"><thead><tr>
       <th>이름</th><th>학년</th><th>통합유형</th><th>신뢰도</th><th>정서</th><th>응시일</th><th></th>
@@ -107,6 +107,8 @@ document.getElementById('login').onclick=function(){ sb.auth.signInWithOAuth({pr
 document.getElementById('logout').onclick=function(e){ e.preventDefault(); sb.auth.signOut().then(function(){location.reload();}); };
 document.getElementById('refresh').onclick=load;
 document.getElementById('filter').oninput=render;
+document.getElementById('rosterBtn').onclick=printRoster;
+document.getElementById('sheetsBtn').onclick=printSheets;
 
 function parseRow(r){
   var d=r.data||{}; var p=d.profile||{}; var s=d.summary||{};
@@ -117,6 +119,48 @@ function parseRow(r){
 function openStudent(id){
   var row=_rows.filter(function(x){return x.id===id;})[0]; if(!row) return;
   try{ localStorage.setItem('pia_view_record', JSON.stringify(row.data)); location.href='ai-pia.html?view=record&aud=teacher'; }catch(e){ alert(e.message); }
+}
+
+function _filteredRows(){
+  var kw=(document.getElementById('filter').value||'').toLowerCase();
+  return _rows.filter(function(x){ return !kw || (x.name+ ' '+x.grade).toLowerCase().indexOf(kw)>=0; });
+}
+/* 우리반 요약표 인쇄 — 현재 검색 범위의 학생을 표로 묶어 숨김 iframe 으로 인쇄 */
+function printRoster(){
+  var list=_filteredRows();
+  if(!list.length){ alert('출력할 학생이 없습니다.'); return; }
+  var today=new Date().toISOString().slice(0,10);
+  var kw=(document.getElementById('filter').value||'').trim();
+  var scope=kw?('검색 "'+kw+'" · '+list.length+'명'):('전체 '+list.length+'명');
+  var rows=list.slice().sort(function(a,b){ return String(a.name||'').localeCompare(String(b.name||''),'ko'); });
+  var h='<div class="rp-cover"><div class="rp-title">AI PIA 검사 결과 요약표</div><div class="rp-sub">'+esc(scope)+' · 출력일 '+today+'</div><div class="rp-note">※ 신뢰도·정서는 참고용 지표이며 진단이 아닙니다.</div></div>';
+  h+='<table class="rp-tbl"><thead><tr><th>번호</th><th>이름</th><th>학년</th><th>통합유형</th><th>신뢰도</th><th>정서</th><th>응시일</th></tr></thead><tbody>';
+  rows.forEach(function(x,i){
+    h+='<tr><td>'+(i+1)+'</td><td class="nm">'+esc(x.name)+'</td><td>'+esc(x.grade)+'</td><td>'+esc(x.type||'—')+'</td>'
+      +'<td class="'+(/A/.test(x.rel)?'':'lo')+'">'+esc(x.rel||'—')+'</td>'
+      +'<td class="'+(x.emoWarn?'wn':'')+'">'+esc(x.emo||'—')+'</td>'
+      +'<td>'+fmt(x.at)+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  var css='@page{size:A4;margin:12mm;}*{box-sizing:border-box;}body{font-family:"Noto Sans KR",-apple-system,sans-serif;color:#1b2430;margin:0;}.rp-cover{text-align:center;padding:22mm 0 8mm;}.rp-title{font-size:22px;font-weight:800;}.rp-sub{margin-top:8px;color:#555;font-size:13px;}.rp-note{margin-top:6px;color:#999;font-size:11px;}.rp-tbl{width:100%;border-collapse:collapse;font-size:12px;}.rp-tbl th{background:#f2efe8;border:1px solid #ddd;padding:6px 8px;}.rp-tbl td{border:1px solid #eee;padding:5px 8px;text-align:center;}.rp-tbl td.nm{text-align:left;font-weight:600;}.rp-tbl td.lo{color:#c0392b;font-weight:700;}.rp-tbl td.wn{color:#b26a00;font-weight:600;}thead{display:table-header-group;}tr{page-break-inside:avoid;}';
+  var doc='<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 결과 요약표</title><style>'+css+'</style></head><body>'+h+'</body></html>';
+  var pf=document.getElementById('rp-print-frame'); if(pf){ try{pf.remove();}catch(e){} }
+  var w=null, ifr=null;
+  try{ ifr=document.createElement('iframe'); ifr.id='rp-print-frame'; ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;'; document.body.appendChild(ifr); w=ifr.contentWindow; }catch(e){ w=null; }
+  if(!w){ w=window.open('','_blank'); if(!w){ alert('인쇄 창을 열 수 없습니다. 브라우저에서 팝업을 허용하세요.'); return; } }
+  w.document.open(); w.document.write(doc); w.document.close();
+  setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 400);
+}
+/* 학생별 결과지 일괄 인쇄 — 검사 화면의 배치 렌더러(?view=records) 재사용 */
+function printSheets(){
+  var list=_filteredRows();
+  if(!list.length){ alert('출력할 학생이 없습니다.'); return; }
+  if(list.length>60 && !confirm(list.length+'명의 전체 결과지를 한 번에 인쇄하면 수백 페이지가 될 수 있습니다.\n검색으로 범위를 좁히길 권장합니다. 계속할까요?')) return;
+  var recs=list.map(function(x){ return x.data; }).filter(Boolean);
+  if(!recs.length){ alert('결과 데이터를 불러오지 못했습니다.'); return; }
+  try{ localStorage.setItem('pia_view_records', JSON.stringify(recs)); }
+  catch(e){ console.error('printSheets 저장 실패:', e); alert('한 번에 담기엔 데이터가 너무 많습니다. 검색으로 범위를 좁혀 주세요.'); return; }
+  window.open('ai-pia.html?view=records&aud=teacher','_blank','noopener');
 }
 
 function render(){
