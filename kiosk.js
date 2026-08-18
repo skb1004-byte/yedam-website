@@ -275,6 +275,11 @@
            그래도 아이패드는 여전히 여기 걸린다. 그것이 표시를 두는 이유다. */
         isKiosk = !!(coarse && !fine && big);
       }
+      /* PC(마우스·트랙패드 등 fine 포인터가 있는 기기)에서는 강제 설정(yd_device)
+         여부와 무관하게 키오스크 UI(전체화면 버튼·"메인으로" 버튼·팝업)를 켜지 않는다.
+         키오스크는 터치 전용 기기에서만 동작한다. 관리자 PC에서 '메인으로'가
+         키오스크 홈으로 튀거나 전체화면 버튼이 남던 문제를 여기서 원천 차단한다. */
+      try{ if(window.matchMedia && window.matchMedia('(any-pointer: fine)').matches) isKiosk=false; }catch(e){}
       document.documentElement.classList.toggle('kiosk-on', isKiosk);
       if (isKiosk) {
         ensureFullscreenUI();
