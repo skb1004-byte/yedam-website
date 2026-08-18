@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>기관장 승인 · YEDAM 관리</title>
+<link rel="stylesheet" href="/vendor/fonts/fonts.css">
+<link rel="icon" href="images/favicon_256.png">
+<style>
+:root{--ink:#141413;--ink2:#3d3d3a;--paper:#faf9f5;--paper2:#f3f1ea;--line:#e3e0d6;--rust:#d97757;--rust2:#c4623f;--ok:#788c5d;--okbg:#eef3e6;--warn:#b8860b;--warnbg:#fbf3e0;--red:#b91c1c;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.6}
+.wrap{max-width:900px;margin:0 auto;padding:20px}
+.hd{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.hd h1{font-size:18px;font-weight:800}
+.sp{flex:1}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;background:var(--ink);color:#fff}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+button.ok{background:var(--ok)}
+button:hover{opacity:.93}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card .top{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-bottom:1px solid var(--line)}
+.card .top b{font-size:14.5px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}
+th{background:var(--paper2);font-weight:700;color:var(--ink2);font-size:12px}
+tr:hover td{background:#fcfbf7}
+.code{font-family:ui-monospace,Menlo,monospace;font-weight:800;letter-spacing:1px;color:var(--rust2);background:var(--warnbg);padding:2px 8px;border-radius:7px}
+.empty{padding:34px;text-align:center;color:var(--ink2)}
+.note{font-size:12px;color:var(--ink2)}
+.msg{margin-top:10px;font-size:12.5px;color:var(--ink2)}
+.hide{display:none}
+.gate{max-width:440px;margin:60px auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;text-align:center}
+</style>
+</head>
+<body>
+<div id="gate" class="gate hide">
+  <p style="font-weight:700;margin-bottom:6px">운영자 전용</p>
+  <p class="note" id="gatemsg">기관장 승인은 운영자(super_admin) 계정만 사용할 수 있습니다.</p>
+</div>
+
+<div id="app" class="wrap hide">
+  <div class="hd">
+    <h1>🏫 기관장 승인 대기</h1>
+    <span class="note" id="who"></span>
+    <div class="sp"></div>
+    <button class="ghost" id="refresh">🔄 새로고침</button>
+  </div>
+  <div class="card">
+    <div class="top"><b>승인 대기 목록</b><span class="note" id="count"></span></div>
+    <div class="empty" id="empty">불러오는 중…</div>
+    <table id="tbl" class="hide"><thead><tr>
+      <th>기관명</th><th>기관코드</th><th>신청자</th><th>신청일</th><th></th>
+    </tr></thead><tbody id="body"></tbody></table>
+  </div>
+  <p class="note" id="msg" class="msg">※ 승인하면 해당 기관장의 교사 화면 잠금이 해제되고, 학생이 기관코드로 응시한 결과를 볼 수 있습니다. (테스트 계정 <b>test01~10@yedam.kr</b> 은 승인 없이 자동 입장됩니다.)</p>
+</div>
+
+<script src="/vendor/supabase-js-2.112.1.umd.js"></script>
+<script>
+var SB_URL='https://ushtyxnmqclzgdnynusm.supabase.co';
+var SB_KEY='sb_publishable_3PiMntSUB0kufZ9Wrvp0mA_a1Ump102';
+if(!window.supabase||!window.supabase.createClient){
+  document.addEventListener('DOMContentLoaded',function(){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#fef2f2;color:#b91c1c;padding:12px 16px;font-size:14px;text-align:center">로그인 모듈을 불러오지 못했습니다. 새로고침해 주세요.</div>'); });
+  throw new Error('Supabase CDN load failed');
+}
+var sb=window.supabase.createClient(SB_URL,SB_KEY);
+function $(s){return document.querySelector(s);}
+function show(id,on){document.getElementById(id).classList[on?'remove':'add']('hide');}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function fmt(t){try{return new Date(t).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return '';}}
+
+document.getElementById('refresh').onclick=load;
+
+async function load(){
+  document.getElementById('empty').classList.remove('hide');
+  document.getElementById('empty').textContent='불러오는 중…';
+  show('tbl',false);
+  var r=await sb.rpc('pia_pending_orgs');
+  if(r.error){
+    var m=(r.error.message||''); var perm=(r.error.code==='42501'||/권한|운영자|permission|forbidden/i.test(m));
+    document.getElementById('empty').innerHTML= perm
+      ? '<span style="color:var(--red);font-weight:700">운영자 권한이 필요합니다.</span>'
+      : '<span style="color:var(--red)">불러오기 오류: '+esc(m)+'</span>';
+    return;
+  }
+  var rows=r.data||[];
+  document.getElementById('count').textContent=rows.length+'건';
+  var b=document.getElementById('body'); b.innerHTML='';
+  if(!rows.length){ document.getElementById('empty').textContent='승인 대기 중인 기관이 없습니다.'; return; }
+  document.getElementById('empty').classList.add('hide'); show('tbl',true);
+  rows.forEach(function(x){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td><b>'+esc(x.org_name||'(이름없음)')+'</b></td>'
+      +'<td>'+(x.org_code?'<span class="code">'+esc(x.org_code)+'</span>':'—')+'</td>'
+      +'<td>'+esc(x.email||'')+(x.name?'<div class="note">'+esc(x.name)+'</div>':'')+'</td>'
+      +'<td class="note">'+fmt(x.created_at)+'</td>'
+      +'<td style="text-align:right"><button class="ok" data-email="'+esc(x.email)+'" style="padding:6px 14px;font-size:12.5px">승인</button></td>';
+    b.appendChild(tr);
+  });
+  b.querySelectorAll('[data-email]').forEach(function(btn){
+    btn.onclick=async function(){
+      if(!confirm(btn.dataset.email+' 를 기관장으로 승인할까요?')) return;
+      btn.disabled=true; btn.textContent='승인 중…';
+      var g=await sb.rpc('pia_grant_role',{ target_email: btn.dataset.email, new_role:'org_admin' });
+      if(g.error){ alert('승인 오류: '+g.error.message); btn.disabled=false; btn.textContent='승인'; return; }
+      if(g.data==='NOT_FOUND'){ alert('해당 계정을 찾지 못했습니다.'); btn.disabled=false; btn.textContent='승인'; return; }
+      load();
+    };
+  });
+}
+
+(async function init(){
+  var s=await sb.auth.getSession();
+  var ses=s&&s.data&&s.data.session;
+  if(!ses){ show('gate',true); show('app',false); $('#gatemsg').innerHTML='로그인이 필요합니다. <a href="login.html" style="color:var(--rust);font-weight:700">로그인 →</a>'; return; }
+  var r=await sb.rpc('pia_my_profile');
+  var role=(r&&r.data&&r.data[0]&&r.data[0].role)||'individual';
+  if(role!=='super_admin'){ show('gate',true); show('app',false); return; }
+  $('#who').textContent=ses.user.email||'';
+  show('gate',false); show('app',true);
+  load();
+})();
+</script>
+</body>
+</html>
