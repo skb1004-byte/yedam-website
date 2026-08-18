@@ -29,7 +29,7 @@
     .border, .rounded-2xl, .rounded-xl, .rounded-lg { border:1px solid #ccc !important; box-shadow:none !important; }
     canvas { max-height:200px !important; }
     .audience-only-screen { display:none !important; }
-    @page { size: A4; margin: 12mm; }
+    @page { size: A4; margin: 10mm; }
   }
 
 /* ===== 결과지 CSS (scoped: #pia-report) ===== */
@@ -45,7 +45,8 @@ body {font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-ser
 /* ===== 인쇄 ===== */
 @media print{
 body {background:#fff;}
-#pia-report .page {margin:0;box-shadow:none;page-break-after:always;}
+#pia-report .page {margin:0!important;box-shadow:none!important;width:auto!important;max-width:100%!important;min-height:0!important;padding:4mm 3mm!important;page-break-after:always;break-inside:auto;}
+#pia-report .page:last-child{page-break-after:auto;}
 #pia-report .no-print {display:none!important;}
 }
 
@@ -5737,7 +5738,7 @@ function piaPrintReport(audOverride){
     try{ _ifr=document.createElement('iframe'); _ifr.id='pia-print-frame'; _ifr.setAttribute('aria-hidden','true'); _ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;'; document.body.appendChild(_ifr); w=_ifr.contentWindow; }catch(e){ w=null; }
     if(!w){ w=window.open('','_blank'); if(!w){ alert('인쇄 창을 열 수 없습니다. 브라우저에서 팝업을 허용한 뒤 다시 시도하세요.'); return; } }
     w.document.open();
-    w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 통합 결과지'+(_audKo?(' — '+_audKo):'')+'</title>'+styles+'<style>@page{size:A4;margin:0;} html,body{margin:0;padding:0;background:#fff;height:auto;overflow:visible;} #pia-report{background:#fff!important;padding:0;margin:0;} #pia-report .page{width:210mm!important;min-height:0!important;height:auto!important;margin:0 auto!important;padding:14mm 13mm!important;box-shadow:none!important;border-radius:0!important;border:none!important;break-after:page;page-break-after:always;break-inside:auto;overflow:visible;} #pia-report .page:last-child{page-break-after:auto;break-after:auto;} #pia-report canvas,#pia-report img{max-width:100%!important;} .aud-analysis{page-break-before:always;padding:14mm 13mm!important;background:#faf7f2;} .aud-analysis-head{font-size:15px;font-weight:800;color:#d97757;border-bottom:2px solid #d97757;padding-bottom:6px;margin-bottom:12px;} .aud-analysis-note{font-size:11px;color:#7a5c3a;background:#fff5e8;border-left:4px solid #d9a557;padding:8px 11px;border-radius:6px;margin-bottom:14px;line-height:1.6;} .aud-analysis.aud-teacher{background:#f3f6fb;} .aud-analysis.aud-teacher .aud-analysis-head{color:#2c4a6b;border-bottom-color:#5b8fd1;} .aud-analysis.aud-teacher .aud-analysis-note{background:#eaf1f9;border-left-color:#5b8fd1;color:#2c4a6b;} .aud-analysis .mt-5{margin-top:14px;} .aud-analysis .rounded-2xl,.aud-analysis .bg-white,.aud-analysis canvas,.aud-analysis img,.aud-analysis h3{break-inside:avoid;page-break-inside:avoid;} .aud-analysis canvas,.aud-analysis img{max-width:100%!important;} #pia-report #p-cover{display:flex;align-items:center;justify-content:center;min-height:255mm;} #p-cover .cover-wrap{zoom:1.18;} .no-print{display:none!important;}</style></head><body>'+clone.outerHTML+_analysis+'</body></html>');
+    w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>AI PIA 통합 결과지'+(_audKo?(' — '+_audKo):'')+'</title>'+styles+'<style>@page{size:A4;margin:10mm;} html,body{margin:0;padding:0;background:#fff;height:auto;overflow:visible;} #pia-report{background:#fff!important;padding:0;margin:0;} #pia-report .page{width:auto!important;max-width:100%!important;min-height:0!important;height:auto!important;margin:0 auto!important;padding:3mm!important;box-shadow:none!important;border-radius:0!important;border:none!important;break-after:page;page-break-after:always;break-inside:auto;overflow:visible;} #pia-report .page:last-child{page-break-after:auto;break-after:auto;} #pia-report canvas,#pia-report img{max-width:100%!important;} .aud-analysis{page-break-before:always;padding:3mm!important;background:#faf7f2;} .aud-analysis-head{font-size:15px;font-weight:800;color:#d97757;border-bottom:2px solid #d97757;padding-bottom:6px;margin-bottom:12px;} .aud-analysis-note{font-size:11px;color:#7a5c3a;background:#fff5e8;border-left:4px solid #d9a557;padding:8px 11px;border-radius:6px;margin-bottom:14px;line-height:1.6;} .aud-analysis.aud-teacher{background:#f3f6fb;} .aud-analysis.aud-teacher .aud-analysis-head{color:#2c4a6b;border-bottom-color:#5b8fd1;} .aud-analysis.aud-teacher .aud-analysis-note{background:#eaf1f9;border-left-color:#5b8fd1;color:#2c4a6b;} .aud-analysis .mt-5{margin-top:14px;} .aud-analysis .rounded-2xl,.aud-analysis .bg-white,.aud-analysis canvas,.aud-analysis img,.aud-analysis h3{break-inside:avoid;page-break-inside:avoid;} .aud-analysis canvas,.aud-analysis img{max-width:100%!important;} #pia-report #p-cover{display:flex;align-items:center;justify-content:center;min-height:248mm;} #p-cover .cover-wrap{zoom:1.18;} .no-print{display:none!important;}</style></head><body>'+clone.outerHTML+_analysis+'</body></html>');
     w.document.close();
     try{ if(audOverride && currentAudience!==_prevAud){ currentAudience=_prevAud; if(typeof renderDetailedResult==='function')renderDetailedResult(); if(typeof renderExtendedSections==='function')renderExtendedSections(); } }catch(e){}
     setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 650);
