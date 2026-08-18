@@ -59,17 +59,13 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
 
 <div class="shell hide" id="shell">
   <aside id="aside">
-    <div class="grp">현황</div>
+    <div class="grp">관리</div>
     <div class="nav">
       <a data-src="results-admin.html" class="on"><span class="ic">📊</span>결과 관리</a>
-      <a data-src="teacher-hub.html"><span class="ic">🧑‍🏫</span>선생님도우미</a>
-      <a data-src="teacher.html"><span class="ic">👨‍🏫</span>교사 대시보드</a>
-    </div>
-    <div class="grp">운영</div>
-    <div class="nav">
-      <a data-src="errors-admin.html"><span class="ic">🐞</span>오류·문의</a>
       <a data-src="manage.html"><span class="ic">👥</span>회원·기관</a>
+      <a data-src="admin.html"><span class="ic">🏢</span>기관·사업 포털</a>
       <a data-src="pia-engine.html"><span class="ic">⚙️</span>엔진·키</a>
+      <a data-src="errors-admin.html"><span class="ic">🐞</span>오류·문의</a>
     </div>
     <div class="grp">콘텐츠·실행</div>
     <div class="nav">
@@ -77,9 +73,9 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
       <a data-src="ai-pia.html?print=items"><span class="ic">🖨️</span>문항 인쇄</a>
       <a data-src="nice-timetable.html"><span class="ic">🗓️</span>시간표·학사일정</a>
     </div>
-    <div class="grp">회사</div>
+    <div class="grp">교사용</div>
     <div class="nav">
-      <a data-src="admin.html"><span class="ic">🏢</span>사업 포털</a>
+      <a href="teacher.html" target="_blank" rel="noopener"><span class="ic">👨‍🏫</span>교사 대시보드 ↗</a>
     </div>
   </aside>
   <main><iframe id="frame" src="results-admin.html" title="관리 도구"></iframe></main>
@@ -111,9 +107,12 @@ document.getElementById('logout').onclick=function(e){ e.preventDefault(); sb.au
   // 역할 확인 — 운영자/기관만
   var r=await sb.rpc('pia_my_profile');
   var role=(r&&r.data&&r.data[0]&&r.data[0].role)||'individual';
-  if(['super_admin','org_admin','org_member'].indexOf(role)<0){
+  if(['super_admin','org_admin'].indexOf(role)<0){
     show('gate',true); show('shell',false);
-    $('#gatemsg').innerHTML='<span style="color:var(--red);font-weight:700">관리 권한이 없습니다.</span><br>운영자 또는 기관(교사) 계정으로 로그인하세요.';
+    var _isTeacher=(role==='org_member');
+    $('#gatemsg').innerHTML = _isTeacher
+      ? '<span style="color:var(--red);font-weight:700">이 화면은 운영자 전용입니다.</span><br>교사 계정은 <a class="link" href="teacher.html">교사 대시보드 →</a> 에서 우리 반 조회·결과 출력·선생님도우미를 이용하세요.'
+      : '<span style="color:var(--red);font-weight:700">관리 권한이 없습니다.</span><br>운영자 계정으로 로그인하세요.';
     $('#login').classList.add('hide');
     return;
   }
