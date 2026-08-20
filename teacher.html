@@ -70,6 +70,35 @@ tr:hover td{background:#fcfbf7}
     <button class="ghost" id="refresh">🔄 새로고침</button>
     <a class="link" href="mypage.html" style="margin-left:4px">반 코드 관리 →</a>
   </div>
+  <div class="card" id="sess-card">
+    <div class="hd"><b>🧑‍🏫 단체 실시간 세션</b><span class="note" id="sess-hint">반 전체가 동시에 검사할 때 세션을 시작하세요. 학생은 시작화면에서 세션 코드를 입력합니다.</span></div>
+    <div id="sess-start" style="padding:14px 15px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input type="text" id="sess-title" placeholder="세션 이름 (예: 3-2 진로검사)" style="flex:1;min-width:180px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px">
+      <button id="sess-open" style="padding:9px 16px">세션 시작 ▶</button>
+    </div>
+    <div id="sess-live" class="hide">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px 15px;border-bottom:1px solid var(--line);background:#f0f9ff">
+        <div>세션 코드 <span id="sess-code" style="font-family:monospace;font-weight:800;font-size:22px;letter-spacing:3px;color:#0369a1;margin-left:6px"></span></div>
+        <span class="note" id="sess-title-x"></span>
+        <span style="flex:1"></span>
+        <span class="note" id="sess-stat"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 15px;border-bottom:1px solid var(--line)">
+        <input type="text" id="sess-bc" placeholder="반 전체에 공지 (예: 5분 남았어요)" style="flex:1;min-width:200px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:13px">
+        <button class="ghost" id="sess-bc-send" style="padding:8px 12px;font-size:12px">📢 공지</button>
+        <button class="ghost" id="sess-pause" style="padding:8px 12px;font-size:12px">⏸ 전체 멈춤</button>
+        <button class="ghost hide" id="sess-resume" style="padding:8px 12px;font-size:12px">▶ 재개</button>
+        <button id="sess-close" style="padding:8px 12px;font-size:12px;background:#b91c1c">■ 세션 종료</button>
+      </div>
+      <div class="kpis" style="padding:10px 15px 0">
+        <div class="kpi"><div class="l">참여</div><div class="v" id="sk-join">0</div></div>
+        <div class="kpi"><div class="l">완료</div><div class="v" id="sk-done">0</div></div>
+        <div class="kpi"><div class="l">평균 진행</div><div class="v" id="sk-pct">0%</div></div>
+        <div class="kpi warn"><div class="l">주의 플래그</div><div class="v" id="sk-flag">0</div></div>
+      </div>
+      <table id="sess-tbl"><thead><tr><th>학생</th><th>학년</th><th>진행</th><th>현재</th><th>상태</th><th>주의</th><th>최근</th><th></th></tr></thead><tbody id="sess-body"></tbody></table>
+    </div>
+  </div>
   <div class="kpis">
     <div class="kpi"><div class="l">총 응시</div><div class="v" id="k-total">–</div></div>
     <div class="kpi"><div class="l">이번 주 신규</div><div class="v" id="k-new">–</div></div>
@@ -219,12 +248,84 @@ async function load(){
   render();
 }
 
+/* ── 단체 실시간 세션 (교사 관제) ── */
+var SESS={code:null, timer:null, status:'open'};
+var SESS_KEY='pia_teacher_sess';
+function _sfmt(t){try{return new Date(t).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}}
+function _flagBadge(f){ if(!f) return ''; var m={fast:'⚡너무 빠름',straight:'⚠직선응답'}; return String(f).split(',').filter(Boolean).map(function(k){return '<span style="background:#fbf3e0;color:#b8860b;border-radius:6px;padding:1px 6px;font-size:11px;margin-right:3px">'+(m[k]||k)+'</span>';}).join(''); }
+function sessShowLive(on){ show('sess-live',on); show('sess-start',!on); }
+async function sessOpen(){
+  var title=(document.getElementById('sess-title').value||'').trim()||'단체 검사';
+  var btn=document.getElementById('sess-open'); btn.disabled=true; btn.textContent='시작 중…';
+  var r=await sb.rpc('pia_session_open',{p_title:title, p_grade:null});
+  btn.disabled=false; btn.textContent='세션 시작 ▶';
+  if(r.error){ alert('세션 시작 오류: '+r.error.message); return; }
+  var d=r.data&&r.data[0]; if(!d){ alert('세션 생성 실패'); return; }
+  SESS.code=d.code; SESS.status='open';
+  try{ localStorage.setItem(SESS_KEY, d.code); }catch(e){}
+  document.getElementById('sess-code').textContent=d.code;
+  document.getElementById('sess-title-x').textContent=title;
+  sessShowLive(true); sessStartPoll();
+}
+async function sessPoll(){
+  if(!SESS.code) return;
+  var r=await sb.rpc('pia_session_roster',{p_code:SESS.code});
+  if(r.error){ document.getElementById('sess-stat').textContent='조회 오류'; return; }
+  var rows=r.data||[]; var b=document.getElementById('sess-body'); b.innerHTML='';
+  var done=0, sum=0, flagN=0;
+  rows.forEach(function(x){
+    if(x.status==='done') done++;
+    sum+=(x.percent||0); if(x.flags) flagN++;
+    var stale=x.last_seen && (Date.now()-new Date(x.last_seen).getTime()>60000);
+    var stTxt = x.status==='done'?'<span style="color:var(--ok);font-weight:700">완료</span>':(stale?'<span style="color:#b91c1c">응답없음</span>':'<span style="color:#0369a1">진행 중</span>');
+    var pct=Math.max(0,Math.min(100,x.percent||0));
+    var bar='<span style="display:inline-block;width:90px;height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;vertical-align:middle"><span style="display:block;height:8px;width:'+pct+'%;background:'+(x.status==='done'?'#788c5d':'#0ea5e9')+'"></span></span> <span class="note">'+pct+'%</span>';
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td><b>'+esc(x.student_name||'익명')+'</b></td><td class="note">'+esc(x.grade||'')+'</td><td>'+bar+'</td><td class="note">'+esc(x.current_test||'')+'</td><td>'+stTxt+'</td><td>'+_flagBadge(x.flags)+'</td><td class="note">'+_sfmt(x.last_seen)+'</td>'
+      +'<td style="text-align:right"><button class="ghost" data-dm="'+esc(x.student_key)+'" style="padding:4px 9px;font-size:11px">💬</button></td>';
+    b.appendChild(tr);
+  });
+  document.getElementById('sk-join').textContent=rows.length;
+  document.getElementById('sk-done').textContent=done;
+  document.getElementById('sk-pct').textContent=(rows.length?Math.round(sum/rows.length):0)+'%';
+  document.getElementById('sk-flag').textContent=flagN;
+  document.getElementById('sess-stat').textContent=(SESS.status==='paused'?'⏸ 멈춤':'● 진행')+' · '+_sfmt(Date.now())+' 갱신';
+  b.querySelectorAll('[data-dm]').forEach(function(btn){ btn.onclick=function(){ sessDM(btn.dataset.dm); }; });
+}
+function sessStartPoll(){ if(SESS.timer) clearInterval(SESS.timer); sessPoll(); SESS.timer=setInterval(sessPoll, 8000); }
+async function sessCtl(action, msg, key){
+  var r=await sb.rpc('pia_session_control',{p_code:SESS.code, p_action:action, p_msg:msg||null, p_student_key:key||null});
+  if(r.error){ alert('제어 오류: '+r.error.message); return false; }
+  return true;
+}
+async function sessDM(key){
+  var m=prompt('이 학생에게 보낼 메시지:'); if(!m) return;
+  if(await sessCtl('dm', m, key)) alert('메시지를 보냈어요. 학생 화면에 곧 표시됩니다.');
+}
+function sessWire(){
+  document.getElementById('sess-open').onclick=sessOpen;
+  document.getElementById('sess-bc-send').onclick=async function(){ var m=(document.getElementById('sess-bc').value||'').trim(); if(!m) return; if(await sessCtl('broadcast', m)){ document.getElementById('sess-bc').value=''; alert('공지를 보냈어요.'); } };
+  document.getElementById('sess-pause').onclick=async function(){ if(await sessCtl('pause')){ SESS.status='paused'; show('sess-pause',false); show('sess-resume',true); } };
+  document.getElementById('sess-resume').onclick=async function(){ if(await sessCtl('resume')){ SESS.status='open'; show('sess-resume',false); show('sess-pause',true); } };
+  document.getElementById('sess-close').onclick=async function(){ if(!confirm('세션을 종료할까요? 학생 화면에 종료 안내가 표시됩니다.')) return; if(await sessCtl('close')){ if(SESS.timer) clearInterval(SESS.timer); SESS.code=null; try{ localStorage.removeItem(SESS_KEY); }catch(e){} sessShowLive(false); } };
+}
+async function sessRestore(){
+  try{ var c=localStorage.getItem(SESS_KEY); if(!c) return; }catch(e){ return; }
+  var c=localStorage.getItem(SESS_KEY);
+  var r=await sb.rpc('pia_session_by_code',{p_code:c});
+  var d=r&&r.data&&r.data[0];
+  if(d&&d.session_id){ SESS.code=c; SESS.status=d.status||'open'; document.getElementById('sess-code').textContent=c; document.getElementById('sess-title-x').textContent=d.title||''; if(SESS.status==='paused'){show('sess-pause',false);show('sess-resume',true);} sessShowLive(true); sessStartPoll(); }
+  else { try{ localStorage.removeItem(SESS_KEY); }catch(e){} }
+}
+
 (async function init(){
   var s=await sb.auth.getSession();
   var ses=s&&s.data&&s.data.session;
   if(!ses){ show('auth',true); show('app',false); return; }
   show('auth',false); show('app',true);
+  sessWire();
   load();
+  sessRestore();
 })();
 </script>
 <script src="err-cs.js?v=20260811a" defer></script>

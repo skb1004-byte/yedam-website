@@ -8179,6 +8179,77 @@ function startGroupTest(){
     });
   }catch(e){ if(window.console) console.error('단체 검사 시작 오류:', e); }
 }
+/* ── 단체 검사 실시간 세션 클라이언트 (Phase 1+2) ──
+   진행률 폴링 upsert + 관제신호(멈춤·공지·개별메시지) 수신 + 이어하기 */
+(function(){
+  var SS_KEY='pia_group_sess', POLL_MS=8000;
+  var _timer=null, _lastBroadcast='', _lastDM='', _joinAt=0, _overlay=null;
+  function sb(cb){ try{ if(typeof _piaEnsureSB==='function'){ _piaEnsureSB().then(function(c){ if(c&&c.rpc) cb(c); }); } }catch(e){} }
+  function curView(){ try{ var s=document.querySelector('section[data-view]:not(.hidden)'); return s?s.dataset.view:''; }catch(e){ return ''; } }
+  var LBL={chat:'AI 자유대화',big5:'성격(Big5)',riasec:'흥미(RIASEC)',via:'강점(VIA)',grit:'끈기(Grit)',sjt:'상황판단(SJT)',cesd:'정서',phqa:'정서',gad:'정서',who5:'정서',rses:'자존감',learn:'학습',mi:'다중지능',home:'검사 메뉴',fullreport:'결과지',result:'결과지'};
+  function straightFlag(){
+    try{
+      var arrs=[state.results.big5&&state.results.big5.answers, state.results.riasec&&state.results.riasec.answers];
+      for(var a=0;a<arrs.length;a++){ var ans=arrs[a]||[]; var run=1,mx=1; for(var i=1;i<ans.length;i++){ if(ans[i]!=null&&ans[i]===ans[i-1]){run++; if(run>mx)mx=run;} else run=1; } if(mx>=12) return true; }
+    }catch(e){}
+    return false;
+  }
+  function compute(){
+    var done=0; try{ done=Object.keys(getCompletedTests()).length; }catch(e){}
+    var total=9, pct=Math.max(0,Math.min(100,Math.round(done/total*100)));
+    var reqDone=false; try{ reqDone=(typeof missingRequired==='function')&&missingRequired().length===0; }catch(e){}
+    var flags=[];
+    if(straightFlag()) flags.push('straight');
+    if(_joinAt && done>=1){ var perMin=((Date.now()-_joinAt)/60000)/done; if(perMin<1.0) flags.push('fast'); }
+    return { current:LBL[curView()]||curView()||'준비', done:done, total:total, percent:pct, status:(reqDone?'done':'active'), flags:flags.join(',') };
+  }
+  function overlay(show,msg){
+    if(show){
+      if(!_overlay){ _overlay=document.createElement('div'); _overlay.style.cssText='position:fixed;inset:0;background:rgba(3,105,161,.94);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;text-align:center;padding:24px;font-weight:800;gap:8px'; _overlay.classList.add('pia-print-hide'); document.body.appendChild(_overlay); }
+      _overlay.innerHTML='<div style="font-size:44px">✋</div><div style="font-size:20px">'+(msg||'선생님이 잠시 멈췄어요')+'</div><div style="font-size:13px;font-weight:500;opacity:.9;margin-top:4px">잠깐 기다려 주세요</div>';
+      _overlay.style.display='flex';
+    } else if(_overlay){ _overlay.style.display='none'; }
+  }
+  function toast(msg){ try{ if(typeof window.showToast==='function') window.showToast(msg); else if(window.PIA&&PIA.toast) PIA.toast(msg); else if(window.console) console.error(msg); }catch(e){} }
+  function handleControl(r){
+    if(!r) return;
+    var st=r.session_status||'open';
+    if(st==='paused') overlay(true,'선생님이 잠시 멈췄어요');
+    else if(st==='closed'){ overlay(true,'검사가 종료되었어요. 수고했어요!'); stop(); }
+    else overlay(false);
+    var bc=r.broadcast||''; if(bc && bc!==_lastBroadcast){ _lastBroadcast=bc; toast('📢 '+bc); } if(!bc) _lastBroadcast='';
+    var dm=r.dm||''; if(dm && dm!==_lastDM){ _lastDM=dm; toast('💬 선생님: '+dm); }
+  }
+  function tick(){
+    if(!window.PIA_SESS) return;
+    var p=compute(), s=window.PIA_SESS;
+    sb(function(c){
+      c.rpc('pia_progress_upsert',{ p_code:s.code, p_student_key:s.key, p_name:(state.profile&&state.profile.name)||'익명', p_grade:(state.profile&&state.profile.grade)||'', p_class:(state.profile&&state.profile.class)||'', p_current:p.current, p_done:p.done, p_total:p.total, p_percent:p.percent, p_status:p.status, p_flags:p.flags })
+       .then(function(r){ try{ handleControl(r&&r.data&&r.data[0]); }catch(e){} })
+       .catch(function(e){ if(window.console) console.error('진행률 전송 실패:', e); });
+    });
+  }
+  function start(){ if(_timer) return; _joinAt=Date.now(); tick(); _timer=setInterval(tick, POLL_MS); }
+  function stop(){ if(_timer){ clearInterval(_timer); _timer=null; } }
+  window.piaSessionJoin=function(code){
+    code=String(code||'').trim().toUpperCase(); if(!code) return;
+    sb(function(c){
+      c.rpc('pia_session_by_code',{p_code:code}).then(function(r){
+        var d=r&&r.data&&r.data[0];
+        if(!d||!d.session_id){ toast('세션 코드를 찾지 못했어요. 코드를 다시 확인해 주세요.'); return; }
+        var key=((state.profile&&state.profile.name)||'익명')+'#'+Math.random().toString(36).slice(2,6);
+        window.PIA_SESS={ code:code, key:key, title:d.title };
+        try{ sessionStorage.setItem(SS_KEY, JSON.stringify(window.PIA_SESS)); }catch(e){}
+        toast('✅ 단체 검사에 연결됐어요'+(d.title?(' ('+d.title+')'):''));
+        start();
+      }).catch(function(e){ if(window.console) console.error('세션 조회 실패:', e); });
+    });
+  };
+  window.piaSessionLeave=function(){ stop(); window.PIA_SESS=null; try{ sessionStorage.removeItem(SS_KEY); }catch(e){} };
+  try{ var _o=showView; showView=function(n){ _o(n); if(window.PIA_SESS) setTimeout(tick,300); }; }catch(e){}
+  /* 새로고침/중단 후 이어하기: 세션 있으면 자동 재연결(초기화 지연) */
+  setTimeout(function(){ try{ var raw=sessionStorage.getItem(SS_KEY); if(raw){ var s=JSON.parse(raw); if(s&&s.code&&s.key){ window.PIA_SESS=s; start(); } } }catch(e){} }, 1600);
+})();
 function ensureStudentProfile() {
   if (state.profile && state.profile.name) return Promise.resolve();
   return new Promise(resolve => {
@@ -8215,6 +8286,11 @@ function ensureStudentProfile() {
           <label class="block">
             <span class="text-xs text-slate-600">학교/기관 <span style="color:#dc2626">*</span></span>
             <input id="pf-school" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="예: 샛별중학교" />
+          </label>
+          <label class="block" style="display:${_grp?'block':'none'}">
+            <span class="text-xs text-slate-600">단체 세션 코드 <span style="color:#0369a1;font-weight:700">(선생님이 불러줘요)</span></span>
+            <input id="pf-sesscode" inputmode="latin" autocapitalize="characters" class="w-full mt-1 border border-sky-300 bg-sky-50 rounded-lg px-3 py-2 text-sm font-mono tracking-widest uppercase" placeholder="예: 4A9C2A" />
+            <span class="text-[11px] text-slate-400">실시간 단체 검사일 때만 입력해요. 선생님 화면에 내 진행이 보여요.</span>
           </label>
           <label class="block">
             <span class="text-xs text-slate-600">반 코드 (선택)</span>
@@ -8258,6 +8334,7 @@ function ensureStudentProfile() {
         }
       }catch(e){}
       save();
+      try{ var _sc=(el('pf-sesscode')&&el('pf-sesscode').value||'').trim(); if(_sc && !anon && typeof window.piaSessionJoin==='function'){ window.piaSessionJoin(_sc); } }catch(_e){ if(window.console) console.error('세션 참여 오류:', _e); }
       modal.remove();
       renderProfileBar();
       resolve();
