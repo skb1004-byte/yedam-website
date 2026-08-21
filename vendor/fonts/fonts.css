@@ -6,6 +6,10 @@
    @font-face 911개 · woff2 153개
    라이선스: SIL Open Font License 1.1 */
 
+/* 전역 타이포 스케일: rem 기반(Tailwind·landing) 글자·여백을 비례 확대해
+   여백과 어울리게 꽉 차 보이도록 한다. 결과지(#pia-report)는 px 고정이라 영향 없음. */
+html { font-size: 17px; }
+
 @font-face {
   font-family: 'Noto Sans KR';
   font-style: normal;
