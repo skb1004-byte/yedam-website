@@ -191,8 +191,8 @@ html { scroll-behavior: smooth; }
 :root{
   --c-cream:#faf9f5;--c-paper:#fffdf8;--c-ink:#141413;--c-clay:#d97757;--c-clay-d:#c4623f;
   --c-blue:#6a9bcc;--c-green:#788c5d;--c-line:#e6e3d8;--c-line2:#d4d0c2;
-  --font-ui:'Poppins','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;
-  --font-read:'Lora','Noto Sans KR','Iropke Batang',Georgia,'맑은 고딕',serif;
+  --font-ui:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;
+  --font-read:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;
 }
 body{font-family:var(--font-ui);background:var(--c-cream);color:var(--c-ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 h1,h2,h3,h4,h5,h6{font-family:var(--font-ui);letter-spacing:-.01em;}
@@ -341,7 +341,7 @@ button,a,select,input,textarea,label,[onclick]{touch-action:manipulation;}
 </style>
 <style id="premium-2026">
 :root{--sh-soft:0 1px 2px rgba(20,20,19,.04),0 14px 38px -18px rgba(20,20,19,.16);--sh-lift:0 3px 8px rgba(20,20,19,.06),0 26px 56px -24px rgba(20,20,19,.26);}
-h1,.text-xl{font-family:'Lora','Iropke Batang',Georgia,serif!important;font-weight:600;letter-spacing:-.02em;}
+h1,.text-xl{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif!important;font-weight:700;letter-spacing:-.02em;}
 section.bg-white,.bg-white.rounded-2xl,#home-content>*{border-radius:18px!important;border:1px solid #ece8dd!important;box-shadow:var(--sh-soft)!important;}
 section.bg-white:hover,.bg-white.rounded-2xl:hover,#home-content>*:hover{box-shadow:var(--sh-lift)!important;}
 header.bg-white{border:1px solid #ece8dd!important;box-shadow:var(--sh-soft)!important;}
@@ -372,7 +372,7 @@ nav button{letter-spacing:.005em;}
 @media screen{
   #pia-report{background:#efebe2;padding:10px 0;}
   #pia-report .page{border-radius:16px!important;box-shadow:0 18px 60px -26px rgba(20,20,19,.35),0 2px 10px rgba(20,20,19,.06)!important;border:1px solid #e6e0d2!important;}
-  #pia-report .cover-title-main,#pia-report .cover-title-sub,#pia-report .page-title,#pia-report .section-title-diamond{font-family:'Lora','Iropke Batang',Georgia,serif;letter-spacing:-.01em;}
+  #pia-report .cover-title-main,#pia-report .cover-title-sub,#pia-report .page-title,#pia-report .section-title-diamond{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;letter-spacing:-.01em;}
   #pia-report .cover-badge{border-radius:999px;box-shadow:0 8px 20px -10px rgba(217,119,87,.5);}
   #pia-report .cover-info-box{border-radius:14px;overflow:hidden;box-shadow:0 12px 32px -18px rgba(20,20,19,.2);}
   #pia-report .section-title{border-radius:9px;box-shadow:0 8px 18px -11px rgba(217,119,87,.5);letter-spacing:.01em;}
@@ -406,7 +406,7 @@ body:not(.pia-v2) #sjt-choices button:hover{
 body:not(.pia-v2) [id^="choices-"] button:active,
 body:not(.pia-v2) #sjt-choices button:active{transform:translateX(3px) scale(.99);}
 /* 결과 영웅 타이포 */
-#hero-type{font-family:'Lora','Iropke Batang',Georgia,serif!important;letter-spacing:-.02em;}
+#hero-type{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif!important;letter-spacing:-.02em;}
 /* 입력 라운드 통일 */
 input,select,textarea{border-radius:11px!important;}
 /* 스크롤바 */
@@ -447,8 +447,8 @@ img,canvas,svg,video{max-width:100%;height:auto;}
   nav#topNav button{flex:1 1 100%;}
   .max-w-6xl{padding-left:.6rem;padding-right:.6rem;}
 }
-body,button,input,select,textarea,label,nav{font-family:'Poppins','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;}
-h1,h2,h3,h4,h5,h6{font-family:'Poppins','Noto Sans KR',-apple-system,sans-serif;}
+body,button,input,select,textarea,label,nav{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;}
+h1,h2,h3,h4,h5,h6{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI','맑은 고딕',sans-serif;}
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms!important;transition-duration:.001ms!important;}
 }
@@ -10540,7 +10540,7 @@ body:not(.dark-mode){
   --pia-touch:80px; --pia-touch-cta:96px; --pia-touch-choice:88px;
   /* Layout */
   --pia-canvas:1080px; --pia-safe:56px;
-  --pia-font:"Pretendard","Pretendard Variable","Noto Sans KR","Apple SD Gothic Neo",-apple-system,sans-serif;
+  --pia-font:"Noto Sans KR","Apple SD Gothic Neo",-apple-system,BlinkMacSystemFont,"Segoe UI","맑은 고딕",sans-serif;
 }
 /* 데스크톱/일반 브라우저 — 캔버스 중앙정렬 + 스케일 축소 */
 @media (max-width:1079px){
