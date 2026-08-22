@@ -2791,10 +2791,53 @@ async function callBrowserAI(prompt, systemPrompt){
   }catch(e){ if(window.console) console.error('내장 브라우저 AI 실패:', e); return null; }
 }
 window.callBrowserAI = callBrowserAI;
-async function callLLMFree(prompt, systemPrompt) {
+async function callLLMFree(prompt, systemPrompt, onDelta) {
   const messages = [];
   if (systemPrompt) messages.push({ role:'system', content: systemPrompt });
   messages.push({ role:'user', content: prompt });
+
+  /* [2026-08-22] 챗GPT처럼 글자가 흘러나오게 — 서버가 SSE 로 조각을 보내면
+     받는 즉시 화면에 붙인다. 스트리밍이 안 되는 환경(구형 브라우저·중간 프록시
+     버퍼링)에서는 아무 조각도 못 받으므로, 그때는 조용히 기존 방식으로 돌아간다. */
+  if (typeof onDelta === 'function' && window.fetch && window.ReadableStream && window.TextDecoder) {
+    try {
+      const ctrlS = new AbortController();
+      const tS = setTimeout(function(){ ctrlS.abort(); }, 45000);
+      const resS = await fetch(PIA_CHAT_PROXY + '?stream=1', {
+        method:'POST', headers:{ 'Content-Type':'application/json' }, signal: ctrlS.signal,
+        body: JSON.stringify({ messages: messages, max_tokens:700, temperature:0.8, stream:true })
+      });
+      const ctype = (resS.headers.get('content-type') || '');
+      if (resS.ok && ctype.indexOf('text/event-stream') >= 0 && resS.body) {
+        const reader = resS.body.getReader();
+        const dec = new TextDecoder();
+        let buf = '', acc = '', got = false;
+        for(;;){
+          const { value, done } = await reader.read();
+          if (done) break;
+          buf += dec.decode(value, { stream:true });
+          let idx;
+          while ((idx = buf.indexOf('\n')) >= 0) {
+            const line = buf.slice(0, idx).trim();
+            buf = buf.slice(idx + 1);
+            if (line.indexOf('data:') !== 0) continue;
+            let j = null;
+            try { j = JSON.parse(line.slice(5).trim()); } catch(e){ continue; }
+            if (j && j.delta) { acc += j.delta; got = true; try{ onDelta(acc); }catch(e){} }
+            if (j && j.done) { if (j.content && j.content.length > acc.length) acc = j.content; }
+          }
+        }
+        clearTimeout(tS);
+        if (got && acc.trim()) return acc.trim();
+      } else {
+        clearTimeout(tS);
+        try{ if(resS.body && resS.body.cancel) resS.body.cancel(); }catch(e){}
+      }
+    } catch(e) {
+      if (window.console) console.error('스트리밍 응답 실패 — 일반 방식으로 전환:', e && e.message);
+    }
+  }
+
   // 0차: 서버 프록시(키 불필요·전 기기 자동·6개 공급자 자동 폴백)
   try {
     const ctrl0 = new AbortController(); const t0 = setTimeout(function(){ ctrl0.abort(); }, 20000);
@@ -4876,7 +4919,20 @@ function initChat() {
       let out = null;
       // [엔진 우선순위] 누가 설정을 바꿨든 자유대화는 워커(자동 무료·6공급자 자동 회전)를 먼저 사용한다.
       //  → 특정 키(예: Gemini 무료 하루 20건) 한도 초과로 학생 화면에 429가 뜨는 것을 원천 차단.
-      try { out = await callLLMFree(ctx, sys); } catch (e) { out = null; }
+      /* 타이핑 말풍선 안에 글자가 실시간으로 쌓이도록 콜백을 넘긴다.
+         한국어 가드·중복 가드에서 재생성될 수 있으므로, 최종 확정 전까지는
+         이 말풍선이 '미리보기'다. 확정되면 아래에서 정식 말풍선으로 교체한다. */
+      var _stream = (function(){
+        var body = typing && typing.firstChild;
+        return function(sofar){
+          try{
+            if(!body) return;
+            body.textContent = String(sofar || '');
+            var _c = el('chat-messages'); if(_c) _c.scrollTop = _c.scrollHeight;
+          }catch(e){}
+        };
+      })();
+      try { out = await callLLMFree(ctx, sys, _stream); } catch (e) { out = null; }
       // 워커가 모두 실패할 때만, 사용자가 직접 넣은 키 엔진을 최후 폴백으로 시도
       if ((!out || !out.trim()) && keyed) { try { out = await callLLM(ctx, sys); } catch (e) { out = null; } }
       // 서버 AI가 모두 실패하면 브라우저 내장 AI(Gemini Nano 등)로 폴백 — 키·인터넷 없이 동작
