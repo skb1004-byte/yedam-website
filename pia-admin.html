@@ -46,6 +46,7 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
   <button class="mtoggle" id="mtoggle" aria-label="메뉴">☰</button>
   <div class="brand"><span class="dot">P</span>AI PIA · 통합 관리</div>
   <span class="sp"></span>
+  <span id="ai-badge" title="AI 대화 서비스 상태 (2분마다 자동 확인)" style="display:none;font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px;margin-right:10px;cursor:pointer">AI 확인 중…</span>
   <span class="who" id="who"></span>
   <a class="link" href="index.html" style="margin-left:12px">홈</a>
   <a class="link" href="#" id="logout" style="margin-left:12px">로그아웃</a>
@@ -118,7 +119,52 @@ document.getElementById('logout').onclick=function(e){ e.preventDefault(); sb.au
     return;
   }
   show('gate',false); show('shell',true);
+  try{ piaAIHealthStart(); }catch(e){}
 })();
+
+/* ── AI 헬스체크 배지 ──
+   2026-08-22 사고: 무료 LLM 6종이 동시에 실패해 대화가 전부 폴백으로 떨어졌는데
+   학생이 먼저 발견했다. 관리자가 먼저 알도록 상단에 상태를 상시 표시한다. */
+var AI_API='https://api.yedam.kr/ai';
+function piaAIBadge(state, detail){
+  var b=document.getElementById('ai-badge'); if(!b) return;
+  var M={
+    ok:   {t:'🟢 AI 정상',   bg:'#eef3e6', fg:'#4b5d33'},
+    slow: {t:'🟡 AI 느림',   bg:'#fbf3e0', fg:'#8a6416'},
+    down: {t:'🔴 AI 장애',   bg:'#fdecec', fg:'#b91c1c'},
+    wait: {t:'⚪ AI 확인 중…',bg:'#f3f1ea', fg:'#3d3d3a'}
+  };
+  var m=M[state]||M.wait;
+  b.textContent=m.t; b.style.background=m.bg; b.style.color=m.fg; b.style.display='inline-block';
+  b.title=(detail||'')+' · 클릭하면 즉시 다시 확인합니다.';
+  b.onclick=function(){ piaAICheck(true); };
+}
+async function piaAICheck(manual){
+  piaAIBadge('wait');
+  var t0=Date.now();
+  try{
+    var ctrl=new AbortController(); var tm=setTimeout(function(){ ctrl.abort(); }, 20000);
+    var res=await fetch(AI_API+'?cb='+Date.now(), {
+      method:'POST', headers:{'Content-Type':'application/json'}, signal:ctrl.signal,
+      body:JSON.stringify({messages:[{role:'user',content:'한 단어로 인사'}]})
+    });
+    clearTimeout(tm);
+    var dt=Date.now()-t0;
+    if(!res.ok){ piaAIBadge('down','HTTP '+res.status+' ('+dt+'ms)'); return; }
+    var j=await res.json().catch(function(){ return null; });
+    var prov=(j&&j.provider)||'?';
+    if(dt>12000) piaAIBadge('slow', prov+' · '+dt+'ms (응답 지연)');
+    else piaAIBadge('ok', prov+' · '+dt+'ms');
+  }catch(e){
+    piaAIBadge('down', (e&&e.name==='AbortError')?'응답 없음(20초 초과)':'연결 실패');
+    if(window.console) console.error('AI 헬스체크 실패:', e);
+  }
+}
+function piaAIHealthStart(){
+  piaAICheck();
+  setInterval(function(){ if(!document.hidden) piaAICheck(); }, 120000); /* 2분 */
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) piaAICheck(); });
+}
 </script>
 </body>
 </html>

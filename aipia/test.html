@@ -12506,14 +12506,42 @@ window.PIA_BOT = '<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" 
       });
     }catch(e){ if(window.console) console.error('\ube60\ub978\ub2f5\ubcc0 \uc544\uc774\ucf58 \uc2e4\ud328:', e); }
   }
+  /* [FIX 2026-08-22] 옵저버 콜백이 자기가 감시하는 DOM 을 다시 고치면
+     (특히 decorateQuick 은 감시 대상의 innerHTML 을 교체한다) 무한 되먹임이 되어
+     첫 대화 응답 직후 메인스레드가 멈춘다. 공통 가드로 감싼다:
+     · 재진입 금지(_busy) · rAF 디바운스 · 콜백 실행 중에는 옵저버 일시 정지 */
+  function guarded(mo_ref, fn){
+    var busy=false, queued=false;
+    return function(){
+      if(busy){ queued=true; return; }
+      busy=true;
+      requestAnimationFrame(function(){
+        var mo=mo_ref.v;
+        try{ if(mo) mo.disconnect(); }catch(e){}
+        try{ fn(); }catch(e){ if(window.console) console.error('옵저버 콜백 오류:', e); }
+        try{ if(mo && mo_ref.reobserve) mo_ref.reobserve(); }catch(e){}
+        busy=false;
+        if(queued){ queued=false; }
+      });
+    };
+  }
+  function watchEl(el, opts, fn){
+    if(!el || !window.MutationObserver) return;
+    var ref={v:null};
+    var cb=guarded(ref, fn);
+    var mo=new MutationObserver(cb);
+    ref.v=mo;
+    ref.reobserve=function(){ try{ mo.observe(el, opts); }catch(e){} };
+    ref.reobserve();
+  }
   function boot(){
     var bot=$('pia-chat-bot'); if(bot && !bot.innerHTML && window.PIA && PIA.botImg) bot.innerHTML=PIA.botImg('hero','');
     var t=$('chat-turn'), box=$('chat-msgs'), mic=$('chat-mic');
-    if(t && window.MutationObserver) new MutationObserver(syncTurn).observe(t,{childList:true,characterData:true,subtree:true});
-    if(box && window.MutationObserver) new MutationObserver(function(){ syncQ(); }).observe(box,{childList:true,subtree:true});
-    if(mic && window.MutationObserver) new MutationObserver(syncMic).observe(mic,{attributes:true,childList:true,subtree:true});
-    var qw=$('chat-quick-wrap');
-    if(qw && window.MutationObserver) new MutationObserver(function(){ decorateQuick(); }).observe(qw,{childList:true});
+    /* characterData 는 타이핑 애니메이션 한 글자마다 발동한다. 뺀다. */
+    watchEl(t,   {childList:true,subtree:true},                  syncTurn);
+    watchEl(box, {childList:true,subtree:true},                  function(){ syncQ(); });
+    watchEl(mic, {attributes:true,childList:true,subtree:true},  syncMic);
+    watchEl($('chat-quick-wrap'), {childList:true},              function(){ decorateQuick(); });
     syncTurn(); syncQ();
     decorateQuick();
   }
