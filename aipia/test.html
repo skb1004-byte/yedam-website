@@ -4790,7 +4790,32 @@ function initChat() {
   }
   function removeTyping(node) { if (node && node.parentNode) node.parentNode.removeChild(node); }
 
+  /* [FIX 2026-08-22] AI 응답이 실패(502·타임아웃)하면 아래 send() 안의
+     'sendBtn.disabled=false' 줄까지 도달하지 못해 '답변 보내기'가 영구 잠겼다.
+     어떤 경로로 끝나든 버튼을 반드시 되살리도록 감싼다. */
   async function send() {
+    try { await _send(); }
+    catch(e){ if(window.console) console.error('전송 오류:', e); }
+    finally {
+      try{
+        if (sendBtn) sendBtn.disabled = false;
+        var _ty=document.querySelector('#chat-messages .pia-typing');
+        if(_ty && _ty.parentNode && _ty.parentNode.parentNode) _ty.parentNode.parentNode.remove();
+      }catch(_e){}
+    }
+  }
+  /* 안전장치: 어떤 이유로든 15초 넘게 잠겨 있으면 자동 해제 */
+  setInterval(function(){
+    try{
+      if(!sendBtn || !sendBtn.disabled) { window.__sendLockAt = 0; return; }
+      if(!window.__sendLockAt){ window.__sendLockAt = Date.now(); return; }
+      if(Date.now() - window.__sendLockAt > 15000){
+        sendBtn.disabled = false; window.__sendLockAt = 0;
+        if(window.console) console.error('전송 버튼 잠김을 자동 해제했습니다.');
+      }
+    }catch(e){}
+  }, 3000);
+  async function _send() {
     try { if (!window.__ttsPrimed && ('speechSynthesis' in window)) { var _w=new SpeechSynthesisUtterance(' '); _w.volume=0; speechSynthesis.speak(_w); speechSynthesis.resume(); window.__ttsPrimed=true; } } catch(e){}
     const text = messageInput.value.trim();
     if (!text) return;
