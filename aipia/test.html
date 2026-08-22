@@ -643,14 +643,14 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
 
     <div class="pia-prog">
       <div class="pia-prog__top">
-        <span class="pia-prog__label">대화 진행 <b class="pia-prog__cur" id="chat-turn-n">0</b> <span class="pia-prog__tot">/ <span id="chat-turn-t">16</span></span></span>
+        <span class="pia-prog__label">대화 진행 <b class="pia-prog__cur" id="chat-turn-n">0</b> <span class="pia-prog__tot">/ <span id="chat-turn-t">8</span></span></span>
         <span class="pia-sr" id="chat-turn-pct">0%</span>
       </div>
       <div class="pia-prog__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="대화 진행률">
         <div class="pia-prog__fill" id="chat-turn-bar" style="width:0%"></div>
       </div>
     </div>
-    <span id="chat-turn" class="pia-sr">0 / 16 턴</span>
+    <span id="chat-turn" class="pia-sr">0 / 8 턴</span>
 
     <section class="pia-sec pia-ask">
       <div class="pia-ask__bot" aria-hidden="true" id="pia-chat-bot"></div>
@@ -4851,7 +4851,7 @@ function initChat() {
     var _rep = String(reply).replace(/\uC544\uC774\uACE0[\uC57C\uC544]?[\s!,.~]*/gi,'').replace(/^[\s,!.~]+/,'') || reply;
     appendMsg(_rep, 'ai');
     if (typeof window.speakReply === 'function') window.speakReply(_rep);
-    turnCounter.textContent = `${state.results.conv.turns} / 16 턴`;
+    turnCounter.textContent = `${state.results.conv.turns} / 8 턴`;
     if (sendBtn) sendBtn.disabled = false;
     try { messageInput.focus(); } catch(e) {}
 
@@ -4907,7 +4907,7 @@ function initChat() {
   }));
   try { renderChatStarter(); } catch(e) {}
 
-  turnCounter.textContent = `${state.results.conv.turns} / 16 턴`;
+  turnCounter.textContent = `${state.results.conv.turns} / 8 턴`;
   updateChatProfile();
 
   // ========== 음성 입력 (Web Speech API) ==========
