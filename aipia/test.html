@@ -900,6 +900,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     <div class="cover-title-main" data-en="Standardized Personality &amp; Aptitude Assessment">표준화 인·적성 검사</div>
     <div class="cover-title-sub" data-en="AI PIA Assessment Report">AI PIA 검사 결과지</div>
     <div class="cover-badge" id="cover-badge-txt" data-en="Assessment Report">학생 본인용</div>
+    <div id="rep-grade-banner" style="display:none;max-width:540px;margin:0 auto 22px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.6;color:#0c4a6e;"></div>
     <div class="cover-info-box">
       <table>
         <tr><td class="lbl" data-en="Name">성  명</td><td class="val" id="cover-name">-</td></tr>
@@ -9954,6 +9955,48 @@ function adaptReportForAdult(){
     }
   }catch(e){}
 }
+/* 학교급 밴드 판정 (초저/초고/중/고/대학·성인) */
+function piaGradeBand(){
+  try{
+    var g=String((state.profile&&state.profile.grade)||(state.cfg&&state.cfg.grade)||'');
+    if(/대학|성인|일반|adult|univ/i.test(g)) return 'adult';
+    if(/고[123]|고등|high/i.test(g)) return 'high';
+    if(/중[123]|중등|mid/i.test(g)) return 'mid';
+    if(/초\s*[56]/.test(g)) return 'elemHigh';
+    if(/초|elem/i.test(g)) return 'elemLow';
+    return 'mid';
+  }catch(e){ return 'mid'; }
+}
+var PIA_GRADE_BANNER = {
+  elemLow:'🌱 <b>초등 저학년용</b> · 쉽고 재미있게 나를 알아본 결과예요. 부모님·선생님과 함께 봐요. 정답은 없어요!',
+  elemHigh:'🌱 <b>초등 고학년용</b> · 내가 좋아하는 것과 잘하는 것을 알아봤어요. 관심 분야를 넓게 탐색해 보세요.',
+  mid:'📘 <b>중학생용</b> · 나의 흥미·성향을 이해하고 진로를 탐색하는 데 활용해 보세요.',
+  high:'🎓 <b>고등학생용</b> · 계열·선택과목·진로 설계에 활용하세요. 흥미·적성·성적을 함께 고려하세요.',
+  adult:'💼 <b>대학·성인용</b> · 직무역량과 진로 방향 중심의 요약입니다.'
+};
+/* 초등: 딱딱한 용어를 친근하게 치환 (adaptReportForAdult 와 동일 패턴) */
+function adaptReportByGrade(){
+  try{
+    var band=piaGradeBand();
+    var root=document.getElementById('pia-report'); if(!root) return;
+    var pairs=null;
+    if(band==='elemLow'||band==='elemHigh'){
+      pairs=[
+        ['추천 학과·직업 (진로흥미 RIASEC 기반)','내가 좋아할 만한 일 (흥미 기반)'],
+        ['추천 계열·학과','관심 분야'],
+        ['관련 직업','해볼 수 있는 일'],
+        ['진로흥미 유형','좋아하는 활동 유형'],
+        ['담당교사·부모님께 드리는 종합 코멘트','부모님·선생님께 드리는 이야기']
+      ];
+    }
+    if(!pairs) return;
+    var wk=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n;
+    while(n=wk.nextNode()){ var t=n.nodeValue, o=t;
+      for(var i=0;i<pairs.length;i++){ if(t.indexOf(pairs[i][0])>=0) t=t.split(pairs[i][0]).join(pairs[i][1]); }
+      if(t!==o) n.nodeValue=t;
+    }
+  }catch(e){ if(window.console) console.error('급별 문구 적용 오류:', e); }
+}
 function populateResult(d){
   const sc = d.scores || {};
   // ── 표지 ──
@@ -10118,6 +10161,10 @@ function populateResult(d){
     var respW=isA?'일반(성인)':'학생';
     setText('cover-badge-txt', respW+' · '+audW);
   })();
+  // ── 학교급별 안내 배너 ──
+  (function(){
+    try{ var b=el('rep-grade-banner'); if(b){ var band=piaGradeBand(); var txt=PIA_GRADE_BANNER[band]; if(txt){ b.innerHTML=txt; b.style.display='block'; } else { b.style.display='none'; } } }catch(e){}
+  })();
   // ── 인성 종합 점수 ──
   const _pv = sc.personality||72;
   setText('rep-pers-score', _pv); setGB('rep-pers-grade', _pv);
@@ -10224,6 +10271,7 @@ function populateResult(d){
   const backBtn=document.getElementById('btn-back-student');
   if(backBtn)backBtn.style.display='inline-flex';
   try{ adaptReportForAdult(); }catch(e){}
+  try{ adaptReportByGrade(); }catch(e){}
 }
 
 function setText(id, val){const el=document.getElementById(id);if(el)el.textContent=val;}
