@@ -12964,15 +12964,30 @@ window._ttsClean=function(s){
 /* 같은 화면에서 다음 문항으로 넘어갈 때도 읽어 주고,
    '음성 안내'를 켜는 즉시 현재 문항을 읽어 준다. (키오스크 접근성) */
 (function(){
+  var _rwBusy=false, _rwTimer=null, _rwLastAt=0;
   function readNow(){
     try{ if(window.PIA && PIA.ttsOn && PIA.autoRead) PIA.autoRead(); }catch(e){}
   }
   function watch(){
     try{
       if(!window.MutationObserver) return;
-      var mo=new MutationObserver(function(){ setTimeout(readNow, 250); });
+      /* [FIX] 예전에는 DOM 이 바뀔 때마다 곧바로 낭독을 시도했다. 그런데 낭독이
+         다시 DOM 을 건드리면 옵저버가 또 발동해 되먹임 루프가 되고, 채팅처럼
+         DOM 변경이 잦은 화면에서 메인스레드를 붙잡아 '응답 없는 페이지'가 됐다.
+         디바운스 + 재진입 가드 + 최소 간격으로 폭주를 막는다. */
+      var mo=new MutationObserver(function(){
+        if(_rwBusy) return;
+        var now=Date.now();
+        if(now-_rwLastAt < 1500) return;      /* 최소 1.5초 간격 */
+        clearTimeout(_rwTimer);
+        _rwTimer=setTimeout(function(){
+          _rwBusy=true; _rwLastAt=Date.now();
+          try{ readNow(); } finally { setTimeout(function(){ _rwBusy=false; }, 800); }
+        }, 400);
+      });
       document.querySelectorAll('section[data-view]').forEach(function(sec){
-        mo.observe(sec, { childList:true, subtree:true, characterData:true });
+        /* characterData 까지 보면 타이핑 애니메이션 한 글자마다 발동한다. 뺀다. */
+        mo.observe(sec, { childList:true, subtree:true });
       });
     }catch(e){ if(window.console) console.error('문항 낭독 감지 실패:', e); }
   }
