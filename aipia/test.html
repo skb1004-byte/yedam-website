@@ -2764,6 +2764,33 @@ async function callOnDevice(prompt, systemPrompt) {
 const PIA_CHAT_PROXY = 'https://api.yedam.kr/ai';
 function _escHtml(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
 // 키 불필요 무료 게이트웨이 직접 호출 (cfg 무관 · 자유대화 자동 연결용)
+/* 내장 브라우저 AI 폴백 (Chrome 내장 Prompt API / Gemini Nano).
+   서버·키·인터넷 없이 브라우저 안에서 응답 생성. 지원 안 하면 null 반환(규칙형으로 폴백). */
+async function callBrowserAI(prompt, systemPrompt){
+  try{
+    var LM = (typeof LanguageModel!=='undefined' && LanguageModel)
+          || (typeof self!=='undefined' && self.LanguageModel)
+          || (window.ai && (window.ai.languageModel || window.ai.assistant))
+          || (typeof self!=='undefined' && self.ai && (self.ai.languageModel || self.ai.assistant));
+    if(!LM || (!LM.create && !LM.availability && !LM.capabilities)) return null;
+    var ok=true;
+    try{
+      if(LM.availability){ var a=await LM.availability(); ok=(a && a!=='unavailable' && a!=='no'); }
+      else if(LM.capabilities){ var c=await LM.capabilities(); ok=(c && c.available && c.available!=='no'); }
+    }catch(e){ ok=true; }
+    if(!ok) return null;
+    var sysStr = systemPrompt ? String(systemPrompt).slice(0,4000) : '';
+    var session=null;
+    try{ session = await LM.create(sysStr ? { initialPrompts:[{role:'system',content:sysStr}] } : {}); }
+    catch(e){ try{ session = await LM.create(sysStr ? { systemPrompt:sysStr } : {}); }catch(e2){ session=null; } }
+    if(!session || typeof session.prompt!=='function') return null;
+    var txt = await session.prompt(String(prompt).slice(0,6000));
+    try{ if(session.destroy) session.destroy(); }catch(e){}
+    txt = (txt && String(txt).trim()) ? String(txt).trim() : '';
+    return txt || null;
+  }catch(e){ if(window.console) console.error('내장 브라우저 AI 실패:', e); return null; }
+}
+window.callBrowserAI = callBrowserAI;
 async function callLLMFree(prompt, systemPrompt) {
   const messages = [];
   if (systemPrompt) messages.push({ role:'system', content: systemPrompt });
@@ -4806,6 +4833,8 @@ function initChat() {
       try { out = await callLLMFree(ctx, sys); } catch (e) { out = null; }
       // 워커가 모두 실패할 때만, 사용자가 직접 넣은 키 엔진을 최후 폴백으로 시도
       if ((!out || !out.trim()) && keyed) { try { out = await callLLM(ctx, sys); } catch (e) { out = null; } }
+      // 서버 AI가 모두 실패하면 브라우저 내장 AI(Gemini Nano 등)로 폴백 — 키·인터넷 없이 동작
+      if (!out || !out.trim()) { try { out = await callBrowserAI(ctx, sys); } catch (e) { out = null; } }
       // 출력 언어 가드: 한국어 이탈(중국어/일본어/한자 혼입) 시 1회 재시도 → 실패하면 로컬 한국어 응답
       if (out && out.trim() && !_isKoreanReply(out)) {
         try { var _kr = await callLLMFree(ctx, sys + '\n\n[경고] 직전 출력이 한국어가 아니었다. 오직 한국어(한글)로만 2~3문장으로 다시 답하라.'); out = (_kr && _isKoreanReply(_kr)) ? _kr : null; }
