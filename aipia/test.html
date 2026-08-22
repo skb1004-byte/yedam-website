@@ -1807,20 +1807,23 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     <tr><td>5위</td><td class="row-head" id="top5-5">음악 치료사</td><td>예능·복지</td><td style="text-align:left;">음악지능 B+, 공감능력 A, 정서 관심</td></tr>
   </table>
 
+  <div class="section-title" data-en="■ Recommended Majors &amp; Jobs (RIASEC-based)"><span class="section-icon">■</span> 추천 학과·직업 (진로흥미 RIASEC 기반)</div>
+  <div id="rep-career-list" style="margin-bottom:12px;"></div>
+
   <div class="section-title" data-en="■ Overall Comments for Teachers &amp; Parents"><span class="section-icon">■</span> 담당교사·부모님께 드리는 종합 코멘트</div>
   <table class="data-table">
     <tr><th data-en="Category">구분</th><th data-en="Details">내용</th></tr>
     <tr>
       <td class="row-head" data-en="Strength support">강점 지원</td>
-      <td style="text-align:left;">사회성과 언어 능력이 뛰어난 학생입니다. 토론, 독서, 발표 기회를 늘려 강점을 극대화해주세요.</td>
+      <td style="text-align:left;" id="cmt-strength">사회성과 언어 능력이 뛰어난 학생입니다. 토론, 독서, 발표 기회를 늘려 강점을 극대화해주세요.</td>
     </tr>
     <tr>
       <td class="row-head" data-en="Areas to improve">보완 사항</td>
-      <td style="text-align:left;">정서 안정(P6 C등급)이 또래 평균 이하입니다. 규칙적 수면과 운동, 학교 상담 교사와의 정기 면담을 권장합니다.</td>
+      <td style="text-align:left;" id="cmt-improve">규칙적 수면과 운동, 관심 분야 활동으로 자신감을 키우고, 약한 영역은 작은 목표부터 차근차근 보완하도록 도와주세요.</td>
     </tr>
     <tr>
-      <td class="row-head" data-en="Cautions">주의 사항</td>
-      <td style="text-align:left;">자기통제 능력이 평균 수준이므로 과도한 스마트폰·게임 사용을 제한하고 자기 조절 루틴을 형성할 수 있도록 도와주세요.</td>
+      <td class="row-head" data-en="Cautions">지도 방향</td>
+      <td style="text-align:left;" id="cmt-caution">강점을 살릴 수 있는 활동을 꾸준히 경험하게 하고, 진로는 흥미·적성·성적·가치관을 함께 고려해 넓게 탐색하도록 안내해 주세요.</td>
     </tr>
   </table>
 
@@ -6233,6 +6236,16 @@ const RIASEC_INTERPRETATIONS = {
   C:'체계적이고 정확하게 일을 처리합니다. 꼼꼼함과 책임감이 강점이며 회계·금융·행정·관리·데이터 정리 분야에 적합합니다.'
 };
 
+/* RIASEC 유형 → 추천 계열·대표학과·직업 목록 (진로 결과지 구체화용) */
+const RIASEC_CAREER = {
+  R:{track:'공학·기술·자연', majors:['기계공학','전기전자공학','건축·토목','컴퓨터공학','자동차·항공','농생명','환경공학','체육·스포츠'], jobs:['기계·로봇 엔지니어','전기전자 기술자','건축가·시공기술자','자동차·항공 정비/설계','농생명 연구원','소방·경찰','조경·환경 기사','체육지도자']},
+  I:{track:'자연과학·의약·IT', majors:['수학·통계','물리·화학','생명과학','의예·약학','컴퓨터·데이터과학','전자·반도체','지구환경과학'], jobs:['이공계 연구원','데이터 사이언티스트','의사·약사·수의사','생명과학 연구원','AI·소프트웨어 개발자','통계·계량 분석가','임상병리·검사 전문가']},
+  A:{track:'예술·디자인·미디어', majors:['시각·산업디자인','순수미술','음악·실용음악','연극영화·영상','문예창작','패션디자인','공연예술'], jobs:['디자이너(UX·그래픽·제품)','영상·콘텐츠 크리에이터','작가·시나리오','음악가·프로듀서','배우·연출가','일러스트레이터','패션·스타일리스트']},
+  S:{track:'교육·복지·의료·상담', majors:['교육·사범','사회복지','심리·상담','간호·보건','유아교육','재활·물리치료','언어치료'], jobs:['교사·교육전문가','상담사·심리치료사','사회복지사','간호사·보건교사','유아·특수교사','작업·물리치료사','청소년지도사']},
+  E:{track:'경영·경제·법정·미디어', majors:['경영·경제','무역·국제','정치외교','법학','광고홍보','호텔관광','미디어커뮤니케이션'], jobs:['경영·기획 관리자','마케터·MD','창업가','변호사·법조인','정치·행정가','PD·기자','영업·컨설턴트']},
+  C:{track:'상경·행정·금융·정보', majors:['회계·세무','경영정보','금융·보험','행정','문헌정보','통계','물류·유통'], jobs:['회계사·세무사','금융·은행원','공무원·행정직','데이터·정보 관리자','감사·품질 관리','물류·SCM 전문가','사무·경영지원']}
+};
+
 // 청중별 인사말
 function selfIsAdult(){
   // 응답자가 대학생/성인/일반인이면 true → 본인용 보고서를 '일반용(존댓말)'로
@@ -10150,6 +10163,39 @@ function populateResult(d){
     let _t=null; try{ _t=inferIntegratedType(); }catch(e){}
     const cs=(_t&&_t.careers)?_t.careers:[];
     for(let k=0;k<5;k++){ const e=el('top5-'+(k+1)); if(e && cs[k]) e.textContent=cs[k]; }
+  })();
+  // ── 추천 학과·직업 리스트 + 동적 3단 코멘트 (RIASEC 실측 기반) ──
+  (function(){
+    try{
+      var rn={R:'현실형',I:'탐구형',A:'예술형',S:'사회형',E:'진취형',C:'관습형'};
+      var order = (sc.riasec ? Object.entries(sc.riasec).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0];}) : ['A','S','E']);
+      var c1=RIASEC_CAREER[order[0]], c2=RIASEC_CAREER[order[1]];
+      var host=el('rep-career-list');
+      if(host && c1){
+        function uniq(a){ return a.filter(function(v,i){return a.indexOf(v)===i;}); }
+        function chips(a){ return a.map(function(x){return '<span style="display:inline-block;background:#f3ebe1;border-radius:6px;padding:2px 8px;margin:2px 3px;font-size:11px;">'+x+'</span>';}).join(''); }
+        var majors=uniq(c1.majors.slice(0,6).concat(c2?c2.majors.slice(0,3):[]));
+        var jobs=uniq(c1.jobs.slice(0,7).concat(c2?c2.jobs.slice(0,4):[]));
+        host.innerHTML='<table class="data-table">'
+          +'<tr><th style="width:96px;">진로흥미 유형</th><td style="text-align:left;"><b>'+rn[order[0]]+'('+order[0]+')</b>'+(c2?' · '+rn[order[1]]+'('+order[1]+')':'')+' 중심 · <b>'+c1.track+'</b></td></tr>'
+          +'<tr><th>추천 계열·학과</th><td style="text-align:left;">'+chips(majors)+'</td></tr>'
+          +'<tr><th>관련 직업</th><td style="text-align:left;">'+chips(jobs)+'</td></tr></table>'
+          +'<p style="font-size:10px;color:#888;margin-top:4px;">※ 진로흥미(Holland RIASEC) 상위 유형 기반 예시입니다. 실제 진학·취업은 흥미·적성·성적·가치관을 함께 고려하세요.</p>';
+      }
+      // 동적 3단 코멘트
+      var nm=(d&&d.name)||'학생';
+      var st=el('cmt-strength');
+      if(st && c1){ st.textContent = nm+' 학생은 '+rn[order[0]]+' 흥미가 두드러집니다. '+(RIASEC_INTERPRETATIONS[order[0]]||'')+' 관련 활동·동아리·독서 기회를 늘려 강점을 키워 주세요.'; }
+      var im=el('cmt-improve');
+      if(im){
+        var lvl=null; try{ var cz=state.results.cesd.scores,pz=state.results.phqa.scores,gz=state.results.gad.scores;
+          [cz,pz,gz].forEach(function(x){ if(x&&(x.level==='HIGH'||x.level==='MEDIUM')) lvl=x.level; }); }catch(e){}
+        if(lvl){ im.textContent='최근 정서(기분·불안) 문항에서 '+(lvl==='HIGH'?'다소 높은':'약간의')+' 주의 신호가 보입니다. 규칙적 수면·운동과 함께, 필요하면 학교 상담 선생님과의 정기 면담을 권장합니다. (진단이 아닌 참고 신호입니다.)'; }
+        else { im.textContent='약한 영역은 작은 목표부터 차근차근 보완하도록 돕고, 규칙적 생활 습관과 관심 분야 경험으로 자신감을 키워 주세요.'; }
+      }
+      var ca=el('cmt-caution');
+      if(ca && c1){ ca.textContent='진로는 '+c1.track+' 계열을 중심으로 넓게 탐색하되, 흥미·적성·성적·가치관을 함께 고려하도록 안내해 주세요. 한 가지 결과로 진로를 단정하지 않는 것이 중요합니다.'; }
+    }catch(e){ if(window.console) console.error('진로 추천 렌더 오류:', e); }
   })();
   // ── 계열 적성(page7) 실측 바인딩 ──
   (function(){
