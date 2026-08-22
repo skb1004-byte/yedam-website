@@ -9649,7 +9649,9 @@ function getRecognition() {
 async function safeStartRecognition() {
   const rec = getRecognition();
   if (!rec) {
-    alert('이 브라우저는 음성 인식을 지원하지 않습니다.\nChrome 또는 Safari를 사용해주세요.');
+    /* [FIX] 자동 재시작 경로에서 alert 이 반복되면 화면이 잠긴다. 안내만 띄운다. */
+    try{ var _ms0=el('chat-mic-status'); if(_ms0) _ms0.textContent='이 브라우저는 음성 인식을 지원하지 않아요. 글로 입력해 주세요.'; }catch(e){}
+    try{ _micWant = false; }catch(e){}
     return false;
   }
   if (_globalRecording) {
@@ -9778,12 +9780,37 @@ function rebindMicButton() {
       micStatus.textContent = _micWant ? '🎤 계속 듣는 중…' : '';
     }
     // 핸즈프리: 사용자가 켜둔 상태면 자동 재시작 (TTS 재생 중엔 대기)
+    /* [FIX 2026-08-22] onerror 에는 백오프·5회 상한이 있는데 onend 에는 없었다.
+       마이크가 소리를 못 잡으면 onend 만 계속 발생 → 0.7초마다 무한 재시작 →
+       인식기 생성이 쌓여 메인스레드를 잡고 '응답 없는 페이지'가 됐다.
+       발화 없이 끝난 연속 재시작을 세어 상한을 두고, 간격도 점점 늘린다. */
     if (_micWant) {
-      setTimeout(function(){
-        if (_micWant && !_globalRecording && !(('speechSynthesis' in window) && speechSynthesis.speaking) && !window.__gttsPlaying) {
-          safeStartRecognition();
-        }
-      }, messageInput.value.trim() ? 1800 : 700);
+      var _got = !!messageInput.value.trim();
+      if (_got) { window._piaEndLoop = 0; }
+      else { window._piaEndLoop = (window._piaEndLoop || 0) + 1; }
+      /* [안전장치 2] 짧은 시간에 onend 가 몰아치면(예: 마이크 미인식) 즉시 중단.
+         Chrome 은 7초 무음이면 자동으로 onend 를 쏘므로 조용한 교실에서 폭주하기 쉽다.
+         (알려진 함정: onend 안에서 start() 를 부르면 브라우저가 멈추거나 죽는다) */
+      var _nowE = Date.now();
+      if (!_got) {
+        if (_nowE - (window._piaEndFirstAt || _nowE) > 60000) { window._piaEndFirstAt = _nowE; window._piaEndLoop = 1; }
+        else if (!window._piaEndFirstAt) { window._piaEndFirstAt = _nowE; }
+        var _fast = (_nowE - (window._piaEndLastAt || 0)) < 1200;   /* 1.2초 내 재발생 */
+        window._piaEndLastAt = _nowE;
+        window._piaEndFast = _fast ? ((window._piaEndFast || 0) + 1) : 0;
+      } else { window._piaEndFast = 0; window._piaEndFirstAt = 0; }
+      if (!_got && (window._piaEndLoop > 8 || window._piaEndFast >= 3)) {
+        try{ window.piaStopMic('end-loop'); }catch(e){ _micWant = false; }
+        if (micStatus) micStatus.textContent = '음성이 계속 감지되지 않아 글 입력으로 바꿨어요.';
+      } else {
+        var _delay = _got ? 1800 : Math.min(6000, 700 * Math.pow(1.6, Math.max(0,(window._piaEndLoop||1) - 1)));
+        clearTimeout(window._piaEndTimer);
+        window._piaEndTimer = setTimeout(function(){
+          if (_micWant && !_globalRecording && !(('speechSynthesis' in window) && speechSynthesis.speaking) && !window.__gttsPlaying) {
+            safeStartRecognition();
+          }
+        }, _delay);
+      }
     }
   };
   rec.onerror = (e) => {
