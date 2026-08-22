@@ -1811,6 +1811,12 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
   <div class="section-title" data-en="■ Recommended Majors &amp; Jobs (RIASEC-based)"><span class="section-icon">■</span> 추천 학과·직업 (진로흥미 RIASEC 기반)</div>
   <div id="rep-career-list" style="margin-bottom:12px;"></div>
 
+  <div id="rep-classnorm-wrap" style="display:none;margin-bottom:12px;">
+    <div class="section-title" data-en="■ Compared to Class Average (RIASEC)"><span class="section-icon">■</span> 우리 반 평균 대비 (진로흥미 RIASEC)</div>
+    <div id="rep-classnorm"></div>
+    <p style="font-size:10px;color:#888;margin-top:4px;">※ 같은 반 코드로 응시한 <b>참여자 평균</b>과의 비교입니다(전국 표준 규준이 아님). 표본이 적을수록 참고용으로만 보세요.</p>
+  </div>
+
   <div class="section-title" data-en="■ Overall Comments for Teachers &amp; Parents"><span class="section-icon">■</span> 담당교사·부모님께 드리는 종합 코멘트</div>
   <table class="data-table">
     <tr><th data-en="Category">구분</th><th data-en="Details">내용</th></tr>
@@ -9971,6 +9977,32 @@ function piaCopyNokyeon(){
     else { _piaFallbackCopy(t); }
   }catch(e){ if(window.console) console.error('복사 오류:', e); }
 }
+/* 우리 반 평균 대비(참여자 규준) — pia_org_averages RPC */
+function piaRenderClassNorm(){
+  try{
+    var wrap=document.getElementById('rep-classnorm-wrap'); if(!wrap) return;
+    var code=''; try{ code=(state.profile&&state.profile.orgCode)||''; }catch(e){}
+    var ri=(state.results.riasec&&state.results.riasec.scores)||null;
+    if(!code || !ri || typeof _piaEnsureSB!=='function'){ wrap.style.display='none'; return; }
+    _piaEnsureSB().then(function(sb){ if(!sb||!sb.rpc) return;
+      sb.rpc('pia_org_averages',{p_code:code}).then(function(r){
+        var d=r&&r.data&&r.data[0];
+        if(!d || !d.n || d.n<5){ wrap.style.display='none'; return; }
+        var host=document.getElementById('rep-classnorm'); if(!host) return;
+        var rows=[['R','실재형',d.ria_r],['I','탐구형',d.ria_i],['A','예술형',d.ria_a],['S','사회형',d.ria_s],['E','진취형',d.ria_e],['C','관습형',d.ria_c]];
+        var html='<table class="data-table"><tr><th style="width:96px;">진로흥미</th><th>내 점수</th><th>우리 반 평균('+d.n+'명)</th><th>비교</th></tr>';
+        rows.forEach(function(x){
+          var mine=Math.round(ri[x[0]]||0);
+          var avg=(x[2]!=null)?Number(x[2]):null;
+          var cmp=(avg==null)?'—':(mine>avg+3?'▲ 높음':(mine<avg-3?'▼ 낮음':'≈ 비슷'));
+          html+='<tr><td class="row-head">'+x[1]+'('+x[0]+')</td><td>'+mine+'</td><td>'+(avg==null?'—':avg)+'</td><td>'+cmp+'</td></tr>';
+        });
+        html+='</table>';
+        host.innerHTML=html; wrap.style.display='block';
+      }).catch(function(e){ if(window.console) console.error('반 평균 조회 오류:', e); });
+    });
+  }catch(e){ if(window.console) console.error('반 평균 렌더 오류:', e); }
+}
 /* 학교급 밴드 판정 (초저/초고/중/고/대학·성인) */
 function piaGradeBand(){
   try{
@@ -10309,6 +10341,7 @@ function populateResult(d){
   if(backBtn)backBtn.style.display='inline-flex';
   try{ adaptReportForAdult(); }catch(e){}
   try{ adaptReportByGrade(); }catch(e){}
+  try{ piaRenderClassNorm(); }catch(e){}
 }
 
 function setText(id, val){const el=document.getElementById(id);if(el)el.textContent=val;}
