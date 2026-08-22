@@ -1828,6 +1828,12 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     </tr>
   </table>
 
+  <div id="rep-nokyeon-wrap" style="display:none;margin-top:14px;">
+    <div class="section-title" data-en="■ Draft Note for School Record (Career Activity) — Teacher"><span class="section-icon">■</span> 생활기록부 진로활동 소견 (교사용 초안) <button type="button" onclick="piaCopyNokyeon()" class="no-print" style="margin-left:8px;border:1px solid #cbd5e1;background:#f1f5f9;border-radius:8px;padding:2px 10px;font-size:11px;font-weight:700;cursor:pointer;vertical-align:middle">📋 복사</button></div>
+    <div id="rep-nokyeon" style="border:1px solid #e3d9c6;border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.85;color:#333;background:#fbfaf7;text-align:left;"></div>
+    <p style="font-size:10px;color:#888;margin-top:4px;">※ 생활기록부 기재 규정상 <b>교사의 직접 관찰</b>에 근거해 수정·재작성 후 사용하세요. 특정 대학·석차·수치 표기는 지양합니다. 아래는 검사 결과 기반 <b>초안 예시</b>입니다.</p>
+  </div>
+
   <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:30px;padding-top:20px;border-top:1px solid #ddd;">
     <div style="font-size:11px;color:#555;">
       <strong data-en="Issuing body:">발급 기관 :</strong> <span id="footer-org">-</span><br>
@@ -9955,6 +9961,16 @@ function adaptReportForAdult(){
     }
   }catch(e){}
 }
+/* 생기부 소견 복사(교사용) */
+function _piaFallbackCopy(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); if(window.showToast)showToast('생기부 소견을 복사했어요.'); }catch(e){ if(window.console) console.error('복사 실패:', e); } }
+function piaCopyNokyeon(){
+  try{
+    var el0=document.getElementById('rep-nokyeon'); var t=el0?el0.textContent:'';
+    if(!t){ if(window.showToast)showToast('복사할 소견이 없습니다.'); return; }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(function(){ if(window.showToast)showToast('생기부 소견을 복사했어요.'); }, function(){ _piaFallbackCopy(t); }); }
+    else { _piaFallbackCopy(t); }
+  }catch(e){ if(window.console) console.error('복사 오류:', e); }
+}
 /* 학교급 밴드 판정 (초저/초고/중/고/대학·성인) */
 function piaGradeBand(){
   try{
@@ -10243,6 +10259,27 @@ function populateResult(d){
       var ca=el('cmt-caution');
       if(ca && c1){ ca.textContent='진로는 '+c1.track+' 계열을 중심으로 넓게 탐색하되, 흥미·적성·성적·가치관을 함께 고려하도록 안내해 주세요. 한 가지 결과로 진로를 단정하지 않는 것이 중요합니다.'; }
     }catch(e){ if(window.console) console.error('진로 추천 렌더 오류:', e); }
+  })();
+  // ── 생활기록부 진로활동 소견(교사용) 자동 생성 ──
+  (function(){
+    try{
+      var wrap=el('rep-nokyeon-wrap'); if(!wrap) return;
+      var isTeacher=(typeof currentAudience!=='undefined' && currentAudience==='teacher');
+      wrap.style.display = isTeacher ? 'block' : 'none';
+      if(!isTeacher) return;
+      var host=el('rep-nokyeon'); if(!host) return;
+      var rn={R:'실재형',I:'탐구형',A:'예술형',S:'사회형',E:'진취형',C:'관습형'};
+      var ri=state.results.riasec.scores, vi=state.results.via.scores, gr=state.results.grit.scores;
+      var order = ri ? Object.entries(ri).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0];}) : ['A'];
+      var c1=RIASEC_CAREER[order[0]];
+      var strengths = vi ? Object.entries(vi).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0];}) : [];
+      var parts=[];
+      if(c1){ parts.push('진로흥미검사에서 '+rn[order[0]]+'('+order[0]+') 유형이 우세하게 나타나 '+c1.track+' 분야에 흥미와 적성을 보이며, '+c1.jobs.slice(0,2).join('·')+' 등을 관심 진로로 탐색함.'); }
+      if(strengths.length){ parts.push(strengths.join('·')+' 강점이 두드러지며, 이를 바탕으로 학급 활동에서 긍정적인 태도를 보임.'); }
+      if(gr){ var ov=gr.overall||0; parts.push(ov>=70?'목표를 정하면 끝까지 노력하는 끈기가 관찰됨.':'관심 분야에 대한 꾸준함과 자기주도적 학습 태도를 기르도록 지도가 필요함.'); }
+      if(c1){ parts.push(c1.track+' 관련 동아리·독서·체험 활동을 통해 진로 역량을 심화할 것을 권장함.'); }
+      host.textContent = parts.length ? parts.join(' ') : '검사 결과가 충분하지 않아 소견 초안을 생성하지 못했습니다. 진로흥미(RIASEC)·강점(VIA) 검사를 완료하면 자동 생성됩니다.';
+    }catch(e){ if(window.console) console.error('생기부 소견 생성 오류:', e); }
   })();
   // ── 계열 적성(page7) 실측 바인딩 ──
   (function(){
