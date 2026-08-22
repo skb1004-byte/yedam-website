@@ -102,6 +102,46 @@
     var cd = logError({ message: String(msg), source: location.pathname, stack: st });
     if (cd) toast(cd);
   });
+
+  /* ---- 화면 멈춤(프리즈) 감지 ----
+     2026-08-22 사고: MutationObserver 되먹임으로 메인스레드가 수십 초 잡혀
+     "응답 없는 페이지"가 떴는데, JS 에러가 아니라서 아무 기록도 남지 않았다.
+     하트비트가 끊긴 구간과 LongTask 를 잡아 error_logs 에 남긴다.
+     탭이 백그라운드일 때는 브라우저가 정상적으로 타이머를 늦추므로 제외한다. */
+  (function () {
+    try {
+      var FREEZE_MS = 5000;      /* 5초 이상 멈추면 이상 */
+      var TICK = 500;
+      var last = Date.now(), reported = 0, MAXF = 3;
+      var longest = 0;
+      try {
+        if (window.PerformanceObserver) {
+          new PerformanceObserver(function (l) {
+            l.getEntries().forEach(function (en) { if (en.duration > longest) longest = Math.round(en.duration); });
+          }).observe({ entryTypes: ['longtask'] });
+        }
+      } catch (e) {}
+      setInterval(function () {
+        var now = Date.now(), gap = now - last; last = now;
+        if (gap < FREEZE_MS) return;
+        if (document.hidden) return;              /* 백그라운드 스로틀링은 정상 */
+        if (reported >= MAXF) return; reported++;
+        var extra = '';
+        try {
+          var sec = document.querySelector('section[data-view]:not(.hidden)');
+          var tts = (window.PIA && window.PIA.ttsOn) ? 'on' : 'off';
+          extra = 'view=' + (sec && sec.dataset ? sec.dataset.view : '?') +
+                  ' tts=' + tts +
+                  ' longtask=' + longest + 'ms' +
+                  ' mem=' + (window.performance && performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) + 'MB' : 'n/a');
+        } catch (e) {}
+        logError({
+          message: '[FREEZE] 화면 멈춤 ' + Math.round(gap / 1000) + '초 · ' + extra,
+          source: location.pathname, stack: ''
+        });
+      }, TICK);
+    } catch (e) {}
+  })();
   // 페이지에서 직접 부를 수 있는 수동 기록 API
   window.reportError2 = function (msg, extra) {
     return logError(Object.assign({ message: String(msg), source: location.pathname, stack: (new Error()).stack }, extra || {}));
