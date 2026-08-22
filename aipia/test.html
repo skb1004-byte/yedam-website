@@ -8233,8 +8233,9 @@ function startGroupTest(){
   function overlay(show,msg){
     if(show){
       if(!_overlay){ _overlay=document.createElement('div'); _overlay.style.cssText='position:fixed;inset:0;background:rgba(3,105,161,.94);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;text-align:center;padding:24px;font-weight:800;gap:8px'; _overlay.classList.add('pia-print-hide'); document.body.appendChild(_overlay); }
-      _overlay.innerHTML='<div style="font-size:44px">✋</div><div style="font-size:20px">'+(msg||'선생님이 잠시 멈췄어요')+'</div><div style="font-size:13px;font-weight:500;opacity:.9;margin-top:4px">잠깐 기다려 주세요</div>';
+      _overlay.innerHTML='<div style="font-size:44px">✋</div><div style="font-size:20px">'+(msg||'선생님이 잠시 멈췄어요')+'</div><div style="font-size:13px;font-weight:500;opacity:.9;margin-top:4px">잠깐 기다려 주세요</div><button type="button" id="pia-sess-ovclose" style="margin-top:14px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer">✕ 닫기</button>';
       _overlay.style.display='flex';
+      try{ var _b=document.getElementById('pia-sess-ovclose'); if(_b) _b.onclick=function(){ overlay(false); }; }catch(e){}
     } else if(_overlay){ _overlay.style.display='none'; }
   }
   function toast(msg){ try{ if(typeof window.showToast==='function') window.showToast(msg); else if(window.PIA&&PIA.toast) PIA.toast(msg); else if(window.console) console.error(msg); }catch(e){} }
@@ -8242,7 +8243,7 @@ function startGroupTest(){
     if(!r) return;
     var st=r.session_status||'open';
     if(st==='paused') overlay(true,'선생님이 잠시 멈췄어요');
-    else if(st==='closed'){ overlay(true,'검사가 종료되었어요. 수고했어요!'); stop(); }
+    else if(st==='closed'){ overlay(false); toast('검사가 종료되었습니다. 수고했어요!'); try{ if(typeof window.piaSessionLeave==='function') window.piaSessionLeave(); else { stop(); window.PIA_SESS=null; try{ sessionStorage.removeItem('pia_group_sess'); }catch(_e){} } }catch(e){} }
     else overlay(false);
     var bc=r.broadcast||''; if(bc && bc!==_lastBroadcast){ _lastBroadcast=bc; toast('📢 '+bc); } if(!bc) _lastBroadcast='';
     var dm=r.dm||''; if(dm && dm!==_lastDM){ _lastDM=dm; toast('💬 선생님: '+dm); }
