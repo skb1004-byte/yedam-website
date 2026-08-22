@@ -4112,11 +4112,32 @@ function makeLikertRenderer(viewId, dataset, stateKey, scale, hasReverse) {
                  + "state.results['" + stateKey + "'].order=null;"
                  + "state.results['" + stateKey + "'].seq=0; save();"
                  + "if(window.renderHome)renderHome(); showView('" + viewId + "')";
+      /* [2026-08-22] 완료 표기 + 다음 검사로 바로 이어가기.
+         예전엔 '검사 메뉴로'만 있어서 학생이 다음에 뭐를 할지 스스로 찾아야 했다.
+         남은 필수 검사를 먼저 권하고, 필수를 다 마쳤으면 결과지로 안내한다. */
+      var _nextId = '', _nextLabel = '';
+      try{
+        var _REQ = [
+          { id:'chat',   label:'AI 자유대화', done:function(){ return (state.results.conv&&state.results.conv.turns||0) >= 8; } },
+          { id:'big5',   label:'성격검사(Big5)', done:function(){ return ((state.results.big5&&state.results.big5.answers)||[]).filter(function(x){return x!=null;}).length >= 50; } },
+          { id:'riasec', label:'진로흥미(RIASEC)', done:function(){ return ((state.results.riasec&&state.results.riasec.answers)||[]).filter(function(x){return x!=null;}).length >= 30; } }
+        ];
+        for (var _qi=0; _qi<_REQ.length; _qi++){ if(!_REQ[_qi].done()){ _nextId=_REQ[_qi].id; _nextLabel=_REQ[_qi].label; break; } }
+      }catch(_e){}
+      var _nextBtn = _nextId
+        ? P0.btn('다음: ' + _nextLabel + ' →', "showView('" + _nextId + "')", 'primary', {cta:1, arrow:1})
+        : P0.btn('통합 결과 보기 →', "showView('result')", 'primary', {cta:1, arrow:1});
+      var _doneMsg = _nextId
+        ? '잘했어요! 이어서 <b>' + _nextLabel + '</b>을(를) 진행해 주세요.'
+        : '필수 검사를 모두 마쳤어요! 이제 결과지를 볼 수 있어요.';
       container.innerHTML = '<div class="pia"><section class="pia-sec" style="text-align:center">'
         + '<div class="pia-done__ic" aria-hidden="true">\u2713</div>'
+        + '<div style="display:inline-block;margin:0 auto var(--pia-s2);padding:5px 16px;border-radius:999px;background:#eef3e6;color:#4b5d33;font-weight:800;font-size:.95em">검사 완료</div>'
         + '<h2 class="pia-h2" style="margin-bottom:var(--pia-s2)">' + total + '문항을 모두 마쳤어요</h2>'
-        + '<p class="pia-bodyL pia-muted" style="margin-bottom:var(--pia-s4)">결과는 통합 결과지에 반영됩니다.</p>'
-        + P0.btn('검사 메뉴로 돌아가기', "showView('home')", 'primary', {cta:1, arrow:1})
+        + '<p class="pia-bodyL pia-muted" style="margin-bottom:var(--pia-s4)">' + _doneMsg + '</p>'
+        + _nextBtn
+        + '<div style="height:var(--pia-s2)"></div>'
+        + P0.btn('검사 메뉴로', "showView('home')", 'secondary')
         + '<div style="height:var(--pia-s2)"></div>'
         + P0.btn('이 검사 다시 하기', _reset, 'secondary')
         + '</section></div>';
@@ -6060,7 +6081,7 @@ initSettings();
 renderHome();
 showView('home');
 autoConnectFreeAI();
-try{ var _qp=new URLSearchParams(location.search); if(_qp.get('paper')==='1'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPaperScan(); }catch(e){} }, 200); }); } else if(_qp.get('print')==='items'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPrintItems(); }catch(e){} }, 150); }); } else if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } else if(_qp.get('view')==='records'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaBatchPrint(); }catch(e){} }, 300); }); } else if(_qp.get('view')==='record'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaViewRecord(); }catch(e){} }, 250); }); } }catch(e){}
+try{ var _qp=new URLSearchParams(location.search); if(_qp.get('s')){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaOpenSharedResult(_qp.get('s')); }catch(e){ console.error('공유 결과 열기 실패:', e); } }, 200); }); } else if(_qp.get('paper')==='1'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPaperScan(); }catch(e){} }, 200); }); } else if(_qp.get('print')==='items'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaPrintItems(); }catch(e){} }, 150); }); } else if(_qp.get('sample')==='1' || location.hash==='#sample'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaSampleReport(); }catch(e){} }, 250); }); } else if(_qp.get('view')==='records'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaBatchPrint(); }catch(e){} }, 300); }); } else if(_qp.get('view')==='record'){ window.addEventListener('load', function(){ setTimeout(function(){ try{ piaViewRecord(); }catch(e){} }, 250); }); } }catch(e){}
 async function autoEnableOnDevice(){
   try {
     if (!state.cfg || state.cfg.mode !== 'ONDEVICE') return;
@@ -9252,8 +9273,103 @@ function _piaLoadQRLib(){
     document.head.appendChild(s);
   });
 }
+/* ── 결과지 QR 공유 (2026-08-22) ──────────────────────────────
+   기존에는 QR이 접속 주소만 담아서, 찍으면 검사 시작 화면만 떴다.
+   이제 결과 스냅샷을 서버에 익명 저장(90일 만료)하고 그 토큰을 QR에 담아
+   다른 기기에서도 결과지를 그대로 볼 수 있게 한다.
+   비로그인(키오스크·단체) 학생도 동일하게 동작한다. */
+var _piaShareToken = null;   /* 같은 세션에서 재발급 방지 */
+
+function piaShareCreate(){
+  return new Promise(function(resolve, reject){
+    if(_piaShareToken){ resolve(_piaShareToken); return; }
+    var rec;
+    try{ rec = buildAdminRecord(); }
+    catch(e){ reject(new Error('결과를 모으지 못했습니다.')); return; }
+    if(!rec || !rec.results){ reject(new Error('아직 저장할 결과가 없습니다.')); return; }
+    /* QR로 넘길 때는 화면 표시에 필요한 것만 담는다 */
+    var payload = {
+      v: 'share1',
+      createdAt: new Date().toISOString(),
+      name: rec.name || '', grade: rec.grade || '', klass: rec.klass || '',
+      school: rec.school || '', type: rec.type || '',
+      reliability: rec.reliability || '', validity: rec.validity || '',
+      results: rec.results, profile: rec.profile, meta: rec.meta, summary: rec.summary
+    };
+    _piaEnsureSB().then(function(sb){
+      if(!sb || !sb.rpc){ reject(new Error('서버에 연결하지 못했습니다.')); return; }
+      var org = null; try{ org = window._piaClassOrgId || null; }catch(e){}
+      sb.rpc('pia_share_create', { p_data: payload, p_org: org }).then(function(r){
+        if(r && r.error){ console.error('공유 토큰 발급 실패:', r.error); reject(new Error('공유 링크를 만들지 못했습니다.')); return; }
+        var t = r && r.data;
+        if(!t){ reject(new Error('공유 링크를 만들지 못했습니다.')); return; }
+        _piaShareToken = t; resolve(t);
+      }, function(e){ console.error('공유 토큰 발급 실패:', e); reject(new Error('서버 응답이 없습니다.')); });
+    });
+  });
+}
+
+function piaShareUrl(token){
+  return location.origin + location.pathname + '?s=' + encodeURIComponent(token);
+}
+
+function piaOpenSharedResult(token){
+  if(!token) return;
+  var box = document.createElement('div');
+  box.id = 'pia-share-loading';
+  box.style.cssText = 'position:fixed;inset:0;background:#faf9f5;display:flex;align-items:center;justify-content:center;z-index:9999;font-weight:700;color:#3d3d3a';
+  box.textContent = '결과지를 불러오는 중…';
+  document.body.appendChild(box);
+
+  function fail(msg){
+    box.innerHTML = '<div style="text-align:center;max-width:340px;padding:20px;line-height:1.7">'
+      + '<div style="font-size:34px;margin-bottom:10px">🔍</div>'
+      + '<div style="font-weight:800;margin-bottom:6px">' + msg + '</div>'
+      + '<div style="font-size:13px;color:#6b6b66;font-weight:500">QR은 발급일로부터 90일간만 열람할 수 있습니다.</div>'
+      + '<button onclick="location.href=location.pathname" style="margin-top:16px;padding:10px 18px;border:0;border-radius:10px;background:#141413;color:#fff;font-weight:700;cursor:pointer">검사 홈으로</button>'
+      + '</div>';
+  }
+
+  _piaEnsureSB().then(function(sb){
+    if(!sb || !sb.rpc){ fail('서버에 연결하지 못했습니다.'); return; }
+    sb.rpc('pia_share_get', { p_token: token }).then(function(r){
+      if(r && r.error){ console.error('공유 결과 조회 실패:', r.error); fail('결과를 불러오지 못했습니다.'); return; }
+      var d = r && r.data;
+      if(!d || !d.results){ fail('만료되었거나 없는 결과입니다.'); return; }
+      try{
+        state.results = Object.assign({}, d.results || {});
+        state.profile = d.profile || { name:d.name||'', grade:d.grade||'', class:d.klass||'', school:d.school||'', createdAt: Date.now() };
+        if(d.meta) state.meta = d.meta;
+        state.studentId = d.name || '';
+        window._piaShareViewOnly = true;
+        try{ currentAudience = 'student'; }catch(e){}
+        if(typeof renderResult==='function') renderResult();
+        if(typeof renderDetailedResult==='function') renderDetailedResult();
+        if(typeof renderExtendedSections==='function') renderExtendedSections();
+        if(typeof showView==='function') showView('result');
+        piaShareViewBanner(d);
+      }catch(e){ console.error('공유 결과 적용 실패:', e); fail('결과를 표시하지 못했습니다.'); return; }
+      try{ box.remove(); }catch(e){}
+    }, function(e){ console.error('공유 결과 조회 실패:', e); fail('서버 응답이 없습니다.'); });
+  });
+}
+
+/* 열람 모드임을 알리는 상단 띠 — 이 화면에서 검사를 이어갈 수 없다는 걸 분명히 */
+function piaShareViewBanner(d){
+  if(document.getElementById('pia-share-banner')) return;
+  var when = '';
+  try{ if(d && d.createdAt) when = new Date(d.createdAt).toLocaleDateString('ko-KR'); }catch(e){}
+  var b = document.createElement('div');
+  b.id = 'pia-share-banner';
+  b.style.cssText = 'position:sticky;top:0;z-index:900;background:#141413;color:#fff;padding:9px 14px;font-size:13px;font-weight:700;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap';
+  b.innerHTML = '<span>📄 결과지 열람 모드' + (when ? ' · ' + when + ' 검사' : '') + '</span>'
+    + '<a href="' + location.pathname + '" style="color:#f6e9e2;text-decoration:underline">새 검사 시작하기</a>';
+  document.body.insertBefore(b, document.body.firstChild);
+}
+
 function showShareModal() {
-  // 개인정보 보호: QR·링크에는 학생 이름/검사결과를 담지 않고, 접속 주소만 사용
+  /* 2026-08-22: QR을 찍으면 결과가 바로 뜨도록 변경.
+     발급 전까지는 접속 주소를 임시로 쓰고, 토큰이 나오면 QR·버튼을 갈아끼운다. */
   const url = location.href.split('#')[0];
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;';
@@ -9264,22 +9380,42 @@ function showShareModal() {
         <button onclick="this.closest('.fixed,[style*=fixed]').remove()" class="text-slate-400 text-xl">×</button>
       </div>
       <div class="bg-slate-50 rounded-lg p-4 mb-3 text-center">
-        <div id="pia-qr-box" class="mx-auto mb-2 inline-flex items-center justify-center" style="width:200px;height:200px"></div>
-        <p class="text-xs text-slate-600">QR은 접속 주소만 담습니다. 학생 이름·검사 결과는 전송되지 않습니다.</p>
+        <div id="pia-qr-box" class="mx-auto mb-2 inline-flex items-center justify-center" style="width:200px;height:200px;font-size:12px;color:#64748b">공유 링크 만드는 중…</div>
+        <p class="text-xs text-slate-600" id="pia-qr-note">휴대폰 카메라로 QR을 찍으면 결과지가 그대로 열립니다.</p>
       </div>
       <div class="space-y-2">
-        <button onclick="navigator.clipboard.writeText('${url}'); this.textContent='✓ 링크 복사됨'; setTimeout(()=>this.textContent='🔗 링크 복사',2000)" class="w-full bg-slate-900 text-white py-2 rounded-lg text-sm">🔗 링크 복사</button>
-        <button onclick="if(navigator.share) navigator.share({title:'AI PIA 결과', url:'${url}'}); else alert('이 브라우저는 공유 기능을 지원하지 않습니다')" class="w-full bg-emerald-600 text-white py-2 rounded-lg text-sm">📱 공유하기</button>
+        <button id="pia-share-copy" disabled class="w-full bg-slate-900 text-white py-2 rounded-lg text-sm disabled:opacity-50">🔗 링크 복사</button>
+        <button id="pia-share-send" disabled class="w-full bg-emerald-600 text-white py-2 rounded-lg text-sm disabled:opacity-50">📱 공유하기</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
   var box=modal.querySelector('#pia-qr-box');
-  _piaLoadQRLib().then(function(ok){
-    if(!box) return;
-    if(ok && window.QRCode){
-      try{ box.innerHTML=''; new QRCode(box,{text:url,width:200,height:200,correctLevel:QRCode.CorrectLevel.M}); return; }catch(e){}
-    }
-    box.innerHTML='<div style="font-size:12px;color:#64748b;padding:12px">QR 생성을 불러오지 못했습니다.<br>아래 <b>링크 복사</b>를 이용하세요.</div>';
+  var note=modal.querySelector('#pia-qr-note');
+  var bCopy=modal.querySelector('#pia-share-copy');
+  var bSend=modal.querySelector('#pia-share-send');
+
+  function paintQR(target){
+    _piaLoadQRLib().then(function(ok){
+      if(!box) return;
+      if(ok && window.QRCode){
+        try{ box.innerHTML=''; new QRCode(box,{text:target,width:200,height:200,correctLevel:QRCode.CorrectLevel.M}); return; }catch(e){}
+      }
+      box.innerHTML='<div style="font-size:12px;color:#64748b;padding:12px">QR 생성을 불러오지 못했습니다.<br>아래 <b>링크 복사</b>를 이용하세요.</div>';
+    });
+  }
+  function wire(target){
+    if(bCopy){ bCopy.disabled=false; bCopy.onclick=function(){ navigator.clipboard.writeText(target); bCopy.textContent='✓ 링크 복사됨'; setTimeout(function(){ bCopy.textContent='🔗 링크 복사'; },2000); }; }
+    if(bSend){ bSend.disabled=false; bSend.onclick=function(){ if(navigator.share) navigator.share({title:'AI PIA 결과', url:target}); else alert('이 브라우저는 공유 기능을 지원하지 않습니다'); }; }
+  }
+
+  piaShareCreate().then(function(token){
+    var target=piaShareUrl(token);
+    paintQR(target); wire(target);
+    if(note) note.innerHTML='휴대폰 카메라로 QR을 찍으면 결과지가 그대로 열립니다.<br><b>발급일로부터 90일간</b> 열람할 수 있어요. 링크를 아는 사람은 결과를 볼 수 있으니 공유에 주의해 주세요.';
+  }).catch(function(e){
+    console.error('결과 공유 링크 발급 실패:', e);
+    paintQR(url); wire(url);
+    if(note) note.innerHTML='<span style="color:#b45309">결과를 서버에 올리지 못해 접속 주소만 담았습니다.</span><br>이 QR로는 결과가 열리지 않으니, 결과지는 인쇄·PDF로 저장해 주세요.';
   });
 }
 
@@ -10008,7 +10144,7 @@ showView = function(name) {
 };
 
 window.safeStartRecognition = safeStartRecognition;
-window.safeStopRecognition = safeStopRecognition;(function(){function _vscore(v){var n=(v.name||'');var sc=0;if(v.localService===false)sc+=12;if(/google/i.test(n))sc+=7;if(/neural|natural|wavenet|premium/i.test(n))sc+=6;if(/yuna|heami|sunhi|sora|seoyeon|nari|jiyoon|jenny|aria|female|여성|여자/i.test(n))sc+=9;if(/injoon|namjun|jihun|male|남성|남자/i.test(n))sc-=6;if(/ko[-_]?kr/i.test(v.lang||''))sc+=2;if(/microsoft/i.test(n))sc+=1;return sc;}window.piaPickVoice=function(){try{if(!('speechSynthesis' in window))return null;var vs=speechSynthesis.getVoices()||[];var ko=vs.filter(function(v){return ((v.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;});if(!ko.length)return null;var saved='';try{saved=localStorage.getItem('pia_v3_voice')||'';}catch(e){}var s=ko.filter(function(v){return v.voiceURI===saved;})[0];if(s)return s;ko.sort(function(a,b){return _vscore(b)-_vscore(a);});return ko[0]||null;}catch(e){return null;}};window.piaVoiceRate=function(){try{var g=(window.state&&state.profile&&state.profile.grade)||'';return /초/.test(g)?0.9:0.95;}catch(e){return 0.95;}};window.piaApplyVoice=function(u){try{var v=window.piaPickVoice();if(v)u.voice=v;u.lang='ko-KR';u.rate=window.piaVoiceRate();u.pitch=1.05;}catch(e){}return u;};window.piaSpeak=function(text,onStarted){  var useG=true;  try{var g=document.getElementById('chat-gtts');if(g)useG=!!g.checked;}catch(e){}  function builtin(){    try{      if(!('speechSynthesis' in window))return;      var u=new SpeechSynthesisUtterance(text);      if(typeof window.piaApplyVoice==='function'){window.piaApplyVoice(u);}else{u.lang='ko-KR';u.rate=0.95;u.pitch=1.05;}      u.onstart=function(){if(onStarted)onStarted();};      speechSynthesis.cancel();speechSynthesis.speak(u);    }catch(e){}  }  if(!useG){builtin();return;}  try{    var parts=String(text).split(/(?<=[.!?])\s+/).filter(function(s){return s.trim();});    if(!parts.length)parts=[String(text)];    var i=0,started=false;    function fail(){window.__gttsPlaying=false;if(!started)builtin();}    function next(){      if(i>=parts.length){window.__gttsPlaying=false;return;}      var url='https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q='+encodeURIComponent(parts[i]);      var a=new Audio(url);window.__gttsPlaying=true;      a.onplaying=function(){if(!started){started=true;if(onStarted)onStarted();}};      a.onended=function(){i++;next();};      a.onerror=fail;      var pr=a.play();if(pr&&pr.catch)pr.catch(fail);    }    next();  }catch(e){builtin();}};try{if('speechSynthesis' in window&&typeof speechSynthesis.addEventListener==='function'){speechSynthesis.addEventListener('voiceschanged',function(){try{window.piaPickVoice();}catch(e){}});}}catch(e){}})();(function(){var _homeGreeted=false,_fallbackArmed=false,_fbHandler=null;var GREET='안녕하세요! 저는 AI 피아예요. 편하게 이야기해 주세요. 정답은 없어요.';function _isHome(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}}function _eligible(){try{if(!(window.PIA&&window.PIA.ttsOn))return false;}catch(e){return false;}try{if(typeof isMobile==='function'&&isMobile())return false;}catch(e){}try{if(typeof getCompletedTests==='function'&&Object.keys(getCompletedTests()).length>0)return false;}catch(e){}return true;}function _disarm(){if(!_fallbackArmed)return;_fallbackArmed=false;['pointerdown','touchstart','click','keydown'].forEach(function(evt){document.removeEventListener(evt,_fbHandler,true);});}function _speak(){if(_homeGreeted)return;if(!_isHome())return;try{if(typeof window.piaSpeak==='function'){window.piaSpeak(GREET,function(){_homeGreeted=true;_disarm();});return;}if(!('speechSynthesis' in window))return;var u=new SpeechSynthesisUtterance(GREET);if(typeof window.piaApplyVoice==='function'){window.piaApplyVoice(u);}else{u.lang='ko-KR';u.rate=0.95;u.pitch=1.05;}u.onstart=function(){_homeGreeted=true;_disarm();};speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}function _arm(){if(_fallbackArmed||_homeGreeted)return;_fallbackArmed=true;_fbHandler=function(){setTimeout(_speak,0);};['pointerdown','touchstart','click','keydown'].forEach(function(evt){document.addEventListener(evt,_fbHandler,true);});}function _trigger(){if(_homeGreeted||!_eligible())return;_arm();setTimeout(_speak,700);}var _origShow8=showView;showView=function(name){_origShow8(name);if(name==='chat')_trigger();};function _boot(){}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_boot);}else{_boot();}})();(function(){var _mon=null,_ac=null,_an=null,_buf=null,_raf=null,_peak=0,_devLabel='',_silentSince=0,_uiEl=null,_watch=null;function _log(){try{console.log.apply(console,['[MIC]'].concat([].slice.call(arguments)));}catch(e){}}/* 예전에는 여기서 잡음 게이트를 통째로 무력화해 복도 소음까지 받아 적었다. 원래 판정을 쓴다. */function _score(d){var l=(d.label||'').toLowerCase();var s=0;if(/usb/.test(l))s+=10;if(/headset|헤드셋|earphone|이어폰|mic/.test(l))s+=5;if(/external|외장/.test(l))s+=4;if(/array/.test(l))s+=2;if(/internal|built-?in|내장/.test(l))s-=5;return s;}async function _pick(){try{if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices)return null;var ds=await navigator.mediaDevices.enumerateDevices();var ins=ds.filter(function(d){return d.kind==='audioinput'&&d.deviceId&&d.deviceId!=='communications';});if(!ins.length)return null;var saved=null;try{saved=localStorage.getItem('pia_mic_device');}catch(e){}if(saved){var m=ins.filter(function(d){return d.deviceId===saved;})[0];if(m)return m;}ins.sort(function(a,b){return _score(b)-_score(a);});return ins[0];}catch(e){return null;}}function _ui(){if(_uiEl&&document.body.contains(_uiEl))return _uiEl;var st=document.getElementById('chat-mic-status');if(!st||!st.parentNode)return null;var d=document.createElement('div');d.id='pia-mic-diag';d.style.cssText='font-size:11px;color:#6b7280;margin-top:4px;line-height:1.5';st.parentNode.insertBefore(d,st.nextSibling);_uiEl=d;return d;}function _render(){var d=_ui();if(!d)return;var lvl=Math.min(100,Math.round(_peak*900));var bar='<span style="display:inline-block;width:70px;height:6px;background:#e5e7eb;border-radius:3px;vertical-align:middle;overflow:hidden"><span style="display:block;height:6px;width:'+lvl+'%;background:'+(lvl>6?'#788c5d':'#d1d5db')+'"></span></span>';var warn='';if(_silentSince&&Date.now()-_silentSince>7000){warn='<div style="color:#c4623f;margin-top:2px">⚠ 마이크에서 소리가 들어오지 않습니다. Windows 소리 설정에서 사용할 마이크를 <b>기본 장치</b>로 지정해 주세요.</div>';}d.innerHTML='🎙 '+(_devLabel||'기본 마이크')+' '+bar+warn;}function _stopMon(){if(_raf)cancelAnimationFrame(_raf);_raf=null;if(_ac){try{_ac.close();}catch(e){}}_ac=null;_an=null;_peak=0;if(_mon){try{_mon.getTracks().forEach(function(t){t.stop();});}catch(e){}}_mon=null;if(_watch){clearInterval(_watch);_watch=null;}}async function _startMon(){try{if(_mon)return true;if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return false;var dev=await _pick();var c={echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1};if(dev&&dev.deviceId)c.deviceId={ideal:dev.deviceId};_mon=await navigator.mediaDevices.getUserMedia({audio:c});var tr=_mon.getAudioTracks()[0];_devLabel=(tr&&tr.label)||(dev&&dev.label)||'';_log('사용 마이크:',_devLabel);var AC=window.AudioContext||window.webkitAudioContext;if(AC){_ac=new AC();var src=_ac.createMediaStreamSource(_mon);_an=_ac.createAnalyser();_an.fftSize=512;_an.smoothingTimeConstant=0.3;src.connect(_an);_buf=new Uint8Array(_an.fftSize);var loop=function(){if(!_an)return;_an.getByteTimeDomainData(_buf);var s=0;for(var i=0;i<_buf.length;i++){var v=(_buf[i]-128)/128;s+=v*v;}var rms=Math.sqrt(s/_buf.length);_peak=_peak*0.85+rms*0.15;if(rms>0.012){_silentSince=0;}else if(!_silentSince){_silentSince=Date.now();}_raf=requestAnimationFrame(loop);};loop();}_silentSince=Date.now();if(!_watch)_watch=setInterval(_render,500);_render();return true;}catch(e){_log('모니터 실패',e&&e.message);return false;}}try{if(navigator.mediaDevices&&navigator.mediaDevices.addEventListener){navigator.mediaDevices.addEventListener('devicechange',function(){_log('장치 변경 감지');var onChat=(function(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}})();if(!onChat)return;_stopMon();setTimeout(function(){_startMon();try{if(window._micWantProxy!==false&&typeof safeStopRecognition==='function'&&typeof safeStartRecognition==='function'){safeStartRecognition();}}catch(e){}},600);});}}catch(e){}var _o=showView;showView=function(n){_o(n);if(n==='chat'){/* 모바일: 이 레벨 모니터가 getUserMedia로 마이크를 점유하면 안드로이드 크롬에서 SpeechRecognition 이 aborted 로 즉시 끝난다. 모니터는 키오스크(Windows 기본장치 안내)용이므로 폰·태블릿(iPad 포함)에서는 띄우지 않는다. iPad 는 Mac UA 라 isMobile 이 false 이므로, 실제 Windows 키오스크(kiosk-on)가 아니면서 터치기기(coarse)면 모두 차단한다. */var _realKiosk=document.documentElement.classList.contains('kiosk-on');var _touch=!!(window.matchMedia&&window.matchMedia('(any-pointer: coarse)').matches);if(!_realKiosk&&(((typeof isMobile==='function')&&isMobile())||_touch)){return;}/* 시각 마이크 레벨 모니터(_startMon)는 저사양 POS 키오스크에서 getUserMedia+AudioContext+연속 rAF+500ms DOM 갱신이 화면맞춤 옵저버와 되먹임되어 '응답 없는 페이지'로 멈추게 했다. 음성인식 자동시작만 남기고 모니터는 띄우지 않는다. */var tries=0;var iv=setInterval(function(){tries++;var cur=(function(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}})();if(!cur||tries>6){clearInterval(iv);return;}try{if(!_globalRecording&&!(('speechSynthesis' in window)&&speechSynthesis.speaking)){/* 진입 시 자동 재시도(1.5초×6회)로 마이크·인식을 중첩 획득하면 저사양 POS 키오스크가 '응답 없는 페이지'로 멈춘다. 자동시작을 빼고 '음성으로 시작' 탭 또는 마이크 버튼으로 한 번만 시작한다. */}}catch(e){}},1500);}else{_stopMon();}};window.piaMicDiag=function(){return{device:_devLabel,peak:_peak,silentMs:_silentSince?Date.now()-_silentSince:0};};window.piaSetMic=async function(id){try{localStorage.setItem('pia_mic_device',id);}catch(e){}_stopMon();await _startMon();return _devLabel;};window.piaListMics=async function(){var ds=await navigator.mediaDevices.enumerateDevices();return ds.filter(function(d){return d.kind==='audioinput';}).map(function(d){return{id:d.deviceId,label:d.label};});};})();
+window.safeStopRecognition = safeStopRecognition;(function(){function _vscore(v){var n=(v.name||'');var sc=0;if(v.localService===false)sc+=12;if(/google/i.test(n))sc+=7;if(/neural|natural|wavenet|premium/i.test(n))sc+=6;if(/yuna|heami|sunhi|sora|seoyeon|nari|jiyoon|jenny|aria|female|여성|여자/i.test(n))sc+=9;if(/injoon|namjun|jihun|male|남성|남자/i.test(n))sc-=6;if(/ko[-_]?kr/i.test(v.lang||''))sc+=2;if(/microsoft/i.test(n))sc+=1;return sc;}window.piaPickVoice=function(){try{if(!('speechSynthesis' in window))return null;var vs=speechSynthesis.getVoices()||[];var ko=vs.filter(function(v){return ((v.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;});if(!ko.length)return null;var saved='';try{saved=localStorage.getItem('pia_v3_voice')||'';}catch(e){}var s=ko.filter(function(v){return v.voiceURI===saved;})[0];if(s)return s;ko.sort(function(a,b){return _vscore(b)-_vscore(a);});return ko[0]||null;}catch(e){return null;}};window.piaVoiceRate=function(){try{var g=(window.state&&state.profile&&state.profile.grade)||'';return /초/.test(g)?0.9:0.95;}catch(e){return 0.95;}};window.piaApplyVoice=function(u){try{var v=window.piaPickVoice();if(v)u.voice=v;u.lang='ko-KR';u.rate=window.piaVoiceRate();u.pitch=1.05;}catch(e){}return u;};window.piaSpeak=function(text,onStarted){  /* 그림문자(이모지·아이콘)는 읽지 않는다 — 2026-08-22 */  try{ if(window.PIA&&PIA._stripArt) text=PIA._stripArt(text); }catch(e){}  if(!text) return;  var useG=true;  try{var g=document.getElementById('chat-gtts');if(g)useG=!!g.checked;}catch(e){}  function builtin(){    try{      if(!('speechSynthesis' in window))return;      var u=new SpeechSynthesisUtterance(text);      if(typeof window.piaApplyVoice==='function'){window.piaApplyVoice(u);}else{u.lang='ko-KR';u.rate=0.95;u.pitch=1.05;}      u.onstart=function(){if(onStarted)onStarted();};      speechSynthesis.cancel();speechSynthesis.speak(u);    }catch(e){}  }  if(!useG){builtin();return;}  try{    var parts=String(text).split(/(?<=[.!?])\s+/).filter(function(s){return s.trim();});    if(!parts.length)parts=[String(text)];    var i=0,started=false;    function fail(){window.__gttsPlaying=false;if(!started)builtin();}    function next(){      if(i>=parts.length){window.__gttsPlaying=false;return;}      var url='https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q='+encodeURIComponent(parts[i]);      var a=new Audio(url);window.__gttsPlaying=true;      a.onplaying=function(){if(!started){started=true;if(onStarted)onStarted();}};      a.onended=function(){i++;next();};      a.onerror=fail;      var pr=a.play();if(pr&&pr.catch)pr.catch(fail);    }    next();  }catch(e){builtin();}};try{if('speechSynthesis' in window&&typeof speechSynthesis.addEventListener==='function'){speechSynthesis.addEventListener('voiceschanged',function(){try{window.piaPickVoice();}catch(e){}});}}catch(e){}})();(function(){var _homeGreeted=false,_fallbackArmed=false,_fbHandler=null;var GREET='안녕하세요! 저는 AI 피아예요. 편하게 이야기해 주세요. 정답은 없어요.';function _isHome(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}}function _eligible(){try{if(!(window.PIA&&window.PIA.ttsOn))return false;}catch(e){return false;}try{if(typeof isMobile==='function'&&isMobile())return false;}catch(e){}try{if(typeof getCompletedTests==='function'&&Object.keys(getCompletedTests()).length>0)return false;}catch(e){}return true;}function _disarm(){if(!_fallbackArmed)return;_fallbackArmed=false;['pointerdown','touchstart','click','keydown'].forEach(function(evt){document.removeEventListener(evt,_fbHandler,true);});}function _speak(){if(_homeGreeted)return;if(!_isHome())return;try{if(typeof window.piaSpeak==='function'){window.piaSpeak(GREET,function(){_homeGreeted=true;_disarm();});return;}if(!('speechSynthesis' in window))return;var u=new SpeechSynthesisUtterance(GREET);if(typeof window.piaApplyVoice==='function'){window.piaApplyVoice(u);}else{u.lang='ko-KR';u.rate=0.95;u.pitch=1.05;}u.onstart=function(){_homeGreeted=true;_disarm();};speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}function _arm(){if(_fallbackArmed||_homeGreeted)return;_fallbackArmed=true;_fbHandler=function(){setTimeout(_speak,0);};['pointerdown','touchstart','click','keydown'].forEach(function(evt){document.addEventListener(evt,_fbHandler,true);});}function _trigger(){if(_homeGreeted||!_eligible())return;_arm();setTimeout(_speak,700);}var _origShow8=showView;showView=function(name){_origShow8(name);if(name==='chat')_trigger();};function _boot(){}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_boot);}else{_boot();}})();(function(){var _mon=null,_ac=null,_an=null,_buf=null,_raf=null,_peak=0,_devLabel='',_silentSince=0,_uiEl=null,_watch=null;function _log(){try{console.log.apply(console,['[MIC]'].concat([].slice.call(arguments)));}catch(e){}}/* 예전에는 여기서 잡음 게이트를 통째로 무력화해 복도 소음까지 받아 적었다. 원래 판정을 쓴다. */function _score(d){var l=(d.label||'').toLowerCase();var s=0;if(/usb/.test(l))s+=10;if(/headset|헤드셋|earphone|이어폰|mic/.test(l))s+=5;if(/external|외장/.test(l))s+=4;if(/array/.test(l))s+=2;if(/internal|built-?in|내장/.test(l))s-=5;return s;}async function _pick(){try{if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices)return null;var ds=await navigator.mediaDevices.enumerateDevices();var ins=ds.filter(function(d){return d.kind==='audioinput'&&d.deviceId&&d.deviceId!=='communications';});if(!ins.length)return null;var saved=null;try{saved=localStorage.getItem('pia_mic_device');}catch(e){}if(saved){var m=ins.filter(function(d){return d.deviceId===saved;})[0];if(m)return m;}ins.sort(function(a,b){return _score(b)-_score(a);});return ins[0];}catch(e){return null;}}function _ui(){if(_uiEl&&document.body.contains(_uiEl))return _uiEl;var st=document.getElementById('chat-mic-status');if(!st||!st.parentNode)return null;var d=document.createElement('div');d.id='pia-mic-diag';d.style.cssText='font-size:11px;color:#6b7280;margin-top:4px;line-height:1.5';st.parentNode.insertBefore(d,st.nextSibling);_uiEl=d;return d;}function _render(){var d=_ui();if(!d)return;var lvl=Math.min(100,Math.round(_peak*900));var bar='<span style="display:inline-block;width:70px;height:6px;background:#e5e7eb;border-radius:3px;vertical-align:middle;overflow:hidden"><span style="display:block;height:6px;width:'+lvl+'%;background:'+(lvl>6?'#788c5d':'#d1d5db')+'"></span></span>';var warn='';if(_silentSince&&Date.now()-_silentSince>7000){warn='<div style="color:#c4623f;margin-top:2px">⚠ 마이크에서 소리가 들어오지 않습니다. Windows 소리 설정에서 사용할 마이크를 <b>기본 장치</b>로 지정해 주세요.</div>';}d.innerHTML='🎙 '+(_devLabel||'기본 마이크')+' '+bar+warn;}function _stopMon(){if(_raf)cancelAnimationFrame(_raf);_raf=null;if(_ac){try{_ac.close();}catch(e){}}_ac=null;_an=null;_peak=0;if(_mon){try{_mon.getTracks().forEach(function(t){t.stop();});}catch(e){}}_mon=null;if(_watch){clearInterval(_watch);_watch=null;}}async function _startMon(){try{if(_mon)return true;if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return false;var dev=await _pick();var c={echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1};if(dev&&dev.deviceId)c.deviceId={ideal:dev.deviceId};_mon=await navigator.mediaDevices.getUserMedia({audio:c});var tr=_mon.getAudioTracks()[0];_devLabel=(tr&&tr.label)||(dev&&dev.label)||'';_log('사용 마이크:',_devLabel);var AC=window.AudioContext||window.webkitAudioContext;if(AC){_ac=new AC();var src=_ac.createMediaStreamSource(_mon);_an=_ac.createAnalyser();_an.fftSize=512;_an.smoothingTimeConstant=0.3;src.connect(_an);_buf=new Uint8Array(_an.fftSize);var loop=function(){if(!_an)return;_an.getByteTimeDomainData(_buf);var s=0;for(var i=0;i<_buf.length;i++){var v=(_buf[i]-128)/128;s+=v*v;}var rms=Math.sqrt(s/_buf.length);_peak=_peak*0.85+rms*0.15;if(rms>0.012){_silentSince=0;}else if(!_silentSince){_silentSince=Date.now();}_raf=requestAnimationFrame(loop);};loop();}_silentSince=Date.now();if(!_watch)_watch=setInterval(_render,500);_render();return true;}catch(e){_log('모니터 실패',e&&e.message);return false;}}try{if(navigator.mediaDevices&&navigator.mediaDevices.addEventListener){navigator.mediaDevices.addEventListener('devicechange',function(){_log('장치 변경 감지');var onChat=(function(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}})();if(!onChat)return;_stopMon();setTimeout(function(){_startMon();try{if(window._micWantProxy!==false&&typeof safeStopRecognition==='function'&&typeof safeStartRecognition==='function'){safeStartRecognition();}}catch(e){}},600);});}}catch(e){}var _o=showView;showView=function(n){_o(n);if(n==='chat'){/* 모바일: 이 레벨 모니터가 getUserMedia로 마이크를 점유하면 안드로이드 크롬에서 SpeechRecognition 이 aborted 로 즉시 끝난다. 모니터는 키오스크(Windows 기본장치 안내)용이므로 폰·태블릿(iPad 포함)에서는 띄우지 않는다. iPad 는 Mac UA 라 isMobile 이 false 이므로, 실제 Windows 키오스크(kiosk-on)가 아니면서 터치기기(coarse)면 모두 차단한다. */var _realKiosk=document.documentElement.classList.contains('kiosk-on');var _touch=!!(window.matchMedia&&window.matchMedia('(any-pointer: coarse)').matches);if(!_realKiosk&&(((typeof isMobile==='function')&&isMobile())||_touch)){return;}/* 시각 마이크 레벨 모니터(_startMon)는 저사양 POS 키오스크에서 getUserMedia+AudioContext+연속 rAF+500ms DOM 갱신이 화면맞춤 옵저버와 되먹임되어 '응답 없는 페이지'로 멈추게 했다. 음성인식 자동시작만 남기고 모니터는 띄우지 않는다. */var tries=0;var iv=setInterval(function(){tries++;var cur=(function(){try{var s=document.querySelector('section[data-view]:not(.hidden)');return !!s&&s.dataset.view==='chat';}catch(e){return false;}})();if(!cur||tries>6){clearInterval(iv);return;}try{if(!_globalRecording&&!(('speechSynthesis' in window)&&speechSynthesis.speaking)){/* 진입 시 자동 재시도(1.5초×6회)로 마이크·인식을 중첩 획득하면 저사양 POS 키오스크가 '응답 없는 페이지'로 멈춘다. 자동시작을 빼고 '음성으로 시작' 탭 또는 마이크 버튼으로 한 번만 시작한다. */}}catch(e){}},1500);}else{_stopMon();}};window.piaMicDiag=function(){return{device:_devLabel,peak:_peak,silentMs:_silentSince?Date.now()-_silentSince:0};};window.piaSetMic=async function(id){try{localStorage.setItem('pia_mic_device',id);}catch(e){}_stopMon();await _startMon();return _devLabel;};window.piaListMics=async function(){var ds=await navigator.mediaDevices.enumerateDevices();return ds.filter(function(d){return d.kind==='audioinput';}).map(function(d){return{id:d.deviceId,label:d.label};});};})();
 
 
 // ===== 결과지 JS =====
@@ -11873,6 +12009,8 @@ window.PIA.botImg=function(kind,alt){
      외부 TTS(구글 번역 음성)는 학교·키오스크 망에서 오류 없이 조용히 실패해
      소리가 전혀 나지 않는 일이 있어 기본 경로에서 제외했다. */
   PIA.speak = function(t){
+    /* 그림문자는 어떤 경로로 들어와도 읽지 않는다 */
+    try{ if(PIA._stripArt) t = PIA._stripArt(t); }catch(e){}
     if(!t) return;
     if(!('speechSynthesis' in window)){ if(window.console) console.error('이 브라우저는 음성 합성을 지원하지 않습니다.'); return; }
     var notified=false;
@@ -12019,6 +12157,37 @@ window.PIA.botImg=function(kind,alt){
   PIA._lastRead='';
   /* 같은 문구인지 판정할 때 쓰는 정규화 — 공백 차이로 중복 낭독되던 문제 방지 */
   PIA._norm=function(t){ return String(t||'').replace(/\s+/g,' ').trim(); };
+  /* [2026-08-22] 그림으로 표현된 것은 읽지 않는다.
+     그동안 낭독이 textContent 를 그대로 넘겨서, 표정 아이콘·화살표·이모지·
+     그래프 축 숫자까지 "웃는 얼굴 오른쪽 화살표 팔십오" 식으로 읽혔다.
+     시각 요소는 aria-hidden 이 붙어 있으므로 DOM 단계에서 걸러내고,
+     문자열 단계에서 한 번 더 그림문자를 지운다. */
+  var _NOREAD_SEL = 'svg,img,canvas,video,figure,[aria-hidden="true"],[data-noread],.no-read,'
+                  + '.pia-choice__face,.pia-btn__ic,.pia-btn__ar,.pia-scale__ic,.pia-icon,'
+                  + '.pia-badge__ic,.chartjs-size-monitor,script,style';
+  PIA._elText = function(el){
+    if(!el) return '';
+    var c;
+    try{ c = el.cloneNode(true); }catch(e){ return PIA._stripArt(el.textContent||''); }
+    try{ c.querySelectorAll(_NOREAD_SEL).forEach(function(n){ try{ n.remove(); }catch(e){} }); }catch(e){}
+    return PIA._stripArt(c.textContent || '');
+  };
+  PIA._stripArt = function(t){
+    var x = String(t == null ? '' : t);
+    try{
+      /* 이모지·그림문자·기호 계열 제거 */
+      x = x.replace(/[\u{1F000}-\u{1FAFF}\u{1F900}-\u{1F9FF}]/gu, ' ');   /* 이모지 전반 */
+      x = x.replace(/[\u{2600}-\u{27BF}]/gu, ' ');                        /* 기타 기호·딩벳 */
+      x = x.replace(/[\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu, ' ');       /* 화살표 */
+      x = x.replace(/[\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu, '');         /* 변이·결합 문자 */
+      x = x.replace(/[\u{2500}-\u{257F}\u{25A0}-\u{25FF}]/gu, ' ');       /* 괘선·도형 */
+      x = x.replace(/[✓✔✕✖★☆●○◆◇▶▷◀◁▲△▼▽·•·›»«‹→←↑↓]/g, ' ');
+    }catch(e){
+      /* 구형 브라우저: 유니코드 프로퍼티 미지원 시 최소 처리만 */
+      x = x.replace(/[✓✔✕✖★☆●○◆◇▶◀▲▼·•›»→←↑↓]/g, ' ');
+    }
+    return x.replace(/\s+/g, ' ').trim();
+  };
   PIA.autoRead=function(){
     try{
       var s=document.querySelector('section[data-view]:not(.hidden)'); if(!s) return;
@@ -12027,13 +12196,13 @@ window.PIA.botImg=function(kind,alt){
       if(NO_READ[v]) return;                       // 동의·입력 화면은 낭독 금지
       var q=s.querySelector('.pia-q');              // 검사 문항 우선
       if(q){
-        var t=PIA._norm(q.textContent);
+        var t=PIA._norm(PIA._elText(q));
         if(t && t!==PIA._norm(PIA._lastRead)){ PIA._lastRead=t; PIA.speak(t); }
         return;
       }
       if(TIP[v]){ var _tv=PIA._norm(TIP[v]); if(_tv && _tv!==PIA._norm(PIA._lastRead)){ PIA._lastRead=_tv; PIA.speak(TIP[v]); } return; }
       var h=s.querySelector('.pia-h1,.pia-display');
-      if(h){ var _th=PIA._norm(h.textContent); if(_th && _th!==PIA._norm(PIA._lastRead)){ PIA._lastRead=_th; PIA.speak(_th); } }
+      if(h){ var _th=PIA._norm(PIA._elText(h)); if(_th && _th!==PIA._norm(PIA._lastRead)){ PIA._lastRead=_th; PIA.speak(_th); } }
     }catch(e){}
   };
   PIA.greetOnce=function(){
