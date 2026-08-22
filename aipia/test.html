@@ -5048,7 +5048,7 @@ function initChat() {
         if(i>=chunks.length){ done(resolve); return; }
         var url='https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q='+encodeURIComponent(chunks[i]);
         var a=new Audio(url); _gAudio=a;
-        a.onended=function(){ i++; next(); };
+        a.onended=function(){ i++; setTimeout(next, 0); };   /* 동기 재귀 방지 */
         a.onerror=function(){ if(!failed){ failed=true; done(reject,new Error('gtts')); } };
         var pr=a.play(); if(pr&&pr.catch) pr.catch(function(){ if(!failed){ failed=true; done(reject,new Error('gtts-play')); } });
       }
@@ -5064,18 +5064,29 @@ function initChat() {
     // 연령 맞춤 속도(초등 느리게) + 따뜻한 피치
     var g=(state.profile&&state.profile.grade)||''; var rate=/초/.test(g)?0.9:0.95;
     var i=0;
-    function speakNext(){
-      if(i>=parts.length){ _afterSpeak(); return; }
+    /* [FIX 2026-08-22] onerror 가 즉시 발생하면 speakNext 가 동기 재귀로 폭주해
+       메인스레드를 잡고 '응답 없는 페이지'가 됐다(TTS 음성 미설치·재생 실패 시).
+       · 다음 조각은 항상 비동기(setTimeout)로 넘긴다 — 재귀 스택 제거
+       · 연속 오류가 3회 이상이면 낭독을 포기한다 */
+    var errN=0, doneFlag=false;
+    function finish(){ if(doneFlag) return; doneFlag=true; _afterSpeak(); }
+    function step(){
+      if(doneFlag) return;
+      if(i>=parts.length){ finish(); return; }
       var u=new SpeechSynthesisUtterance(parts[i]);
       var _v=ttsVoice;
       if(!_v){ try{ var _vs=speechSynthesis.getVoices()||[]; var _ko=_vs.filter(function(x){return ((x.lang||'').replace('_','-').toLowerCase()).indexOf('ko')===0;}); _v=_ko.filter(function(x){return x.localService;})[0]||_ko[0]||null; if(_v) ttsVoice=_v; }catch(e){} }
       if(_v) u.voice=_v;
       u.lang='ko-KR'; u.rate=rate; u.pitch=1.05;
-      u.onend=function(){ i++; speakNext(); };
-      u.onerror=function(){ i++; speakNext(); };
-      try{ speechSynthesis.speak(u); }catch(e){ _afterSpeak(); }
+      u.onend=function(){ errN=0; i++; setTimeout(step, 0); };
+      u.onerror=function(){
+        errN++;
+        if(errN>=3){ if(window.console) console.error('음성 안내 오류가 반복되어 낭독을 중단합니다.'); finish(); return; }
+        i++; setTimeout(step, 120);
+      };
+      try{ speechSynthesis.speak(u); }catch(e){ finish(); }
     }
-    speakNext();
+    setTimeout(step, 0);
   }
   window.speakReply = function(text) {
     if (!ttsToggle.checked) return;
