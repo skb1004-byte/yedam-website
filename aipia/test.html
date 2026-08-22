@@ -1817,6 +1817,12 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     <p style="font-size:10px;color:#888;margin-top:4px;">※ 같은 반 코드로 응시한 <b>참여자 평균</b>과의 비교입니다(전국 표준 규준이 아님). 표본이 적을수록 참고용으로만 보세요.</p>
   </div>
 
+  <div id="rep-trend-wrap" style="display:none;margin-bottom:12px;">
+    <div class="section-title" data-en="■ Re-test Trend"><span class="section-icon">■</span> 재검사 추이 (이전 검사와 비교)</div>
+    <div id="rep-trend"></div>
+    <p style="font-size:10px;color:#888;margin-top:4px;">※ 같은 기기·계정에서 검사를 반복하면 변화 추이가 누적됩니다. 성향은 성장·경험에 따라 자연스럽게 변할 수 있습니다.</p>
+  </div>
+
   <div class="section-title" data-en="■ Overall Comments for Teachers &amp; Parents"><span class="section-icon">■</span> 담당교사·부모님께 드리는 종합 코멘트</div>
   <table class="data-table">
     <tr><th data-en="Category">구분</th><th data-en="Details">내용</th></tr>
@@ -1844,7 +1850,8 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(2
     <div style="font-size:11px;color:#555;">
       <strong data-en="Issuing body:">발급 기관 :</strong> <span id="footer-org">-</span><br>
       <strong data-en="Assessment tool:">검사 도구 :</strong> 표준화 인·적성 검사 v4.2<br>
-      <strong data-en="Issue date:">발급일 :</strong> <span id="footer-issue">-</span>
+      <strong data-en="Issue date:">발급일 :</strong> <span id="footer-issue">-</span><br>
+      <strong data-en="Document no.:">문서번호 :</strong> <span id="footer-serial">-</span>
     </div>
   </div>
 </div>
@@ -9997,6 +10004,26 @@ function piaCopyNokyeon(){
     else { _piaFallbackCopy(t); }
   }catch(e){ if(window.console) console.error('복사 오류:', e); }
 }
+/* 재검사 추이 — 로컬 state.history(같은 기기/계정) 기반 */
+function piaRenderTrend(){
+  try{
+    var wrap=document.getElementById('rep-trend-wrap'); if(!wrap) return;
+    var h=((window.state&&state.history)||[]).slice();
+    if(h.length<2){ wrap.style.display='none'; return; }
+    var host=document.getElementById('rep-trend'); if(!host) return;
+    var last=h.slice(-4), base=h.length-last.length;
+    var html='<table class="data-table"><tr><th style="width:60px;">회차</th><th>검사일</th><th>통합유형</th><th>학년</th></tr>';
+    last.forEach(function(x,i){ var dt=''; try{ dt=new Date(x.t).toLocaleDateString('ko-KR',{year:'2-digit',month:'2-digit',day:'2-digit'}); }catch(e){}
+      html+='<tr><td>'+(base+i+1)+'회</td><td class="note">'+dt+'</td><td class="row-head">'+((x.type||x.code)||'-')+'</td><td>'+(x.grade||'')+'</td></tr>'; });
+    html+='</table>';
+    var a=last[last.length-2], b=last[last.length-1], note='';
+    if(a&&b){ note=(a.type===b.type)
+      ? '이전 검사와 통합유형이 <b>유지</b>되어 안정적인 성향을 보입니다.'
+      : '이전(<b>'+(a.type||'-')+'</b>) 대비 통합유형이 <b>'+(b.type||'-')+'</b>(으)로 변화했습니다. 최근 결과를 중심으로 진로를 탐색해 보세요.'; }
+    host.innerHTML=html+(note?'<p style="font-size:11px;color:#555;margin-top:6px;">'+note+'</p>':'');
+    wrap.style.display='block';
+  }catch(e){ if(window.console) console.error('재검사 추이 렌더 오류:', e); }
+}
 /* 우리 반 평균 대비(참여자 규준) — pia_org_averages RPC */
 function piaRenderClassNorm(){
   try{
@@ -10081,6 +10108,11 @@ function populateResult(d){
   setText('cover-org', _sc);
   setText('footer-org', _sc);
   setText('footer-issue', fmtDate(new Date().toISOString()));
+  try{
+    var _ds=new Date(); var _ymd=''+_ds.getFullYear()+String(_ds.getMonth()+1).padStart(2,'0')+String(_ds.getDate()).padStart(2,'0');
+    var _sstr=String(_nm)+_ymd+String(_sc), _hh=0; for(var _ii=0;_ii<_sstr.length;_ii++){ _hh=((_hh<<5)-_hh+_sstr.charCodeAt(_ii))|0; }
+    setText('footer-serial', 'PIA-'+_ymd+'-'+('0000'+(Math.abs(_hh)%10000)).slice(-4));
+  }catch(e){}
 
   // ── 학생 정보 테이블 ──
   document.querySelectorAll('[data-pia="name"]').forEach(el=>el.textContent=_nm);
@@ -10362,6 +10394,7 @@ function populateResult(d){
   try{ adaptReportForAdult(); }catch(e){}
   try{ adaptReportByGrade(); }catch(e){}
   try{ piaRenderClassNorm(); }catch(e){}
+  try{ piaRenderTrend(); }catch(e){}
 }
 
 function setText(id, val){const el=document.getElementById(id);if(el)el.textContent=val;}
