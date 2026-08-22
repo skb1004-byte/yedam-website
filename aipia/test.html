@@ -4920,38 +4920,33 @@ function initChat() {
     // 대화가 쌓이면 LLM이 직접 성향을 추론(비차단·3턴마다·고위험 제외)
     try { if (risk !== 'HIGH' && state.results.conv.turns >= 3 && state.results.conv.turns % 3 === 0) aiInferTraits(); } catch(e) {}
 
-    /* 필수 기준(8턴) 충족 시 → 언제든 다음으로 넘어갈 수 있는 종료 버튼을 1회 제공.
-       (예전에는 정확히 16턴에서만 종료 UI가 떠서, 학생이 대화가 끝나지 않는다고 느꼈다) */
-    if (state.results.conv.turns >= 8 && !state.results.conv._exitShown) {
-      state.results.conv._exitShown = true;
+    /* [2026-08-22] 목표 8턴을 채우면 자유대화를 '종료'한다.
+       예전에는 계속 이어갈 수 있어서 끝이 없다고 느꼈고, 8턴 뒤 대화는 채점에도 쓰이지 않는다.
+       입력·마이크를 닫고 다음 단계 버튼만 남긴다. */
+    if (state.results.conv.turns >= 8 && !state.results.conv._ended) {
+      state.results.conv._ended = true;
+      try{ _micWant = false; }catch(e){}
+      try{ if(typeof piaStopMic==='function') piaStopMic('conv-end'); }catch(e){}
+      try{ if(typeof releaseMicStream==='function') releaseMicStream(); }catch(e){}
       setTimeout(() => {
         try{
-          appendMsg('충분히 이야기 나눴어요! 계속 대화해도 좋고, 준비되면 아래에서 다음 단계로 넘어가도 돼요. 😊', 'ai');
+          appendMsg('이야기 들려줘서 고마워요! 자유대화는 여기까지예요. 이제 다음 검사로 넘어가 볼까요? 😊', 'ai');
+          /* 입력 UI 잠금 */
+          try{
+            if (messageInput) { messageInput.value=''; messageInput.disabled = true; messageInput.placeholder = '자유대화가 끝났어요'; }
+            if (sendBtn) { sendBtn.disabled = true; sendBtn.style.opacity = '.5'; sendBtn.style.pointerEvents = 'none'; }
+            var _mb = el('chat-mic'); if(_mb){ _mb.disabled = true; _mb.style.opacity='.5'; _mb.style.pointerEvents='none'; }
+            var _qw = el('chat-quick-wrap'); if(_qw) _qw.style.display = 'none';
+            var _ms = el('chat-mic-status'); if(_ms) _ms.textContent = '';
+          }catch(_e){}
           const wrap = document.createElement('div');
           wrap.className = 'flex';
-          wrap.style.cssText = 'gap:8px;flex-wrap:wrap;margin-top:6px';
+          wrap.style.cssText = 'gap:8px;flex-wrap:wrap;margin-top:8px';
           wrap.innerHTML = '<button onclick="showView(\'big5\')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">다음: 성격검사 →</button>'
-            + '<button onclick="showView(\'result\')" class="bg-slate-100 text-slate-800 px-4 py-2 rounded-lg text-sm font-semibold">통합 결과 보기</button>';
+            + '<button onclick="showView(\'home\')" class="bg-slate-100 text-slate-800 px-4 py-2 rounded-lg text-sm font-semibold">검사 메뉴로</button>';
           chat.appendChild(wrap);
           chat.scrollTop = chat.scrollHeight;
-        }catch(e){}
-      }, 700);
-    }
-
-    if (state.results.conv.turns >= 16 && !state.results.conv._ended) {
-      state.results.conv._ended = true;
-      try{ _micWant=false; }catch(e){}
-      try{ if(typeof releaseMicStream==='function') releaseMicStream(); }catch(e){}
-      /* 예전에는 _recognition 이라고 썼는데 그런 변수가 없어서
-         ReferenceError 가 조용히 삼켜지고 마이크가 계속 켜져 있었다. */
-      try{ if(typeof piaStopMic==='function') piaStopMic('conv-end'); }catch(e){}
-      setTimeout(() => {
-        appendMsg('얘기 많이 들려줘서 고마워요! 더 이야기해도 좋고, 준비되면 아래 버튼으로 결과를 봐도 돼요.', 'ai');
-        const wrap = document.createElement('div');
-        wrap.className = 'flex';
-        wrap.innerHTML = '<button onclick="showView(\'result\')" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">📊 통합 결과 보기</button>';
-        chat.appendChild(wrap);
-        chat.scrollTop = chat.scrollHeight;
+        }catch(e){ if(window.console) console.error('대화 종료 처리 오류:', e); }
       }, 700);
     }
   }
@@ -4971,6 +4966,16 @@ function initChat() {
 
   turnCounter.textContent = `${state.results.conv.turns} / 8 턴`;
   updateChatProfile();
+
+  /* 이미 8턴을 마친 상태로 화면에 들어오면(새로고침·재진입) 입력을 잠근 채 보여 준다. */
+  try{
+    if (state.results.conv.turns >= 8) {
+      if (messageInput) { messageInput.disabled = true; messageInput.placeholder = '자유대화가 끝났어요'; }
+      if (sendBtn) { sendBtn.disabled = true; sendBtn.style.opacity = '.5'; sendBtn.style.pointerEvents = 'none'; }
+      var _mb0 = el('chat-mic'); if(_mb0){ _mb0.disabled = true; _mb0.style.opacity='.5'; _mb0.style.pointerEvents='none'; }
+      var _qw0 = el('chat-quick-wrap'); if(_qw0) _qw0.style.display = 'none';
+    }
+  }catch(e){}
 
   // ========== 음성 입력 (Web Speech API) ==========
   const micBtn = el('chat-mic');
