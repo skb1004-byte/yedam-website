@@ -661,7 +661,7 @@ function jsonBackup(){
   dl('AI_PIA_백업_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(data,null,2),'application/json');
 }
 
-const csvCell=v=>{v=(v==null?'':String(v));return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+const csvCell=v=>{v=(v==null?'':String(v));if(/^[=+\-@\t\r]/.test(v))v="'"+v;return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
 const esc=v=>(v==null?'':String(v)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const kv=(k,v)=>'<b>'+k+'</b><span>'+esc(v==null?'':v)+'</span>';
 const fmt=s=>{ if(!s)return''; try{const d=new Date(s);return d.toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return s;} };
