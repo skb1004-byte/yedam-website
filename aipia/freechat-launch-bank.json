@@ -1,0 +1,241 @@
+{
+  "version": 2,
+  "usage": "FREE_CHAT_VISIBLE_QUICK_REPLIES_ONLY",
+  "contentPolicy": "EVERYDAY_CONVERSATION_ONLY",
+  "items": [
+    {
+      "id": "launch-friends-01",
+      "topics": [
+        "friends"
+      ],
+      "question": "친구와 조금 어색했던 날에도 다시 편해진 계기가 있었나요?",
+      "quickReplies": [
+        "내가 먼저 말 걸어봤어",
+        "조금 시간이 필요했어",
+        "같이 하다 보니 풀렸어",
+        "아직은 어색하게 느껴져"
+      ]
+    },
+    {
+      "id": "launch-friends-02",
+      "topics": [
+        "friends"
+      ],
+      "question": "친구에게 먼저 말을 걸 때 가장 편한 시작은 무엇인가요?",
+      "quickReplies": [
+        "가볍게 안부부터 물어봐",
+        "같은 얘기부터 꺼내봐",
+        "상대가 먼저 올 때까지 기다려",
+        "먼저 말 걸기는 조금 어려워"
+      ]
+    },
+    {
+      "id": "launch-friends-03",
+      "topics": [
+        "friends"
+      ],
+      "question": "같이 있으면 편해지는 친구는 어떤 점이 있나요?",
+      "quickReplies": [
+        "내 얘기를 잘 들어줘",
+        "같이 있어도 편안해",
+        "웃음 코드가 잘 맞아",
+        "아직 그런 친구는 잘 모르겠어"
+      ]
+    },
+    {
+      "id": "launch-school-01",
+      "topics": [
+        "school"
+      ],
+      "question": "오늘 학교에서 생각보다 재미있었던 순간이 있었나요?",
+      "quickReplies": [
+        "친구랑 한 활동이 재밌었어",
+        "수업에서 새로 배운 게 있었어",
+        "쉬는 시간이 제일 좋았어",
+        "오늘은 딱히 없었어"
+      ]
+    },
+    {
+      "id": "launch-school-02",
+      "topics": [
+        "school"
+      ],
+      "question": "수업이나 활동 중에 직접 해보고 싶은 것이 있나요?",
+      "quickReplies": [
+        "직접 만들어 보고 싶어",
+        "친구랑 같이 해보고 싶어",
+        "혼자 천천히 해보고 싶어",
+        "아직 떠오르는 건 없어"
+      ]
+    },
+    {
+      "id": "launch-school-03",
+      "topics": [
+        "school"
+      ],
+      "question": "학교에서 하루가 빨리 가는 때는 언제인가요?",
+      "quickReplies": [
+        "좋아하는 수업을 할 때",
+        "친구랑 이야기할 때",
+        "뭔가 만들거나 움직일 때",
+        "하루가 좀 길게 느껴져"
+      ]
+    },
+    {
+      "id": "launch-hobby-01",
+      "topics": [
+        "hobby"
+      ],
+      "question": "요즘 시간 가는 줄 모르고 하는 것이 있나요?",
+      "quickReplies": [
+        "게임할 때 시간이 빨라",
+        "영상 볼 때 시간이 빨라",
+        "운동하거나 만들 때 재밌어",
+        "요즘은 딱히 없어"
+      ]
+    },
+    {
+      "id": "launch-hobby-02",
+      "topics": [
+        "hobby"
+      ],
+      "question": "누군가에게 하나만 추천한다면 무엇을 추천하고 싶나요?",
+      "quickReplies": [
+        "친구에게도 추천하고 싶어",
+        "혼자 하는 게 더 좋아",
+        "새로운 걸 찾아보고 싶어",
+        "추천할 건 아직 모르겠어"
+      ]
+    },
+    {
+      "id": "launch-hobby-03",
+      "topics": [
+        "hobby"
+      ],
+      "question": "최근에 새로 해봤는데 생각보다 괜찮았던 것이 있나요?",
+      "quickReplies": [
+        "생각보다 재밌었어",
+        "처음엔 낯설었어",
+        "친구랑 같이 해서 좋았어",
+        "다음에도 해보고 싶어"
+      ]
+    },
+    {
+      "id": "launch-choice-01",
+      "topics": [
+        "choice"
+      ],
+      "question": "고민이 생기면 혼자 정리하는 편인가요, 누군가와 이야기하는 편인가요?",
+      "quickReplies": [
+        "혼자 생각을 정리해",
+        "친구에게 먼저 물어봐",
+        "가족과 이야기해 봐",
+        "상황에 따라 달라"
+      ]
+    },
+    {
+      "id": "launch-choice-02",
+      "topics": [
+        "choice"
+      ],
+      "question": "결정할 때 가장 중요하게 보는 기준은 무엇인가요?",
+      "quickReplies": [
+        "내가 즐거운지가 중요해",
+        "잘할 수 있는지가 중요해",
+        "주변 사람 의견을 들어봐",
+        "오래 생각하고 정해"
+      ]
+    },
+    {
+      "id": "launch-choice-03",
+      "topics": [
+        "choice"
+      ],
+      "question": "최근에 스스로 결정해서 뿌듯했던 일이 있나요?",
+      "quickReplies": [
+        "내가 직접 골라서 좋았어",
+        "처음엔 조금 망설였어",
+        "주변 도움도 받았어",
+        "아직 떠오르는 일은 없어"
+      ]
+    },
+    {
+      "id": "launch-family-01",
+      "topics": [
+        "family"
+      ],
+      "question": "집에서 가장 편하게 쉬는 방법은 무엇인가요?",
+      "quickReplies": [
+        "혼자 조용히 쉬는 편이야",
+        "영상이나 게임을 해",
+        "가족과 같이 있는 게 좋아",
+        "밖에서 움직이며 쉬어"
+      ]
+    },
+    {
+      "id": "launch-family-02",
+      "topics": [
+        "family"
+      ],
+      "question": "가족과 함께하면 기분이 좋아지는 일이 있나요?",
+      "quickReplies": [
+        "같이 밥 먹을 때 좋아",
+        "같이 웃을 때 좋아",
+        "같이 나들이할 때 좋아",
+        "요즘은 그런 일이 별로 없어"
+      ]
+    },
+    {
+      "id": "launch-general-01",
+      "topics": [
+        "general"
+      ],
+      "question": "오늘 하루에서 다시 해보고 싶은 순간이 있나요?",
+      "quickReplies": [
+        "친구와 이야기한 순간",
+        "재밌게 놀았던 순간",
+        "조금 아쉬웠던 순간",
+        "다시 하고 싶은 건 없어"
+      ]
+    },
+    {
+      "id": "launch-general-02",
+      "topics": [
+        "general"
+      ],
+      "question": "요즘 가장 기대되는 일이 있나요?",
+      "quickReplies": [
+        "친구와 만나는 일이 기대돼",
+        "하고 싶은 취미가 기대돼",
+        "쉬는 시간이 기대돼",
+        "아직 잘 모르겠어"
+      ]
+    },
+    {
+      "id": "launch-general-03",
+      "topics": [
+        "general"
+      ],
+      "question": "최근에 웃었던 일 하나를 들려줄 수 있나요?",
+      "quickReplies": [
+        "친구가 한 말이 웃겼어",
+        "영상 보다가 웃었어",
+        "혼자 생각나서 웃었어",
+        "요즘은 잘 모르겠어"
+      ]
+    },
+    {
+      "id": "launch-general-04",
+      "topics": [
+        "general"
+      ],
+      "question": "지금 기분을 가장 잘 나타내는 단어는 무엇인가요?",
+      "quickReplies": [
+        "조금 신나",
+        "편안한 편이야",
+        "생각이 많아",
+        "말로 표현하기 어려워"
+      ]
+    }
+  ]
+}
