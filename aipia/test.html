@@ -5990,6 +5990,15 @@ const TOPIC_QUICK = {
   '생활습관/취미': ['게임할 때가 제일 즐거워','휴대폰을 너무 많이 봐','좋아하는 유튜브가 있어','운동은 별로 안 해','시간 관리가 잘 안돼','새로운 취미를 찾고 싶어'],
   '정서': ['요즘 마음이 편치 않아','불안할 때가 있어','기분이 갑자기 가라앉아','혼자 있고 싶을 때가 많아','걱정이 많은 편이야','이야기하니 조금 나아졌어']
 };
+const TOPIC_QUICK_EN = {
+  '학습/국어': ['I like reading stories','Writing feels a little hard','Korean class was interesting','Presenting makes me nervous','Spelling confuses me sometimes','Book reports take me a while'],
+  '학습/수학': ['Math feels hard sometimes','Slow calculations frustrate me','Shapes are kind of fun','Math class feels boring','I feel good when I solve it','I want to try it slowly'],
+  '친구관계': ['I want to make up with my friend','I want to make a new friend','A friend keeps teasing me','I like hanging out together','There was a misunderstanding','Being alone feels comfortable'],
+  '진로': ["I don't know what I'm good at",'That kind of work sounds fun','My parents have a path in mind',"I don't have a dream yet",'I want my interests to become my job','The future feels unclear'],
+  '가족관계': ['I like spending time with family','I argue with my parents sometimes','My sibling and I are not close','I felt upset after getting scolded','I want my family on my side','Home feels comfortable'],
+  '생활습관/취미': ['Games are the most fun for me','I look at my phone too much','I have a YouTube channel I like',"I don't exercise much",'Managing time is hard','I want to find a new hobby'],
+  '정서': ["I haven't felt very settled lately",'I feel anxious sometimes','My mood suddenly drops','I often want to be alone','I tend to worry a lot','Talking helped a little']
+};
 function _escHtml(s){
   return String(s==null?'':s).replace(/[&<>"']/g, function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
@@ -6013,7 +6022,7 @@ function selectChatQuickReply(button) {
     });
   }
   var help = document.querySelector('.pia-qk__help');
-  if (help) help.textContent = '선택했어요. 내용을 바꾸거나 답변 보내기를 눌러주세요.';
+  if (help) help.textContent = (window.aipiaCurrentLang==='en') ? 'Selected. You can edit it or press Send.' : '선택했어요. 내용을 바꾸거나 답변 보내기를 눌러주세요.';
   input.focus();
 }
 function bindChatQuickReplies(wrap) {
@@ -6050,14 +6059,17 @@ function renderReplyAlignedQuickReplies(topic, bankNudge) {
   var wrap = document.getElementById('chat-quick-wrap');
   if (!wrap) return;
   var activeTopic = topic || (state && state.results && state.results.conv && state.results.conv.lastTopic) || '일반상담';
-  var item = findQuickBankItem(activeTopic, bankNudge);
-  var fallback = TOPIC_QUICK[activeTopic] || ['그 얘기 더 해볼래요', '저는 조금 다르게 생각해요', '나도 비슷한 적 있어요', '아직 잘 모르겠어요'];
+  var isEn = window.aipiaCurrentLang === 'en';
+  var item = isEn ? null : findQuickBankItem(activeTopic, bankNudge);
+  var fallbackMap = isEn ? TOPIC_QUICK_EN : TOPIC_QUICK;
+  var defaultFallback = isEn ? ['Can we talk more about that?', 'I see it a little differently', 'I had a similar moment', "I'm not sure yet"] : ['그 얘기 더 해볼래요', '저는 조금 다르게 생각해요', '나도 비슷한 적 있어요', '아직 잘 모르겠어요'];
+  var fallback = fallbackMap[activeTopic] || defaultFallback;
   var replies = item && Array.isArray(item.quickReplies) ? item.quickReplies : fallback;
   replies = replies.map(function(value){ return String(value || '').trim(); }).filter(Boolean).slice(0, 6);
   wrap.innerHTML = replies.map(function(t){ return '<button type="button" class="chat-quick pia-qk__b" aria-pressed="false">' + _escHtml(t) + '</button>'; }).join('');
   bindChatQuickReplies(wrap);
   var title = document.getElementById('chat-quick-title');
-  if (title) title.textContent = item ? '지금 이야기와 맞는 말이에요. 골라 말해도 괜찮아요' : '말문이 막히면 골라도 괜찮아요';
+  if (title) title.textContent = isEn ? 'Choose one if it helps you keep talking' : (item ? '지금 이야기와 맞는 말이에요. 골라 말해도 괜찮아요' : '말문이 막히면 골라도 괜찮아요');
 }
 
 
@@ -17339,7 +17351,8 @@ html:not(.kiosk-on) #pia-lang-label{ font-size:11px !important; font-weight:700 
   }
   function serverSpeak(text, my){
     try{
-      audio=new Audio('https://api.yedam.kr/ai?task=tts&lang=KR&speed=0.92&text='+encodeURIComponent(text.slice(0,700)));
+      var ttsLang=(window.aipiaCurrentLang==='en')?'EN':'KR';
+      audio=new Audio('https://api.yedam.kr/ai?task=tts&lang='+ttsLang+'&speed=0.92&text='+encodeURIComponent(text.slice(0,700)));
       window.__gttsPlaying=true;
       audio.onended=function(){ if(my===seq){ window.__gttsPlaying=false; audio=null; after(); } };
       audio.onerror=function(){ if(my===seq){ window.__gttsPlaying=false; audio=null; after(); } };
