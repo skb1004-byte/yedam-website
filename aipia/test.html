@@ -5983,7 +5983,7 @@ const CHAT_SUBTITLE_EN = [
    맞는 예시를 보여준다. topic 은 detectTopic() 이 매기는 값을 그대로 쓴다. */
 const TOPIC_QUICK = {
   '학습/국어': ['책 읽는 건 좋아해','글쓰기는 어려워','국어 시간이 재밌어','발표가 떨려','맞춤법이 헷갈려','독서록이 힘들어'],
-  '학습/수학': ['수학이 어려워','계산이 느려서 답답해','도형 문제가 재밌어','수학 시간이 지루해','문제 푸는 게 좋아','시험 점수가 걱정돼'],
+  '학습/수학': ['수학이 어려워','계산이 느려서 답답해','도형 모양이 재밌어','수학 시간이 지루해','풀리면 기분이 좋아','천천히 해보고 싶어'],
   '친구관계': ['친구랑 화해하고 싶어','새 친구를 사귀고 싶어','친구가 자꾸 놀려','같이 노는 친구가 좋아','친구랑 오해가 생겼어','혼자 있는 게 편해'],
   '진로': ['잘하는 게 뭔지 모르겠어','이 일이 재밌을 것 같아','부모님이 원하는 길이 있어','아직 하고 싶은 게 없어','좋아하는 걸 직업으로 하고 싶어','미래가 막막해'],
   '가족관계': ['가족이랑 시간 보내는 게 좋아','부모님이랑 자주 다퉈','동생이랑 사이가 안 좋아','집에서 혼나서 속상해','가족이 내 편이 돼줘','집이 편안해'],
@@ -6030,14 +6030,21 @@ function quickBankTopic(topic) {
   return map[topic] || 'general';
 }
 function findQuickBankItem(topic, preferred) {
-  if (preferred && Array.isArray(preferred.quickReplies) && preferred.quickReplies.length >= 4) return preferred;
   var items = _piaFreeChatBank.items || [];
   var kind = quickBankTopic(topic);
+  if (preferred && Array.isArray(preferred.quickReplies) && preferred.quickReplies.length >= 4 && Array.isArray(preferred.topics) && preferred.topics.indexOf(kind) >= 0) return preferred;
   var matched = items.filter(function(item){ return item.topics.indexOf(kind) >= 0; });
   if (!matched.length) matched = items.filter(function(item){ return item.topics.indexOf('general') >= 0; });
   if (!matched.length) return null;
   var turns = (state && state.results && state.results.conv && state.results.conv.turns) || 0;
   return matched[turns % matched.length];
+}
+function replyAlignedTopic(userText, aiReply, fallbackTopic) {
+  var userTopic = detectTopic(String(userText || ''));
+  var replyTopic = detectTopic(String(aiReply || ''));
+  if (userTopic !== '일반상담') return userTopic;
+  if (replyTopic !== '일반상담') return replyTopic;
+  return fallbackTopic || '일반상담';
 }
 function renderReplyAlignedQuickReplies(topic, bankNudge) {
   var wrap = document.getElementById('chat-quick-wrap');
@@ -6371,9 +6378,11 @@ function initChat() {
       bankId: bankNudge ? bankNudge.id : null, t:Date.now() });
     save();
 
+    var replyTopic = replyAlignedTopic(clean, reply, topic);
+    state.results.conv.lastTopic = replyTopic;
     syncActiveChatReply(reply);
     appendMsg(reply, 'ai');
-        try { if (state.results && state.results.conv && state.results.conv.turns < 12) { var _qw=document.getElementById('chat-quick-wrap'); if(_qw) _qw.style.display=''; renderReplyAlignedQuickReplies(topic, bankNudge); } } catch(e){}
+        try { if (state.results && state.results.conv && state.results.conv.turns < 12) { var _qw=document.getElementById('chat-quick-wrap'); if(_qw) _qw.style.display=''; renderReplyAlignedQuickReplies(replyTopic, bankNudge); } } catch(e){}
     try { if (state.results && state.results.conv && state.results.conv.turns < 12) aiRefreshQuickReplies(reply, bankNudge); } catch(e){}
     /* [FIX] 낭독 시작 전에 인식기를 잠시 멈춘다(스피커 소리를 마이크가 되받는 것 차단).
        낭독이 끝나면 _afterSpeak 가 다시 켠다(_micWant 가 켜져 있을 때만). */
@@ -17261,6 +17270,103 @@ html:not(.kiosk-on) #pia-lang-label{ font-size:11px !important; font-weight:700 
     }
   };
   window.__piaServerTTS=2;
+})();</script>
+<script id="pia-stable-full-tts">(function(){
+  /* [TTS v3] 대화 답변은 화면 말풍선과 같은 문자열을 한 번에 읽는다.
+     예전 경로는 문장/어미 단위로 여러 utterance 또는 audio 를 이어 붙여
+     음색이 흔들리고, 중간 조각 오류 때 자막보다 먼저 멈췄다. */
+  var seq=0, audio=null;
+  function clean(text){
+    var t=(window._ttsClean?window._ttsClean(text):String(text||''));
+    return String(t==null?'':t).replace(/\s+/g,' ').trim();
+  }
+  function stop(){
+    seq++;
+    try{ if(audio){ audio.onended=null; audio.onerror=null; audio.pause(); audio.src=''; audio=null; } }catch(e){}
+    try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+    window.__gttsPlaying=false;
+  }
+  function voice(){
+    try{
+      if(typeof window.piaPickVoice==='function') return window.piaPickVoice();
+      var vs=speechSynthesis.getVoices()||[];
+      var ko=vs.filter(function(v){return /^ko/i.test(String(v.lang||''));});
+      ko.sort(function(a,b){ return (b.localService?1:0)-(a.localService?1:0); });
+      return ko[0]||null;
+    }catch(e){ return null; }
+  }
+  function after(){
+    try{
+      if(window._micWant && !window._globalRecording){
+        setTimeout(function(){
+          try{
+            if(window._micWant && !window._globalRecording && typeof window.safeStartRecognition==='function') window.safeStartRecognition();
+          }catch(e){}
+        }, 450);
+      }
+    }catch(e){}
+  }
+  function nativeSpeak(text, my){
+    try{
+      if(!window.speechSynthesis) return false;
+      var u=new SpeechSynthesisUtterance(text);
+      var v=voice(); if(v) u.voice=v;
+      u.lang=(window.aipiaCurrentLang==='en')?'en-US':'ko-KR';
+      u.rate=(window.aipiaCurrentLang==='en')?0.9:0.88;
+      u.pitch=0.96;
+      u.volume=1;
+      var done=false;
+      function finish(){
+        if(done || my!==seq) return;
+        done=true; window.__gttsPlaying=false; after();
+      }
+      u.onend=finish;
+      u.onerror=function(){ finish(); };
+      window.__gttsPlaying=true;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+      setTimeout(function(){
+        try{ if(my===seq && speechSynthesis.paused) speechSynthesis.resume(); }catch(e){}
+      }, 250);
+      var est=Math.min(45000, Math.max(2500, text.length*155));
+      setTimeout(function(){
+        try{
+          if(my===seq && window.__gttsPlaying && !(speechSynthesis.speaking || speechSynthesis.pending)) finish();
+        }catch(e){ finish(); }
+      }, est);
+      return true;
+    }catch(e){ return false; }
+  }
+  function serverSpeak(text, my){
+    try{
+      audio=new Audio('https://api.yedam.kr/ai?task=tts&lang=KR&speed=0.92&text='+encodeURIComponent(text.slice(0,700)));
+      window.__gttsPlaying=true;
+      audio.onended=function(){ if(my===seq){ window.__gttsPlaying=false; audio=null; after(); } };
+      audio.onerror=function(){ if(my===seq){ window.__gttsPlaying=false; audio=null; after(); } };
+      var p=audio.play(); if(p&&p.catch) p.catch(function(){ if(my===seq){ window.__gttsPlaying=false; after(); } });
+      return true;
+    }catch(e){ return false; }
+  }
+  function speak(text){
+    var t=clean(text); if(!t) return;
+    var off=false; try{ off=(localStorage.getItem('pia_tts')==='0'); }catch(e){}
+    if(off) return;
+    stop();
+    var my=seq;
+    window.__piaLastSpokenText=t;
+    var useServer=false; try{ var g=document.getElementById('chat-gtts'); useServer=!!(g&&g.checked); }catch(e){}
+    if(!useServer && nativeSpeak(t, my)) return;
+    if(serverSpeak(t, my)) return;
+    window.__gttsPlaying=false;
+  }
+  window.piaStopSpeak=stop;
+  window.piaSpeak=speak;
+  window.speakReply=function(text){
+    var cb=document.getElementById('chat-tts');
+    if(cb && !cb.checked) return;
+    speak(text);
+  };
+  window.__piaStableFullTTS=3;
 })();</script>
 
 
